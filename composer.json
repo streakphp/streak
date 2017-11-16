@@ -1,5 +1,5 @@
 {
-  "name": "streakphp/streak",
+  "name": "streak/streak",
   "type": "library",
   "description": "",
   "keywords": ["es","cqrs","event sourcing", "command query responsibility segregation", "command", "command bus", "event"],
@@ -12,8 +12,32 @@
       "homepage": "https://github.com/alanbem"
     }
   ],
+  "autoload": {
+    "psr-4": {
+      "": "src"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "": "tests/"
+    },
+    "files": [
+      "vendor/phpunit/phpunit/src/Framework/Assert/Functions.php"
+    ]
+  },
   "require": {
     "php": ">=7.1"
   },
-  "minimum-stability": "stable"
+  "require-dev": {
+    "phpunit/phpunit": "^6.4"
+  },
+  "config": {
+    "bin-dir": "bin"
+  },
+  "minimum-stability": "stable",
+  "extra": {
+    "branch-alias": {
+      "dev-master": "1.0.x-dev"
+    }
+  }
 }
