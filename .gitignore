@@ -1,0 +1,14 @@
+# Managed by IDE
+.idea/
+
+# Managed by Composer
+/bin/*
+/vendor/
+/composer.lock
+/composer.phar
+
+# PHPUnit
+/phpunit.xml
+
+# OSX files
+.DS_Store
