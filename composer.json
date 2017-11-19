@@ -1,0 +1,19 @@
+{
+  "name": "streakphp/streak",
+  "type": "library",
+  "description": "",
+  "keywords": ["es","cqrs","event sourcing", "command query responsibility segregation", "command", "command bus", "event"],
+  "homepage": "https://streakphp.com",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Alan Gabriel Bem",
+      "email": "alan.bem@gmail.com",
+      "homepage": "https://github.com/alanbem"
+    }
+  ],
+  "require": {
+    "php": ">=7.1"
+  },
+  "minimum-stability": "stable"
+}
