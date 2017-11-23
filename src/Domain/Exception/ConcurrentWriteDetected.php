@@ -16,7 +16,7 @@ use Streak\Domain;
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-class AggregateNotSupported extends \RuntimeException
+class ConcurrentWriteDetected extends \RuntimeException
 {
     private $aggregate;
 
@@ -24,7 +24,7 @@ class AggregateNotSupported extends \RuntimeException
     {
         $this->aggregate = $aggregate;
 
-        $message = sprintf('Aggregate "%s#%s" is not supported.', get_class($aggregate), $aggregate->id()->toString());
+        $message = sprintf('Concurrent write detected when tried to persist "%s#%s" aggregate.', get_class($aggregate), $aggregate->id()->toString());
 
         parent::__construct($message, 0, $previous);
     }

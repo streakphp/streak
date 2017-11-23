@@ -9,20 +9,18 @@
  * file that was distributed with this source code.
  */
 
-namespace Streak\Infrastructure\EventSourced;
+namespace Streak\Infrastructure\Repository;
 
 use Streak\Domain;
-use Streak\Domain\AggregateRoot;
 use Streak\Domain\Exception;
-use Streak\Infrastructure\EventSourced;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-class Repository implements Domain\Repository
+class EventSourcedRepository implements Domain\Repository
 {
     /**
-     * @var AggregateRoot\Factory
+     * @var Domain\AggregateRootFactory
      */
     private $factory;
 
@@ -32,18 +30,18 @@ class Repository implements Domain\Repository
     private $store;
 
     /**
-     * @var EventSourced\UnitOfWork
+     * @var UnitOfWork
      */
     private $uow;
 
-    public function __construct(AggregateRoot\Factory $factory, Domain\EventStore $store, EventSourced\UnitOfWork $uow)
+    public function __construct(Domain\AggregateRootFactory $factory, Domain\EventStore $store, UnitOfWork $uow)
     {
         $this->factory = $factory;
         $this->store   = $store;
         $this->uow     = $uow;
     }
 
-    public function find(AggregateRoot\Id $id) : AggregateRoot
+    public function find(Domain\AggregateRootId $id) : ?Domain\AggregateRoot
     {
         $aggregate = $this->factory->create($id);
 
@@ -54,7 +52,7 @@ class Repository implements Domain\Repository
         $events = $this->store->getEvents($aggregate);
 
         if (count($events) === 0) {
-            throw new Exception\AggregateNotFound($id);
+            return null;
         }
 
         $aggregate->replayEvents(...$events);
@@ -64,7 +62,7 @@ class Repository implements Domain\Repository
         return $aggregate;
     }
 
-    public function add(AggregateRoot $aggregate) : void
+    public function add(Domain\AggregateRoot $aggregate) : void
     {
         if (!$aggregate instanceof Domain\EventSourced\AggregateRoot) {
             throw new Exception\AggregateNotSupported($aggregate);

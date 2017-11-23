@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Streak\Infrastructure\EventSourced;
+namespace Streak\Infrastructure\Repository;
 
 use Streak\Domain;
 use Streak\Domain\EventSourced;

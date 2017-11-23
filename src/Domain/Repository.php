@@ -11,6 +11,8 @@
 
 namespace Streak\Domain;
 
+use Streak\Domain;
+
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
@@ -20,7 +22,6 @@ interface Repository
 
     /**
      * @throws Exception\AggregateNotSupported
-     * @throws Exception\AggregateNotFound
      */
-    public function find(AggregateRoot\Id $id) : AggregateRoot;
+    public function find(Domain\AggregateRootId $id) : ?AggregateRoot;
 }

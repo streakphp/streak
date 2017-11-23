@@ -9,10 +9,11 @@
  * file that was distributed with this source code.
  */
 
-namespace Streak\Infrastructure\EventSourced;
+namespace Streak\Infrastructure\CommandHandler;
 
 use Streak\Application;
-use Streak\Infrastructure\EventSourced;
+use Streak\Application\Exception;
+use Streak\Infrastructure\Repository;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -25,11 +26,11 @@ class TransactionalPersistenceCommandHandler implements Application\CommandHandl
     private $handler;
 
     /**
-     * @var EventSourced\UnitOfWork
+     * @var Repository\UnitOfWork
      */
     private $uow;
 
-    public function __construct(Application\CommandHandler $handler, EventSourced\UnitOfWork $uow)
+    public function __construct(Application\CommandHandler $handler, Repository\UnitOfWork $uow)
     {
         $this->handler = $handler;
         $this->uow = $uow;

@@ -11,6 +11,8 @@
 
 namespace Streak\Domain;
 
+use Streak\Domain;
+
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
@@ -18,7 +20,7 @@ abstract class AggregateRoot implements Entity
 {
     private $id;
 
-    public function __construct(AggregateRoot\Id $id)
+    public function __construct(Domain\AggregateRootId $id)
     {
         $this->id = $id;
     }

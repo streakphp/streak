@@ -9,20 +9,20 @@
  * file that was distributed with this source code.
  */
 
-namespace Streak\Infrastructure;
+namespace Streak\Infrastructure\CommandHandler;
 
+use PHPUnit\Framework\TestCase;
 use Streak\Application\Command;
 use Streak\Application\CommandHandler;
 use Streak\Application\Exception\CommandHandlerAlreadyRegistered;
 use Streak\Application\Exception\CommandNotSupported;
-use PHPUnit\Framework\TestCase;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  *
- * @covers \Streak\Infrastructure\SynchronousCommandBus
+ * @covers \Streak\Infrastructure\CommandHandler\CompositeCommandHandler
  */
-class SynchronousCommandBusTest extends TestCase
+class CompositeCommandHandlerTest extends TestCase
 {
     /**
      * @var CommandHandler|\PHPUnit_Framework_MockObject_MockObject
@@ -55,26 +55,26 @@ class SynchronousCommandBusTest extends TestCase
 
     public function testAlreadyRegisteredHandler()
     {
-        $bus = new SynchronousCommandBus();
+        $handler = new CompositeCommandHandler();
 
-        $bus->registerHandler($this->handler1);
-        $bus->registerHandler($this->handler2);
-        $bus->registerHandler($this->handler3);
+        $handler->registerHandler($this->handler1);
+        $handler->registerHandler($this->handler2);
+        $handler->registerHandler($this->handler3);
 
         $exception = new CommandHandlerAlreadyRegistered($this->handler1);
 
         $this->expectExceptionObject($exception);
 
-        $bus->registerHandler($this->handler1);
+        $handler->registerHandler($this->handler1);
     }
 
     public function testCommandHandling()
     {
-        $bus = new SynchronousCommandBus();
+        $handler = new CompositeCommandHandler();
 
-        $bus->registerHandler($this->handler1);
-        $bus->registerHandler($this->handler2);
-        $bus->registerHandler($this->handler3);
+        $handler->registerHandler($this->handler1);
+        $handler->registerHandler($this->handler2);
+        $handler->registerHandler($this->handler3);
 
         $exception = new CommandNotSupported($this->command1);
 
@@ -94,26 +94,26 @@ class SynchronousCommandBusTest extends TestCase
             ->method('handle');
         ;
 
-        $bus->dispatch($this->command1);
+        $handler->handle($this->command1);
     }
 
     public function testNoHandlers()
     {
-        $bus = new SynchronousCommandBus();
+        $handler = new CompositeCommandHandler();
 
         $exception = new CommandNotSupported($this->command1);
 
         $this->expectExceptionObject($exception);
 
-        $bus->dispatch($this->command1);
+        $handler->handle($this->command1);
     }
 
     public function testNoHandlerForCommand()
     {
-        $bus = new SynchronousCommandBus();
+        $handler = new CompositeCommandHandler();
 
-        $bus->registerHandler($this->handler1);
-        $bus->registerHandler($this->handler2);
+        $handler->registerHandler($this->handler1);
+        $handler->registerHandler($this->handler2);
 
         $exception = new CommandNotSupported($this->command1);
 
@@ -130,8 +130,10 @@ class SynchronousCommandBusTest extends TestCase
             ->willThrowException($exception)
         ;
 
+        $exception = new CommandNotSupported($this->command1);
+
         $this->expectExceptionObject($exception);
 
-        $bus->dispatch($this->command1);
+        $handler->handle($this->command1);
     }
 }

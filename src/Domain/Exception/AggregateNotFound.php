@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the cbs package.
+ * This file is part of the streak package.
  *
  * (C) Alan Gabriel Bem <alan.bem@gmail.com>
  *
@@ -11,7 +11,7 @@
 
 namespace Streak\Domain\Exception;
 
-use Streak\Domain\AggregateRoot;
+use Streak\Domain;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -20,7 +20,7 @@ class AggregateNotFound extends \RuntimeException
 {
     private $aggregateId;
 
-    public function __construct(AggregateRoot\Id $aggregateId, \Throwable $previous = null)
+    public function __construct(Domain\AggregateRootId $aggregateId, \Throwable $previous = null)
     {
         $this->aggregateId = $aggregateId;
 
@@ -30,9 +30,9 @@ class AggregateNotFound extends \RuntimeException
     }
 
     /**
-     * @return AggregateRoot\Id
+     * @return Domain\AggregateRootId
      */
-    public function getAggregateId() : AggregateRoot\Id
+    public function getAggregateId() : Domain\AggregateRootId
     {
         return $this->aggregateId;
     }

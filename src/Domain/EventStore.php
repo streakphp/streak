@@ -11,15 +11,20 @@
 
 namespace Streak\Domain;
 
+use Streak\Domain;
+
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
 interface EventStore
 {
-    public function addEvents(AggregateRoot $aggregate, Event ...$events);
+    /**
+     * @throws Exception\ConcurrentWriteDetected
+     */
+    public function addEvents(Domain\AggregateRoot $aggregate, Domain\Event ...$events) : void;
 
     /**
-     * @return Event[]
+     * @return Domain\Event[]
      */
-    public function getEvents(AggregateRoot $aggregate) : array;
+    public function getEvents(Domain\AggregateRoot $aggregate) : array;
 }

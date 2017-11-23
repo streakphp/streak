@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Streak\Infrastructure;
+namespace Streak\Infrastructure\CommandHandler;
 
 use Streak\Application;
 use Streak\Application\Command;

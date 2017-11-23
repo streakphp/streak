@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the cbs package.
+ * This file is part of the streak package.
  *
  * (C) Alan Gabriel Bem <alan.bem@gmail.com>
  *
@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Streak\Infrastructure;
+namespace Streak\Infrastructure\CommandHandler;
 
 use Streak\Application;
 use Streak\Application\Command;

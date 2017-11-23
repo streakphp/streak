@@ -17,7 +17,7 @@ use Streak\Domain\Event;
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-abstract class AggregateRoot extends Domain\AggregateRoot implements Replayable
+abstract class AggregateRoot extends Domain\AggregateRoot
 {
     /**
      * @var Event[]
@@ -53,7 +53,7 @@ abstract class AggregateRoot extends Domain\AggregateRoot implements Replayable
                 continue;
             }
             // ...and end with "Event"...
-            if (mb_substr($method->getName(), 0, -5) !== 'Event') {
+            if (mb_substr($method->getName(), -5) !== 'Event') {
                 continue;
             }
             // ...and have exactly one parameter...
@@ -81,6 +81,10 @@ abstract class AggregateRoot extends Domain\AggregateRoot implements Replayable
 
         if ($found === null) {
             throw new Exception\EventApplyingMethodNotFound($this, $event);
+        }
+
+        if ($found->isPrivate()) {
+            $found->setAccessible(true);
         }
 
         $found->invoke($this, $event);

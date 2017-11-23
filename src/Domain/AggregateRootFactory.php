@@ -9,16 +9,18 @@
  * file that was distributed with this source code.
  */
 
-namespace Streak\Domain\EventSourced;
+namespace Streak\Domain;
 
 use Streak\Domain;
+use Streak\Domain\Exception;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-interface Replayable
+interface AggregateRootFactory
 {
-    public function replayEvents(Domain\Event ...$events) : void;
-
-    public function lastReplayedEvent() : Domain\Event;
+    /**
+     * @throws Exception\InvalidAggregateIdGiven
+     */
+    public function create(Domain\AggregateRootId $id) : AggregateRoot;
 }
