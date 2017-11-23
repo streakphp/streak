@@ -34,7 +34,7 @@ class SynchronousCommandBus implements Application\CommandBus
     /**
      * @throws Exception\CommandHandlerAlreadyRegistered
      */
-    public function registerHandler(CommandHandler $handler) : void
+    public function register(CommandHandler $handler) : void
     {
         $this->handler->registerHandler($handler);
     }

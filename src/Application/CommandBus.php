@@ -21,7 +21,7 @@ interface CommandBus
     /**
      * @throws Exception\CommandHandlerAlreadyRegistered
      */
-    public function registerHandler(CommandHandler $handler) : void;
+    public function register(CommandHandler $handler) : void;
 
     /**
      * @throws Exception\CommandNotSupported

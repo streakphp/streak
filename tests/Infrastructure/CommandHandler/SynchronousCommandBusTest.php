@@ -57,24 +57,24 @@ class SynchronousCommandBusTest extends TestCase
     {
         $bus = new SynchronousCommandBus();
 
-        $bus->registerHandler($this->handler1);
-        $bus->registerHandler($this->handler2);
-        $bus->registerHandler($this->handler3);
+        $bus->register($this->handler1);
+        $bus->register($this->handler2);
+        $bus->register($this->handler3);
 
         $exception = new CommandHandlerAlreadyRegistered($this->handler1);
 
         $this->expectExceptionObject($exception);
 
-        $bus->registerHandler($this->handler1);
+        $bus->register($this->handler1);
     }
 
     public function testCommandHandling()
     {
         $bus = new SynchronousCommandBus();
 
-        $bus->registerHandler($this->handler1);
-        $bus->registerHandler($this->handler2);
-        $bus->registerHandler($this->handler3);
+        $bus->register($this->handler1);
+        $bus->register($this->handler2);
+        $bus->register($this->handler3);
 
         $exception = new CommandNotSupported($this->command1);
 
@@ -112,8 +112,8 @@ class SynchronousCommandBusTest extends TestCase
     {
         $bus = new SynchronousCommandBus();
 
-        $bus->registerHandler($this->handler1);
-        $bus->registerHandler($this->handler2);
+        $bus->register($this->handler1);
+        $bus->register($this->handler2);
 
         $exception = new CommandNotSupported($this->command1);
 
