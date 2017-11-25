@@ -1,3 +1,6 @@
+# Build artifacts
+/build/
+
 # Managed by IDE
 .idea/
 
