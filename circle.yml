@@ -7,6 +7,10 @@ jobs:
     working_directory: ~/streak
     steps:
       - checkout
+
+      - run: curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./codeclimate
+      - run: chmod +x ./codeclimate
+
       - run: composer self-update
       - restore_cache:
           keys:
@@ -17,7 +21,12 @@ jobs:
           key: composer-v1-{{ checksum "composer.json" }}
           paths:
             - vendor/
+
+      - run: ./codeclimate before-build
       - run: bin/phpunit
+      - run: cp ./build/clover.xml ./clover.xml
+      - run: ./codeclimate after-build -t clover --exit-code $?
+
       - store_artifacts:
           path: build/code-coverage/
           destination: code-coverage/
