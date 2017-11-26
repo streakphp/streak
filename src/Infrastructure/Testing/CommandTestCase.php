@@ -16,7 +16,7 @@ use Streak\Application;
 use Streak\Domain;
 use Streak\Infrastructure\EventStore\InMemoryEventStore;
 use Streak\Infrastructure\Repository\EventSourcedRepository;
-use Streak\Infrastructure\Repository\UnitOfWork;
+use Streak\Infrastructure\UnitOfWork;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>

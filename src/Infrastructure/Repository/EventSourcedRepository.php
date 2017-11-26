@@ -13,6 +13,7 @@ namespace Streak\Infrastructure\Repository;
 
 use Streak\Domain;
 use Streak\Domain\Exception;
+use Streak\Infrastructure;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -30,11 +31,11 @@ class EventSourcedRepository implements Domain\Repository
     private $store;
 
     /**
-     * @var UnitOfWork
+     * @var Infrastructure\UnitOfWork
      */
     private $uow;
 
-    public function __construct(Domain\AggregateRootFactory $factory, Domain\EventStore $store, UnitOfWork $uow)
+    public function __construct(Domain\AggregateRootFactory $factory, Domain\EventStore $store, Infrastructure\UnitOfWork $uow)
     {
         $this->factory = $factory;
         $this->store   = $store;
@@ -49,7 +50,11 @@ class EventSourcedRepository implements Domain\Repository
             throw new Exception\AggregateNotSupported($aggregate);
         }
 
-        $events = $this->store->getEvents($aggregate);
+        try {
+            $events = $this->store->getEvents($aggregate);
+        } catch (Exception\InvalidAggregateGiven $e) {
+            throw new Exception\AggregateNotSupported($aggregate, $e);
+        }
 
         if (count($events) === 0) {
             return null;
@@ -57,7 +62,7 @@ class EventSourcedRepository implements Domain\Repository
 
         $aggregate->replayEvents(...$events);
 
-        $this->uow->register($aggregate);
+        $this->uow->add($aggregate);
 
         return $aggregate;
     }
@@ -68,6 +73,6 @@ class EventSourcedRepository implements Domain\Repository
             throw new Exception\AggregateNotSupported($aggregate);
         }
 
-        $this->uow->register($aggregate);
+        $this->uow->add($aggregate);
     }
 }

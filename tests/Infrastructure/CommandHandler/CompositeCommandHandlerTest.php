@@ -70,11 +70,14 @@ class CompositeCommandHandlerTest extends TestCase
 
     public function testCommandHandling()
     {
-        $handler = new CompositeCommandHandler();
-
-        $handler->registerHandler($this->handler1);
-        $handler->registerHandler($this->handler2);
-        $handler->registerHandler($this->handler3);
+        $handler = new CompositeCommandHandler(
+            $this->handler1,
+            $this->handler2,
+            $this->handler3,
+            $this->handler1, // should be filtered out
+            $this->handler2, // should be filtered out
+            $this->handler3  // should be filtered out
+        );
 
         $exception = new CommandNotSupported($this->command1);
 
@@ -110,10 +113,12 @@ class CompositeCommandHandlerTest extends TestCase
 
     public function testNoHandlerForCommand()
     {
-        $handler = new CompositeCommandHandler();
-
-        $handler->registerHandler($this->handler1);
-        $handler->registerHandler($this->handler2);
+        $handler = new CompositeCommandHandler(
+            $this->handler1,
+            $this->handler2,
+            $this->handler1, // should be filtered out
+            $this->handler2  // should be filtered out
+        );
 
         $exception = new CommandNotSupported($this->command1);
 

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the cbs package.
+ * This file is part of the streak package.
  *
  * (C) Alan Gabriel Bem <alan.bem@gmail.com>
  *
@@ -15,7 +15,7 @@ use PHPUnit\Framework\Assert;
 use Streak\Application;
 use Streak\Domain;
 use Streak\Infrastructure\EventStore\InMemoryEventStore;
-use Streak\Infrastructure\Repository\UnitOfWork;
+use Streak\Infrastructure;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -28,7 +28,7 @@ class Specification implements Given, Then, When
     private $store;
     private $uow;
 
-    public function __construct(Domain\AggregateRootId $id, Domain\AggregateRootFactory $factory, Application\CommandHandler $handler, InMemoryEventStore $store, UnitOfWork $uow)
+    public function __construct(Domain\AggregateRootId $id, Domain\AggregateRootFactory $factory, Application\CommandHandler $handler, InMemoryEventStore $store, Infrastructure\UnitOfWork $uow)
     {
         $this->id = $id;
         $this->factory = $factory;

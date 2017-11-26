@@ -13,7 +13,7 @@ namespace Streak\Infrastructure\CommandHandler;
 
 use Streak\Application;
 use Streak\Application\Exception;
-use Streak\Infrastructure\Repository;
+use Streak\Infrastructure;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -26,11 +26,11 @@ class TransactionalPersistenceCommandHandler implements Application\CommandHandl
     private $handler;
 
     /**
-     * @var Repository\UnitOfWork
+     * @var Infrastructure\UnitOfWork
      */
     private $uow;
 
-    public function __construct(Application\CommandHandler $handler, Repository\UnitOfWork $uow)
+    public function __construct(Application\CommandHandler $handler, Infrastructure\UnitOfWork $uow)
     {
         $this->handler = $handler;
         $this->uow = $uow;

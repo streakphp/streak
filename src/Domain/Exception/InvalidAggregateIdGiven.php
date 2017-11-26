@@ -18,27 +18,19 @@ use Streak\Domain;
  */
 class InvalidAggregateIdGiven extends \InvalidArgumentException
 {
-    private $given;
-    private $expected;
+    private $aggregateId;
 
-    public function __construct(Domain\AggregateRootId $given, string $expected, \Throwable $previous = null)
+    public function __construct(Domain\AggregateRootId $aggregateId, \Throwable $previous = null)
     {
-        $this->given = get_class($given);
-        $this->expected = $expected;
+        $this->aggregateId = $aggregateId;
 
-        $message = sprintf('Invalid aggregate id given. Expected "%s" but got "%s".', $this->expected, $this->given);
+        $message = sprintf('Invalid aggregate id given.');
 
         parent::__construct($message, 0, $previous);
     }
 
-    public function given() : string
+    public function aggregateId() : Domain\AggregateRootId
     {
-        return $this->given;
+        return $this->aggregateId;
     }
-
-    public function expected() : string
-    {
-        return $this->expected;
-    }
-
 }

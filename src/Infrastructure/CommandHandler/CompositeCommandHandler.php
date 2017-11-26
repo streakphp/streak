@@ -25,7 +25,11 @@ class CompositeCommandHandler implements Application\CommandHandler
     public function __construct(Application\CommandHandler ...$handlers)
     {
         foreach ($handlers as $handler) {
-            $this->registerHandler($handler);
+            try {
+                $this->registerHandler($handler);
+            } catch (Exception\CommandHandlerAlreadyRegistered $e) {
+                continue;
+            }
         }
     }
 
