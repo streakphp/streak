@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Streak\Infrastructure\Repository;
+namespace Streak\Infrastructure;
 
 use Streak\Domain;
 use Streak\Domain\EventSourced;
@@ -34,7 +34,7 @@ class UnitOfWork
         $this->store = $store;
     }
 
-    public function register(EventSourced\AggregateRoot $aggregate) : void
+    public function add(EventSourced\AggregateRoot $aggregate) : void
     {
         foreach ($this->aggregates as $current) {
             if ($current->equals($aggregate)) {
@@ -53,6 +53,17 @@ class UnitOfWork
                 break;
             }
         }
+    }
+
+    public function has(EventSourced\AggregateRoot $aggregate) : bool
+    {
+        foreach ($this->aggregates as $current) {
+            if ($current->equals($aggregate)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public function count() : int

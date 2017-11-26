@@ -16,7 +16,7 @@ use Streak\Domain;
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-class AggregateNotSupported extends \RuntimeException
+class InvalidAggregateGiven extends \InvalidArgumentException
 {
     private $aggregate;
 
@@ -24,7 +24,7 @@ class AggregateNotSupported extends \RuntimeException
     {
         $this->aggregate = $aggregate;
 
-        $message = sprintf('Aggregate is not supported.');
+        $message = sprintf('Invalid aggregate given.');
 
         parent::__construct($message, 0, $previous);
     }
