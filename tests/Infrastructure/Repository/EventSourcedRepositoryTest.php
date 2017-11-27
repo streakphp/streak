@@ -86,14 +86,14 @@ class EventSourcedRepositoryTest extends TestCase
             ->expects($this->once())
             ->method('create')
             ->with($this->aggregateId)
-            ->willReturn($this->aggregate);
+            ->willReturn($this->nonEventSourcedAggregate);
 
-        $exception1 = new Domain\Exception\InvalidAggregateGiven($this->aggregate);
+        $exception1 = new Domain\Exception\InvalidAggregateIdGiven($this->aggregateId);
 
         $this->store
-            ->expects($this->once())
-            ->method('getEvents')
-            ->with($this->aggregate)
+            ->expects($this->never())
+            ->method('find')
+            ->with($this->aggregateId)
             ->willThrowException($exception1);
 
         $repository = new EventSourcedRepository($this->factory, $this->store, $this->uow);
@@ -114,8 +114,8 @@ class EventSourcedRepositoryTest extends TestCase
 
         $this->store
             ->expects($this->once())
-            ->method('getEvents')
-            ->with($this->aggregate)
+            ->method('find')
+            ->with($this->aggregateId)
             ->willReturn([])
         ;
 
@@ -131,23 +131,23 @@ class EventSourcedRepositoryTest extends TestCase
     {
         $aggregate = new EventSourcedAggregateRootStub($this->aggregateId);
 
+        $event1 = new EventStub($this->aggregateId);
+        $event2 = new EventStub($this->aggregateId);
+        $event3 = new EventStub($this->aggregateId);
+        $event4 = new EventStub($this->aggregateId);
+
+        $this->store
+            ->expects($this->once())
+            ->method('find')
+            ->with($this->aggregateId)
+            ->willReturn([$event1, $event2, $event3, $event4])
+        ;
+
         $this->factory
             ->expects($this->once())
             ->method('create')
             ->with($this->aggregateId)
             ->willReturn($aggregate);
-
-        $event1 = new EventStub();
-        $event2 = new EventStub();
-        $event3 = new EventStub();
-        $event4 = new EventStub();
-
-        $this->store
-            ->expects($this->once())
-            ->method('getEvents')
-            ->with($aggregate)
-            ->willReturn([$event1, $event2, $event3, $event4])
-        ;
 
         $repository = new EventSourcedRepository($this->factory, $this->store, $this->uow);
 
@@ -185,6 +185,17 @@ class EventSourcedRepositoryTest extends TestCase
 
 class EventStub implements Domain\Event
 {
+    private $id;
+
+    public function __construct(Domain\AggregateRootId $id)
+    {
+        $this->id = $id;
+    }
+
+    public function aggregateRootId() : Domain\AggregateRootId
+    {
+        return $this->id;
+    }
 }
 
 class EventSourcedAggregateRootStub extends Domain\EventSourced\AggregateRoot

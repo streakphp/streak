@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the streak package.
+ * This file is part of the cbs package.
  *
  * (C) Alan Gabriel Bem <alan.bem@gmail.com>
  *
@@ -9,14 +9,15 @@
  * file that was distributed with this source code.
  */
 
-namespace Streak\Domain;
+namespace Streak\Infrastructure\Testing\Command\Scenario;
 
-use Streak\Domain;
+use Streak\Application;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-interface Event extends Domain\Message
+interface When
 {
-    public function aggregateRootId() : Domain\AggregateRootId;
+    public function when(Application\Command $command) : Then;
 }
+

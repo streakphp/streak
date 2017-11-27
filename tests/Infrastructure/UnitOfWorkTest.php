@@ -154,8 +154,8 @@ class UnitOfWorkTest extends TestCase
 
         $this->store
             ->expects($this->once())
-            ->method('addEvents')
-            ->with($this->equalTo($this->aggregate1))
+            ->method('add')
+            ->with()
         ;
 
         $uow->commit();

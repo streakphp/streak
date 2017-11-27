@@ -50,17 +50,13 @@ class EventSourcedRepository implements Domain\Repository
             throw new Exception\AggregateNotSupported($aggregate);
         }
 
-        try {
-            $events = $this->store->getEvents($aggregate);
-        } catch (Exception\InvalidAggregateGiven $e) {
-            throw new Exception\AggregateNotSupported($aggregate, $e);
-        }
+        $events = $this->store->find($id);
 
-        if (count($events) === 0) {
+        if (\count($events) === 0) {
             return null;
         }
 
-        $aggregate->replayEvents(...$events);
+        $aggregate->replay(...$events);
 
         $this->uow->add($aggregate);
 

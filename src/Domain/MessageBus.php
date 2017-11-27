@@ -16,7 +16,9 @@ use Streak\Domain;
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-interface Event extends Domain\Message
+interface MessageBus
 {
-    public function aggregateRootId() : Domain\AggregateRootId;
+    public function add(Event\Listener $listener) : void;
+
+    public function publish(Domain\Message ...$messages);
 }

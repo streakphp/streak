@@ -16,7 +16,6 @@ use Streak\Domain;
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-interface Event extends Domain\Message
+interface AggregateId extends Domain\Id
 {
-    public function aggregateRootId() : Domain\AggregateRootId;
 }

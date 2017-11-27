@@ -13,8 +13,6 @@ namespace Streak\Infrastructure\EventStore;
 
 use Streak\Domain;
 use Streak\Domain\Exception;
-use Streak\Domain\AggregateRoot;
-use Streak\Domain\Event;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -22,50 +20,53 @@ use Streak\Domain\Event;
 class InMemoryEventStore implements Domain\EventStore
 {
     private $events = [];
+    private $all = [];
 
-    /**
-     * @throws Exception\ConcurrentWriteDetected
-     * @throws Exception\InvalidAggregateGiven
-     */
-    public function addEvents(AggregateRoot $aggregate, Event ...$events) : void
+    public function add(Domain\Event ...$events) : void
     {
-        $this->check($aggregate);
+        foreach ($events as $event) {
 
-        if (!isset($this->events[$aggregate->id()->toString()])) {
-            $this->events[$aggregate->id()->toString()] = [];
+            $this->check($event->aggregateRootId());
+
+            $id = $event->aggregateRootId()->toString();
+            if (!isset($this->events[$id])) {
+                $this->events[$id] = [];
+            }
+
+            $this->events[$id][] = $event;
+            $this->all[] = $event;
+        }
+    }
+
+    public function find(Domain\AggregateRootId $id) : array
+    {
+        $this->check($id);
+
+        if (!isset($this->events[$id->toString()])) {
+            return [];
         }
 
-        $this->events[$aggregate->id()->toString()] = array_merge($this->events[$aggregate->id()->toString()], $events);
+        return $this->events[$id->toString()];
     }
 
     /**
      * @return Domain\Event[]
-     *
-     * @throws Exception\InvalidAggregateGiven
      */
-    public function getEvents(AggregateRoot $aggregate) : array
+    public function all() : array
     {
-        $this->check($aggregate);
-
-        if (!isset($this->events[$aggregate->id()->toString()])) {
-            $this->events[$aggregate->id()->toString()] = [];
-        }
-
-        return $this->events[$aggregate->id()->toString()];
+        return $this->all;
     }
 
     public function clear()
     {
         $this->events = [];
+        $this->all = [];
     }
 
-    /**
-     * @throws Exception\InvalidAggregateGiven
-     */
-    private function check(AggregateRoot $aggregate) : void
+    public function check(Domain\AggregateRootId $id) : void
     {
-        if ($aggregate->id()->toString() === '') {
-            throw new Exception\InvalidAggregateGiven($aggregate);
+        if ('' === $id->toString()) {
+            throw new Exception\InvalidAggregateIdGiven($id);
         }
     }
 }

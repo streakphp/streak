@@ -22,12 +22,12 @@ interface EventStore
      * @throws Exception\ConcurrentWriteDetected
      * @throws Exception\InvalidAggregateGiven
      */
-    public function addEvents(Domain\AggregateRoot $aggregate, Domain\Event ...$events) : void;
+    public function add(Domain\Event ...$events) : void;
 
     /**
      * @return Domain\Event[]
      *
      * @throws Exception\InvalidAggregateGiven
      */
-    public function getEvents(Domain\AggregateRoot $aggregate) : array;
+    public function find(Domain\AggregateRootId $id) : array;
 }

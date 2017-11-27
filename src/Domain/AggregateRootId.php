@@ -16,6 +16,6 @@ use Streak\Domain;
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-interface AggregateRootId extends Domain\Id
+interface AggregateRootId extends Domain\AggregateId
 {
 }

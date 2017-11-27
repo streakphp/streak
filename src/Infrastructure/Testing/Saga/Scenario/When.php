@@ -9,14 +9,15 @@
  * file that was distributed with this source code.
  */
 
-namespace Streak\Domain;
+namespace Streak\Infrastructure\Testing\saga\Scenario;
 
 use Streak\Domain;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-interface Event extends Domain\Message
+interface When
 {
-    public function aggregateRootId() : Domain\AggregateRootId;
+    public function when(Domain\Message ...$messages) : Then;
 }
+

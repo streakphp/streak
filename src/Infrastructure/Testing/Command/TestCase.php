@@ -9,9 +9,9 @@
  * file that was distributed with this source code.
  */
 
-namespace Streak\Infrastructure\Testing;
+namespace Streak\Infrastructure\Testing\Command;
 
-use PHPUnit\Framework\TestCase;
+use PHPUnit;
 use Streak\Application;
 use Streak\Domain;
 use Streak\Infrastructure\EventStore\InMemoryEventStore;
@@ -21,7 +21,7 @@ use Streak\Infrastructure\UnitOfWork;
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-abstract class CommandTestCase extends TestCase
+abstract class TestCase extends PHPUnit\Framework\TestCase
 {
     private $store;
     private $uow;
@@ -34,14 +34,19 @@ abstract class CommandTestCase extends TestCase
         $this->repository = new EventSourcedRepository($this->createFactory(), $this->store, $this->uow);
     }
 
+    private function createScenario() : Scenario
+    {
+        return new Scenario($this->createFactory(), $this->createHandler($this->store), $this->store, $this->uow);
+    }
+
     public function getRepository() : Domain\Repository
     {
         return $this->repository;
     }
 
-    public function forAggregateId(Domain\AggregateRootId $id) : Given
+    public function given(Domain\Event ...$events) : Scenario\When
     {
-        return new Specification($id, $this->createFactory(), $this->createHandler($this->store), $this->store, $this->uow);
+        return $this->createScenario()->given(...$events);
     }
 
     abstract protected function createFactory() : Domain\AggregateRootFactory;

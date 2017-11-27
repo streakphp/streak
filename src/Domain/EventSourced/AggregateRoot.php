@@ -29,7 +29,7 @@ abstract class AggregateRoot extends Domain\AggregateRoot
      */
     private $lastReplayedEvent;
 
-    final public function replayEvents(Event ...$events) : void
+    final public function replay(Event ...$events) : void
     {
         foreach ($events as $event) {
             $this->replayEvent($event);
@@ -83,7 +83,7 @@ abstract class AggregateRoot extends Domain\AggregateRoot
             throw new Exception\EventApplyingMethodNotFound($this, $event);
         }
 
-        if ($found->isPrivate()) {
+        if ($found->isPrivate() || $found->isProtected()) {
             $found->setAccessible(true);
         }
 

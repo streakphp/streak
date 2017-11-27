@@ -73,9 +73,14 @@ class UnitOfWork
 
     public function commit() : void
     {
+        $events = [];
         foreach ($this->aggregates as $aggregate) {
-            $this->store->addEvents($aggregate, ...$aggregate->events());
+            foreach ($aggregate->events() as $event) {
+                $events[] = $event;
+            }
         }
+
+        $this->store->add(...$events);
 
         $this->clear();
     }

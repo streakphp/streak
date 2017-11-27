@@ -11,12 +11,10 @@
 
 namespace Streak\Domain;
 
-use Streak\Domain;
-
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-interface Event extends Domain\Message
+interface Message
 {
-    public function aggregateRootId() : Domain\AggregateRootId;
+
 }
