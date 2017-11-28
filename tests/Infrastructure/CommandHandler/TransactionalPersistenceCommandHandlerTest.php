@@ -14,6 +14,7 @@ namespace Streak\Infrastructure\CommandHandler;
 use PHPUnit\Framework\TestCase;
 use Streak\Application;
 use Streak\Domain;
+use Streak\Domain\Event;
 use Streak\Infrastructure;
 
 /**

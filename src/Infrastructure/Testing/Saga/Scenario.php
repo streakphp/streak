@@ -39,19 +39,17 @@ class Scenario implements Scenario\Given, Scenario\When, Scenario\Then, Applicat
     public function given(Domain\Message ...$messages) : Scenario\When
     {
         foreach ($messages as $message) {
-            $this->saga->on($message);
+            $this->saga->onMessage($message);
         }
 
-        $this->commands = []; // clear dispatched command to this moment
+        $this->commands = []; // clear dispatched commands list up until this moment
 
         return $this;
     }
 
-    public function when(Domain\Message ...$messages) : Scenario\Then
+    public function when(Domain\Message $message) : Scenario\Then
     {
-        foreach ($messages as $message) {
-            $this->saga->on($message);
-        }
+        $this->saga->onMessage($message);
 
         return $this;
     }

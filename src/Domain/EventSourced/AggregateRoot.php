@@ -17,108 +17,28 @@ use Streak\Domain\Event;
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-abstract class AggregateRoot extends Domain\AggregateRoot
+abstract class AggregateRoot implements Domain\AggregateRoot, Domain\Event\Sourced
 {
-    /**
-     * @var Event[]
-     */
-    private $events = [];
+    use Event\Sourcing;
 
-    /**
-     * @var Event
-     */
-    private $lastReplayedEvent;
+    private $id;
 
-    final public function replay(Event ...$events) : void
+    public function __construct(Domain\AggregateRootId $id)
     {
-        foreach ($events as $event) {
-            $this->replayEvent($event);
-        }
+        $this->id = $id;
     }
 
-    private function replayEvent(Event $event) : void
+    final public function id() : Domain\Id
     {
-        $this->invokeApplyMethod($event);
-        $this->lastReplayedEventIs($event);
+        return $this->id;
     }
 
-    private function invokeApplyMethod(Event $event) : void
+    final public function equals(Domain\Entity $aggregate) : bool
     {
-        $reflection = new \ReflectionObject($this);
-
-        $found = null;
-        foreach ($reflection->getMethods() as $method) {
-            // method must start with "apply"...
-            if (mb_substr($method->getName(), 0, 5) !== 'apply') {
-                continue;
-            }
-            // ...and end with "Event"...
-            if (mb_substr($method->getName(), -5) !== 'Event') {
-                continue;
-            }
-            // ...and have exactly one parameter...
-            if ($method->getNumberOfParameters() !== 1) {
-                continue;
-            }
-            // ...which is required...
-            if ($method->getNumberOfRequiredParameters() !== 1) {
-                continue;
-            }
-
-            $parameter = $method->getParameters()[0];
-
-            // .. and its type is same as $event
-            if ($parameter->getClass()->getName() !== (new \ReflectionObject($event))->getName()) {
-                continue;
-            }
-
-            if ($found !== null) {
-                throw new Exception\MoreThanOneEventApplyingMethodFound($this, $event);
-            }
-
-            $found = $method;
+        if (!$aggregate instanceof static) {
+            return false;
         }
 
-        if ($found === null) {
-            throw new Exception\EventApplyingMethodNotFound($this, $event);
-        }
-
-        if ($found->isPrivate() || $found->isProtected()) {
-            $found->setAccessible(true);
-        }
-
-        $found->invoke($this, $event);
-    }
-
-    private function lastReplayedEventIs(Event $event) : void
-    {
-        $this->lastReplayedEvent = $event;
-    }
-
-    final public function lastReplayedEvent() : Event
-    {
-        return $this->lastReplayedEvent;
-    }
-
-    final protected function applyEvent(Event $event) : void
-    {
-        $this->invokeApplyMethod($event);
-        $this->addEvent($event);
-    }
-
-    /**
-     * @param Event $event
-     */
-    private function addEvent(Event $event) : void
-    {
-        $this->events[] = $event;
-    }
-
-    /**
-     * @return Event[]
-     */
-    final public function events() : array
-    {
-        return $this->events;
+        return $this->id()->equals($aggregate->id());
     }
 }

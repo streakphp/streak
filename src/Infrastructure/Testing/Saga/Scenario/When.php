@@ -18,6 +18,6 @@ use Streak\Domain;
  */
 interface When
 {
-    public function when(Domain\Message ...$messages) : Then;
+    public function when(Domain\Message $message) : Then;
 }
 

@@ -13,6 +13,7 @@ namespace Streak\Infrastructure\Repository;
 
 use PHPUnit\Framework\TestCase;
 use Streak\Domain;
+use Streak\Domain\Event;
 use Streak\Infrastructure;
 
 /**

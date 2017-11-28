@@ -9,15 +9,14 @@
  * file that was distributed with this source code.
  */
 
-namespace Streak\Infrastructure\Testing\Command\Scenario;
+namespace Streak\Domain\Message;
 
 use Streak\Domain;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-interface Then
+interface Listener
 {
-    public function then(Domain\Event ...$events) : void;
+    public function onMessage(Domain\Message $message) : void;
 }
-

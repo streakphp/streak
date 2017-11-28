@@ -12,7 +12,7 @@
 namespace Streak\Infrastructure;
 
 use Streak\Domain;
-use Streak\Domain\EventSourced;
+use Streak\Domain\Event;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -25,40 +25,40 @@ class UnitOfWork
     private $store;
 
     /**
-     * @var EventSourced\AggregateRoot[]
+     * @var Event\Sourced[]
      */
-    private $aggregates = [];
+    private $objects = [];
 
     public function __construct(Domain\EventStore $store)
     {
         $this->store = $store;
     }
 
-    public function add(EventSourced\AggregateRoot $aggregate) : void
+    public function add(Event\Sourced $object) : void
     {
-        foreach ($this->aggregates as $current) {
-            if ($current->equals($aggregate)) {
+        foreach ($this->objects as $current) {
+            if ($current->equals($object)) {
                 return;
             }
         }
 
-        $this->aggregates[] = $aggregate;
+        $this->objects[] = $object;
     }
 
-    public function remove(EventSourced\AggregateRoot $aggregate) : void
+    public function remove(Event\Sourced $object) : void
     {
-        foreach ($this->aggregates as $key => $current) {
-            if ($current->equals($aggregate)) {
-                unset($this->aggregates[$key]);
+        foreach ($this->objects as $key => $current) {
+            if ($current->equals($object)) {
+                unset($this->objects[$key]);
                 break;
             }
         }
     }
 
-    public function has(EventSourced\AggregateRoot $aggregate) : bool
+    public function has(Event\Sourced $object) : bool
     {
-        foreach ($this->aggregates as $current) {
-            if ($current->equals($aggregate)) {
+        foreach ($this->objects as $current) {
+            if ($current->equals($object)) {
                 return true;
             }
         }
@@ -68,14 +68,14 @@ class UnitOfWork
 
     public function count() : int
     {
-        return count($this->aggregates);
+        return count($this->objects);
     }
 
     public function commit() : void
     {
         $events = [];
-        foreach ($this->aggregates as $aggregate) {
-            foreach ($aggregate->events() as $event) {
+        foreach ($this->objects as $object) {
+            foreach ($object->events() as $event) {
                 $events[] = $event;
             }
         }
@@ -87,6 +87,6 @@ class UnitOfWork
 
     public function clear() : void
     {
-        $this->aggregates = [];
+        $this->objects = [];
     }
 }

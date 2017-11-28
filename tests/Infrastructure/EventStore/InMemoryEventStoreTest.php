@@ -13,6 +13,7 @@ namespace Streak\Infrastructure\EventStore;
 
 use PHPUnit\Framework\TestCase;
 use Streak\Domain;
+use Streak\Domain\Event;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -112,8 +113,4 @@ class EventStub implements Domain\Event
     {
         return $this->aggregateId;
     }
-}
-
-class EventSourcedAggregateRootStub extends Domain\EventSourced\AggregateRoot
-{
 }

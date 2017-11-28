@@ -11,31 +11,10 @@
 
 namespace Streak\Domain;
 
-use Streak\Domain;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-abstract class AggregateRoot implements Entity
+interface AggregateRoot extends Entity
 {
-    private $id;
-
-    public function __construct(Domain\AggregateRootId $id)
-    {
-        $this->id = $id;
-    }
-
-    final public function id() : Id
-    {
-        return $this->id;
-    }
-
-    final public function equals(Entity $aggregate) : bool
-    {
-        if (!$aggregate instanceof static) {
-            return false;
-        }
-
-        return $this->id()->equals($aggregate->id());
-    }
 }
