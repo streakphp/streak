@@ -18,7 +18,10 @@ use Streak\Domain;
  */
 interface MessageBus
 {
-    public function add(Event\Listener $listener) : void;
+    public function add(Message\Listener $listener) : void;
 
+    /**
+     * @throws Exception\MessageNotPublished
+     */
     public function publish(Domain\Message ...$messages);
 }
