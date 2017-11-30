@@ -12,33 +12,11 @@
 namespace Streak\Domain\EventSourced;
 
 use Streak\Domain;
-use Streak\Domain\Event;
+use Streak\Domain\EventSourced;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-abstract class AggregateRoot implements Domain\AggregateRoot, Domain\Event\Sourced
+interface AggregateRoot extends Domain\AggregateRoot, EventSourced\Entity
 {
-    use Event\Sourcing;
-
-    private $id;
-
-    public function __construct(Domain\AggregateRootId $id)
-    {
-        $this->id = $id;
-    }
-
-    final public function id() : Domain\Id
-    {
-        return $this->id;
-    }
-
-    final public function equals(Domain\Entity $aggregate) : bool
-    {
-        if (!$aggregate instanceof static) {
-            return false;
-        }
-
-        return $this->id()->equals($aggregate->id());
-    }
 }

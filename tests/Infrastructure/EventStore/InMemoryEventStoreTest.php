@@ -17,100 +17,139 @@ use Streak\Domain\Event;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @covers \Streak\Infrastructure\EventStore\InMemoryEventStore
  */
 class InMemoryEventStoreTest extends TestCase
 {
+    /**
+     * @var Domain\AggregateRoot\Id|\PHPUnit_Framework_MockObject_MockObject
+     */
+    private $aggregateRootId1;
 
     /**
-     * @var Domain\AggregateRootId|\PHPUnit_Framework_MockObject_MockObject
+     * @var Domain\AggregateRoot\Id|\PHPUnit_Framework_MockObject_MockObject
      */
-    private $id1;
+    private $aggregaterootId2;
 
     /**
-     * @var Domain\AggregateRootId|\PHPUnit_Framework_MockObject_MockObject
+     * @var Domain\Event|\PHPUnit_Framework_MockObject_MockObject
      */
-    private $id2;
+    private $event1;
+
+    /**
+     * @var Domain\Event|\PHPUnit_Framework_MockObject_MockObject
+     */
+    private $event2;
+
+    /**
+     * @var Domain\Event|\PHPUnit_Framework_MockObject_MockObject
+     */
+    private $event3;
+
+    /**
+     * @var Domain\Event|\PHPUnit_Framework_MockObject_MockObject
+     */
+    private $event4;
 
     public function setUp()
     {
-        $this->id1 = $this->getMockBuilder(Domain\AggregateRootId::class)->getMockForAbstractClass();
-        $this->id2 = $this->getMockBuilder(Domain\AggregateRootId::class)->getMockForAbstractClass();
+        $this->aggregateRootId1 = $this->getMockBuilder(Domain\AggregateRoot\Id::class)->getMockForAbstractClass();
+        $this->aggregaterootId2 = $this->getMockBuilder(Domain\AggregateRoot\Id::class)->getMockForAbstractClass();
+
+        $this->event1 = $this->getMockBuilder(Domain\Event::class)->getMockForAbstractClass();
+        $this->event2 = $this->getMockBuilder(Domain\Event::class)->getMockForAbstractClass();
+        $this->event3 = $this->getMockBuilder(Domain\Event::class)->getMockForAbstractClass();
+        $this->event4 = $this->getMockBuilder(Domain\Event::class)->getMockForAbstractClass();
     }
 
     public function testStorage()
     {
-        $this->id1
+        $this->event1
             ->expects($this->atLeastOnce())
-            ->method('toString')
-            ->willReturn('id1');
+            ->method('aggregateRootId')
+            ->with()
+            ->willReturn($this->aggregateRootId1)
+        ;
 
-        $this->id2
+        $this->event2
+            ->expects($this->atLeastOnce())
+            ->method('aggregateRootId')
+            ->with()
+            ->willReturn($this->aggregateRootId1)
+        ;
+
+        $this->event3
+            ->expects($this->atLeastOnce())
+            ->method('aggregateRootId')
+            ->with()
+            ->willReturn($this->aggregaterootId2)
+        ;
+
+        $this->event4
+            ->expects($this->atLeastOnce())
+            ->method('aggregateRootId')
+            ->with()
+            ->willReturn($this->aggregaterootId2)
+        ;
+
+        $this->aggregateRootId1
             ->expects($this->atLeastOnce())
             ->method('toString')
-            ->willReturn('id2');
+            ->willReturn('id1')
+        ;
+
+        $this->aggregaterootId2
+            ->expects($this->atLeastOnce())
+            ->method('toString')
+            ->willReturn('id2')
+        ;
 
         $store = new InMemoryEventStore();
 
         $this->assertEmpty($store->all());
-        $this->assertEmpty($store->find($this->id1));
-        $this->assertEmpty($store->find($this->id2));
+        $this->assertEmpty($store->find($this->aggregateRootId1));
+        $this->assertEmpty($store->find($this->aggregaterootId2));
 
-        $event1 = new EventStub($this->id1);
-        $event2 = new EventStub($this->id1);
-        $event3 = new EventStub($this->id2);
-        $event4 = new EventStub($this->id2);
 
-        $store->add($event1, $event2);
+        $store->add($this->event1, $this->event2);
 
-        $this->assertEquals([$event1, $event2], $store->find($this->id1));
-        $this->assertEquals([], $store->find($this->id2));
-        $this->assertEquals([$event1, $event2], $store->all());
+        $this->assertEquals([$this->event1, $this->event2], $store->find($this->aggregateRootId1));
+        $this->assertEquals([], $store->find($this->aggregaterootId2));
+        $this->assertEquals([$this->event1, $this->event2], $store->all());
 
-        $store->add($event3, $event4);
+        $store->add($this->event3, $this->event4);
 
-        $this->assertEquals([$event1, $event2], $store->find($this->id1));
-        $this->assertEquals([$event3, $event4], $store->find($this->id2));
-        $this->assertEquals([$event1, $event2, $event3, $event4], $store->all());
+        $this->assertEquals([$this->event1, $this->event2], $store->find($this->aggregateRootId1));
+        $this->assertEquals([$this->event3, $this->event4], $store->find($this->aggregaterootId2));
+        $this->assertEquals([$this->event1, $this->event2, $this->event3, $this->event4], $store->all());
 
         $store->clear();
 
-        $this->assertEquals([], $store->find($this->id1));
-        $this->assertEquals([], $store->find($this->id2));
+        $this->assertEquals([], $store->find($this->aggregateRootId1));
+        $this->assertEquals([], $store->find($this->aggregaterootId2));
         $this->assertEmpty($store->all());
     }
 
     public function testWrongAggregate()
     {
-        $store = new InMemoryEventStore();
+        $this->event1
+            ->expects($this->once())
+            ->method('aggregateRootId')
+            ->with()
+            ->willReturn($this->aggregateRootId1)
+        ;
 
-        $event1 = new EventStub($this->id1);
-        $event2 = new EventStub($this->id1);
-        $event3 = new EventStub($this->id2);
-        $event4 = new EventStub($this->id2);
-
-        $this->id1
+        $this->aggregateRootId1
             ->expects($this->atLeastOnce())
             ->method('toString')
-            ->willReturn('');
+            ->willReturn('')
+        ;
 
-        $exception = new Domain\Exception\InvalidAggregateIdGiven($this->id1);
+        $exception = new Domain\Exception\InvalidAggregateIdGiven($this->aggregateRootId1);
         $this->expectExceptionObject($exception);
 
-        $store->add($event1, $event2, $event3, $event4);
-    }
-}
-
-class EventStub implements Domain\Event
-{
-    private $aggregateId;
-
-    public function __construct(Domain\AggregateRootId $aggregateId)
-    {
-        $this->aggregateId = $aggregateId;
-    }
-
-    public function aggregateRootId() : Domain\AggregateRootId
-    {
-        return $this->aggregateId;
+        $store = new InMemoryEventStore();
+        $store->add($this->event1, $this->event2, $this->event3, $this->event4);
     }
 }

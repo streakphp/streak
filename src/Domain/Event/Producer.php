@@ -9,25 +9,17 @@
  * file that was distributed with this source code.
  */
 
-namespace Streak\Domain;
+namespace Streak\Domain\Event;
 
 use Streak\Domain;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-interface EventStore
+interface Producer
 {
     /**
-     * @throws Exception\ConcurrentWriteDetected
-     * @throws Exception\InvalidAggregateGiven
-     */
-    public function add(Domain\Event ...$events) : void;
-
-    /**
      * @return Domain\Event[]
-     *
-     * @throws Exception\InvalidAggregateGiven
      */
-    public function find(AggregateRoot\Id $id) : array;
+    public function events() : array;
 }

@@ -12,16 +12,19 @@
 namespace Streak\Domain\Event;
 
 use Streak\Domain;
+use Streak\Domain\AggregateRoot;
 use Streak\Domain\Event\Exception;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-trait Sourcing
+trait Sourcing //implements Consumer, Source
 {
     private $events = [];
     private $replaying = false;
     private $lastReplayed;
+
+    abstract public function aggregateRootId() : AggregateRoot\Id;
 
     final public function replay(Domain\Event ...$events) : void
     {
@@ -54,6 +57,10 @@ trait Sourcing
 
     final protected function applyEvent(Domain\Event $event) : void
     {
+        if (!$this->aggregateRootId()->equals($event->aggregateRootId())) {
+            throw new Domain\Exception\EventAndConsumerMismatch($this, $event);
+        }
+
         if ($this->replaying) {
             $this->lastReplayed = $event;
         } else {
@@ -89,6 +96,11 @@ trait Sourcing
             return false;
         }
 
+        // ... but it cant be our above-implemented applyEvent() method
+        if ($method->getName() === 'applyEvent') {
+            return false;
+        }
+
         // ...and have exactly one parameter...
         if ($method->getNumberOfParameters() !== 1) {
             return false;
@@ -100,17 +112,21 @@ trait Sourcing
         }
 
         $expected = $method->getParameters()[0];
-        $expected = $expected->getClass()->getName();
+        $expected = $expected->getClass();
 
-        $actual = new \ReflectionObject($event);
-        $actual = $actual->getName();
+        $actual = new \ReflectionClass($event);
 
-        // .. and $message & $parameter have the same type
-        if ($expected !== $actual) {
-            return false;
-        }
+        // .. and $event is type or subtype of defined $parameter
+        do {
+            $name1 = $actual->getName();
+            $name2 = $expected->getName();
+            if ($actual->getName() === $expected->getName()) {
+                return true;
+            }
+        } while ($actual = $actual->getParentClass());
 
-        return true;
+
+        return false;
     }
 
     final private function call(\ReflectionMethod $method, Domain\Message $message) : void

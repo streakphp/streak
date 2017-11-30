@@ -42,7 +42,7 @@ class EventSourcedRepository implements Domain\Repository
         $this->uow     = $uow;
     }
 
-    public function find(Domain\AggregateRootId $id) : ?Domain\AggregateRoot
+    public function find(Domain\AggregateRoot\Id $id) : ?Domain\AggregateRoot
     {
         $aggregate = $this->factory->create($id);
 

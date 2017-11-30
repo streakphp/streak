@@ -20,7 +20,7 @@ class InvalidAggregateIdGiven extends \InvalidArgumentException
 {
     private $aggregateId;
 
-    public function __construct(Domain\AggregateRootId $aggregateId, \Throwable $previous = null)
+    public function __construct(Domain\AggregateRoot\Id $aggregateId, \Throwable $previous = null)
     {
         $this->aggregateId = $aggregateId;
 
@@ -29,7 +29,7 @@ class InvalidAggregateIdGiven extends \InvalidArgumentException
         parent::__construct($message, 0, $previous);
     }
 
-    public function aggregateId() : Domain\AggregateRootId
+    public function aggregateId() : Domain\AggregateRoot\Id
     {
         return $this->aggregateId;
     }

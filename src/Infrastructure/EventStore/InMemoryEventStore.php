@@ -38,7 +38,7 @@ class InMemoryEventStore implements Domain\EventStore
         }
     }
 
-    public function find(Domain\AggregateRootId $id) : array
+    public function find(Domain\AggregateRoot\Id $id) : array
     {
         $this->check($id);
 
@@ -63,7 +63,7 @@ class InMemoryEventStore implements Domain\EventStore
         $this->all = [];
     }
 
-    public function check(Domain\AggregateRootId $id) : void
+    public function check(Domain\AggregateRoot\Id $id) : void
     {
         if ('' === $id->toString()) {
             throw new Exception\InvalidAggregateIdGiven($id);

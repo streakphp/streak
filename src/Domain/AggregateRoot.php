@@ -11,10 +11,18 @@
 
 namespace Streak\Domain;
 
+use Streak\Domain;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * Unfortunately covariant return types are not supported yet.
+ *
+ * @link https://wiki.php.net/rfc/return_types#variance_and_signature_validation
  */
-interface AggregateRoot extends Entity
+interface AggregateRoot extends Domain\Aggregate
 {
+    public function aggregateRootId() : AggregateRoot\Id;
+
+//    public function equals(Entity $entity) : bool;
 }

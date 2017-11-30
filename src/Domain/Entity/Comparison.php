@@ -9,18 +9,25 @@
  * file that was distributed with this source code.
  */
 
-namespace Streak\Domain;
+namespace Streak\Domain\Entity;
 
 use Streak\Domain;
-use Streak\Domain\Exception;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-interface AggregateRootFactory
+trait Comparison
 {
-    /**
-     * @throws Exception\InvalidAggregateIdGiven
-     */
-    public function create(AggregateRoot\Id $id) : AggregateRoot;
+    public function equals(Domain\Entity $entity) : bool
+    {
+        if (!$entity instanceof self) {
+            return false;
+        }
+
+        if (!$entity->id()->equals($entity->id())) {
+            return false;
+        }
+
+        return true;
+    }
 }

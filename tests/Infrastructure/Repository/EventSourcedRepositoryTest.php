@@ -13,7 +13,6 @@ namespace Streak\Infrastructure\Repository;
 
 use PHPUnit\Framework\TestCase;
 use Streak\Domain;
-use Streak\Domain\Event;
 use Streak\Infrastructure;
 
 /**
@@ -41,17 +40,37 @@ class EventSourcedRepositoryTest extends TestCase
     /**
      * @var Domain\AggregateRoot|\PHPUnit_Framework_MockObject_MockObject
      */
-    private $nonEventSourcedAggregate;
+    private $nonEventSourcedAggregateRoot;
 
     /**
      * @var Domain\EventSourced\AggregateRoot|\PHPUnit_Framework_MockObject_MockObject
      */
-    private $aggregate;
+    private $aggregateRoot;
 
     /**
-     * @var Domain\AggregateRootId|\PHPUnit_Framework_MockObject_MockObject
+     * @var Domain\AggregateRoot\Id|\PHPUnit_Framework_MockObject_MockObject
      */
-    private $aggregateId;
+    private $aggregateRootId;
+
+    /**
+     * @var Domain\Event|\PHPUnit_Framework_MockObject_MockObject
+     */
+    private $event1;
+
+    /**
+     * @var Domain\Event|\PHPUnit_Framework_MockObject_MockObject
+     */
+    private $event2;
+
+    /**
+     * @var Domain\Event|\PHPUnit_Framework_MockObject_MockObject
+     */
+    private $event3;
+
+    /**
+     * @var Domain\Event|\PHPUnit_Framework_MockObject_MockObject
+     */
+    private $event4;
 
     public function setUp()
     {
@@ -59,10 +78,15 @@ class EventSourcedRepositoryTest extends TestCase
         $this->store = $this->getMockBuilder(Domain\EventStore::class)->getMockForAbstractClass();
         $this->uow = new Infrastructure\UnitOfWork($this->store);
 
-        $this->nonEventSourcedAggregate = $this->getMockBuilder(Domain\AggregateRoot::class)->disableOriginalConstructor()->getMockForAbstractClass();
-        $this->aggregate = $this->getMockBuilder(Domain\EventSourced\AggregateRoot::class)->disableOriginalConstructor()->getMockForAbstractClass();
+        $this->nonEventSourcedAggregateRoot = $this->getMockBuilder(Domain\AggregateRoot::class)->getMockForAbstractClass();
+        $this->aggregateRoot = $this->getMockBuilder(Domain\EventSourced\AggregateRoot::class)->getMockForAbstractClass();
 
-        $this->aggregateId = $this->getMockBuilder(Domain\AggregateRootId::class)->getMockForAbstractClass();
+        $this->aggregateRootId = $this->getMockBuilder(Domain\AggregateRoot\Id::class)->getMockForAbstractClass();
+
+        $this->event1 = $this->getMockBuilder(Domain\Event::class)->getMockForAbstractClass();
+        $this->event2 = $this->getMockBuilder(Domain\Event::class)->getMockForAbstractClass();
+        $this->event3 = $this->getMockBuilder(Domain\Event::class)->getMockForAbstractClass();
+        $this->event4 = $this->getMockBuilder(Domain\Event::class)->getMockForAbstractClass();
     }
 
     public function testFindingNonEventSourcedAggregate()
@@ -70,15 +94,16 @@ class EventSourcedRepositoryTest extends TestCase
         $this->factory
             ->expects($this->once())
             ->method('create')
-            ->with($this->aggregateId)
-            ->willReturn($this->nonEventSourcedAggregate);
+            ->with($this->aggregateRootId)
+            ->willReturn($this->nonEventSourcedAggregateRoot)
+        ;
 
         $repository = new EventSourcedRepository($this->factory, $this->store, $this->uow);
 
-        $exception = new Domain\Exception\AggregateNotSupported($this->nonEventSourcedAggregate);
+        $exception = new Domain\Exception\AggregateNotSupported($this->nonEventSourcedAggregateRoot);
         $this->expectExceptionObject($exception);
 
-        $repository->find($this->aggregateId);
+        $repository->find($this->aggregateRootId);
     }
 
     public function testFindingAggregateNotCompatibleWithStore()
@@ -86,23 +111,25 @@ class EventSourcedRepositoryTest extends TestCase
         $this->factory
             ->expects($this->once())
             ->method('create')
-            ->with($this->aggregateId)
-            ->willReturn($this->nonEventSourcedAggregate);
+            ->with($this->aggregateRootId)
+            ->willReturn($this->nonEventSourcedAggregateRoot)
+        ;
 
-        $exception1 = new Domain\Exception\InvalidAggregateIdGiven($this->aggregateId);
+        $exception1 = new Domain\Exception\InvalidAggregateIdGiven($this->aggregateRootId);
 
         $this->store
             ->expects($this->never())
             ->method('find')
-            ->with($this->aggregateId)
-            ->willThrowException($exception1);
+            ->with($this->aggregateRootId)
+            ->willThrowException($exception1)
+        ;
 
         $repository = new EventSourcedRepository($this->factory, $this->store, $this->uow);
 
-        $exception2 = new Domain\Exception\AggregateNotSupported($this->nonEventSourcedAggregate, $exception1);
+        $exception2 = new Domain\Exception\AggregateNotSupported($this->nonEventSourcedAggregateRoot, $exception1);
         $this->expectExceptionObject($exception2);
 
-        $repository->find($this->aggregateId);
+        $repository->find($this->aggregateRootId);
     }
 
     public function testFindingAggregateIfNoEventsInStore()
@@ -110,98 +137,78 @@ class EventSourcedRepositoryTest extends TestCase
         $this->factory
             ->expects($this->once())
             ->method('create')
-            ->with($this->aggregateId)
-            ->willReturn($this->aggregate);
+            ->with($this->aggregateRootId)
+            ->willReturn($this->aggregateRoot)
+        ;
 
         $this->store
             ->expects($this->once())
             ->method('find')
-            ->with($this->aggregateId)
+            ->with($this->aggregateRootId)
             ->willReturn([])
         ;
 
         $repository = new EventSourcedRepository($this->factory, $this->store, $this->uow);
 
-        $aggregate = $repository->find($this->aggregateId);
+        $aggregate = $repository->find($this->aggregateRootId);
 
         $this->assertNull($aggregate);
     }
 
-
     public function testFindingAggregate()
     {
-        $aggregate = new EventSourcedAggregateRootStub($this->aggregateId);
-
-        $event1 = new EventStub($this->aggregateId);
-        $event2 = new EventStub($this->aggregateId);
-        $event3 = new EventStub($this->aggregateId);
-        $event4 = new EventStub($this->aggregateId);
+        $events = [$this->event1, $this->event2, $this->event3, $this->event4];
 
         $this->store
             ->expects($this->once())
             ->method('find')
-            ->with($this->aggregateId)
-            ->willReturn([$event1, $event2, $event3, $event4])
+            ->with($this->aggregateRootId)
+            ->willReturn($events)
         ;
 
         $this->factory
             ->expects($this->once())
             ->method('create')
-            ->with($this->aggregateId)
-            ->willReturn($aggregate);
+            ->with($this->aggregateRootId)
+            ->willReturn($this->aggregateRoot)
+        ;
+
+        $this->aggregateRoot
+            ->expects($this->once())
+            ->method('replay')
+            ->with(...$events)
+        ;
 
         $repository = new EventSourcedRepository($this->factory, $this->store, $this->uow);
 
-        $result = $repository->find($this->aggregateId);
+        $aggregate = $repository->find($this->aggregateRootId);
 
-        $this->assertSame($aggregate, $result);
+        $this->assertSame($this->aggregateRoot, $aggregate);
     }
 
     public function testAddingNonEventSourcedAggregate()
     {
-        $exception = new Domain\Exception\AggregateNotSupported($this->nonEventSourcedAggregate);
+        $exception = new Domain\Exception\AggregateNotSupported($this->nonEventSourcedAggregateRoot);
         $this->expectExceptionObject($exception);
 
         $repository = new EventSourcedRepository($this->factory, $this->store, $this->uow);
-        $repository->add($this->nonEventSourcedAggregate);
+        $repository->add($this->nonEventSourcedAggregateRoot);
     }
 
 
     public function testAddingAggregate()
     {
-        $this->aggregateId
+        $this->aggregateRoot
             ->expects($this->once())
             ->method('equals')
-            ->with($this->equalTo($this->aggregateId))
-            ->willReturn(true);
+            ->with($this->equalTo($this->aggregateRoot))
+            ->willReturn(true)
+        ;
 
-        $aggregate = new EventSourcedAggregateRootStub($this->aggregateId);
 
         $repository = new EventSourcedRepository($this->factory, $this->store, $this->uow);
-        $repository->add($aggregate);
+        $repository->add($this->aggregateRoot);
 
-        $this->assertTrue($this->uow->has($aggregate));
-    }
-}
-
-class EventStub implements Domain\Event
-{
-    private $id;
-
-    public function __construct(Domain\AggregateRootId $id)
-    {
-        $this->id = $id;
-    }
-
-    public function aggregateRootId() : Domain\AggregateRootId
-    {
-        return $this->id;
-    }
-}
-
-class EventSourcedAggregateRootStub extends Domain\EventSourced\AggregateRoot
-{
-    public function applyStubEvent(EventStub $event)
-    {
+        $this->assertTrue($this->uow->has($this->aggregateRoot));
     }
 }

@@ -18,11 +18,11 @@ use Streak\Domain;
  */
 class MessageNotPublished extends \RuntimeException
 {
-    private $message;
+    private $_message;
 
     public function __construct(Domain\Message $message, \Throwable $previous = null)
     {
-        $this->message = $message;
+        $this->_message = $message;
 
         $error = sprintf('Message "%s" not published.', \get_class($message));
 
@@ -31,6 +31,6 @@ class MessageNotPublished extends \RuntimeException
 
     public function message() : Domain\Message
     {
-        return $this->message;
+        return $this->_message;
     }
 }

@@ -12,7 +12,7 @@
 namespace Streak\Domain\Event\Exception;
 
 use Streak\Domain;
-use Streak\Domain\EventSourced;
+use Streak\Domain\EventSourced\Entity;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>

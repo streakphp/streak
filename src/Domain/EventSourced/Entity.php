@@ -9,14 +9,14 @@
  * file that was distributed with this source code.
  */
 
-namespace Streak\Domain;
+namespace Streak\Domain\EventSourced;
+
+use Streak\Domain;
+use Streak\Domain\Event;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-interface Entity
+interface Entity extends Domain\Entity, Event\Consumer, Event\Producer
 {
-    public function id() : Entity\Id;
-
-    public function equals(Entity $entity) : bool;
 }

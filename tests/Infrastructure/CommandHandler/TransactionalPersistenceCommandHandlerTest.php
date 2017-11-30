@@ -14,6 +14,7 @@ namespace Streak\Infrastructure\CommandHandler;
 use PHPUnit\Framework\TestCase;
 use Streak\Application;
 use Streak\Domain;
+use Streak\Domain\Entity;
 use Streak\Domain\Event;
 use Streak\Infrastructure;
 
@@ -45,14 +46,24 @@ class TransactionalPersistenceCommandHandlerTest extends TestCase
     private $uow;
 
     /**
-     * @var Domain\AggregateRootId|\PHPUnit_Framework_MockObject_MockObject
+     * @var Domain\EventSourced\AggregateRoot|\PHPUnit_Framework_MockObject_MockObject
      */
-    private $id1;
+    private $aggregateRoot1;
 
     /**
-     * @var Domain\AggregateRootId|\PHPUnit_Framework_MockObject_MockObject
+     * @var Domain\EventSourced\AggregateRoot|\PHPUnit_Framework_MockObject_MockObject
      */
-    private $id2;
+    private $aggregateRoot2;
+
+    /**
+     * @var Domain\AggregateRoot\Id|\PHPUnit_Framework_MockObject_MockObject
+     */
+    private $aggregateRootId1;
+
+    /**
+     * @var Domain\AggregateRoot\Id|\PHPUnit_Framework_MockObject_MockObject
+     */
+    private $aggregateRootId2;
 
     public function setUp()
     {
@@ -61,25 +72,24 @@ class TransactionalPersistenceCommandHandlerTest extends TestCase
         $this->store = $this->getMockBuilder(Domain\EventStore::class)->getMockForAbstractClass();
         $this->uow = new Infrastructure\UnitOfWork($this->store);
 
-        $this->id1 = $this->getMockBuilder(Domain\AggregateRootId::class)->getMockForAbstractClass();
-        $this->id2 = $this->getMockBuilder(Domain\AggregateRootId::class)->getMockForAbstractClass();
+        $this->aggregateRoot1 = $this->getMockBuilder(Domain\EventSourced\AggregateRoot::class)->getMockForAbstractClass();
+        $this->aggregateRoot2 = $this->getMockBuilder(Domain\EventSourced\AggregateRoot::class)->getMockForAbstractClass();
+
+        $this->aggregateRootId1 = $this->getMockBuilder(Domain\AggregateRoot\Id::class)->getMockForAbstractClass();
+        $this->aggregateRootId2 = $this->getMockBuilder(Domain\AggregateRoot\Id::class)->getMockForAbstractClass();
     }
 
     public function testHandlingCommand()
     {
         $handler = new TransactionalPersistenceCommandHandler($this->handler, $this->uow);
 
-        $aggregate = new EventSourcedAggregateRootStub($this->id1);
-
         $this->handler
             ->expects($this->once())
             ->method('handle')
             ->with($this->command)
-            ->willReturnCallback(
-                function (Application\Command $command) use ($aggregate) : void {
-                    $this->uow->add($aggregate);
-                }
-            )
+            ->willReturnCallback(function () : void {
+                $this->uow->add($this->aggregateRoot1);
+            })
         ;
 
         $handler->handle($this->command);
@@ -89,19 +99,14 @@ class TransactionalPersistenceCommandHandlerTest extends TestCase
     {
         $handler = new TransactionalPersistenceCommandHandler($this->handler, $this->uow);
 
-        $aggregate1 = new EventSourcedAggregateRootStub($this->id1);
-        $aggregate2 = new EventSourcedAggregateRootStub($this->id2);
-
         $this->handler
             ->expects($this->once())
             ->method('handle')
             ->with($this->command)
-            ->willReturnCallback(
-                function () use ($aggregate1, $aggregate2) : void {
-                    $this->uow->add($aggregate1);
-                    $this->uow->add($aggregate2);
-                }
-            )
+            ->willReturnCallback(function () : void {
+                $this->uow->add($this->aggregateRoot1);
+                $this->uow->add($this->aggregateRoot2);
+            })
         ;
 
         $exception = new Application\Exception\CommandTransactionCompromised($this->command);
@@ -109,8 +114,4 @@ class TransactionalPersistenceCommandHandlerTest extends TestCase
 
         $handler->handle($this->command);
     }
-}
-
-class EventSourcedAggregateRootStub extends Domain\EventSourced\AggregateRoot
-{
 }

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of the streak package.
  *
@@ -8,21 +9,14 @@
  * file that was distributed with this source code.
  */
 
-namespace Streak\Domain\Event;
+namespace Streak\Domain\Aggregate;
 
-use Streak\Domain;
+use Streak\Domain\Entity;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-interface Sourced extends Domain\Entity
+interface Id extends Entity\Id
 {
-    public function replay(Domain\Event ...$events) : void;
 
-    public function lastReplayed() : Domain\Event;
-
-    /**
-     * @return Domain\Event[]
-     */
-    public function events() : array;
 }

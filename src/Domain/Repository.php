@@ -18,10 +18,10 @@ use Streak\Domain;
  */
 interface Repository
 {
-    public function add(AggregateRoot $aggregate) : void;
+    public function add(Domain\AggregateRoot $aggregate) : void;
 
     /**
      * @throws Exception\AggregateNotSupported
      */
-    public function find(Domain\AggregateRootId $id) : ?AggregateRoot;
+    public function find(Domain\AggregateRoot\Id $id) : ?AggregateRoot;
 }

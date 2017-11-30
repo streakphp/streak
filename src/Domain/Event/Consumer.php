@@ -9,14 +9,20 @@
  * file that was distributed with this source code.
  */
 
-namespace Streak\Domain;
+namespace Streak\Domain\Event;
+
+use Streak\Domain;
+use Streak\Domain\Exception;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-interface Entity
+interface Consumer
 {
-    public function id() : Entity\Id;
+    /**
+     * @throws Exception\EventAndConsumerMismatch
+     */
+    public function replay(Domain\Event ...$events) : void;
 
-    public function equals(Entity $entity) : bool;
+    public function lastReplayed() : Domain\Event;
 }

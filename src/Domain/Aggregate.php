@@ -15,7 +15,14 @@ use Streak\Domain;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * Unfortunately covariant return types are not supported yet.
+ *
+ * @link https://wiki.php.net/rfc/return_types#variance_and_signature_validation
  */
-interface AggregateRootId extends Domain\AggregateId
+interface Aggregate extends Domain\Entity
 {
+    public function aggregateId() : Domain\Aggregate\Id;
+
+//    public function equals(Entity $entity) : bool;
 }

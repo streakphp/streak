@@ -18,5 +18,5 @@ use Streak\Domain;
  */
 interface Event extends Domain\Message
 {
-    public function aggregateRootId() : Domain\AggregateRootId;
+    public function aggregateRootId() : AggregateRoot\Id;
 }

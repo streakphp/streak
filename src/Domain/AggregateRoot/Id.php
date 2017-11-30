@@ -9,13 +9,13 @@
  * file that was distributed with this source code.
  */
 
-namespace Streak\Domain;
+namespace Streak\Domain\AggregateRoot;
 
 use Streak\Domain;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-interface AggregateId extends Domain\Id
+interface Id extends Domain\Aggregate\Id
 {
 }

@@ -9,14 +9,13 @@
  * file that was distributed with this source code.
  */
 
-namespace Streak\Domain;
+namespace Streak\Domain\Entity;
+
+use Streak\Domain;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-interface Entity
+interface Id extends Domain\Id
 {
-    public function id() : Entity\Id;
-
-    public function equals(Entity $entity) : bool;
 }

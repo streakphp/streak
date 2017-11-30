@@ -20,7 +20,7 @@ class AggregateNotFound extends \RuntimeException
 {
     private $aggregateId;
 
-    public function __construct(Domain\AggregateRootId $aggregateId, \Throwable $previous = null)
+    public function __construct(Domain\Aggregate\Id $aggregateId, \Throwable $previous = null)
     {
         $this->aggregateId = $aggregateId;
 
@@ -29,10 +29,7 @@ class AggregateNotFound extends \RuntimeException
         parent::__construct($message, 0, $previous);
     }
 
-    /**
-     * @return Domain\AggregateRootId
-     */
-    public function getAggregateId() : Domain\AggregateRootId
+    public function aggregateId() : Domain\Aggregate\Id
     {
         return $this->aggregateId;
     }
