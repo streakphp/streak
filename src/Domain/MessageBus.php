@@ -21,7 +21,7 @@ interface MessageBus
     public function add(Message\Listener $listener) : void;
 
     /**
-     * @throws Exception\MessageNotPublished
+     * @throws Exception\MessagesNotPublished
      */
     public function publish(Domain\Message ...$messages);
 }
