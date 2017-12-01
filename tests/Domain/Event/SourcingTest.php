@@ -210,6 +210,28 @@ class SourcingTest extends TestCase
 //        $this->assertSame($event2, $sourcing->lastReplayed());
 //        $this->assertEmpty($sourcing->events());
 //    }
+
+    public function testApplyingEventViaCommand()
+    {
+        $this->id
+            ->expects($this->exactly(1))
+            ->method('equals')
+            ->willReturn(true)
+        ;
+
+        $sourcing = new SourcingTest\EventSourcedAggregateRootStub($this->id);
+
+        $this->assertFalse($sourcing->isEvent9Applied());
+
+        $sourcing->commandApplyEvent9($this->id);
+
+        $this->assertTrue($sourcing->isEvent9Applied());
+
+        $event = new SourcingTest\Event9($this->id);
+
+        $this->assertNull($sourcing->lastReplayed());
+        $this->assertEquals([$event], $sourcing->events());
+    }
 }
 
 namespace Streak\Domain\Event\SourcingTest;
@@ -229,6 +251,7 @@ class EventSourcedAggregateRootStub implements Event\Consumer
     private $numberOfAppliesOfEvent7 = 0;
     private $event8Applied = false;
     private $event8aApplied = false;
+    private $event9Applied = false;
 
     public function __construct(AggregateRoot\Id $id)
     {
@@ -276,6 +299,16 @@ class EventSourcedAggregateRootStub implements Event\Consumer
         $this->event8aApplied = true;
     }
 
+    private function applyEvent9(Event9 $event)
+    {
+        $this->event9Applied = true;
+    }
+
+    public function commandApplyEvent9(AggregateRoot\Id $id)
+    {
+        $this->applyEvent(new Event9($id));
+    }
+
     public function isEvent1Applied() : bool
     {
         return $this->event1Applied;
@@ -294,6 +327,11 @@ class EventSourcedAggregateRootStub implements Event\Consumer
     public function isEvent8aApplied() : bool
     {
         return $this->event8aApplied;
+    }
+
+    public function isEvent9Applied() : bool
+    {
+        return $this->event9Applied;
     }
 
     public function numberOfAppliesOfEvent7() : bool
@@ -431,3 +469,18 @@ class Event8 implements Domain\Event
 }
 class Event8a extends Event8 {}
 class Event8b extends Event8 {}
+
+class Event9 implements Domain\Event
+{
+    private $id;
+
+    public function __construct(AggregateRoot\Id $id)
+    {
+        $this->id = $id;
+    }
+
+    public function aggregateRootId() : AggregateRoot\Id
+    {
+        return $this->id;
+    }
+}

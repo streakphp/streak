@@ -24,5 +24,5 @@ interface Consumer
      */
     public function replay(Domain\Event ...$events) : void;
 
-    public function lastReplayed() : Domain\Event;
+    public function lastReplayed() : ?Domain\Event;
 }

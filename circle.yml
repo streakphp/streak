@@ -11,7 +11,7 @@ jobs:
       - run: curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./codeclimate
       - run: chmod +x ./codeclimate
 
-      - run: composer self-update
+      - run: sudo composer self-update
       - restore_cache:
           keys:
             - composer-v1-{{ checksum "composer.json" }}

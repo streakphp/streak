@@ -42,7 +42,7 @@ trait Sourcing //implements Consumer, Source
         }
     }
 
-    final public function lastReplayed() : Domain\Event
+    final public function lastReplayed() : ?Domain\Event
     {
         return $this->lastReplayed;
     }
