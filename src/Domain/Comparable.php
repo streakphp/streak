@@ -9,14 +9,12 @@
  * file that was distributed with this source code.
  */
 
-namespace Streak\Domain\EventSourced;
-
-use Streak\Domain;
-use Streak\Domain\EventSourced;
+namespace Streak\Domain;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-interface AggregateRoot extends Domain\AggregateRoot, EventSourced\Aggregate
+interface Comparable
 {
+    public function equals($object) : bool;
 }

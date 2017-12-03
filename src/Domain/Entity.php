@@ -14,9 +14,7 @@ namespace Streak\Domain;
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-interface Entity
+interface Entity extends Comparable, Identifiable
 {
-    public function id() : Entity\Id;
-
-    public function equals(Entity $entity) : bool;
+    public function entityId() : Entity\Id;
 }

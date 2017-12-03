@@ -9,31 +9,31 @@
  * file that was distributed with this source code.
  */
 
-namespace Streak\Domain\AggregateRoot;
+namespace Streak\Domain\Aggregate;
 
-use Streak\Domain\AggregateRoot;
 use Streak\Domain\Aggregate;
+use Streak\Domain\Entity;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
 trait Identification
 {
-    use Aggregate\Identification {
-        Aggregate\Identification::identifyBy as identifyAggregateBy;
+    use Entity\Identification {
+        Entity\Identification::identifyBy as identifyEntityBy;
     }
 
-    public function __construct(AggregateRoot\Id $id)
+    public function __construct(Aggregate\Id $id)
     {
         $this->identifyBy($id);
     }
 
-    public function identifyBy(AggregateRoot\Id $id) : void
+    public function identifyBy(Aggregate\Id $id) : void
     {
-        $this->identifyAggregateBy($id);
+        $this->identifyEntityBy($id);
     }
 
-    public function aggregateRootId() : AggregateRoot\Id
+    public function aggregateId() : Aggregate\Id
     {
         return $this->id;
     }

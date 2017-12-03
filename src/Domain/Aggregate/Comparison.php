@@ -9,9 +9,10 @@
  * file that was distributed with this source code.
  */
 
-namespace Streak\Domain\Entity;
+namespace Streak\Domain\Aggregate;
 
 use Streak\Domain;
+use Streak\Domain\Aggregate;
 use Streak\Domain\Entity;
 
 /**
@@ -19,19 +20,21 @@ use Streak\Domain\Entity;
  */
 trait Comparison
 {
-    abstract public function entityId() : Entity\Id;
+    use Entity\Comparison;
 
-    final public function equals($entity) : bool
+    abstract public function aggregateId() : Aggregate\Id;
+
+    final public function equals($aggregate) : bool
     {
-        if (!$this instanceof Domain\Entity) {
+        if (!$this instanceof Domain\Aggregate) {
             return false;
         }
 
-        if (!$entity instanceof self) {
+        if (!$aggregate instanceof self) {
             return false;
         }
 
-        if (!$this->entityId()->equals($entity->entityId())) {
+        if (!$this->aggregateId()->equals($aggregate->aggregateId())) {
             return false;
         }
 

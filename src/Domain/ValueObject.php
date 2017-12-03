@@ -14,7 +14,6 @@ namespace Streak\Domain;
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-interface ValueObject
+interface ValueObject extends Comparable
 {
-    public function equals(ValueObject $value) : bool;
 }

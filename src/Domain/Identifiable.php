@@ -9,14 +9,14 @@
  * file that was distributed with this source code.
  */
 
-namespace Streak\Domain\EventSourced;
+namespace Streak\Domain;
 
 use Streak\Domain;
-use Streak\Domain\EventSourced;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-interface AggregateRoot extends Domain\AggregateRoot, EventSourced\Aggregate
+interface Identifiable
 {
+    public function id() : Domain\Id;
 }

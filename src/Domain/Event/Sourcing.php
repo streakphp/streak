@@ -13,6 +13,7 @@ namespace Streak\Domain\Event;
 
 use Streak\Domain;
 use Streak\Domain\AggregateRoot;
+use Streak\Domain\Event;
 use Streak\Domain\Event\Exception;
 
 /**
@@ -57,6 +58,10 @@ trait Sourcing //implements Consumer, Source
 
     final protected function applyEvent(Domain\Event $event) : void
     {
+        if (!$this instanceof Event\Consumer) {
+            throw new Exception\SourcingObjectWithEventFailed($this, $event);
+        }
+
         if (!$this->aggregateRootId()->equals($event->aggregateRootId())) {
             throw new Domain\Exception\EventAndConsumerMismatch($this, $event);
         }
@@ -69,35 +74,31 @@ trait Sourcing //implements Consumer, Source
 
         $reflection = new \ReflectionObject($this);
 
-        $found = [];
+        $methods = [];
         foreach ($reflection->getMethods() as $method) {
-            if (false === $this->isMessageListeningMethod($method, $event)) {
+            if (false === $this->isEventListeningMethod($method, $event)) {
                 continue;
             }
 
-            $found[] = $method;
+            $methods[] = $method;
         }
 
-        if (\count($found) === 0) {
-            throw new Exception\SourcingObjectWithEventFailed($this, $event);
+        if (\count($methods) === 0) {
+            throw new Exception\NoEventApplyingMethodFound($this, $event);
         }
 
-        if (\count($found) > 1) {
-            throw new Exception\SourcingObjectWithEventFailed($this, $event);
+        // TODO: filter methods matching given event exactly and if it wont work, than filter by direct ascendants of given event and so on
+
+        if (\count($methods) > 1) {
+            throw new Exception\TooManyEventApplyingMethodsFound($this, $event);
         }
 
-        $this->call($found[0], $event);
+        $this->call($methods[0], $event);
     }
 
-    final private function isMessageListeningMethod(\ReflectionMethod $method, Domain\Event $event) : bool
+    final private function isEventListeningMethod(\ReflectionMethod $method, Domain\Event $event) : bool
     {
-        // method must start with "apply"...
-        if (\mb_substr($method->getName(), 0, 5) !== 'apply') {
-            return false;
-        }
-
-        // ... but it cant be our above-implemented applyEvent() method
-        if ($method->getName() === 'applyEvent') {
+        if (false === $this->isProperMethodName($method->getName())) {
             return false;
         }
 
@@ -118,8 +119,6 @@ trait Sourcing //implements Consumer, Source
 
         // .. and $event is type or subtype of defined $parameter
         do {
-            $name1 = $actual->getName();
-            $name2 = $expected->getName();
             if ($actual->getName() === $expected->getName()) {
                 return true;
             }
@@ -127,6 +126,19 @@ trait Sourcing //implements Consumer, Source
 
 
         return false;
+    }
+
+    final private function isProperMethodName(string $name) : bool
+    {
+        if ($name === 'applyEvent') {
+            return false;
+        }
+
+        if (\mb_substr($name, 0, 5) !== 'apply') {
+            return false;
+        }
+
+        return true;
     }
 
     final private function call(\ReflectionMethod $method, Domain\Message $message) : void

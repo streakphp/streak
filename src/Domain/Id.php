@@ -11,12 +11,12 @@
 
 namespace Streak\Domain;
 
+use Streak\Domain;
+
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-interface Id
+interface Id extends Domain\ValueObject
 {
-    public function equals(Id $id) : bool;
-
     public function toString() : string;
 }

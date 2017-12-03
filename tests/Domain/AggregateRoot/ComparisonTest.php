@@ -9,39 +9,39 @@
  * file that was distributed with this source code.
  */
 
-namespace Streak\Domain\Entity;
+namespace Streak\Domain\AggregateRoot;
 
 use PHPUnit\Framework\TestCase;
 use Streak\Domain;
-use Streak\Domain\Entity;
+use Streak\Domain\AggregateRoot;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  *
- * @covers \Streak\Domain\Entity\Comparison
+ * @covers \Streak\Domain\AggregateRoot\Comparison
  */
 class ComparisonTest extends TestCase
 {
     /**
-     * @var Entity\Id|\PHPUnit_Framework_MockObject_MockObject
+     * @var AggregateRoot\Id|\PHPUnit_Framework_MockObject_MockObject
      */
     private $id1;
 
     /**
-     * @var Entity\Id|\PHPUnit_Framework_MockObject_MockObject
+     * @var AggregateRoot\Id|\PHPUnit_Framework_MockObject_MockObject
      */
     private $id2;
 
     /**
-     * @var Entity\Id|\PHPUnit_Framework_MockObject_MockObject
+     * @var AggregateRoot\Id|\PHPUnit_Framework_MockObject_MockObject
      */
     private $id3;
 
     public function setUp()
     {
-        $this->id1 = $this->getMockBuilder(Entity\Id::class)->getMockForAbstractClass();
-        $this->id2 = $this->getMockBuilder(Entity\Id::class)->getMockForAbstractClass();
-        $this->id3 = $this->getMockBuilder(Entity\Id::class)->getMockForAbstractClass();
+        $this->id1 = $this->getMockBuilder(AggregateRoot\Id::class)->getMockForAbstractClass();
+        $this->id2 = $this->getMockBuilder(AggregateRoot\Id::class)->getMockForAbstractClass();
+        $this->id3 = $this->getMockBuilder(AggregateRoot\Id::class)->getMockForAbstractClass();
     }
 
     public function testObject()
@@ -79,7 +79,7 @@ class ComparisonTest extends TestCase
         $this->assertFalse($comparison1->equals($comparison3));
         $this->assertFalse($comparison2->equals($comparison3));
 
-        $comparison4 = new ComparisonTest\NonEntityComparisonStub($this->id3);
+        $comparison4 = new ComparisonTest\NonAggregateRootComparisonStub($this->id3);
         $this->assertFalse($comparison1->equals($comparison4));
         $this->assertFalse($comparison2->equals($comparison4));
         $this->assertFalse($comparison4->equals($comparison1));
@@ -87,20 +87,32 @@ class ComparisonTest extends TestCase
     }
 }
 
-namespace Streak\Domain\Entity\ComparisonTest;
+namespace Streak\Domain\AggregateRoot\ComparisonTest;
 
 use Streak\Domain;
 use Streak\Domain\Entity;
+use Streak\Domain\Aggregate;
+use Streak\Domain\AggregateRoot;
 
-class ComparisonStub implements Domain\Entity
+class ComparisonStub implements Domain\AggregateRoot
 {
-    use Entity\Comparison;
+    use AggregateRoot\Comparison;
 
     private $id;
 
-    public function __construct(Entity\Id $id)
+    public function __construct(AggregateRoot\Id $id)
     {
         $this->id = $id;
+    }
+
+    public function aggregateRootId() : AggregateRoot\Id
+    {
+        return $this->id;
+    }
+
+    public function aggregateId() : Aggregate\Id
+    {
+        return $this->id;
     }
 
     public function entityId() : Entity\Id
@@ -114,15 +126,25 @@ class ComparisonStub implements Domain\Entity
     }
 }
 
-class NonEntityComparisonStub
+class NonAggregateRootComparisonStub
 {
-    use Entity\Comparison;
+    use AggregateRoot\Comparison;
 
     private $id;
 
-    public function __construct(Entity\Id $id)
+    public function __construct(AggregateRoot\Id $id)
     {
         $this->id = $id;
+    }
+
+    public function aggregateRootId() : AggregateRoot\Id
+    {
+        return $this->id;
+    }
+
+    public function aggregateId() : Aggregate\Id
+    {
+        return $this->id;
     }
 
     public function entityId() : Entity\Id

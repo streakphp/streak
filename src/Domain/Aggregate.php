@@ -23,6 +23,4 @@ use Streak\Domain;
 interface Aggregate extends Domain\Entity
 {
     public function aggregateId() : Domain\Aggregate\Id;
-
-//    public function equals(Entity $entity) : bool;
 }

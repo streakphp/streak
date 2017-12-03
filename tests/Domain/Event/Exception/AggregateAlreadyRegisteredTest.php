@@ -1,0 +1,39 @@
+<?php
+
+/*
+ * This file is part of the streak package.
+ *
+ * (C) Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+namespace Streak\Domain\Event\Exception;
+
+use PHPUnit\Framework\TestCase;
+use Streak\Domain\EventSourced;
+
+/**
+ * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ */
+class AggregateAlreadyRegisteredTest extends TestCase
+{
+    /**
+     * @var EventSourced\Aggregate|\PHPUnit_Framework_MockObject_MockObject
+     */
+    private $aggregate;
+
+    public function setUp()
+    {
+        $this->aggregate = $this->getMockBuilder(EventSourced\Aggregate::class)->getMockForAbstractClass();
+    }
+
+    public function testException()
+    {
+        $exception = new AggregateAlreadyRegistered($this->aggregate);
+
+        $this->assertEquals('Aggregate already registered.', $exception->getMessage());
+        $this->assertSame($this->aggregate, $exception->aggregate());
+    }
+}

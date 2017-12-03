@@ -9,29 +9,32 @@
  * file that was distributed with this source code.
  */
 
-namespace Streak\Domain\Entity;
+namespace Streak\Domain\AggregateRoot;
 
 use Streak\Domain;
-use Streak\Domain\Entity;
+use Streak\Domain\Aggregate;
+use Streak\Domain\AggregateRoot;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
 trait Comparison
 {
-    abstract public function entityId() : Entity\Id;
+    use Aggregate\Comparison;
 
-    final public function equals($entity) : bool
+    abstract public function aggregateRootId() : AggregateRoot\Id;
+
+    final public function equals($root) : bool
     {
-        if (!$this instanceof Domain\Entity) {
+        if (!$this instanceof Domain\AggregateRoot) {
             return false;
         }
 
-        if (!$entity instanceof self) {
+        if (!$root instanceof self) {
             return false;
         }
 
-        if (!$this->entityId()->equals($entity->entityId())) {
+        if (!$this->aggregateRootId()->equals($root->aggregateRootId())) {
             return false;
         }
 

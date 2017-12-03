@@ -38,7 +38,7 @@ class SourcingTest extends TestCase
         $this->event = $this->getMockBuilder(Domain\Event::class)->getMockForAbstractClass();
     }
 
-    public function testSuccessfullyApplyingEvent()
+    public function testSuccessfullyApplyingEventWithPublicHandlingMethod()
     {
         $this->id
             ->expects($this->once())
@@ -46,16 +46,36 @@ class SourcingTest extends TestCase
             ->willReturn(true)
         ;
 
-        $event = new SourcingTest\Event1($this->id);
+        $event = new SourcingTest\EventStubForTestingPublicHandlingMethod($this->id);
 
 
         $sourcing = new SourcingTest\EventSourcedAggregateRootStub($this->id);
 
-        $this->assertFalse($sourcing->isEvent1Applied());
+        $this->assertFalse($sourcing->isEventStubForTestingPublicHandlingMethodApplied());
 
         $sourcing->replay($event);
 
-        $this->assertTrue($sourcing->isEvent1Applied());
+        $this->assertTrue($sourcing->isEventStubForTestingPublicHandlingMethodApplied());
+        $this->assertSame($event, $sourcing->lastReplayed());
+        $this->assertEmpty($sourcing->events());
+    }
+
+    public function testSuccessfullyApplyingEventWithNonPublicHandlingMethod()
+    {
+        $this->id
+            ->expects($this->once())
+            ->method('equals')
+            ->willReturn(true)
+        ;
+
+        $event = new SourcingTest\EventStubForTestingNonPublicHandlingMethod($this->id);
+        $sourcing = new SourcingTest\EventSourcedAggregateRootStub($this->id);
+
+        $this->assertFalse($sourcing->isEventStubForTestingNonPublicHandlingMethodApplied());
+
+        $sourcing->replay($event);
+
+        $this->assertTrue($sourcing->isEventStubForTestingNonPublicHandlingMethodApplied());
         $this->assertSame($event, $sourcing->lastReplayed());
         $this->assertEmpty($sourcing->events());
     }
@@ -68,7 +88,7 @@ class SourcingTest extends TestCase
             ->willReturn(false)
         ;
 
-        $event = new SourcingTest\Event1($this->id);
+        $event = new SourcingTest\EventStubForTestingMismatching($this->id);
         $sourcing = new SourcingTest\EventSourcedAggregateRootStub($this->id);
 
         $exception = new Domain\Exception\EventAndConsumerMismatch($sourcing, $event);
@@ -77,7 +97,7 @@ class SourcingTest extends TestCase
         $sourcing->replay($event);
     }
 
-    public function testTwoOrMoreMethodsPresentForSingleEvent()
+    public function testAggregateWithMissingHandlingMethodForGivenEvent()
     {
         $this->id
             ->expects($this->once())
@@ -85,16 +105,16 @@ class SourcingTest extends TestCase
             ->willReturn(true)
         ;
 
-        $event = new SourcingTest\Event2($this->id);
+        $event = new SourcingTest\EventStubForTestingMissingHandlingMethod($this->id);
         $sourcing = new SourcingTest\EventSourcedAggregateRootStub($this->id);
 
-        $exception = new Domain\Event\Exception\SourcingObjectWithEventFailed($sourcing, $event);
+        $exception = new Domain\Event\Exception\NoEventApplyingMethodFound($sourcing, $event);
         $this->expectExceptionObject($exception);
 
         $sourcing->replay($event);
     }
 
-    public function testNoMethodsPresentForAnEvent()
+    public function testAggregateWithTwoOrMoreHandlingMethodsPresentForGivenEvent()
     {
         $this->id
             ->expects($this->once())
@@ -102,16 +122,16 @@ class SourcingTest extends TestCase
             ->willReturn(true)
         ;
 
-        $event = new SourcingTest\Event3($this->id);
+        $event = new SourcingTest\EventStubForTestingTwoOrMoreHandlingMethodsPresent($this->id);
         $sourcing = new SourcingTest\EventSourcedAggregateRootStub($this->id);
 
-        $exception = new Domain\Event\Exception\SourcingObjectWithEventFailed($sourcing, $event);
+        $exception = new Domain\Event\Exception\TooManyEventApplyingMethodsFound($sourcing, $event);
         $this->expectExceptionObject($exception);
 
         $sourcing->replay($event);
     }
 
-    public function testApplyingMethodPresentButHavingMoreThanOneParameter()
+    public function testAggregateWithTwoOrMoreParametersPresentOnHandlingMethod()
     {
         $this->id
             ->expects($this->once())
@@ -119,16 +139,16 @@ class SourcingTest extends TestCase
             ->willReturn(true)
         ;
 
-        $event = new SourcingTest\Event4($this->id);
+        $event = new SourcingTest\EventStubForTestingTwoOrMoreParametersPresentOnHandlingMethod($this->id);
         $sourcing = new SourcingTest\EventSourcedAggregateRootStub($this->id);
 
-        $exception = new Domain\Event\Exception\SourcingObjectWithEventFailed($sourcing, $event);
+        $exception = new Domain\Event\Exception\NoEventApplyingMethodFound($sourcing, $event);
         $this->expectExceptionObject($exception);
 
         $sourcing->replay($event);
     }
 
-    public function testApplyingMethodPresentButHavingEventParameterOptional()
+    public function testAggregateWithOptionalParameterOnHandlingMethodForGivenEvent()
     {
         $this->id
             ->expects($this->once())
@@ -136,33 +156,13 @@ class SourcingTest extends TestCase
             ->willReturn(true)
         ;
 
-        $event = new SourcingTest\Event5($this->id);
+        $event = new SourcingTest\EventStubForTestingOptionalParameterOnHandlingMethod($this->id);
         $sourcing = new SourcingTest\EventSourcedAggregateRootStub($this->id);
 
-        $exception = new Domain\Event\Exception\SourcingObjectWithEventFailed($sourcing, $event);
+        $exception = new Domain\Event\Exception\NoEventApplyingMethodFound($sourcing, $event);
         $this->expectExceptionObject($exception);
 
         $sourcing->replay($event);
-    }
-
-    public function testApplyingMethodPresentButNonPublic()
-    {
-        $this->id
-            ->expects($this->once())
-            ->method('equals')
-            ->willReturn(true)
-        ;
-
-        $event = new SourcingTest\Event6($this->id);
-        $sourcing = new SourcingTest\EventSourcedAggregateRootStub($this->id);
-
-        $this->assertFalse($sourcing->isEvent6Applied());
-
-        $sourcing->replay($event);
-
-        $this->assertTrue($sourcing->isEvent6Applied());
-        $this->assertSame($event, $sourcing->lastReplayed());
-        $this->assertEmpty($sourcing->events());
     }
 
     public function testApplyingMethodPresentForEventsParentClassOnly()
@@ -173,8 +173,8 @@ class SourcingTest extends TestCase
             ->willReturn(true)
         ;
 
-        $event1 = new SourcingTest\Event7a($this->id);
-        $event2 = new SourcingTest\Event7b($this->id);
+        $event1 = new SourcingTest\EventWhichIsSubclassOfEvent7($this->id);
+        $event2 = new SourcingTest\AnotherEventWhichIsSubclassOfEvent7($this->id);
 
         $sourcing = new SourcingTest\EventSourcedAggregateRootStub($this->id);
 
@@ -186,7 +186,7 @@ class SourcingTest extends TestCase
         $this->assertSame($event2, $sourcing->lastReplayed());
         $this->assertEmpty($sourcing->events());
     }
-//
+
 //    public function testApplyingMethodPresentForEventsParentClassAndOnlyOneOfChildren()
 //    {
 //        $this->id
@@ -195,8 +195,8 @@ class SourcingTest extends TestCase
 //            ->willReturn(true)
 //        ;
 //
-//        $event1 = new SourcingTest\Event8a($this->id);
-//        $event2 = new SourcingTest\Event8b($this->id);
+//        $event1 = new SourcingTest\EventWhichIsSubclassOfEvent8($this->id);
+//        $event2 = new SourcingTest\AnotherEventWhichIsSubclassOfEvent8($this->id);
 //
 //        $sourcing = new SourcingTest\EventSourcedAggregateRootStub($this->id);
 //
@@ -223,14 +223,24 @@ class SourcingTest extends TestCase
 
         $this->assertFalse($sourcing->isEvent9Applied());
 
-        $sourcing->commandApplyEvent9($this->id);
+        $sourcing->command($this->id);
 
         $this->assertTrue($sourcing->isEvent9Applied());
 
-        $event = new SourcingTest\Event9($this->id);
+        $event = new SourcingTest\EventStubForTestingApplyingViaCommand($this->id);
 
         $this->assertNull($sourcing->lastReplayed());
         $this->assertEquals([$event], $sourcing->events());
+    }
+
+    public function testEventSourcingNonConsumer()
+    {
+        $sourcing = new Domain\Event\SourcingTest\EventSourcedNonConsumer($this->id);
+
+        $exception = new Domain\Event\Exception\SourcingObjectWithEventFailed($sourcing, $this->event);
+        $this->expectExceptionObject($exception);
+
+        $sourcing->replay($this->event);
     }
 }
 
@@ -246,8 +256,8 @@ class EventSourcedAggregateRootStub implements Event\Consumer
 
     private $id;
 
-    private $event1Applied = false;
-    private $event6Applied = false;
+    private $eventStubForTestingPublicHandlingMethodApplied = false;
+    private $eventStubForTestingNonPublicHandlingMethodApplied = false;
     private $numberOfAppliesOfEvent7 = 0;
     private $event8Applied = false;
     private $event8aApplied = false;
@@ -258,31 +268,31 @@ class EventSourcedAggregateRootStub implements Event\Consumer
         $this->id = $id;
     }
 
-    public function applyEvent1(Event1 $event)
+    public function applyEventStubForTestingPublicHandlingMethodApplied(EventStubForTestingPublicHandlingMethod $event)
     {
-        $this->event1Applied = true;
+        $this->eventStubForTestingPublicHandlingMethodApplied = true;
     }
 
-    public function applyEvent2(Event2 $event2)
+    private function applyEventStubForTestingNonPublicHandlingMethodApplied(EventStubForTestingNonPublicHandlingMethod $event)
+    {
+        $this->eventStubForTestingNonPublicHandlingMethodApplied = true;
+    }
+
+    public function applyEvent2(EventStubForTestingTwoOrMoreHandlingMethodsPresent $event2)
     {
 
     }
 
-    public function applyEvent2Deux(Event2 $event2)
+    public function applyEvent2Deux(EventStubForTestingTwoOrMoreHandlingMethodsPresent $event2)
     {
 
     }
 
-    public function applyEvent4(Event4 $event, mixed $thisParameterUnneeded)
+    public function applyEvent4(EventStubForTestingTwoOrMoreParametersPresentOnHandlingMethod $event, mixed $thisParameterUnneeded)
     {}
 
-    public function applyEvent5(Event5 $optionalEventIsInvalid = null)
+    public function applyEvent5(EventStubForTestingOptionalParameterOnHandlingMethod $optionalEventIsInvalid = null)
     {}
-
-    private function applyEvent6(Event6 $event)
-    {
-        $this->event6Applied = true;
-    }
 
     private function applyEvent7(Event7 $event)
     {
@@ -294,29 +304,29 @@ class EventSourcedAggregateRootStub implements Event\Consumer
         $this->event8Applied = true;
     }
 
-    private function applyEvent8a(Event8a $event)
+    private function applyEvent8a(EventWhichIsSubclassOfEvent8 $event)
     {
         $this->event8aApplied = true;
     }
 
-    private function applyEvent9(Event9 $event)
+    private function applyEvent9(EventStubForTestingApplyingViaCommand $event)
     {
         $this->event9Applied = true;
     }
 
-    public function commandApplyEvent9(AggregateRoot\Id $id)
+    public function command(AggregateRoot\Id $id)
     {
-        $this->applyEvent(new Event9($id));
+        $this->applyEvent(new EventStubForTestingApplyingViaCommand($id));
     }
 
-    public function isEvent1Applied() : bool
+    public function isEventStubForTestingPublicHandlingMethodApplied() : bool
     {
-        return $this->event1Applied;
+        return $this->eventStubForTestingPublicHandlingMethodApplied;
     }
 
-    public function isEvent6Applied() : bool
+    public function isEventStubForTestingNonPublicHandlingMethodApplied() : bool
     {
-        return $this->event6Applied;
+        return $this->eventStubForTestingNonPublicHandlingMethodApplied;
     }
 
     public function isEvent8Applied() : bool
@@ -345,7 +355,7 @@ class EventSourcedAggregateRootStub implements Event\Consumer
     }
 }
 
-class Event1 implements Domain\Event
+class EventStubForTestingPublicHandlingMethod implements Domain\Event
 {
     private $id;
 
@@ -360,7 +370,7 @@ class Event1 implements Domain\Event
     }
 }
 
-class Event2 implements Domain\Event
+class EventStubForTestingMismatching implements Domain\Event
 {
     private $id;
 
@@ -375,7 +385,7 @@ class Event2 implements Domain\Event
     }
 }
 
-class Event3 implements Domain\Event
+class EventStubForTestingTwoOrMoreHandlingMethodsPresent implements Domain\Event
 {
     private $id;
 
@@ -390,7 +400,7 @@ class Event3 implements Domain\Event
     }
 }
 
-class Event4 implements Domain\Event
+class EventStubForTestingMissingHandlingMethod implements Domain\Event
 {
     private $id;
 
@@ -405,7 +415,7 @@ class Event4 implements Domain\Event
     }
 }
 
-class Event5 implements Domain\Event
+class EventStubForTestingTwoOrMoreParametersPresentOnHandlingMethod implements Domain\Event
 {
     private $id;
 
@@ -420,7 +430,22 @@ class Event5 implements Domain\Event
     }
 }
 
-class Event6 implements Domain\Event
+class EventStubForTestingOptionalParameterOnHandlingMethod implements Domain\Event
+{
+    private $id;
+
+    public function __construct(AggregateRoot\Id $id)
+    {
+        $this->id = $id;
+    }
+
+    public function aggregateRootId() : AggregateRoot\Id
+    {
+        return $this->id;
+    }
+}
+
+class EventStubForTestingNonPublicHandlingMethod implements Domain\Event
 {
     private $id;
 
@@ -449,9 +474,8 @@ class Event7 implements Domain\Event
         return $this->id;
     }
 }
-class Event7a extends Event7 {}
-class Event7b extends Event7 {}
-
+class EventWhichIsSubclassOfEvent7 extends Event7 {}
+class AnotherEventWhichIsSubclassOfEvent7 extends Event7 {}
 
 class Event8 implements Domain\Event
 {
@@ -467,11 +491,28 @@ class Event8 implements Domain\Event
         return $this->id;
     }
 }
-class Event8a extends Event8 {}
-class Event8b extends Event8 {}
+class EventWhichIsSubclassOfEvent8 extends Event8 {}
+class AnotherEventWhichIsSubclassOfEvent8 extends Event8 {}
 
-class Event9 implements Domain\Event
+class EventStubForTestingApplyingViaCommand implements Domain\Event
 {
+    private $id;
+
+    public function __construct(AggregateRoot\Id $id)
+    {
+        $this->id = $id;
+    }
+
+    public function aggregateRootId() : AggregateRoot\Id
+    {
+        return $this->id;
+    }
+}
+
+class EventSourcedNonConsumer
+{
+    use Event\Sourcing;
+
     private $id;
 
     public function __construct(AggregateRoot\Id $id)
