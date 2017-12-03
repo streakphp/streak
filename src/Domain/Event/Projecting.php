@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the streak package.
+ * This file is part of the cbs package.
  *
  * (C) Alan Gabriel Bem <alan.bem@gmail.com>
  *
@@ -9,17 +9,36 @@
  * file that was distributed with this source code.
  */
 
-namespace Streak\Domain\Message;
+namespace Streak\Domain\Event;
 
 use Streak\Domain;
-use Streak\Domain\Message;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-trait Listening // implements Message\Listener
+trait Projecting // implements Application\Projector
 {
-    public function onMessage(Domain\Message $message) : void
+    private $replaying = false;
+    private $lastReplayed;
+
+    abstract public function onReplay() : void;
+
+    final public function replay(Domain\Event ...$events) : void
+    {
+        $this->onReplay();
+
+        foreach ($events as $event) {
+            $this->onEvent($event);
+            $this->lastReplayed = $event;
+        }
+    }
+
+    final public function lastReplayed() : ?Domain\Event
+    {
+        return $this->lastReplayed;
+    }
+
+    public function onEvent(Domain\Event $event) : void
     {
         $reflection = new \ReflectionObject($this);
 
@@ -48,14 +67,14 @@ trait Listening // implements Message\Listener
             $parameter = $method->getParameters()[0];
             $parameter = $parameter->getClass();
 
-            // ..and its a message...
-            if (false === $parameter->isSubclassOf(Domain\Message::class)) {
+            // ..and its an event...
+            if (false === $parameter->isSubclassOf(Domain\Event::class)) {
                 continue;
             }
 
-            $target = new \ReflectionClass($message);
+            $target = new \ReflectionClass($event);
 
-            // .. and $message is type or subtype of defined $parameter
+            // .. and $event is type or subtype of defined $parameter
             while($parameter->getName() !== $target->getName()) {
                 $target = $target->getParentClass();
 
@@ -81,7 +100,7 @@ trait Listening // implements Message\Listener
             $method->setAccessible(true);
         }
 
-        $method->invoke($this, $message);
+        $method->invoke($this, $event);
 
         if (false === $isPublic) {
             $method->setAccessible(false);

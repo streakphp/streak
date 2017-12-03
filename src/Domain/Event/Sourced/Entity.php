@@ -9,14 +9,14 @@
  * file that was distributed with this source code.
  */
 
-namespace Streak\Domain;
+namespace Streak\Domain\Event\Sourced;
 
 use Streak\Domain;
+use Streak\Domain\Event;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-interface Event extends Domain\Message
+interface Entity extends Domain\Entity, Event\Sourced, Event\Consumer
 {
-    public function producerId() : Domain\Id;
 }

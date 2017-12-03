@@ -9,14 +9,16 @@
  * file that was distributed with this source code.
  */
 
-namespace Streak\Domain\EventSourced;
+namespace Streak\Application\Memento;
 
-use Streak\Domain;
-use Streak\Domain\Event;
+use Streak\Application\Memento;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-interface Entity extends Domain\Entity, Event\Consumer, Event\Producer
+interface Originator
 {
+    public function from(Memento $memento) : void;
+
+    public function to(Memento $memento) : void;
 }

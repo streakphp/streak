@@ -12,6 +12,7 @@
 namespace Streak\Infrastructure\Repository;
 
 use Streak\Domain;
+use Streak\Domain\Event;
 use Streak\Domain\Exception;
 use Streak\Infrastructure;
 
@@ -21,7 +22,7 @@ use Streak\Infrastructure;
 class EventSourcedRepository implements Domain\Repository
 {
     /**
-     * @var Domain\AggregateRootFactory
+     * @var Domain\AggregateRoot\Factory
      */
     private $factory;
 
@@ -35,7 +36,7 @@ class EventSourcedRepository implements Domain\Repository
      */
     private $uow;
 
-    public function __construct(Domain\AggregateRootFactory $factory, Domain\EventStore $store, Infrastructure\UnitOfWork $uow)
+    public function __construct(Domain\AggregateRoot\Factory $factory, Domain\EventStore $store, Infrastructure\UnitOfWork $uow)
     {
         $this->factory = $factory;
         $this->store   = $store;
@@ -46,7 +47,7 @@ class EventSourcedRepository implements Domain\Repository
     {
         $aggregate = $this->factory->create($id);
 
-        if (!$aggregate instanceof Domain\EventSourced\AggregateRoot) {
+        if (!$aggregate instanceof Domain\Event\Sourced\AggregateRoot) {
             throw new Exception\AggregateNotSupported($aggregate);
         }
 
@@ -65,7 +66,7 @@ class EventSourcedRepository implements Domain\Repository
 
     public function add(Domain\AggregateRoot $aggregate) : void
     {
-        if (!$aggregate instanceof Domain\EventSourced\AggregateRoot) {
+        if (!$aggregate instanceof Event\Sourced\AggregateRoot) {
             throw new Exception\AggregateNotSupported($aggregate);
         }
 

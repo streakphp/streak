@@ -9,14 +9,14 @@
  * file that was distributed with this source code.
  */
 
-namespace Streak\Domain;
+namespace Streak\Application\Saga;
 
-use Streak\Domain;
+use Streak\Application;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-interface Event extends Domain\Message
+interface Factory
 {
-    public function producerId() : Domain\Id;
+    public function create() : Application\Saga;
 }

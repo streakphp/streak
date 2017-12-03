@@ -11,7 +11,7 @@
 
 namespace Streak\Domain\Event\Exception;
 
-use Streak\Domain\EventSourced;
+use Streak\Domain\Event;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -20,14 +20,14 @@ class AggregateAlreadyRegistered extends \InvalidArgumentException
 {
     private $aggregate;
 
-    public function __construct(EventSourced\Aggregate $aggregate, \Throwable $previous = null)
+    public function __construct(Event\Sourced\Aggregate $aggregate, \Throwable $previous = null)
     {
         $this->aggregate = $aggregate;
 
         parent::__construct('Aggregate already registered.', 0, $previous);
     }
 
-    public function aggregate() : EventSourced\Aggregate
+    public function aggregate() : Event\Sourced\Aggregate
     {
         return $this->aggregate;
     }

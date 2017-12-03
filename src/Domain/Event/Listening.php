@@ -9,14 +9,20 @@
  * file that was distributed with this source code.
  */
 
-namespace Streak\Domain;
+namespace Streak\Domain\Event;
 
 use Streak\Domain;
+use Streak\Domain\Message;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-interface Event extends Domain\Message
+trait Listening
 {
-    public function producerId() : Domain\Id;
+    use Message\Listening;
+
+    public function onEvent(Domain\Event $event) : void
+    {
+        $this->onMessage($event);
+    }
 }

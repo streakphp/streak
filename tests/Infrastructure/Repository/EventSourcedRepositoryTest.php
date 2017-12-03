@@ -13,6 +13,7 @@ namespace Streak\Infrastructure\Repository;
 
 use PHPUnit\Framework\TestCase;
 use Streak\Domain;
+use Streak\Domain\Event;
 use Streak\Infrastructure;
 
 /**
@@ -23,7 +24,7 @@ use Streak\Infrastructure;
 class EventSourcedRepositoryTest extends TestCase
 {
     /**
-     * @var Domain\AggregateRootFactory|\PHPUnit_Framework_MockObject_MockObject
+     * @var Domain\AggregateRoot\Factory|\PHPUnit_Framework_MockObject_MockObject
      */
     private $factory;
 
@@ -43,7 +44,7 @@ class EventSourcedRepositoryTest extends TestCase
     private $nonEventSourcedAggregateRoot;
 
     /**
-     * @var Domain\EventSourced\AggregateRoot|\PHPUnit_Framework_MockObject_MockObject
+     * @var Event\Sourced\AggregateRoot|\PHPUnit_Framework_MockObject_MockObject
      */
     private $aggregateRoot;
 
@@ -74,12 +75,12 @@ class EventSourcedRepositoryTest extends TestCase
 
     public function setUp()
     {
-        $this->factory = $this->getMockBuilder(Domain\AggregateRootFactory::class)->getMockForAbstractClass();
+        $this->factory = $this->getMockBuilder(Domain\AggregateRoot\Factory::class)->getMockForAbstractClass();
         $this->store = $this->getMockBuilder(Domain\EventStore::class)->getMockForAbstractClass();
         $this->uow = new Infrastructure\UnitOfWork($this->store);
 
         $this->nonEventSourcedAggregateRoot = $this->getMockBuilder(Domain\AggregateRoot::class)->getMockForAbstractClass();
-        $this->aggregateRoot = $this->getMockBuilder(Domain\EventSourced\AggregateRoot::class)->getMockForAbstractClass();
+        $this->aggregateRoot = $this->getMockBuilder(Domain\Event\Sourced\AggregateRoot::class)->getMockForAbstractClass();
 
         $this->aggregateRootId = $this->getMockBuilder(Domain\AggregateRoot\Id::class)->getMockForAbstractClass();
 

@@ -49,7 +49,7 @@ abstract class TestCase extends PHPUnit\Framework\TestCase
         return $this->createScenario()->given(...$events);
     }
 
-    abstract protected function createFactory() : Domain\AggregateRootFactory;
+    abstract protected function createFactory() : Domain\AggregateRoot\Factory;
 
     abstract protected function createHandler(Domain\EventStore $store) : Application\CommandHandler;
 }

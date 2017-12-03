@@ -12,7 +12,6 @@
 namespace Streak\Domain\Event\Exception;
 
 use Streak\Domain;
-use Streak\Domain\EventSourced\Entity;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -31,7 +30,7 @@ class SourcingObjectWithEventFailed extends \BadMethodCallException
 
     public function __construct($object, Domain\Event $event, \Throwable $previous = null)
     {
-        if (false === is_object($object)) {
+        if (false === \is_object($object)) {
             $message = sprintf('Object expected, but got "%s"', \gettype($object));
             throw new \InvalidArgumentException($message);
         }

@@ -9,14 +9,13 @@
  * file that was distributed with this source code.
  */
 
-namespace Streak\Domain\EventSourced;
+namespace Streak\Application;
 
-use Streak\Domain;
-use Streak\Domain\EventSourced;
+use Streak\Domain\Event;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-interface Aggregate extends Domain\Aggregate, EventSourced\Entity
+interface Projector extends Event\Consumer, Event\Listener
 {
 }

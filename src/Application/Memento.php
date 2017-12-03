@@ -11,11 +11,22 @@
 
 namespace Streak\Application;
 
-use Streak\Domain\Message;
-
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-interface Saga extends Message\Listener, Message\Lifecycled, Memento\Originator
+interface Memento
 {
+    /**
+     * @param string $name
+     * @param mixed $value
+     */
+    public function set(string $name, $value) : void;
+
+    /**
+     * @param string $name
+     * @param mixed $default
+     *
+     * @return mixed
+     */
+    public function get(string $name, $default = null);
 }

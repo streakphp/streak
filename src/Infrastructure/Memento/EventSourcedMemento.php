@@ -9,14 +9,14 @@
  * file that was distributed with this source code.
  */
 
-namespace Streak\Domain\EventSourced;
+namespace Streak\Infrastructure\Memento;
 
-use Streak\Domain;
-use Streak\Domain\EventSourced;
+use Streak\Application;
+use Streak\Domain\Event;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-interface AggregateRoot extends Domain\AggregateRoot, EventSourced\Aggregate
+class EventSourcedMemento implements Application\Memento, Event\Sourced\Entity
 {
 }

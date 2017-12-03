@@ -35,7 +35,7 @@ abstract class TestCase extends PHPUnit\Framework\TestCase
 
     private function createScenario() : Scenario
     {
-        return new Scenario($this->getCommandBus(), $this->createSaga($this->getCommandBus()));
+        return new Scenario($this->getCommandBus(), $this->createFactory($this->getCommandBus()));
     }
 
     public function getCommandBus() : SynchronousCommandBus
@@ -48,5 +48,5 @@ abstract class TestCase extends PHPUnit\Framework\TestCase
         return $this->createScenario()->given(...$messages);
     }
 
-    abstract public function createSaga(Application\CommandBus $bus) : Application\Saga;
+    abstract public function createFactory(Application\CommandBus $bus) : Application\Saga\Factory;
 }

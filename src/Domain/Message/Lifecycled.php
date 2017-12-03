@@ -9,14 +9,16 @@
  * file that was distributed with this source code.
  */
 
-namespace Streak\Domain;
+namespace Streak\Domain\Message;
 
 use Streak\Domain;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-interface Event extends Domain\Message
+interface Lifecycled
 {
-    public function producerId() : Domain\Id;
+    public static function beginFor(Domain\Message $message) : bool;
+
+    public static function endFor(Domain\Message $message) : bool;
 }

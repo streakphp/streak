@@ -46,12 +46,12 @@ class TransactionalPersistenceCommandHandlerTest extends TestCase
     private $uow;
 
     /**
-     * @var Domain\EventSourced\AggregateRoot|\PHPUnit_Framework_MockObject_MockObject
+     * @var Event\Sourced\AggregateRoot|\PHPUnit_Framework_MockObject_MockObject
      */
     private $aggregateRoot1;
 
     /**
-     * @var Domain\EventSourced\AggregateRoot|\PHPUnit_Framework_MockObject_MockObject
+     * @var Event\Sourced\AggregateRoot|\PHPUnit_Framework_MockObject_MockObject
      */
     private $aggregateRoot2;
 
@@ -72,8 +72,8 @@ class TransactionalPersistenceCommandHandlerTest extends TestCase
         $this->store = $this->getMockBuilder(Domain\EventStore::class)->getMockForAbstractClass();
         $this->uow = new Infrastructure\UnitOfWork($this->store);
 
-        $this->aggregateRoot1 = $this->getMockBuilder(Domain\EventSourced\AggregateRoot::class)->getMockForAbstractClass();
-        $this->aggregateRoot2 = $this->getMockBuilder(Domain\EventSourced\AggregateRoot::class)->getMockForAbstractClass();
+        $this->aggregateRoot1 = $this->getMockBuilder(Event\Sourced\AggregateRoot::class)->getMockForAbstractClass();
+        $this->aggregateRoot2 = $this->getMockBuilder(Event\Sourced\AggregateRoot::class)->getMockForAbstractClass();
 
         $this->aggregateRootId1 = $this->getMockBuilder(Domain\AggregateRoot\Id::class)->getMockForAbstractClass();
         $this->aggregateRootId2 = $this->getMockBuilder(Domain\AggregateRoot\Id::class)->getMockForAbstractClass();

@@ -9,14 +9,12 @@
  * file that was distributed with this source code.
  */
 
-namespace Streak\Domain;
-
-use Streak\Domain;
+namespace Streak\Application\Memento;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-interface Event extends Domain\Message
+interface Caretaker
 {
-    public function producerId() : Domain\Id;
+    // TODO: add some useful interface here
 }

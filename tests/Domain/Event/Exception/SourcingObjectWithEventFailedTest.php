@@ -13,7 +13,7 @@ namespace Streak\Domain\Event\Exception;
 
 use PHPUnit\Framework\TestCase;
 use Streak\Domain;
-use Streak\Domain\EventSourced;
+use Streak\Domain\Event;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -21,7 +21,7 @@ use Streak\Domain\EventSourced;
 class SourcingObjectWithEventFailedTest extends TestCase
 {
     /**
-     * @var EventSourced\Aggregate|\PHPUnit_Framework_MockObject_MockObject
+     * @var Event\Sourced\Aggregate|\PHPUnit_Framework_MockObject_MockObject
      */
     private $aggregate;
 
@@ -32,7 +32,7 @@ class SourcingObjectWithEventFailedTest extends TestCase
 
     public function setUp()
     {
-        $this->aggregate = $this->getMockBuilder(EventSourced\Aggregate::class)->getMockForAbstractClass();
+        $this->aggregate = $this->getMockBuilder(Event\Sourced\Aggregate::class)->getMockForAbstractClass();
         $this->event = $this->getMockBuilder(Domain\Event::class)->getMockForAbstractClass();
     }
 

@@ -349,7 +349,7 @@ class EventSourcedAggregateRootStub implements Event\Consumer
         return $this->numberOfAppliesOfEvent7;
     }
 
-    public function aggregateRootId() : AggregateRoot\Id
+    public function id() : Domain\Id
     {
         return $this->id;
     }
@@ -364,7 +364,7 @@ class EventStubForTestingPublicHandlingMethod implements Domain\Event
         $this->id = $id;
     }
 
-    public function aggregateRootId() : AggregateRoot\Id
+    public function producerId() : Domain\Id
     {
         return $this->id;
     }
@@ -379,7 +379,7 @@ class EventStubForTestingMismatching implements Domain\Event
         $this->id = $id;
     }
 
-    public function aggregateRootId() : AggregateRoot\Id
+    public function producerId() : Domain\Id
     {
         return $this->id;
     }
@@ -394,7 +394,7 @@ class EventStubForTestingTwoOrMoreHandlingMethodsPresent implements Domain\Event
         $this->id = $id;
     }
 
-    public function aggregateRootId() : AggregateRoot\Id
+    public function producerId() : Domain\Id
     {
         return $this->id;
     }
@@ -409,7 +409,7 @@ class EventStubForTestingMissingHandlingMethod implements Domain\Event
         $this->id = $id;
     }
 
-    public function aggregateRootId() : AggregateRoot\Id
+    public function producerId() : Domain\Id
     {
         return $this->id;
     }
@@ -424,7 +424,7 @@ class EventStubForTestingTwoOrMoreParametersPresentOnHandlingMethod implements D
         $this->id = $id;
     }
 
-    public function aggregateRootId() : AggregateRoot\Id
+    public function producerId() : Domain\Id
     {
         return $this->id;
     }
@@ -439,7 +439,7 @@ class EventStubForTestingOptionalParameterOnHandlingMethod implements Domain\Eve
         $this->id = $id;
     }
 
-    public function aggregateRootId() : AggregateRoot\Id
+    public function producerId() : Domain\Id
     {
         return $this->id;
     }
@@ -454,7 +454,7 @@ class EventStubForTestingNonPublicHandlingMethod implements Domain\Event
         $this->id = $id;
     }
 
-    public function aggregateRootId() : AggregateRoot\Id
+    public function producerId() : Domain\Id
     {
         return $this->id;
     }
@@ -469,7 +469,7 @@ class Event7 implements Domain\Event
         $this->id = $id;
     }
 
-    public function aggregateRootId() : AggregateRoot\Id
+    public function producerId() : Domain\Id
     {
         return $this->id;
     }
@@ -486,7 +486,7 @@ class Event8 implements Domain\Event
         $this->id = $id;
     }
 
-    public function aggregateRootId() : AggregateRoot\Id
+    public function producerId() : Domain\Id
     {
         return $this->id;
     }
@@ -503,7 +503,7 @@ class EventStubForTestingApplyingViaCommand implements Domain\Event
         $this->id = $id;
     }
 
-    public function aggregateRootId() : AggregateRoot\Id
+    public function producerId() : Domain\Id
     {
         return $this->id;
     }
@@ -520,7 +520,7 @@ class EventSourcedNonConsumer
         $this->id = $id;
     }
 
-    public function aggregateRootId() : AggregateRoot\Id
+    public function id() : Domain\Id
     {
         return $this->id;
     }

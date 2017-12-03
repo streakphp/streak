@@ -25,7 +25,7 @@ class UnitOfWork
     private $store;
 
     /**
-     * @var \Streak\Domain\EventSourced\Entity[]
+     * @var Event\Sourced[]
      */
     private $objects = [];
 
@@ -34,7 +34,7 @@ class UnitOfWork
         $this->store = $store;
     }
 
-    public function add(Domain\EventSourced\Entity $object) : void
+    public function add(Event\Sourced $object) : void
     {
         foreach ($this->objects as $current) {
             if ($current->equals($object)) {
@@ -45,7 +45,7 @@ class UnitOfWork
         $this->objects[] = $object;
     }
 
-    public function remove(Domain\EventSourced\Entity $object) : void
+    public function remove(Event\Sourced $object) : void
     {
         foreach ($this->objects as $key => $current) {
             if ($current->equals($object)) {
@@ -55,7 +55,7 @@ class UnitOfWork
         }
     }
 
-    public function has(Domain\EventSourced\Entity $object) : bool
+    public function has(Event\Sourced $object) : bool
     {
         foreach ($this->objects as $current) {
             if ($current->equals($object)) {

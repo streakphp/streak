@@ -9,14 +9,13 @@
  * file that was distributed with this source code.
  */
 
-namespace Streak\Domain;
+namespace Streak\Domain\Event;
 
-use Streak\Domain;
+use Streak\Domain\Comparable;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-interface Event extends Domain\Message
+interface Sourced extends Comparable, Producer
 {
-    public function producerId() : Domain\Id;
 }

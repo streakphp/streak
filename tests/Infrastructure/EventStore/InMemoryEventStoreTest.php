@@ -1,7 +1,5 @@
 <?php
 
-namespace Streak\Infrastructure\EventStore;
-
 /*
  * This file is part of the streak package.
  *
@@ -11,9 +9,10 @@ namespace Streak\Infrastructure\EventStore;
  * file that was distributed with this source code.
  */
 
+namespace Streak\Infrastructure\EventStore;
+
 use PHPUnit\Framework\TestCase;
 use Streak\Domain;
-use Streak\Domain\Event;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -67,28 +66,28 @@ class InMemoryEventStoreTest extends TestCase
     {
         $this->event1
             ->expects($this->atLeastOnce())
-            ->method('aggregateRootId')
+            ->method('producerId')
             ->with()
             ->willReturn($this->aggregateRootId1)
         ;
 
         $this->event2
             ->expects($this->atLeastOnce())
-            ->method('aggregateRootId')
+            ->method('producerId')
             ->with()
             ->willReturn($this->aggregateRootId1)
         ;
 
         $this->event3
             ->expects($this->atLeastOnce())
-            ->method('aggregateRootId')
+            ->method('producerId')
             ->with()
             ->willReturn($this->aggregaterootId2)
         ;
 
         $this->event4
             ->expects($this->atLeastOnce())
-            ->method('aggregateRootId')
+            ->method('producerId')
             ->with()
             ->willReturn($this->aggregaterootId2)
         ;
@@ -135,7 +134,7 @@ class InMemoryEventStoreTest extends TestCase
     {
         $this->event1
             ->expects($this->once())
-            ->method('aggregateRootId')
+            ->method('producerId')
             ->with()
             ->willReturn($this->aggregateRootId1)
         ;
@@ -146,7 +145,7 @@ class InMemoryEventStoreTest extends TestCase
             ->willReturn('')
         ;
 
-        $exception = new Domain\Exception\InvalidAggregateIdGiven($this->aggregateRootId1);
+        $exception = new Domain\Exception\InvalidIdGiven($this->aggregateRootId1);
         $this->expectExceptionObject($exception);
 
         $store = new InMemoryEventStore();

@@ -9,18 +9,14 @@
  * file that was distributed with this source code.
  */
 
-namespace Streak\Domain;
+namespace Streak\Domain\Event\Sourced;
 
 use Streak\Domain;
-use Streak\Domain\Exception;
+use Streak\Domain\Event;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-interface AggregateRootFactory
+interface AggregateRoot extends Domain\AggregateRoot, Event\Sourced\Aggregate
 {
-    /**
-     * @throws Exception\InvalidAggregateIdGiven
-     */
-    public function create(AggregateRoot\Id $id) : AggregateRoot;
 }

@@ -15,31 +15,41 @@ use PHPUnit\Framework\Assert;
 use Streak\Application;
 use Streak\Domain;
 use Streak\Infrastructure\CommandHandler\SynchronousCommandBus;
+use Streak\Infrastructure\Memento\InMemoryMemento;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
 class Scenario implements Scenario\Given, Scenario\When, Scenario\Then, Application\CommandHandler
 {
-    /**
-     * @var Application\Command[]
-     */
     private $commands = [];
     private $bus;
-    private $saga;
+    private $factory;
+    private $memento;
 
-    public function __construct(SynchronousCommandBus $bus, Application\Saga $saga)
+    public function __construct(SynchronousCommandBus $bus, Application\Saga\Factory $factory)
     {
         $this->bus = $bus;
-        $this->saga = $saga;
+        $this->factory = $factory;
+        $this->memento = new InMemoryMemento();
 
         $this->bus->register($this);
     }
 
+    private function process(Domain\Message $message) : void
+    {
+        $saga = $this->factory->create();
+        $saga->from($this->memento);
+        $saga->onMessage($message);
+        $saga->to($this->memento);
+    }
+
     public function given(Domain\Message ...$messages) : Scenario\When
     {
+        // TODO: check lifecycle
+
         foreach ($messages as $message) {
-            $this->saga->onMessage($message);
+            $this->process($message);
         }
 
         $this->commands = []; // clear dispatched commands list up until this moment
@@ -49,7 +59,9 @@ class Scenario implements Scenario\Given, Scenario\When, Scenario\Then, Applicat
 
     public function when(Domain\Message $message) : Scenario\Then
     {
-        $this->saga->onMessage($message);
+        // TODO: check lifecycle
+
+        $this->process($message);
 
         return $this;
     }

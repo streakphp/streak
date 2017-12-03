@@ -12,20 +12,19 @@
 namespace Streak\Domain\Event;
 
 use Streak\Domain;
-use Streak\Domain\AggregateRoot;
 use Streak\Domain\Event;
 use Streak\Domain\Event\Exception;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-trait Sourcing //implements Consumer, Source
+trait Sourcing //implements Event\Consumer, Event\Producer, Identifiable
 {
     private $events = [];
     private $replaying = false;
     private $lastReplayed;
 
-    abstract public function aggregateRootId() : AggregateRoot\Id;
+    abstract public function id() : Domain\Id;
 
     final public function replay(Domain\Event ...$events) : void
     {
@@ -62,7 +61,7 @@ trait Sourcing //implements Consumer, Source
             throw new Exception\SourcingObjectWithEventFailed($this, $event);
         }
 
-        if (!$this->aggregateRootId()->equals($event->aggregateRootId())) {
+        if (!$this->id()->equals($event->producerId())) {
             throw new Domain\Exception\EventAndConsumerMismatch($this, $event);
         }
 
@@ -76,8 +75,43 @@ trait Sourcing //implements Consumer, Source
 
         $methods = [];
         foreach ($reflection->getMethods() as $method) {
-            if (false === $this->isEventListeningMethod($method, $event)) {
+            // method is not current method...
+            if ($method->getName() === __FUNCTION__) {
                 continue;
+            }
+
+            // ...and its name must start with "apply"
+            if (\mb_substr($method->getName(), 0, 5) !== 'apply') {
+                continue;
+            }
+
+            // ...and have exactly one parameter...
+            if ($method->getNumberOfParameters() !== 1) {
+                continue;
+            }
+
+            // ...which is required...
+            if ($method->getNumberOfRequiredParameters() !== 1) {
+                continue;
+            }
+
+            $parameter = $method->getParameters()[0];
+            $parameter = $parameter->getClass();
+
+            // ..and its an event...
+            if (false === $parameter->isSubclassOf(Domain\Event::class)) {
+                continue;
+            }
+
+            $target = new \ReflectionClass($event);
+
+            // .. and $event is type or subtype of defined $parameter
+            while($parameter->getName() !== $target->getName()) {
+                $target = $target->getParentClass();
+
+                if (false === $target) {
+                    continue 2;
+                }
             }
 
             $methods[] = $method;
@@ -93,63 +127,15 @@ trait Sourcing //implements Consumer, Source
             throw new Exception\TooManyEventApplyingMethodsFound($this, $event);
         }
 
-        $this->call($methods[0], $event);
-    }
+        $method = array_shift($methods);
 
-    final private function isEventListeningMethod(\ReflectionMethod $method, Domain\Event $event) : bool
-    {
-        if (false === $this->isProperMethodName($method->getName())) {
-            return false;
-        }
-
-        // ...and have exactly one parameter...
-        if ($method->getNumberOfParameters() !== 1) {
-            return false;
-        }
-
-        // ...which is required...
-        if ($method->getNumberOfRequiredParameters() !== 1) {
-            return false;
-        }
-
-        $expected = $method->getParameters()[0];
-        $expected = $expected->getClass();
-
-        $actual = new \ReflectionClass($event);
-
-        // .. and $event is type or subtype of defined $parameter
-        do {
-            if ($actual->getName() === $expected->getName()) {
-                return true;
-            }
-        } while ($actual = $actual->getParentClass());
-
-
-        return false;
-    }
-
-    final private function isProperMethodName(string $name) : bool
-    {
-        if ($name === 'applyEvent') {
-            return false;
-        }
-
-        if (\mb_substr($name, 0, 5) !== 'apply') {
-            return false;
-        }
-
-        return true;
-    }
-
-    final private function call(\ReflectionMethod $method, Domain\Message $message) : void
-    {
         $isPublic = $method->isPublic();
 
         if (false === $isPublic) {
             $method->setAccessible(true);
         }
 
-        $method->invoke($this, $message);
+        $method->invoke($this, $event);
 
         if (false === $isPublic) {
             $method->setAccessible(false);

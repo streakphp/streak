@@ -27,7 +27,7 @@ class Scenario implements Scenario\Given, Scenario\When, Scenario\Then
     private $store;
     private $uow;
 
-    public function __construct(Domain\AggregateRootFactory $factory, Application\CommandHandler $handler, InMemoryEventStore $store, UnitOfWork $uow)
+    public function __construct(Domain\AggregateRoot\Factory $factory, Application\CommandHandler $handler, InMemoryEventStore $store, UnitOfWork $uow)
     {
         $this->factory = $factory;
         $this->handler = $handler;

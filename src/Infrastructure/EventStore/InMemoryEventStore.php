@@ -16,6 +16,8 @@ use Streak\Domain\Exception;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @TODO: Use SplObjectStorage, with Event::producerId() as key, so method Domain\Id::toString() can be dropped.
  */
 class InMemoryEventStore implements Domain\EventStore
 {
@@ -26,9 +28,9 @@ class InMemoryEventStore implements Domain\EventStore
     {
         foreach ($events as $event) {
 
-            $this->check($event->aggregateRootId());
+            $this->check($event->producerId());
 
-            $id = $event->aggregateRootId()->toString();
+            $id = $event->producerId()->toString();
             if (!isset($this->events[$id])) {
                 $this->events[$id] = [];
             }
@@ -63,10 +65,10 @@ class InMemoryEventStore implements Domain\EventStore
         $this->all = [];
     }
 
-    public function check(Domain\AggregateRoot\Id $id) : void
+    public function check(Domain\Id $id) : void
     {
         if ('' === $id->toString()) {
-            throw new Exception\InvalidAggregateIdGiven($id);
+            throw new Exception\InvalidIdGiven($id);
         }
     }
 }
