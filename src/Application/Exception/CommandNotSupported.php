@@ -11,7 +11,7 @@
 
 namespace Streak\Application\Exception;
 
-use Streak\Application\Command;
+use Streak\Application;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -20,7 +20,7 @@ class CommandNotSupported extends \RuntimeException
 {
     private $command;
 
-    public function __construct(Command $command, \Exception $previous = null)
+    public function __construct(Application\Command $command, \Exception $previous = null)
     {
         $this->command = $command;
 
@@ -28,7 +28,7 @@ class CommandNotSupported extends \RuntimeException
         parent::__construct($message, 0, $previous);
     }
 
-    public function getCommand() : Command
+    public function command() : Application\Command
     {
         return $this->command;
     }

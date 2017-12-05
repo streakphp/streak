@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the streak package.
+ * This file is part of the cbs package.
  *
  * (C) Alan Gabriel Bem <alan.bem@gmail.com>
  *
@@ -9,16 +9,16 @@
  * file that was distributed with this source code.
  */
 
-namespace Streak\Application\Memento;
+namespace Streak\Domain;
 
-use Streak\Application\Memento;
+use Streak\Domain\Persistable\State;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-interface Originator
+interface Persistable
 {
-    public function from(Memento $memento) : void;
+    public function from(State $state) : void;
 
-    public function to(Memento $memento) : void;
+    public function to(State $state) : void;
 }

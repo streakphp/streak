@@ -30,7 +30,7 @@ class CommandTransactionCompromised extends \LogicException
 
     }
 
-    public function getCommand() : Application\Command
+    public function command() : Application\Command
     {
         return $this->command;
     }

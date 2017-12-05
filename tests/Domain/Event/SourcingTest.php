@@ -314,6 +314,10 @@ class EventSourcedAggregateRootStub implements Event\Consumer
         $this->event9Applied = true;
     }
 
+    private function applyNonEvent(\stdClass $parameter)
+    {
+    }
+
     public function command(AggregateRoot\Id $id)
     {
         $this->applyEvent(new EventStubForTestingApplyingViaCommand($id));

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the cbs package.
+ * This file is part of the streak package.
  *
  * (C) Alan Gabriel Bem <alan.bem@gmail.com>
  *
@@ -12,25 +12,23 @@
 namespace Streak\Domain\Event;
 
 use Streak\Domain;
-use Streak\Domain\Event;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-trait Projecting // implements Application\Projector
+trait Consuming
 {
-    use Event\Consuming {
-        replay as private;
-        replay as doReplay;
-    }
-    use Event\Listening;
+    private $replaying = false;
+    private $lastReplayed;
 
-    abstract public function onReplay() : void;
+    abstract public function onEvent(Domain\Event $event) : void;
 
     final public function replay(Domain\Event ...$events) : void
     {
-        $this->onReplay();
-        $this->doReplay(...$events);
+        foreach ($events as $event) {
+            $this->onEvent($event);
+            $this->lastReplayed = $event;
+        }
     }
 
     final public function lastReplayed() : ?Domain\Event

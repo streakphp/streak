@@ -9,14 +9,16 @@
  * file that was distributed with this source code.
  */
 
-namespace Streak\Infrastructure\Memento;
+namespace Streak\Domain\Message;
 
-use Streak\Application;
-use Streak\Domain\Event;
+use Streak\Domain;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-class EventSourcedMemento implements Application\Memento, Event\Sourced\Entity
+interface Spannable
 {
+    public static function beginsWith(Domain\Message $message) : bool;
+
+    public static function endsWith(Domain\Message $message) : bool;
 }

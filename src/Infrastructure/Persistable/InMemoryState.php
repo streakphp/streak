@@ -9,14 +9,14 @@
  * file that was distributed with this source code.
  */
 
-namespace Streak\Infrastructure\Memento;
+namespace Streak\Infrastructure\Persistable;
 
-use Streak\Application;
+use Streak\Domain\Persistable;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-class InMemoryMemento implements Application\Memento
+class InMemoryState implements Persistable\State
 {
     private $values = [];
 

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the streak package.
+ * This file is part of the cbs package.
  *
  * (C) Alan Gabriel Bem <alan.bem@gmail.com>
  *
@@ -9,12 +9,12 @@
  * file that was distributed with this source code.
  */
 
-namespace Streak\Application;
+namespace Streak\Domain\Persistable;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-interface Memento
+interface State
 {
     /**
      * @param string $name

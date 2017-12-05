@@ -12,10 +12,11 @@
 namespace Streak\Application;
 
 use Streak\Domain\Message;
+use Streak\Domain\Persistable;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-interface Saga extends Message\Listener, Message\Lifecycled, Memento\Originator
+interface Saga extends Message\Listener, Message\Spannable, Persistable
 {
 }

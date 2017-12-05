@@ -28,7 +28,7 @@ class CommandHandlerAlreadyRegistered extends \OutOfRangeException
         parent::__construct($message, 0, $previous);
     }
 
-    public function getHandler() : CommandHandler
+    public function handler() : CommandHandler
     {
         return $this->handler;
     }

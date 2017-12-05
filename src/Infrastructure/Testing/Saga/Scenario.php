@@ -15,7 +15,7 @@ use PHPUnit\Framework\Assert;
 use Streak\Application;
 use Streak\Domain;
 use Streak\Infrastructure\CommandHandler\SynchronousCommandBus;
-use Streak\Infrastructure\Memento\InMemoryMemento;
+use Streak\Infrastructure\Persistable\InMemoryState;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -23,25 +23,23 @@ use Streak\Infrastructure\Memento\InMemoryMemento;
 class Scenario implements Scenario\Given, Scenario\When, Scenario\Then, Application\CommandHandler
 {
     private $commands = [];
-    private $bus;
     private $factory;
-    private $memento;
+    private $state;
 
     public function __construct(SynchronousCommandBus $bus, Application\Saga\Factory $factory)
     {
-        $this->bus = $bus;
         $this->factory = $factory;
-        $this->memento = new InMemoryMemento();
+        $this->state = new InMemoryState();
 
-        $this->bus->register($this);
+        $bus->register($this);
     }
 
     private function process(Domain\Message $message) : void
     {
         $saga = $this->factory->create();
-        $saga->from($this->memento);
+        $saga->from($this->state);
         $saga->onMessage($message);
-        $saga->to($this->memento);
+        $saga->to($this->state);
     }
 
     public function given(Domain\Message ...$messages) : Scenario\When

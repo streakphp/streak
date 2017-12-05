@@ -23,10 +23,14 @@ trait Listening // implements Message\Listener
     {
         $reflection = new \ReflectionObject($this);
 
-        $methods = [];
         foreach ($reflection->getMethods() as $method) {
             // method is not current method...
             if ($method->getName() === __FUNCTION__) {
+                continue;
+            }
+
+            // ...is public...
+            if (!$method->isPublic()) {
                 continue;
             }
 
@@ -55,36 +59,14 @@ trait Listening // implements Message\Listener
 
             $target = new \ReflectionClass($message);
 
-            // .. and $message is type or subtype of defined $parameter
-            while($parameter->getName() !== $target->getName()) {
-                $target = $target->getParentClass();
-
-                if (false === $target) {
-                    continue 2;
-                }
+            // .. and $message is type of defined $parameter
+            if ($parameter->getName() !== $target->getName()) {
+                continue;
             }
 
-            $methods[] = $method;
-        }
+            $method->invoke($this, $message);
 
-        // TODO: filter methods matching given event exactly and if it wont work, than filter by direct ascendants of given event and so on
-
-        if (\count($methods) === 0) {
             return;
-        }
-
-        $method = array_shift($methods);
-
-        $isPublic = $method->isPublic();
-
-        if (false === $isPublic) {
-            $method->setAccessible(true);
-        }
-
-        $method->invoke($this, $message);
-
-        if (false === $isPublic) {
-            $method->setAccessible(false);
         }
     }
 }
