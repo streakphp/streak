@@ -23,6 +23,7 @@ use Streak\Infrastructure\Persistable\InMemoryState;
 class Scenario implements Scenario\Given, Scenario\When, Scenario\Then, Application\CommandHandler
 {
     private $commands = [];
+    private $messages = [];
     private $factory;
     private $state;
 
@@ -44,7 +45,7 @@ class Scenario implements Scenario\Given, Scenario\When, Scenario\Then, Applicat
 
     public function given(Domain\Message ...$messages) : Scenario\When
     {
-        // TODO: check lifecycle
+        $this->messages = $messages;
 
         foreach ($messages as $message) {
             $this->process($message);
@@ -57,7 +58,7 @@ class Scenario implements Scenario\Given, Scenario\When, Scenario\Then, Applicat
 
     public function when(Domain\Message $message) : Scenario\Then
     {
-        // TODO: check lifecycle
+        $this->messages[] = $message;
 
         $this->process($message);
 
@@ -66,11 +67,35 @@ class Scenario implements Scenario\Given, Scenario\When, Scenario\Then, Applicat
 
     public function then(Application\Command $expected) : void
     {
+        $first = array_shift($this->messages);
+        $last = array_pop($this->messages);
+
+        Assert::assertTrue($this->isMessageStartingSaga($first), 'Saga should begin its lifecycle with first given message.');
+
+        // iterate on messages between first and last message
+        foreach ($this->messages as $message) {
+            Assert::assertFalse($this->isMessageEndingSaga($message), 'Saga should not end its lifecycle before all messages were listen.');
+        }
+
         Assert::assertEquals([$expected], $this->commands);
     }
 
     public function handle(Application\Command $command) : void
     {
         $this->commands[] = $command;
+    }
+
+    private function isMessageStartingSaga(Domain\Message $message) : bool
+    {
+        $saga = $this->factory->create();
+
+        return $saga::beginsWith($message);
+    }
+
+    private function isMessageEndingSaga(Domain\Message $message) : bool
+    {
+        $saga = $this->factory->create();
+
+        return $saga::endsWith($message);
     }
 }
