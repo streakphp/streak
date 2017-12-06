@@ -20,6 +20,8 @@ use Streak\Infrastructure\UnitOfWork;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @codeCoverageIgnore
  */
 abstract class TestCase extends PHPUnit\Framework\TestCase
 {
@@ -34,9 +36,9 @@ abstract class TestCase extends PHPUnit\Framework\TestCase
         $this->repository = new EventSourcedRepository($this->createFactory(), $this->store, $this->uow);
     }
 
-    private function createScenario() : Scenario
+    private function createScenario() : Specification
     {
-        return new Scenario($this->createFactory(), $this->createHandler($this->store), $this->store, $this->uow);
+        return new Specification($this->createHandler($this->store), $this->store, $this->uow);
     }
 
     public function getRepository() : Domain\Repository
