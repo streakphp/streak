@@ -14,13 +14,15 @@ namespace Streak\Infrastructure\Testing\Saga;
 use PHPUnit\Framework\Assert;
 use Streak\Application;
 use Streak\Domain;
-use Streak\Infrastructure\CommandHandler\SynchronousCommandBus;
+use Streak\Infrastructure\CommandBus\SynchronousCommandBus;
 use Streak\Infrastructure\Persistable\InMemoryState;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @codeCoverageIgnore
  */
-class Scenario implements Scenario\Given, Scenario\When, Scenario\Then, Application\CommandHandler
+class Specification implements Scenario\Given, Scenario\When, Scenario\Then, Application\CommandHandler
 {
     private $commands = [];
     private $messages = [];

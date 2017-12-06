@@ -19,17 +19,18 @@ use Streak\Infrastructure\UnitOfWork;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @codeCoverageIgnore
  */
-class Scenario implements Scenario\Given, Scenario\When, Scenario\Then
+class Specification implements Scenario\Given, Scenario\When, Scenario\Then
 {
-    private $factory;
     private $handler;
     private $store;
     private $uow;
+    private $events = [];
 
-    public function __construct(Domain\AggregateRoot\Factory $factory, Application\CommandHandler $handler, InMemoryEventStore $store, UnitOfWork $uow)
+    public function __construct(Application\CommandHandler $handler, InMemoryEventStore $store, UnitOfWork $uow)
     {
-        $this->factory = $factory;
         $this->handler = $handler;
         $this->store = $store;
         $this->uow = $uow;
@@ -37,6 +38,7 @@ class Scenario implements Scenario\Given, Scenario\When, Scenario\Then
 
     public function given(Domain\Event ...$events) : Scenario\When
     {
+        $this->events = $events;
         $this->store->add(...$events);
 
         return $this;
@@ -51,11 +53,15 @@ class Scenario implements Scenario\Given, Scenario\When, Scenario\Then
 
     public function then(Domain\Event ...$expected) : void
     {
+        $this->events = array_merge($this->events, $expected);
+
+        Assert::assertNotEmpty($this->events, 'No events provided for scenario.');
+
         $this->store->clear();
         $this->uow->commit();
 
         $actual = $this->store->all();
 
-        Assert::assertEquals($expected, $actual);
+        Assert::assertEquals($expected, $actual, 'Expected events don\'t match produced events.');
     }
 }

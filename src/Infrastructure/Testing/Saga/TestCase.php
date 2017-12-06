@@ -11,20 +11,17 @@
 
 namespace Streak\Infrastructure\Testing\Saga;
 
-use PHPUnit;
 use Streak\Application;
 use Streak\Domain;
-use Streak\Infrastructure\CommandHandler\SynchronousCommandBus;
-use Streak\Infrastructure\EventBus\InMemoryCommandBus;
-use Streak\Infrastructure\EventStore\InMemoryEventStore;
-use Streak\Infrastructure\Repository\EventSourcedRepository;
-use Streak\Infrastructure\Repository\UnitOfWork;
-use Streak\Infrastructure\Testing\Scenario\When;
+use Streak\Infrastructure\CommandBus\SynchronousCommandBus;
+use Streak\Infrastructure\Testing\Saga;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @codeCoverageIgnore
  */
-abstract class TestCase extends PHPUnit\Framework\TestCase
+abstract class TestCase extends \PHPUnit\Framework\TestCase
 {
     private $bus;
 
@@ -33,9 +30,9 @@ abstract class TestCase extends PHPUnit\Framework\TestCase
         $this->bus = new SynchronousCommandBus();
     }
 
-    private function createScenario() : Scenario
+    private function createScenario() : Saga\Specification
     {
-        return new Scenario($this->getCommandBus(), $this->createFactory($this->getCommandBus()));
+        return new Saga\Specification($this->getCommandBus(), $this->createFactory($this->getCommandBus()));
     }
 
     public function getCommandBus() : SynchronousCommandBus

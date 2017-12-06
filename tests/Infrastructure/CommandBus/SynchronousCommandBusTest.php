@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Streak\Infrastructure\CommandHandler;
+namespace Streak\Infrastructure\CommandBus;
 
 use Streak\Application\Command;
 use Streak\Application\CommandHandler;
@@ -20,7 +20,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  *
- * @covers \Streak\Infrastructure\CommandHandler\SynchronousCommandBus
+ * @covers \Streak\Infrastructure\CommandBus\SynchronousCommandBus
  */
 class SynchronousCommandBusTest extends TestCase
 {

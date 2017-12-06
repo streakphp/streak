@@ -9,12 +9,13 @@
  * file that was distributed with this source code.
  */
 
-namespace Streak\Infrastructure\CommandHandler;
+namespace Streak\Infrastructure\CommandBus;
 
 use Streak\Application;
 use Streak\Application\Command;
 use Streak\Application\CommandHandler;
 use Streak\Application\Exception;
+use Streak\Infrastructure\CommandHandler\CompositeCommandHandler;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
