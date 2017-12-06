@@ -8,9 +8,6 @@ jobs:
     steps:
       - checkout
 
-      - run: curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./codeclimate
-      - run: chmod +x ./codeclimate
-
       - run: sudo composer self-update
       - restore_cache:
           keys:
@@ -22,10 +19,7 @@ jobs:
           paths:
             - vendor/
 
-      - run: ./codeclimate before-build
       - run: bin/phpunit
-      - run: cp ./build/clover.xml ./clover.xml
-      - run: ./codeclimate after-build -t clover --exit-code $?
 
       - store_artifacts:
           path: build/code-coverage/
@@ -33,3 +27,4 @@ jobs:
       - store_test_results:
           path: build/
 
+      - run: bash <(curl -s https://codecov.io/bash) -Z
