@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Streak\Domain\Event;
 
 use PHPUnit\Framework\TestCase;
@@ -42,7 +44,6 @@ class ConsumingTest extends TestCase
         $this->assertEquals($event4, $consumer->lastReplayed());
     }
 }
-
 
 namespace Streak\Domain\Event\ConsumingTest;
 

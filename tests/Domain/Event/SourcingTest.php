@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Streak\Domain\Event;
 
 use PHPUnit\Framework\TestCase;
@@ -348,7 +350,7 @@ class EventSourcedAggregateRootStub implements Event\Consumer
         return $this->event9Applied;
     }
 
-    public function numberOfAppliesOfEvent7() : bool
+    public function numberOfAppliesOfEvent7() : int
     {
         return $this->numberOfAppliesOfEvent7;
     }
