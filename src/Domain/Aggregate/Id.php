@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Streak\Domain\Aggregate;
 
 use Streak\Domain\Entity;
