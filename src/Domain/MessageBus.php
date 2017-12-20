@@ -20,7 +20,7 @@ use Streak\Domain;
  */
 interface MessageBus
 {
-    public function add(Message\Listener $listener) : void;
+    public function subscribe(Message\Subscriber $subscriber) : void;
 
     /**
      * @throws Exception\MessagesNotPublished

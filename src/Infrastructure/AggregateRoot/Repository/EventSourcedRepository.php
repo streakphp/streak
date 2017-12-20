@@ -11,7 +11,7 @@
 
 declare(strict_types=1);
 
-namespace Streak\Infrastructure\Repository;
+namespace Streak\Infrastructure\AggregateRoot\Repository;
 
 use Streak\Domain;
 use Streak\Domain\Event;
@@ -21,7 +21,7 @@ use Streak\Infrastructure;
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-class EventSourcedRepository implements Domain\Repository
+class EventSourcedRepository implements Domain\AggregateRoot\Repository
 {
     /**
      * @var Domain\AggregateRoot\Factory

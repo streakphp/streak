@@ -19,6 +19,6 @@ use Streak\Domain\Event;
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-interface Aggregate extends Domain\Aggregate, Event\Sourced\Entity
+interface Aggregate extends Domain\Aggregate, Event\Sourced, Event\Consumer
 {
 }

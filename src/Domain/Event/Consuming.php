@@ -23,12 +23,12 @@ trait Consuming
     private $replaying = false;
     private $lastReplayed;
 
-    abstract public function onEvent(Domain\Event $event) : void;
+    abstract public function on(Domain\Message $event) : void;
 
     final public function replay(Domain\Event ...$events) : void
     {
         foreach ($events as $event) {
-            $this->onEvent($event);
+            $this->on($event);
             $this->lastReplayed = $event;
         }
     }

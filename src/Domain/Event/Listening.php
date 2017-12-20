@@ -21,10 +21,17 @@ use Streak\Domain\Message;
  */
 trait Listening
 {
-    use Message\Listening;
+    use Message\Listening {
+        on as private;
+        on as onMessage;
+    }
 
-    public function onEvent(Domain\Event $event) : void
+    public function on(Domain\Message $event) : void
     {
+        if (!$event instanceof Domain\Event) {
+            throw new \InvalidArgumentException('Event expected but message given.');
+        }
+
         $this->onMessage($event);
     }
 }

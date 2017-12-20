@@ -20,5 +20,5 @@ use Streak\Domain;
  */
 interface Listener
 {
-    public function onMessage(Domain\Message $message) : void;
+    public function on(Domain\Message $message) : void;
 }

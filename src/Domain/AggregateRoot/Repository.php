@@ -11,9 +11,10 @@
 
 declare(strict_types=1);
 
-namespace Streak\Domain;
+namespace Streak\Domain\AggregateRoot;
 
 use Streak\Domain;
+use Streak\Domain\Exception;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -25,5 +26,5 @@ interface Repository
     /**
      * @throws Exception\AggregateNotSupported
      */
-    public function find(Domain\AggregateRoot\Id $id) : ?AggregateRoot;
+    public function find(Domain\AggregateRoot\Id $id) : ?Domain\AggregateRoot;
 }

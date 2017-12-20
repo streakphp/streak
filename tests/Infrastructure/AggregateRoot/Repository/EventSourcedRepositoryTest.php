@@ -11,17 +11,18 @@
 
 declare(strict_types=1);
 
-namespace Streak\Infrastructure\Repository;
+namespace Streak\Infrastructure\AggregateRoot\Repository;
 
 use PHPUnit\Framework\TestCase;
 use Streak\Domain;
 use Streak\Domain\Event;
 use Streak\Infrastructure;
+use Streak\Infrastructure\AggregateRoot\Repository\EventSourcedRepository;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  *
- * @covers \Streak\Infrastructure\Repository\EventSourcedRepository
+ * @covers \Streak\Infrastructure\AggregateRoot\Repository\EventSourcedRepository
  */
 class EventSourcedRepositoryTest extends TestCase
 {

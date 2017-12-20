@@ -14,13 +14,12 @@ declare(strict_types=1);
 namespace Streak\Domain\Message;
 
 use Streak\Domain;
+use Streak\Domain\Exception;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-interface Spannable
+interface Replayable
 {
-    public static function beginsWith(Domain\Message $message) : bool;
-
-    public static function endsWith(Domain\Message $message) : bool;
+    public function replay(Domain\Message ...$messages) : void;
 }

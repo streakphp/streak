@@ -56,7 +56,7 @@ class ConsumerStub
 
     private $consumed = [];
 
-    public function onEvent(Domain\Event $event) : void
+    public function on(Domain\Message $event) : void
     {
         $this->consumed[] = $event;
     }

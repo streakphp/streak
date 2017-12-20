@@ -13,12 +13,12 @@ declare(strict_types=1);
 
 namespace Streak\Domain\Event;
 
-use Streak\Domain;
+use Streak\Domain\Message;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-interface Listener
+interface Listener extends Message\Listener
 {
-    public function onEvent(Domain\Event $event) : void;
+//    public function on(Domain\Event $event) : void;
 }
