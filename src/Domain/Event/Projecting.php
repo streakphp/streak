@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the cbs package.
+ * This file is part of the streak package.
  *
  * (C) Alan Gabriel Bem <alan.bem@gmail.com>
  *
@@ -15,6 +15,7 @@ namespace Streak\Domain\Event;
 
 use Streak\Domain;
 use Streak\Domain\Event;
+use Streak\Domain\Message;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -25,7 +26,7 @@ trait Projecting // implements Application\Projector
         replay as private;
         replay as doReplay;
     }
-    use Event\Listening;
+    use Message\Listening;
 
     abstract public function onReplay() : void;
 

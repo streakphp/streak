@@ -9,16 +9,22 @@
  * file that was distributed with this source code.
  */
 
-declare(strict_types=1);
-
-namespace Streak\Domain\Event\Sourced;
+namespace Streak\Infrastructure\MessageBus;
 
 use Streak\Domain;
-use Streak\Domain\Event;
+use Streak\Domain\Message;
+use Streak\Domain\MessageBus;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-interface AggregateRoot extends Domain\AggregateRoot, Event\Sourced, Event\Consumer
+class NullMessageBus implements MessageBus
 {
+    public function subscribe(Message\Subscriber $subscriber) : void
+    {
+    }
+
+    public function publish(Domain\Message ...$messages)
+    {
+    }
 }

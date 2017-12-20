@@ -9,17 +9,18 @@
  * file that was distributed with this source code.
  */
 
-declare(strict_types=1);
+namespace Streak\Domain\Message;
 
-namespace Streak\Infrastructure\Testing\saga\Scenario;
-
-use Streak\Application;
+use Streak\Domain;
+use Streak\Domain\Message;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-interface Then
+interface Subscriber
 {
-    public function then(Application\Command $command = null) : void;
+    /**
+     * @throws Exception\InvalidMessageGiven
+     */
+    public function createFor(Domain\Message $message) : Message\Listener;
 }
-

@@ -16,8 +16,9 @@ namespace Streak\Infrastructure\Testing\Command;
 use PHPUnit;
 use Streak\Application;
 use Streak\Domain;
+use Streak\Domain\AggregateRoot;
 use Streak\Infrastructure\EventStore\InMemoryEventStore;
-use Streak\Infrastructure\Repository\EventSourcedRepository;
+use Streak\Infrastructure\AggregateRoot\Repository\EventSourcedRepository;
 use Streak\Infrastructure\UnitOfWork;
 
 /**
@@ -38,12 +39,12 @@ abstract class TestCase extends PHPUnit\Framework\TestCase
         $this->repository = new EventSourcedRepository($this->createFactory(), $this->store, $this->uow);
     }
 
-    private function createScenario() : Specification
+    private function createScenario() : Scenario
     {
-        return new Specification($this->createHandler($this->store), $this->store, $this->uow);
+        return new Scenario($this->createHandler($this->store), $this->store, $this->uow);
     }
 
-    public function getRepository() : Domain\Repository
+    public function getRepository() : AggregateRoot\Repository
     {
         return $this->repository;
     }
@@ -53,7 +54,7 @@ abstract class TestCase extends PHPUnit\Framework\TestCase
         return $this->createScenario()->given(...$events);
     }
 
-    abstract protected function createFactory() : Domain\AggregateRoot\Factory;
+    abstract protected function createFactory() : AggregateRoot\Factory;
 
     abstract protected function createHandler(Domain\EventStore $store) : Application\CommandHandler;
 }

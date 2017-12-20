@@ -13,12 +13,19 @@ declare(strict_types=1);
 
 namespace Streak\Application;
 
+use Streak\Domain;
 use Streak\Domain\Message;
-use Streak\Domain\Persistable;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-interface Saga extends Message\Listener, Message\Spannable, Persistable
+interface Saga extends Message\Replayable
 {
+    // TODO: maybe begin()?
+    public function beginsWith(Domain\Message $message) : bool;
+
+    public function on(Domain\Message $message, CommandBus $bus) : void;
+
+    // TODO: maybe finished()?
+    public function isFinished() : bool;
 }

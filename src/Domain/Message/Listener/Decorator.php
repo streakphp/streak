@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the cbs package.
+ * This file is part of the streak package.
  *
  * (C) Alan Gabriel Bem <alan.bem@gmail.com>
  *
@@ -9,18 +9,15 @@
  * file that was distributed with this source code.
  */
 
-declare(strict_types=1);
-
-namespace Streak\Domain;
-
-use Streak\Domain\Persistable\State;
+namespace Streak\Domain\Message\Listener;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-interface Persistable
+interface Decorator
 {
-    public function from(State $state) : void;
-
-    public function to(State $state) : void;
+    /**
+     * @return object
+     */
+    public function decorated();
 }

@@ -32,9 +32,9 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
         $this->bus = new SynchronousCommandBus();
     }
 
-    private function createScenario() : Saga\Specification
+    private function createScenario() : Saga\Scenario
     {
-        return new Saga\Specification($this->getCommandBus(), $this->createFactory($this->getCommandBus()));
+        return new Saga\Scenario($this->getCommandBus(), $this->createFactory($this->getCommandBus()));
     }
 
     public function getCommandBus() : SynchronousCommandBus

@@ -36,28 +36,28 @@ class ListeningTest extends TestCase
         $this->assertFalse($listener->isMessage3Listened());
         $this->assertFalse($listener->isMessage4Listened());
 
-        $listener->onMessage(new Message1());
+        $listener->on(new Message1());
 
         $this->assertTrue($listener->isMessage1Listened());
         $this->assertFalse($listener->isMessage2Listened());
         $this->assertFalse($listener->isMessage3Listened());
         $this->assertFalse($listener->isMessage4Listened());
 
-        $listener->onMessage(new Message2());
+        $listener->on(new Message2());
 
         $this->assertTrue($listener->isMessage1Listened());
         $this->assertFalse($listener->isMessage2Listened());
         $this->assertFalse($listener->isMessage3Listened());
         $this->assertFalse($listener->isMessage4Listened());
 
-        $listener->onMessage(new Message3());
+        $listener->on(new Message3());
 
         $this->assertTrue($listener->isMessage1Listened());
         $this->assertFalse($listener->isMessage2Listened());
         $this->assertFalse($listener->isMessage3Listened());
         $this->assertFalse($listener->isMessage4Listened());
 
-        $listener->onMessage(new Message4());
+        $listener->on(new Message4());
 
         $this->assertTrue($listener->isMessage1Listened());
         $this->assertFalse($listener->isMessage2Listened());

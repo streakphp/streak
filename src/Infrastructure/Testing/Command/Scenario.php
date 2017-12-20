@@ -24,7 +24,7 @@ use Streak\Infrastructure\UnitOfWork;
  *
  * @codeCoverageIgnore
  */
-class Specification implements Scenario\Given, Scenario\When, Scenario\Then
+class Scenario implements Scenario\Given, Scenario\When, Scenario\Then
 {
     private $handler;
     private $store;

@@ -26,10 +26,10 @@ class ProjectingTest extends TestCase
 {
     public function testProjecting()
     {
-        $event1 = $this->getMockBuilder(Domain\Event::class)->getMockForAbstractClass();
-        $event2 = $this->getMockBuilder(Domain\Event::class)->getMockForAbstractClass();
-        $event3 = $this->getMockBuilder(Domain\Event::class)->getMockForAbstractClass();
-        $event4 = $this->getMockBuilder(Domain\Event::class)->getMockForAbstractClass();
+        $event1 = new ProjectingTest\Event1Stub();
+        $event2 = new ProjectingTest\Event2Stub();
+        $event3 = new ProjectingTest\Event3Stub();
+        $event4 = new ProjectingTest\Event4Stub();
         $events = [$event1, $event2, $event3, $event4];
 
         $projector = new ProjectorStub();
@@ -63,7 +63,22 @@ class ProjectorStub
         $this->replayed = true;
     }
 
-    public function onEvent(Domain\Event $event) : void
+    public function onEvent1Stub(Event1Stub $event) : void
+    {
+        $this->consumed[] = $event;
+    }
+
+    public function onEvent2Stub(Event2Stub $event) : void
+    {
+        $this->consumed[] = $event;
+    }
+
+    public function onEvent3Stub(Event3Stub $event) : void
+    {
+        $this->consumed[] = $event;
+    }
+
+    public function onEvent4Stub(Event4Stub $event) : void
     {
         $this->consumed[] = $event;
     }
@@ -79,5 +94,33 @@ class ProjectorStub
     public function replayed() : bool
     {
         return $this->replayed;
+    }
+}
+
+class Event1Stub implements Domain\Event
+{
+    public function producerId() : Domain\Id
+    {
+    }
+}
+
+class Event2Stub implements Domain\Event
+{
+    public function producerId() : Domain\Id
+    {
+    }
+}
+
+class Event3Stub implements Domain\Event
+{
+    public function producerId() : Domain\Id
+    {
+    }
+}
+
+class Event4Stub implements Domain\Event
+{
+    public function producerId() : Domain\Id
+    {
     }
 }

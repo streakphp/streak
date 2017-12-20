@@ -20,6 +20,7 @@ use Streak\Domain\Event\ListeningTest\Event1;
 use Streak\Domain\Event\ListeningTest\Event2;
 use Streak\Domain\Event\ListeningTest\Event3;
 use Streak\Domain\Event\ListeningTest\Event4;
+use Streak\Domain\Event\ListeningTest\MessageStub;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -44,33 +45,43 @@ class ListeningTest extends TestCase
         $this->assertFalse($listener->isEvent3Listened());
         $this->assertFalse($listener->isEvent4Listened());
 
-        $listener->onEvent(new Event1($this->id));
+        $listener->on(new Event1($this->id));
 
         $this->assertTrue($listener->isEvent1Listened());
         $this->assertFalse($listener->isEvent2Listened());
         $this->assertFalse($listener->isEvent3Listened());
         $this->assertFalse($listener->isEvent4Listened());
 
-        $listener->onEvent(new Event2($this->id));
+        $listener->on(new Event2($this->id));
 
         $this->assertTrue($listener->isEvent1Listened());
         $this->assertFalse($listener->isEvent2Listened());
         $this->assertFalse($listener->isEvent3Listened());
         $this->assertFalse($listener->isEvent4Listened());
 
-        $listener->onEvent(new Event3($this->id));
+        $listener->on(new Event3($this->id));
 
         $this->assertTrue($listener->isEvent1Listened());
         $this->assertFalse($listener->isEvent2Listened());
         $this->assertFalse($listener->isEvent3Listened());
         $this->assertFalse($listener->isEvent4Listened());
 
-        $listener->onEvent(new Event4($this->id));
+        $listener->on(new Event4($this->id));
 
         $this->assertTrue($listener->isEvent1Listened());
         $this->assertFalse($listener->isEvent2Listened());
         $this->assertFalse($listener->isEvent3Listened());
         $this->assertFalse($listener->isEvent4Listened());
+    }
+
+    public function testNotAnEvent()
+    {
+        $exception = new \InvalidArgumentException('Event expected but message given');
+        $this->expectExceptionObject($exception);
+
+        $listener = new ListenerStub();
+        $listener->on(new MessageStub());
+
     }
 }
 
@@ -166,3 +177,6 @@ class Event3 extends EventStub
 class Event4 extends EventStub
 {
 }
+
+class MessageStub implements Domain\Message
+{}

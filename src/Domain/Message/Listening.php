@@ -21,7 +21,7 @@ use Streak\Domain\Message;
  */
 trait Listening // implements Message\Listener
 {
-    public function onMessage(Domain\Message $message) : void
+    public function on(Domain\Message $message) : void
     {
         $reflection = new \ReflectionObject($this);
 
@@ -61,9 +61,13 @@ trait Listening // implements Message\Listener
 
             $target = new \ReflectionClass($message);
 
-            // .. and $message is type of defined $parameter
-            if ($parameter->getName() !== $target->getName()) {
-                continue;
+            // .. and $message is type or subtype of defined $parameter
+            while($parameter->getName() !== $target->getName()) {
+                $target = $target->getParentClass();
+
+                if (false === $target) {
+                    continue 2;
+                }
             }
 
             $method->invoke($this, $message);
