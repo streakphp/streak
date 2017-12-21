@@ -92,8 +92,8 @@ class ComparisonTest extends TestCase
 namespace Streak\Domain\Aggregate\ComparisonTest;
 
 use Streak\Domain;
-use Streak\Domain\Entity;
 use Streak\Domain\Aggregate;
+use Streak\Domain\Entity;
 
 class ComparisonStub implements Domain\Aggregate
 {

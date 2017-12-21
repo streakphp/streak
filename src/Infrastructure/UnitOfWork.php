@@ -52,6 +52,7 @@ class UnitOfWork
         foreach ($this->objects as $key => $current) {
             if ($current->equals($object)) {
                 unset($this->objects[$key]);
+
                 break;
             }
         }

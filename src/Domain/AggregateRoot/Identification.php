@@ -13,8 +13,8 @@ declare(strict_types=1);
 
 namespace Streak\Domain\AggregateRoot;
 
-use Streak\Domain\AggregateRoot;
 use Streak\Domain\Aggregate;
+use Streak\Domain\AggregateRoot;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>

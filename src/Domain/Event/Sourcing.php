@@ -15,7 +15,6 @@ namespace Streak\Domain\Event;
 
 use Streak\Domain;
 use Streak\Domain\Event;
-use Streak\Domain\Event\Exception;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -40,6 +39,7 @@ trait Sourcing //implements Event\Consumer, Event\Producer, Identifiable
             $this->replaying = false;
         } catch (Exception\SourcingObjectWithEventFailed $exception) {
             $this->replaying = false;
+
             throw $exception;
         }
     }
@@ -78,22 +78,22 @@ trait Sourcing //implements Event\Consumer, Event\Producer, Identifiable
         $methods = [];
         foreach ($reflection->getMethods() as $method) {
             // method is not current method...
-            if ($method->getName() === __FUNCTION__) {
+            if (__FUNCTION__ === $method->getName()) {
                 continue;
             }
 
             // ...and its name must start with "apply"
-            if (\mb_substr($method->getName(), 0, 5) !== 'apply') {
+            if ('apply' !== \mb_substr($method->getName(), 0, 5)) {
                 continue;
             }
 
             // ...and have exactly one parameter...
-            if ($method->getNumberOfParameters() !== 1) {
+            if (1 !== $method->getNumberOfParameters()) {
                 continue;
             }
 
             // ...which is required...
-            if ($method->getNumberOfRequiredParameters() !== 1) {
+            if (1 !== $method->getNumberOfRequiredParameters()) {
                 continue;
             }
 
@@ -108,7 +108,7 @@ trait Sourcing //implements Event\Consumer, Event\Producer, Identifiable
             $target = new \ReflectionClass($event);
 
             // .. and $event is type or subtype of defined $parameter
-            while($parameter->getName() !== $target->getName()) {
+            while ($parameter->getName() !== $target->getName()) {
                 $target = $target->getParentClass();
 
                 if (false === $target) {
@@ -119,7 +119,7 @@ trait Sourcing //implements Event\Consumer, Event\Producer, Identifiable
             $methods[] = $method;
         }
 
-        if (\count($methods) === 0) {
+        if (0 === \count($methods)) {
             throw new Exception\NoEventApplyingMethodFound($this, $event);
         }
 

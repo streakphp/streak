@@ -78,7 +78,6 @@ class MessagingTest extends TestCase
         $this->expectExceptionObject($exception);
 
         $messaging->replay($message2, $message1);
-
     }
 }
 
@@ -126,14 +125,6 @@ class MessagingStub
     {
     }
 
-    protected function onNotListenedMessageButProtected(NotListenedMessage $message2 = null, Application\CommandBus $bus)
-    {
-    }
-
-    private function onNotListenedMessageButPrivate(NotListenedMessage $message2 = null, Application\CommandBus $bus)
-    {
-    }
-
     public function onNotListenedMessageWithMoreThanTwoParameters(NotListenedMessage $message2 = null, Application\CommandBus $bus, $notNeeded)
     {
     }
@@ -146,6 +137,14 @@ class MessagingStub
     public function isMessage2Listened() : bool
     {
         return $this->message2Listened;
+    }
+
+    protected function onNotListenedMessageButProtected(NotListenedMessage $message2 = null, Application\CommandBus $bus)
+    {
+    }
+
+    private function onNotListenedMessageButPrivate(NotListenedMessage $message2 = null, Application\CommandBus $bus)
+    {
     }
 }
 

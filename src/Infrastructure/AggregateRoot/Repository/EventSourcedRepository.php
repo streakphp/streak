@@ -55,7 +55,7 @@ class EventSourcedRepository implements Domain\AggregateRoot\Repository
 
         $events = $this->store->find($id);
 
-        if (\count($events) === 0) {
+        if (0 === \count($events)) {
             return null;
         }
 

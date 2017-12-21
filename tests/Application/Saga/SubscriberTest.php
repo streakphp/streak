@@ -11,9 +11,9 @@
 
 namespace Streak\Application\Saga;
 
+use PHPUnit\Framework\TestCase;
 use Streak\Application\CommandBus;
 use Streak\Application\Saga;
-use PHPUnit\Framework\TestCase;
 use Streak\Domain\Message;
 
 /**

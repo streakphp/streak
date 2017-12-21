@@ -34,6 +34,7 @@ class SourcingObjectWithEventFailed extends \BadMethodCallException
     {
         if (false === \is_object($object)) {
             $message = sprintf('Object expected, but got "%s"', \gettype($object));
+
             throw new \InvalidArgumentException($message);
         }
 

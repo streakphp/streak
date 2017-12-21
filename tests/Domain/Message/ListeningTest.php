@@ -96,16 +96,6 @@ class ListenerStub
     {
     }
 
-    protected function onMessage3(Message3 $message3)
-    {
-        $this->message3Listened = true;
-    }
-
-    protected function onMessage4(Message4 $message4)
-    {
-        $this->message4Listened = true;
-    }
-
     public function isMessage1Listened() : bool
     {
         return $this->message1Listened;
@@ -124,6 +114,16 @@ class ListenerStub
     public function isMessage4Listened() : bool
     {
         return $this->message4Listened;
+    }
+
+    protected function onMessage3(Message3 $message3)
+    {
+        $this->message3Listened = true;
+    }
+
+    protected function onMessage4(Message4 $message4)
+    {
+        $this->message4Listened = true;
     }
 }
 

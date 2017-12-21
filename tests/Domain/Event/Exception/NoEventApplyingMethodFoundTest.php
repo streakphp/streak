@@ -19,6 +19,8 @@ use Streak\Domain\Event;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @covers \Streak\Domain\Event\Exception\NoEventApplyingMethodFound
  */
 class NoEventApplyingMethodFoundTest extends TestCase
 {

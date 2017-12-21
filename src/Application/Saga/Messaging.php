@@ -12,7 +12,6 @@
 namespace Streak\Application\Saga;
 
 use Streak\Application;
-use Streak\Application\Saga\Exception;
 use Streak\Domain;
 use Streak\Infrastructure\CommandBus\NullCommandBus;
 
@@ -50,7 +49,7 @@ trait Messaging
 
         foreach ($reflection->getMethods() as $method) {
             // method is not current method...
-            if ($method->getName() === __FUNCTION__) {
+            if (__FUNCTION__ === $method->getName()) {
                 continue;
             }
 
@@ -60,12 +59,12 @@ trait Messaging
             }
 
             // ...and its name must start with "on"
-            if (\mb_substr($method->getName(), 0, 2) !== 'on') {
+            if ('on' !== \mb_substr($method->getName(), 0, 2)) {
                 continue;
             }
 
             // ...and have exactly 2 parameters...
-            if ($method->getNumberOfParameters() !== 2) {
+            if (2 !== $method->getNumberOfParameters()) {
                 continue;
             }
 
@@ -89,7 +88,7 @@ trait Messaging
             }
             // .. and $message is type or subtype of defined $parameter
             $target = new \ReflectionClass($message);
-            while($first->getName() !== $target->getName()) {
+            while ($first->getName() !== $target->getName()) {
                 $target = $target->getParentClass();
 
                 if (false === $target) {

@@ -17,7 +17,6 @@ use PHPUnit\Framework\TestCase;
 use Streak\Domain;
 use Streak\Domain\Event;
 
-
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  *

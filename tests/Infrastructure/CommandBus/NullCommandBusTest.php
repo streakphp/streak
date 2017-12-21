@@ -13,9 +13,9 @@ declare(strict_types=1);
 
 namespace Streak\Infrastructure\CommandBus;
 
+use PHPUnit\Framework\TestCase;
 use Streak\Application\Command;
 use Streak\Application\CommandHandler;
-use PHPUnit\Framework\TestCase;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>

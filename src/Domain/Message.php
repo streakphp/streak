@@ -18,5 +18,4 @@ namespace Streak\Domain;
  */
 interface Message
 {
-
 }

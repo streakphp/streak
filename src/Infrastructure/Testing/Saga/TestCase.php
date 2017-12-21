@@ -32,11 +32,6 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
         $this->bus = new SynchronousCommandBus();
     }
 
-    private function createScenario() : Saga\Scenario
-    {
-        return new Saga\Scenario($this->getCommandBus(), $this->createFactory($this->getCommandBus()));
-    }
-
     public function getCommandBus() : SynchronousCommandBus
     {
         return $this->bus;
@@ -48,4 +43,9 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
     }
 
     abstract public function createFactory(Application\CommandBus $bus) : Application\Saga\Factory;
+
+    private function createScenario() : Saga\Scenario
+    {
+        return new Saga\Scenario($this->getCommandBus(), $this->createFactory($this->getCommandBus()));
+    }
 }
