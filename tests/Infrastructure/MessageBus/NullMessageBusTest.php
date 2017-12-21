@@ -13,7 +13,6 @@ namespace Streak\Infrastructure\MessageBus;
 
 use PHPUnit\Framework\TestCase;
 use Streak\Domain\Message;
-use Streak\Infrastructure\CommandBus\NullCommandBus;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>

@@ -15,11 +15,11 @@ namespace Streak\Domain\Event;
 
 use PHPUnit\Framework\TestCase;
 use Streak\Domain;
-use Streak\Domain\Event\ListeningTest\ListenerStub;
 use Streak\Domain\Event\ListeningTest\Event1;
 use Streak\Domain\Event\ListeningTest\Event2;
 use Streak\Domain\Event\ListeningTest\Event3;
 use Streak\Domain\Event\ListeningTest\Event4;
+use Streak\Domain\Event\ListeningTest\ListenerStub;
 use Streak\Domain\Event\ListeningTest\MessageStub;
 
 /**
@@ -81,7 +81,6 @@ class ListeningTest extends TestCase
 
         $listener = new ListenerStub();
         $listener->on(new MessageStub());
-
     }
 }
 
@@ -116,16 +115,6 @@ class ListenerStub
     {
     }
 
-    protected function onEvent3(Event3 $event3)
-    {
-        $this->event3Listened = true;
-    }
-
-    protected function onEvent4(Event4 $event4)
-    {
-        $this->event4Listened = true;
-    }
-
     public function isEvent1Listened() : bool
     {
         return $this->event1Listened;
@@ -144,6 +133,16 @@ class ListenerStub
     public function isEvent4Listened() : bool
     {
         return $this->event4Listened;
+    }
+
+    protected function onEvent3(Event3 $event3)
+    {
+        $this->event3Listened = true;
+    }
+
+    protected function onEvent4(Event4 $event4)
+    {
+        $this->event4Listened = true;
     }
 }
 
@@ -179,4 +178,5 @@ class Event4 extends EventStub
 }
 
 class MessageStub implements Domain\Message
-{}
+{
+}

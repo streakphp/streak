@@ -16,13 +16,12 @@ namespace Streak\Infrastructure\CommandHandler;
 use PHPUnit\Framework\TestCase;
 use Streak\Application;
 use Streak\Domain;
-use Streak\Domain\Entity;
 use Streak\Domain\Event;
 use Streak\Infrastructure;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
- *         
+ *
  * @covers \Streak\Infrastructure\CommandHandler\TransactionalPersistenceCommandHandler
  */
 class TransactionalPersistenceCommandHandlerTest extends TestCase

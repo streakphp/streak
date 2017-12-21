@@ -14,7 +14,6 @@ declare(strict_types=1);
 namespace Streak\Domain\Message;
 
 use Streak\Domain;
-use Streak\Domain\Exception;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>

@@ -29,7 +29,6 @@ class CommandTransactionCompromised extends \LogicException
         $message = sprintf('Command "%s" made changes on more than one aggregate.', get_class($command));
 
         parent::__construct($message, 0, $previous);
-
     }
 
     public function command() : Application\Command

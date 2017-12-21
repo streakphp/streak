@@ -35,7 +35,8 @@ class Listener implements Message\Listener, Message\Listener\Decorator, Message\
         return $this->saga;
     }
 
-    public function beginsWith(Domain\Message $message) : bool {
+    public function beginsWith(Domain\Message $message) : bool
+    {
         return $this->saga->beginsWith($message);
     }
 

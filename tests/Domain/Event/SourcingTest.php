@@ -50,7 +50,6 @@ class SourcingTest extends TestCase
 
         $event = new SourcingTest\EventStubForTestingPublicHandlingMethod($this->id);
 
-
         $sourcing = new SourcingTest\EventSourcedAggregateRootStub($this->id);
 
         $this->assertFalse($sourcing->isEventStubForTestingPublicHandlingMethodApplied());
@@ -275,48 +274,19 @@ class EventSourcedAggregateRootStub implements Event\Consumer
         $this->eventStubForTestingPublicHandlingMethodApplied = true;
     }
 
-    private function applyEventStubForTestingNonPublicHandlingMethodApplied(EventStubForTestingNonPublicHandlingMethod $event)
-    {
-        $this->eventStubForTestingNonPublicHandlingMethodApplied = true;
-    }
-
     public function applyEvent2(EventStubForTestingTwoOrMoreHandlingMethodsPresent $event2)
     {
-
     }
 
     public function applyEvent2Deux(EventStubForTestingTwoOrMoreHandlingMethodsPresent $event2)
     {
-
     }
 
     public function applyEvent4(EventStubForTestingTwoOrMoreParametersPresentOnHandlingMethod $event, mixed $thisParameterUnneeded)
-    {}
+    {
+    }
 
     public function applyEvent5(EventStubForTestingOptionalParameterOnHandlingMethod $optionalEventIsInvalid = null)
-    {}
-
-    private function applyEvent7(Event7 $event)
-    {
-        $this->numberOfAppliesOfEvent7++;
-    }
-
-    private function applyEvent8(Event8 $event)
-    {
-        $this->event8Applied = true;
-    }
-
-    private function applyEvent8a(EventWhichIsSubclassOfEvent8 $event)
-    {
-        $this->event8aApplied = true;
-    }
-
-    private function applyEvent9(EventStubForTestingApplyingViaCommand $event)
-    {
-        $this->event9Applied = true;
-    }
-
-    private function applyNonEvent(\stdClass $parameter)
     {
     }
 
@@ -358,6 +328,35 @@ class EventSourcedAggregateRootStub implements Event\Consumer
     public function id() : Domain\Id
     {
         return $this->id;
+    }
+
+    private function applyEventStubForTestingNonPublicHandlingMethodApplied(EventStubForTestingNonPublicHandlingMethod $event)
+    {
+        $this->eventStubForTestingNonPublicHandlingMethodApplied = true;
+    }
+
+    private function applyEvent7(Event7 $event)
+    {
+        $this->numberOfAppliesOfEvent7++;
+    }
+
+    private function applyEvent8(Event8 $event)
+    {
+        $this->event8Applied = true;
+    }
+
+    private function applyEvent8a(EventWhichIsSubclassOfEvent8 $event)
+    {
+        $this->event8aApplied = true;
+    }
+
+    private function applyEvent9(EventStubForTestingApplyingViaCommand $event)
+    {
+        $this->event9Applied = true;
+    }
+
+    private function applyNonEvent(\stdClass $parameter)
+    {
     }
 }
 
@@ -480,8 +479,12 @@ class Event7 implements Domain\Event
         return $this->id;
     }
 }
-class EventWhichIsSubclassOfEvent7 extends Event7 {}
-class AnotherEventWhichIsSubclassOfEvent7 extends Event7 {}
+class EventWhichIsSubclassOfEvent7 extends Event7
+{
+}
+class AnotherEventWhichIsSubclassOfEvent7 extends Event7
+{
+}
 
 class Event8 implements Domain\Event
 {
@@ -497,8 +500,12 @@ class Event8 implements Domain\Event
         return $this->id;
     }
 }
-class EventWhichIsSubclassOfEvent8 extends Event8 {}
-class AnotherEventWhichIsSubclassOfEvent8 extends Event8 {}
+class EventWhichIsSubclassOfEvent8 extends Event8
+{
+}
+class AnotherEventWhichIsSubclassOfEvent8 extends Event8
+{
+}
 
 class EventStubForTestingApplyingViaCommand implements Domain\Event
 {

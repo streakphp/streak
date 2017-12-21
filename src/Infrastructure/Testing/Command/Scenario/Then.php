@@ -22,4 +22,3 @@ interface Then
 {
     public function then(Domain\Event ...$events) : void;
 }
-

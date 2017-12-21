@@ -29,7 +29,6 @@ class InMemoryEventStore implements Domain\EventStore
     public function add(Domain\Event ...$events) : void
     {
         foreach ($events as $event) {
-
             $this->check($event->producerId());
 
             $id = $event->producerId()->toString();

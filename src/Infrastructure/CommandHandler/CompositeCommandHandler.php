@@ -55,6 +55,7 @@ class CompositeCommandHandler implements Application\CommandHandler
         foreach ($this->handlers as $handler) {
             try {
                 $handler->handle($command);
+
                 return;
             } catch (Exception\CommandNotSupported $current) {
                 $last = new Exception\CommandNotSupported($command, $current);

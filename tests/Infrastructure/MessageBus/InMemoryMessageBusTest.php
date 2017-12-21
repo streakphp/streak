@@ -173,7 +173,6 @@ class InMemoryMessageBusTest extends TestCase
             ->with($this->message1)
         ;
 
-
         $this->listener3
             ->expects($this->at(1))
             ->method('on')

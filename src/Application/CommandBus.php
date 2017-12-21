@@ -13,8 +13,6 @@ declare(strict_types=1);
 
 namespace Streak\Application;
 
-use Streak\Application\Exception;
-
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */

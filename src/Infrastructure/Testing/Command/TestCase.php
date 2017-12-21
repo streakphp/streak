@@ -17,8 +17,8 @@ use PHPUnit;
 use Streak\Application;
 use Streak\Domain;
 use Streak\Domain\AggregateRoot;
-use Streak\Infrastructure\EventStore\InMemoryEventStore;
 use Streak\Infrastructure\AggregateRoot\Repository\EventSourcedRepository;
+use Streak\Infrastructure\EventStore\InMemoryEventStore;
 use Streak\Infrastructure\UnitOfWork;
 
 /**
@@ -39,11 +39,6 @@ abstract class TestCase extends PHPUnit\Framework\TestCase
         $this->repository = new EventSourcedRepository($this->createFactory(), $this->store, $this->uow);
     }
 
-    private function createScenario() : Scenario
-    {
-        return new Scenario($this->createHandler($this->store), $this->store, $this->uow);
-    }
-
     public function getRepository() : AggregateRoot\Repository
     {
         return $this->repository;
@@ -57,4 +52,9 @@ abstract class TestCase extends PHPUnit\Framework\TestCase
     abstract protected function createFactory() : AggregateRoot\Factory;
 
     abstract protected function createHandler(Domain\EventStore $store) : Application\CommandHandler;
+
+    private function createScenario() : Scenario
+    {
+        return new Scenario($this->createHandler($this->store), $this->store, $this->uow);
+    }
 }

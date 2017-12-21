@@ -1,0 +1,43 @@
+<?php
+//https://github.com/FriendsOfPHP/PHP-CS-Fixer#usage
+$config = PhpCsFixer\Config::create()
+    ->setRiskyAllowed(true)
+    ->setCacheFile('build/php_cs.json')
+    ->setRules([
+        '@PSR2' => true,
+        'no_unused_imports' => true,
+        'single_blank_line_before_namespace' => true,
+        'concat_space' => ['spacing' => 'one'],
+        'array_syntax' => ['syntax' => 'short'],
+        'strict_comparison' => true,
+        'combine_consecutive_issets' => true,
+        'combine_consecutive_unsets' => true,
+        'compact_nullable_typehint' => true,
+        'list_syntax' => ['syntax' => 'short'],
+        'no_useless_else' => true,
+        'no_useless_return' => true,
+        'no_superfluous_elseif' => true,
+        'no_unneeded_curly_braces' => true,
+        'no_unneeded_final_method' => true,
+        'no_unreachable_default_argument_value' => true,
+        'no_null_property_initialization' => true,
+        'semicolon_after_instruction' => true,
+        'blank_line_before_statement' => true,
+        'no_extra_consecutive_blank_lines' => [
+            'tokens' => [
+                'break', 'continue', 'extra', 'return', 'throw', 'use', 'parenthesis_brace_block', 'square_brace_block', 'curly_brace_block'
+            ]
+        ],
+        'ordered_imports' => true,
+        'ordered_class_elements' => true,
+        'php_unit_test_class_requires_covers' => true,
+        'yoda_style' => true,
+    ])
+    //The vendor directory is excluded by default.
+    ->setFinder(
+        PhpCsFixer\Finder::create()
+            ->exclude('build')
+            ->in(__DIR__)
+    );
+
+return $config;

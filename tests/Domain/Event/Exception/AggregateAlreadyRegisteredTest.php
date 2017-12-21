@@ -18,6 +18,8 @@ use Streak\Domain\Event;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @covers \Streak\Domain\Event\Exception\AggregateAlreadyRegistered
  */
 class AggregateAlreadyRegisteredTest extends TestCase
 {

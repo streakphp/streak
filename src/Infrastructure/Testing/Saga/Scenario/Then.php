@@ -22,4 +22,3 @@ interface Then
 {
     public function then(Application\Command $command = null) : void;
 }
-

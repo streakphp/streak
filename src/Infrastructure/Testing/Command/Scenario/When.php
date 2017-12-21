@@ -22,4 +22,3 @@ interface When
 {
     public function when(Application\Command $command) : Then;
 }
-

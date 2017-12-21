@@ -27,7 +27,7 @@ trait Listening // implements Message\Listener
 
         foreach ($reflection->getMethods() as $method) {
             // method is not current method...
-            if ($method->getName() === __FUNCTION__) {
+            if (__FUNCTION__ === $method->getName()) {
                 continue;
             }
 
@@ -37,17 +37,17 @@ trait Listening // implements Message\Listener
             }
 
             // ...and its name must start with "on"
-            if (\mb_substr($method->getName(), 0, 2) !== 'on') {
+            if ('on' !== \mb_substr($method->getName(), 0, 2)) {
                 continue;
             }
 
             // ...and have exactly one parameter...
-            if ($method->getNumberOfParameters() !== 1) {
+            if (1 !== $method->getNumberOfParameters()) {
                 continue;
             }
 
             // ...which is required...
-            if ($method->getNumberOfRequiredParameters() !== 1) {
+            if (1 !== $method->getNumberOfRequiredParameters()) {
                 continue;
             }
 
@@ -62,7 +62,7 @@ trait Listening // implements Message\Listener
             $target = new \ReflectionClass($message);
 
             // .. and $message is type or subtype of defined $parameter
-            while($parameter->getName() !== $target->getName()) {
+            while ($parameter->getName() !== $target->getName()) {
                 $target = $target->getParentClass();
 
                 if (false === $target) {

@@ -20,5 +20,4 @@ use Streak\Domain\Entity;
  */
 interface Id extends Entity\Id
 {
-
 }

@@ -112,7 +112,6 @@ class InMemoryEventStoreTest extends TestCase
         $this->assertEmpty($store->find($this->aggregateRootId1));
         $this->assertEmpty($store->find($this->aggregaterootId2));
 
-
         $store->add($this->event1, $this->event2);
 
         $this->assertEquals([$this->event1, $this->event2], $store->find($this->aggregateRootId1));
