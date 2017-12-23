@@ -41,7 +41,7 @@ $config = PhpCsFixer\Config::create()
         'declare_strict_types' => true,
         'header_comment' => [
             'commentType' => 'PHPDoc',
-            'location' => 'after_declare_strict',
+            'location' => 'after_open',
             'separate' => 'both',
             'header' => <<<HEADER
 This file is part of the streak package.
