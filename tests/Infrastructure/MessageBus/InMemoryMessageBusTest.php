@@ -1,6 +1,8 @@
 <?php
 
-/*
+declare(strict_types=1);
+
+/**
  * This file is part of the streak package.
  *
  * (C) Alan Gabriel Bem <alan.bem@gmail.com>
@@ -121,14 +123,14 @@ class InMemoryMessageBusTest extends TestCase
             ->expects($this->at(1))
             ->method('createFor')
             ->with($this->message2)
-            ->willReturn($this->listener2a);
+            ->willReturn($this->listener2a)
         ;
 
         $this->subscriber2
             ->expects($this->at(2))
             ->method('createFor')
             ->with($this->message3)
-            ->willReturn($this->listener2b);
+            ->willReturn($this->listener2b)
         ;
 
         $this->listener1

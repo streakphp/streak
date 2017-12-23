@@ -32,6 +32,26 @@ $config = PhpCsFixer\Config::create()
         'ordered_class_elements' => true,
         'php_unit_test_class_requires_covers' => true,
         'yoda_style' => true,
+        '@Symfony' => true,
+        'mb_str_functions' => true,
+        'psr4' => true,
+        'linebreak_after_opening_tag' => false,
+        'blank_line_before_return' => true,
+        'return_type_declaration' => ['space_before' => 'one'],
+        'declare_strict_types' => true,
+        'header_comment' => [
+            'commentType' => 'PHPDoc',
+            'location' => 'after_declare_strict',
+            'separate' => 'both',
+            'header' => <<<HEADER
+This file is part of the streak package.
+
+(C) Alan Gabriel Bem <alan.bem@gmail.com>
+
+For the full copyright and license information, please view the LICENSE
+file that was distributed with this source code.
+HEADER
+        ],
     ])
     //The vendor directory is excluded by default.
     ->setFinder(

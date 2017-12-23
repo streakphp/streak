@@ -1,7 +1,9 @@
 <?php
 
-/*
- * This file is part of the cbs package.
+declare(strict_types=1);
+
+/**
+ * This file is part of the streak package.
  *
  * (C) Alan Gabriel Bem <alan.bem@gmail.com>
  *
