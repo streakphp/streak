@@ -1,6 +1,8 @@
 <?php
 
-/*
+declare(strict_types=1);
+
+/**
  * This file is part of the streak package.
  *
  * (C) Alan Gabriel Bem <alan.bem@gmail.com>
@@ -8,8 +10,6 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
-declare(strict_types=1);
 
 namespace Streak\Infrastructure\AggregateRoot\Repository;
 
@@ -41,8 +41,8 @@ class EventSourcedRepository implements Domain\AggregateRoot\Repository
     public function __construct(Domain\AggregateRoot\Factory $factory, Domain\EventStore $store, Infrastructure\UnitOfWork $uow)
     {
         $this->factory = $factory;
-        $this->store   = $store;
-        $this->uow     = $uow;
+        $this->store = $store;
+        $this->uow = $uow;
     }
 
     public function find(Domain\AggregateRoot\Id $id) : ?Domain\AggregateRoot
