@@ -37,6 +37,9 @@ class MessagingTest extends TestCase
     public function testListening()
     {
         $messaging = new MessagingTest\MessagingStub();
+
+        $this->assertFalse($messaging->isMessage1Listened());
+
         $messaging->on(new ListenedMessage1(), $this->bus);
 
         $this->assertTrue($messaging->isMessage1Listened());
@@ -47,9 +50,19 @@ class MessagingTest extends TestCase
     public function testReplayingInOrder()
     {
         $messaging = new MessagingTest\MessagingStub();
+
+        $this->assertFalse($messaging->isMessage1Listened());
+        $this->assertFalse($messaging->isMessage2Listened());
+
         $messaging->on(new ListenedMessage1(), $this->bus);
 
+        $this->assertTrue($messaging->isMessage1Listened());
+        $this->assertFalse($messaging->isMessage2Listened());
+
         $messaging->replay();
+
+        $this->assertTrue($messaging->isMessage1Listened());
+        $this->assertFalse($messaging->isMessage2Listened());
 
         $messaging = new MessagingTest\MessagingStub();
         $messaging->on(new ListenedMessage1(), $this->bus);

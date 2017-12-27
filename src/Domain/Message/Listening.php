@@ -14,7 +14,6 @@ declare(strict_types=1);
 namespace Streak\Domain\Message;
 
 use Streak\Domain;
-use Streak\Domain\Message;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -46,22 +45,20 @@ trait Listening // implements Message\Listener
                 continue;
             }
 
-            // ...which is required...
-            if (1 !== $method->getNumberOfRequiredParameters()) {
+            // ...and it is required
+            $parameter = $method->getParameters()[0];
+            if ($parameter->allowsNull()) {
                 continue;
             }
 
-            $parameter = $method->getParameters()[0];
+            // ..and it is a message...
             $parameter = $parameter->getClass();
-
-            // ..and its a message...
             if (false === $parameter->isSubclassOf(Domain\Message::class)) {
                 continue;
             }
 
+            // .. and $message is type or subtype of $parameter
             $target = new \ReflectionClass($message);
-
-            // .. and $message is type or subtype of defined $parameter
             while ($parameter->getName() !== $target->getName()) {
                 $target = $target->getParentClass();
 
