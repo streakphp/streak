@@ -26,10 +26,12 @@ use Streak\Infrastructure\Testing\Saga;
 abstract class TestCase extends \PHPUnit\Framework\TestCase
 {
     private $bus;
+    private $scenarioExecuted;
 
     public function setUp()
     {
         $this->bus = new SynchronousCommandBus();
+        $this->scenarioExecuted = false;
     }
 
     public function getCommandBus() : SynchronousCommandBus
@@ -39,6 +41,13 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
 
     public function given(Domain\Message ...$messages) : Scenario\When
     {
+        if (true === $this->scenarioExecuted) {
+            $message = 'Scenario already executed.';
+            throw new \BadMethodCallException($message);
+        }
+
+        $this->scenarioExecuted = true;
+
         return $this->createScenario()->given(...$messages);
     }
 
