@@ -21,7 +21,7 @@ use Streak\Domain\Message;
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-class Listener implements Message\Listener, Message\Listener\Decorator, Message\Replayable
+class Listener implements Message\Listener, Message\Listener\Decorator, Message\Replayable, Message\Finishable
 {
     private $bus;
     private $saga;
@@ -40,6 +40,11 @@ class Listener implements Message\Listener, Message\Listener\Decorator, Message\
     public function beginsWith(Domain\Message $message) : bool
     {
         return $this->saga->beginsWith($message);
+    }
+
+    public function isFinished() : bool
+    {
+        return $this->saga->isFinished();
     }
 
     public function on(Domain\Message $message) : void

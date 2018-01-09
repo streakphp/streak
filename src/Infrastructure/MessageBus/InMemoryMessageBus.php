@@ -61,8 +61,19 @@ class InMemoryMessageBus implements MessageBus
                     continue;
                 }
             }
-            foreach ($this->listeners as $listener) {
+            $delete = [];
+            foreach ($this->listeners as $key => $listener) {
                 $listener->on($message);
+
+                if ($listener instanceof Message\Finishable) {
+                    if (true === $listener->isFinished()) {
+                        $delete[] = $key;
+                    }
+                }
+            }
+
+            foreach ($delete as $key) {
+                unset($this->listeners[$key]);
             }
         }
     }

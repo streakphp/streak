@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Streak\Application\Saga;
 
+use Streak\Application\Saga;
 use Streak\Domain;
 use Streak\Domain\Message;
 use Streak\Domain\Message\Exception;
@@ -24,7 +25,7 @@ class Subscriber implements Message\Subscriber
 {
     private $listener;
 
-    public function __construct(Listener $listener)
+    public function __construct(Saga\Listener $listener)
     {
         $this->listener = $listener;
     }
