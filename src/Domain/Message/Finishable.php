@@ -11,15 +11,16 @@
 
 declare(strict_types=1);
 
-namespace Streak\Application;
+namespace Streak\Domain\Message;
 
 use Streak\Domain;
-use Streak\Domain\Message;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-interface Saga extends Message\Replayable, Message\Finishable
+interface Finishable
 {
-    public function on(Domain\Message $message, CommandBus $bus) : void;
+    public function beginsWith(Domain\Message $message) : bool;
+
+    public function isFinished() : bool;
 }

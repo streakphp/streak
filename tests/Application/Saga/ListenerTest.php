@@ -92,12 +92,19 @@ class ListenerTest extends TestCase
             )
         ;
 
+        $this->saga
+            ->expects($this->once())
+            ->method('isFinished')
+            ->willReturn(false)
+        ;
+
         $listener = new Listener($this->factory, $this->bus);
         $listener->on($this->message1);
         $listener->replay($this->message1, $this->message2);
 
         $this->assertTrue($listener->beginsWith($this->message2));
         $this->assertFalse($listener->beginsWith($this->message2));
+        $this->assertFalse($listener->isFinished());
         $this->assertSame($this->saga, $listener->decorated());
     }
 }

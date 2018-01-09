@@ -54,6 +54,11 @@ class InMemoryMessageBusTest extends TestCase
     private $listener3;
 
     /**
+     * @var Message\Listener|Message\Finishable|\PHPUnit_Framework_MockObject_MockObject
+     */
+    private $listener4;
+
+    /**
      * @var Message|\PHPUnit_Framework_MockObject_MockObject
      */
     private $message1;
@@ -77,6 +82,7 @@ class InMemoryMessageBusTest extends TestCase
         $this->listener2a = $this->getMockBuilder(Message\Listener::class)->setMockClassName('listener2a')->getMockForAbstractClass();
         $this->listener2b = $this->getMockBuilder(Message\Listener::class)->setMockClassName('listener2b')->getMockForAbstractClass();
         $this->listener3 = $this->getMockBuilder(Message\Listener::class)->setMockClassName('listener3')->getMockForAbstractClass();
+        $this->listener4 = $this->getMockBuilder([Message\Listener::class, Message\Finishable::class])->setMockClassName('listener4')->getMock();
 
         $this->message1 = $this->getMockBuilder(Message::class)->setMockClassName('message1')->getMockForAbstractClass();
         $this->message2 = $this->getMockBuilder(Message::class)->setMockClassName('message2')->getMockForAbstractClass();
@@ -90,6 +96,7 @@ class InMemoryMessageBusTest extends TestCase
         $bus->subscribe($this->subscriber1);
         $bus->subscribe($this->subscriber2);
         $bus->listen($this->listener3);
+        $bus->listen($this->listener4);
 
         $this->subscriber1
             ->expects($this->at(0))
@@ -185,6 +192,24 @@ class InMemoryMessageBusTest extends TestCase
             ->expects($this->at(2))
             ->method('on')
             ->with($this->message3)
+        ;
+
+        $this->listener4
+            ->expects($this->exactly(2))
+            ->method('on')
+            ->withConsecutive(
+                [$this->message1],
+                [$this->message2]
+            )
+        ;
+
+        $this->listener4
+            ->expects($this->exactly(2))
+            ->method('isFinished')
+            ->willReturnOnConsecutiveCalls(
+                false,
+                true
+            )
         ;
 
         $bus->publish($this->message1, $this->message2);
