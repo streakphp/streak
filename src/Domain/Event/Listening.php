@@ -22,8 +22,7 @@ use Streak\Domain\Message;
 trait Listening
 {
     use Message\Listening {
-        on as private;
-        on as onMessage;
+        Message\Listening::on as private onMessage;
     }
 
     public function on(Domain\Message $event) : void

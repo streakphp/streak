@@ -23,12 +23,11 @@ use Streak\Domain\Message;
 trait Projecting // implements Application\Projector
 {
     use Event\Consuming {
-        replay as private;
-        replay as doReplay;
+        Event\Consuming::replay as private doReplay;
     }
-    use Message\Listening;
-
-    abstract public function onReplay() : void;
+    use Message\Listening {
+        Message\Listening::on as private onMessage;
+    }
 
     final public function replay(Domain\Event ...$events) : void
     {
@@ -40,4 +39,31 @@ trait Projecting // implements Application\Projector
     {
         return $this->lastReplayed;
     }
+
+    /**
+     * @throws \Exception
+     */
+    public function on(Domain\Message $event) : void
+    {
+        if (!$event instanceof Domain\Event) {
+            throw new \InvalidArgumentException('Event expected but message given.');
+        }
+
+        try {
+            $this->preEvent($event);
+            $this->onMessage($event);
+            $this->postEvent($event);
+        } catch (\Exception $exception) {
+            $this->onException($exception);
+            throw $exception;
+        }
+    }
+
+    abstract protected function onReplay() : void;
+
+    abstract protected function preEvent(Event $event) : void;
+
+    abstract protected function postEvent(Event $event) : void;
+
+    abstract protected function onException(\Exception $exception) : void;
 }

@@ -40,9 +40,51 @@ class ProjectingTest extends TestCase
 
         $projector->replay(...$events);
 
+        $this->assertSame($events, $projector->eventsThatPreEventHookFiredFor());
+        $this->assertSame($events, $projector->eventsThatPostEventHookFiredFor());
+        $this->assertEmpty($projector->exceptionsThatOnExceptionHookFiredFor());
         $this->assertEquals($events, $projector->consumed());
         $this->assertEquals($event4, $projector->lastReplayed());
         $this->assertTrue($projector->replayed());
+    }
+
+    public function testErrors()
+    {
+        $exception = new \RuntimeException('Consuming with error.');
+        $this->expectExceptionObject($exception);
+
+        $event1 = new ProjectingTest\Event1Stub();
+        $event2 = new ProjectingTest\Event2Stub();
+        $event3 = new ProjectingTest\Event3Stub();
+        $event4 = new ProjectingTest\Event4Stub();
+        $event5 = new ProjectingTest\Event5Stub();
+
+        $projector = new ProjectorStub();
+
+        try {
+            $projector->on($event1);
+            $projector->on($event2);
+            $projector->on($event3);
+            $projector->on($event4);
+            $projector->on($event5);
+        } catch (\Exception $thrown) {
+            $this->assertSame([$event1, $event2, $event3, $event4, $event5], $projector->eventsThatPreEventHookFiredFor());
+            $this->assertSame([$event1, $event2, $event3, $event4], $projector->eventsThatPostEventHookFiredFor());
+            $this->assertSame([$thrown], $projector->exceptionsThatOnExceptionHookFiredFor());
+
+            throw $thrown;
+        }
+    }
+
+    public function testConsumingNonEvent()
+    {
+        $exception = new \InvalidArgumentException('Event expected but message given.');
+        $this->expectExceptionObject($exception);
+
+        $message = new Domain\Event\ProjectingTest\Message1Stub();
+
+        $projector = new ProjectorStub();
+        $projector->on($message);
     }
 }
 
@@ -57,6 +99,9 @@ class ProjectorStub
 
     private $replayed = false;
     private $consumed = [];
+    private $eventsThatPreEventHookFiredFor = [];
+    private $eventsThatPostEventHookFiredFor = [];
+    private $exceptionsThatOnExceptionHookFiredFor = [];
 
     public function onReplay() : void
     {
@@ -83,6 +128,18 @@ class ProjectorStub
         $this->consumed[] = $event;
     }
 
+    public function onEvent5Stub(Event5Stub $event) : void
+    {
+        $this->consumed[] = $event;
+
+        throw new \RuntimeException('Consuming with error.');
+    }
+
+    public function replayed() : bool
+    {
+        return $this->replayed;
+    }
+
     /**
      * @return Domain\Event[]
      */
@@ -91,9 +148,43 @@ class ProjectorStub
         return $this->consumed;
     }
 
-    public function replayed() : bool
+    /**
+     * @return Event[]
+     */
+    public function eventsThatPreEventHookFiredFor() : array
     {
-        return $this->replayed;
+        return $this->eventsThatPreEventHookFiredFor;
+    }
+
+    /**
+     * @return Event[]
+     */
+    public function eventsThatPostEventHookFiredFor() : array
+    {
+        return $this->eventsThatPostEventHookFiredFor;
+    }
+
+    /**
+     * @return \Exception[]
+     */
+    public function exceptionsThatOnExceptionHookFiredFor() : array
+    {
+        return $this->exceptionsThatOnExceptionHookFiredFor;
+    }
+
+    protected function preEvent(Event $event) : void
+    {
+        $this->eventsThatPreEventHookFiredFor[] = $event;
+    }
+
+    protected function postEvent(Event $event) : void
+    {
+        $this->eventsThatPostEventHookFiredFor[] = $event;
+    }
+
+    protected function onException(\Exception $exception) : void
+    {
+        $this->exceptionsThatOnExceptionHookFiredFor[] = $exception;
     }
 }
 
@@ -123,4 +214,15 @@ class Event4Stub implements Domain\Event
     public function producerId() : Domain\Id
     {
     }
+}
+
+class Event5Stub implements Domain\Event
+{
+    public function producerId() : Domain\Id
+    {
+    }
+}
+
+class Message1Stub implements Domain\Message
+{
 }
