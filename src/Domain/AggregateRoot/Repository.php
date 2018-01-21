@@ -24,7 +24,7 @@ interface Repository
     public function add(Domain\AggregateRoot $aggregate) : void;
 
     /**
-     * @throws Exception\AggregateNotSupported
+     * @throws Exception\ObjectNotSupported
      */
     public function find(Domain\AggregateRoot\Id $id) : ?Domain\AggregateRoot;
 }

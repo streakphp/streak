@@ -3,7 +3,11 @@ version: 2
 jobs:
   build:
     docker:
-      - image: circleci/php:7.1
+      - image: streakphp/php:latest
+      - image: postgres:9.5
+        environment:
+        - POSTGRES_USER=phpunit
+        - POSTGRES_DB=phpunit
     working_directory: ~/streak
     steps:
       - checkout

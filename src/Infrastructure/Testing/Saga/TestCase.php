@@ -39,7 +39,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
         return $this->bus;
     }
 
-    public function given(Domain\Message ...$messages) : Scenario\When
+    public function given(Domain\Event ...$events) : Scenario\When
     {
         if (true === $this->scenarioExecuted) {
             $message = 'Scenario already executed.';
@@ -48,7 +48,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
 
         $this->scenarioExecuted = true;
 
-        return $this->createScenario()->given(...$messages);
+        return $this->createScenario()->given(...$events);
     }
 
     abstract public function createFactory(Application\CommandBus $bus) : Application\Saga\Factory;

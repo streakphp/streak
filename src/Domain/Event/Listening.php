@@ -14,23 +14,64 @@ declare(strict_types=1);
 namespace Streak\Domain\Event;
 
 use Streak\Domain;
-use Streak\Domain\Message;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-trait Listening
+trait Listening // TODO: rename to Event\Routing
 {
-    use Message\Listening {
-        Message\Listening::on as private onMessage;
-    }
-
-    public function on(Domain\Message $event) : void
+    public function on(Domain\Event $event) : bool // TODO: rename to route(Event $event, object ...$dependencies) with dependency injection support
     {
-        if (!$event instanceof Domain\Event) {
-            throw new \InvalidArgumentException('Event expected but message given.');
+        $reflection = new \ReflectionObject($this);
+
+        foreach ($reflection->getMethods() as $method) {
+            // method is not current method...
+            if (__FUNCTION__ === $method->getName()) {
+                continue;
+            }
+
+            // ...is public...
+            if (!$method->isPublic()) {
+                continue;
+            }
+
+            // ...and its name must start with "on"
+            if ('on' !== \mb_substr($method->getName(), 0, 2)) {
+                continue;
+            }
+
+            // ...and have exactly one parameter...
+            if (1 !== $method->getNumberOfParameters()) {
+                continue;
+            }
+
+            // ...and it is required
+            $parameter = $method->getParameters()[0];
+            if ($parameter->allowsNull()) {
+                continue;
+            }
+
+            // ..and it is an event...
+            $parameter = $parameter->getClass();
+            if (false === $parameter->isSubclassOf(Domain\Event::class)) {
+                continue;
+            }
+
+            // .. and $event is type or subtype of $parameter
+            $target = new \ReflectionClass($event);
+            while ($parameter->getName() !== $target->getName()) {
+                $target = $target->getParentClass();
+
+                if (false === $target) {
+                    continue 2;
+                }
+            }
+
+            $method->invoke($this, $event);
+
+            return true;
         }
 
-        $this->onMessage($event);
+        return false;
     }
 }

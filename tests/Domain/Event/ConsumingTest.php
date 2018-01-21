@@ -16,6 +16,7 @@ namespace Streak\Domain\Event;
 use PHPUnit\Framework\TestCase;
 use Streak\Domain;
 use Streak\Domain\Event\ConsumingTest\ConsumerStub;
+use Streak\Infrastructure\Event\InMemoryStream;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -38,7 +39,7 @@ class ConsumingTest extends TestCase
 
         $events = [$event1, $event2, $event3, $event4];
 
-        $consumer->replay(...$events);
+        $consumer->replay(new InMemoryStream(...$events));
 
         $this->assertEquals($events, $consumer->consumed());
         $this->assertEquals($event4, $consumer->lastReplayed());
@@ -56,9 +57,11 @@ class ConsumerStub
 
     private $consumed = [];
 
-    public function on(Domain\Message $event) : void
+    public function on(Domain\Event $event) : bool
     {
         $this->consumed[] = $event;
+
+        return true;
     }
 
     /**

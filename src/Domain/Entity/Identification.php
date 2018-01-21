@@ -28,11 +28,6 @@ trait Identification
         $this->identifyBy($id);
     }
 
-    public function identifyBy(Entity\Id $id) : void
-    {
-        $this->id = $id;
-    }
-
     public function entityId() : Entity\Id
     {
         return $this->id;
@@ -41,5 +36,10 @@ trait Identification
     public function id() : Domain\Id
     {
         return $this->id;
+    }
+
+    protected function identifyBy(Entity\Id $id) : void
+    {
+        $this->id = $id;
     }
 }

@@ -20,19 +20,19 @@ use Streak\Domain;
  */
 class ConcurrentWriteDetected extends \RuntimeException
 {
-    private $aggregate;
+    private $id;
 
-    public function __construct(Domain\AggregateRoot $aggregate, \Throwable $previous = null)
+    public function __construct(Domain\Id $id, \Throwable $previous = null)
     {
-        $this->aggregate = $aggregate;
+        $this->id = $id;
 
-        $message = sprintf('Concurrent write detected when tried to persist "%s#%s" aggregate.', get_class($aggregate), $aggregate->id()->toString());
+        $message = sprintf('Concurrent write detected when tried to persist "%s#%s" aggregate.', get_class($id), $id->toString());
 
         parent::__construct($message, 0, $previous);
     }
 
-    public function aggregate() : Domain\AggregateRoot
+    public function id() : Domain\Id
     {
-        return $this->aggregate;
+        return $this->id;
     }
 }

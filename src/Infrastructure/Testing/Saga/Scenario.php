@@ -17,6 +17,8 @@ use PHPUnit\Framework\Assert;
 use Streak\Application;
 use Streak\Domain;
 use Streak\Infrastructure\CommandBus\SynchronousCommandBus;
+use Streak\Infrastructure\Event\InMemoryStream;
+use Streak\Infrastructure\Testing\saga\Scenario\Given;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -28,16 +30,17 @@ class Scenario implements Scenario\Given, Scenario\When, Scenario\Then, Applicat
     private $commands = [];
     private $bus;
     private $saga;
+    private $factory;
     private $replayed = false;
 
     public function __construct(SynchronousCommandBus $bus, Application\Saga\Factory $factory)
     {
         $this->bus = $bus;
-        $this->saga = $factory->create();
+        $this->factory = $factory;
         $this->bus->register($this);
     }
 
-    public function given(Domain\Message ...$messages) : Scenario\When
+    public function given(Domain\Event ...$messages) : Scenario\When
     {
         $first = array_shift($messages);
 
@@ -45,22 +48,19 @@ class Scenario implements Scenario\Given, Scenario\When, Scenario\Then, Applicat
             return $this;
         }
 
-        Assert::assertTrue($this->saga->beginsWith($first), 'Saga should begin its lifecycle with first given message.');
-
-        $this->saga->replay($first, ...$messages);
-
-        $this->replayed = true;
+        $this->saga = $this->factory->createFor($first);
+        $this->saga->replay(new InMemoryStream($first, ...$messages));
 
         return $this;
     }
 
-    public function when(Domain\Message $message) : Scenario\Then
+    public function when(Domain\Event $message) : Scenario\Then
     {
-        if (false === $this->replayed) {
-            Assert::assertTrue($this->saga->beginsWith($message), 'Saga should begin its lifecycle with first given message.');
+        if (null === $this->saga) {
+            $this->saga = $this->factory->createFor($message);
         }
 
-        $this->saga->on($message, $this->bus);
+        $this->saga->on($message);
 
         return $this;
     }

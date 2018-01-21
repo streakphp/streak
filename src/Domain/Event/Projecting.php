@@ -15,7 +15,6 @@ namespace Streak\Domain\Event;
 
 use Streak\Domain;
 use Streak\Domain\Event;
-use Streak\Domain\Message;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -25,14 +24,14 @@ trait Projecting // implements Application\Projector
     use Event\Consuming {
         Event\Consuming::replay as private doReplay;
     }
-    use Message\Listening {
-        Message\Listening::on as private onMessage;
+    use Event\Listening {
+        Event\Listening::on as private onEvent;
     }
 
-    final public function replay(Domain\Event ...$events) : void
+    final public function replay(Event\Stream $events) : void
     {
         $this->onReplay();
-        $this->doReplay(...$events);
+        $this->doReplay($events);
     }
 
     final public function lastReplayed() : ?Domain\Event
@@ -43,20 +42,18 @@ trait Projecting // implements Application\Projector
     /**
      * @throws \Exception
      */
-    public function on(Domain\Message $event) : void
+    public function on(Domain\Event $event) : bool
     {
-        if (!$event instanceof Domain\Event) {
-            throw new \InvalidArgumentException('Event expected but message given.');
-        }
-
         try {
             $this->preEvent($event);
-            $this->onMessage($event);
+            $processed = $this->onEvent($event);
             $this->postEvent($event);
         } catch (\Exception $exception) {
             $this->onException($exception);
             throw $exception;
         }
+
+        return $processed;
     }
 
     abstract protected function onReplay() : void;

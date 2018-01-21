@@ -13,19 +13,19 @@ declare(strict_types=1);
 
 namespace Streak\Domain\Event;
 
-use Streak\Domain;
+use Streak\Domain\Event;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-trait Consuming
+trait Consuming // implements Event\Replayable
 {
     private $replaying = false;
     private $lastReplayed;
 
-    abstract public function on(Domain\Message $event) : void;
+    abstract public function on(Event $event) : bool;
 
-    final public function replay(Domain\Event ...$events) : void
+    final public function replay(Event\Stream $events) : void
     {
         foreach ($events as $event) {
             $this->on($event);
@@ -33,7 +33,7 @@ trait Consuming
         }
     }
 
-    final public function lastReplayed() : ?Domain\Event
+    final public function lastReplayed() : ?Event
     {
         return $this->lastReplayed;
     }

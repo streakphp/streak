@@ -13,143 +13,50 @@ declare(strict_types=1);
 
 namespace Streak\Infrastructure\EventStore;
 
-use PHPUnit\Framework\TestCase;
-use Streak\Domain;
+use Streak\Domain\EventStore;
+use Streak\Infrastructure\EventBus\PDOPostgresEventStoreTest\Event1;
+use Streak\Infrastructure\EventBus\PDOPostgresEventStoreTest\Event2;
+use Streak\Infrastructure\EventBus\PDOPostgresEventStoreTest\Event3;
+use Streak\Infrastructure\EventBus\PDOPostgresEventStoreTest\Event4;
+use Streak\Infrastructure\EventBus\PDOPostgresEventStoreTest\ProducerId1;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  *
  * @covers \Streak\Infrastructure\EventStore\InMemoryEventStore
+ * @covers \Streak\Infrastructure\Event\InMemoryStream
  */
-class InMemoryEventStoreTest extends TestCase
+class InMemoryEventStoreTest extends EventStoreTestCase
 {
-    /**
-     * @var Domain\AggregateRoot\Id|\PHPUnit_Framework_MockObject_MockObject
-     */
-    private $aggregateRootId1;
-
-    /**
-     * @var Domain\AggregateRoot\Id|\PHPUnit_Framework_MockObject_MockObject
-     */
-    private $aggregaterootId2;
-
-    /**
-     * @var Domain\Event|\PHPUnit_Framework_MockObject_MockObject
-     */
-    private $event1;
-
-    /**
-     * @var Domain\Event|\PHPUnit_Framework_MockObject_MockObject
-     */
-    private $event2;
-
-    /**
-     * @var Domain\Event|\PHPUnit_Framework_MockObject_MockObject
-     */
-    private $event3;
-
-    /**
-     * @var Domain\Event|\PHPUnit_Framework_MockObject_MockObject
-     */
-    private $event4;
-
-    public function setUp()
+    public function testClear()
     {
-        $this->aggregateRootId1 = $this->getMockBuilder(Domain\AggregateRoot\Id::class)->getMockForAbstractClass();
-        $this->aggregaterootId2 = $this->getMockBuilder(Domain\AggregateRoot\Id::class)->getMockForAbstractClass();
-
-        $this->event1 = $this->getMockBuilder(Domain\Event::class)->getMockForAbstractClass();
-        $this->event2 = $this->getMockBuilder(Domain\Event::class)->getMockForAbstractClass();
-        $this->event3 = $this->getMockBuilder(Domain\Event::class)->getMockForAbstractClass();
-        $this->event4 = $this->getMockBuilder(Domain\Event::class)->getMockForAbstractClass();
-    }
-
-    public function testStorage()
-    {
-        $this->event1
-            ->expects($this->atLeastOnce())
-            ->method('producerId')
-            ->with()
-            ->willReturn($this->aggregateRootId1)
-        ;
-
-        $this->event2
-            ->expects($this->atLeastOnce())
-            ->method('producerId')
-            ->with()
-            ->willReturn($this->aggregateRootId1)
-        ;
-
-        $this->event3
-            ->expects($this->atLeastOnce())
-            ->method('producerId')
-            ->with()
-            ->willReturn($this->aggregaterootId2)
-        ;
-
-        $this->event4
-            ->expects($this->atLeastOnce())
-            ->method('producerId')
-            ->with()
-            ->willReturn($this->aggregaterootId2)
-        ;
-
-        $this->aggregateRootId1
-            ->expects($this->atLeastOnce())
-            ->method('toString')
-            ->willReturn('id1')
-        ;
-
-        $this->aggregaterootId2
-            ->expects($this->atLeastOnce())
-            ->method('toString')
-            ->willReturn('id2')
-        ;
-
         $store = new InMemoryEventStore();
 
-        $this->assertEmpty($store->all());
-        $this->assertEmpty($store->find($this->aggregateRootId1));
-        $this->assertEmpty($store->find($this->aggregaterootId2));
+        $producer11 = new ProducerId1('producer1-1');
+        $producer12 = new ProducerId1('producer1-2');
 
-        $store->add($this->event1, $this->event2);
+        $event1 = new Event1();
+        $event2 = new Event2();
+        $event3 = new Event3();
+        $event4 = new Event4();
 
-        $this->assertEquals([$this->event1, $this->event2], $store->find($this->aggregateRootId1));
-        $this->assertEquals([], $store->find($this->aggregaterootId2));
-        $this->assertEquals([$this->event1, $this->event2], $store->all());
+        $this->assertEquals([], iterator_to_array($store));
 
-        $store->add($this->event3, $this->event4);
+        $store->add($producer11, null, $event1, $event2);
+        $this->assertEquals([$event1, $event2], iterator_to_array($store));
 
-        $this->assertEquals([$this->event1, $this->event2], $store->find($this->aggregateRootId1));
-        $this->assertEquals([$this->event3, $this->event4], $store->find($this->aggregaterootId2));
-        $this->assertEquals([$this->event1, $this->event2, $this->event3, $this->event4], $store->all());
+        $store->add($producer12, null, $event3, $event4);
+        $this->assertEquals([$event1, $event2, $event3, $event4], iterator_to_array($store));
 
         $store->clear();
 
-        $this->assertEquals([], $store->find($this->aggregateRootId1));
-        $this->assertEquals([], $store->find($this->aggregaterootId2));
-        $this->assertEmpty($store->all());
+        $this->assertEquals([], iterator_to_array($store));
     }
 
-    public function testWrongAggregate()
+    protected function newEventStore() : EventStore
     {
-        $this->event1
-            ->expects($this->once())
-            ->method('producerId')
-            ->with()
-            ->willReturn($this->aggregateRootId1)
-        ;
-
-        $this->aggregateRootId1
-            ->expects($this->atLeastOnce())
-            ->method('toString')
-            ->willReturn('')
-        ;
-
-        $exception = new Domain\Exception\InvalidIdGiven($this->aggregateRootId1);
-        $this->expectExceptionObject($exception);
-
         $store = new InMemoryEventStore();
-        $store->add($this->event1, $this->event2, $this->event3, $this->event4);
+
+        return $store;
     }
 }

@@ -1,0 +1,18 @@
+version: '3'
+services:
+
+  php:
+    image: streakphp/php:latest
+    volumes:
+      - .:/var/www/project
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: phpunit
+      POSTGRES_PASSWORD: phpunit
+      POSTGRES_DB: phpunit

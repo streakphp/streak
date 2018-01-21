@@ -20,7 +20,6 @@ use Streak\Domain\Event\ListeningTest\Event2;
 use Streak\Domain\Event\ListeningTest\Event3;
 use Streak\Domain\Event\ListeningTest\Event4;
 use Streak\Domain\Event\ListeningTest\ListenerStub;
-use Streak\Domain\Event\ListeningTest\MessageStub;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -29,13 +28,6 @@ use Streak\Domain\Event\ListeningTest\MessageStub;
  */
 class ListeningTest extends TestCase
 {
-    private $id;
-
-    public function setUp()
-    {
-        $this->id = $this->getMockBuilder(Domain\Id::class)->getMockForAbstractClass();
-    }
-
     public function testListening()
     {
         $listener = new ListenerStub();
@@ -43,44 +35,35 @@ class ListeningTest extends TestCase
         $this->assertFalse($listener->isEvent1Listened());
         $this->assertFalse($listener->isEvent2Listened());
         $this->assertFalse($listener->isEvent3Listened());
-        $this->assertFalse($listener->isEvent4Listened());
+        $this->assertFalse($listener->isNonEventListened());
 
-        $listener->on(new Event1($this->id));
-
-        $this->assertTrue($listener->isEvent1Listened());
-        $this->assertFalse($listener->isEvent2Listened());
-        $this->assertFalse($listener->isEvent3Listened());
-        $this->assertFalse($listener->isEvent4Listened());
-
-        $listener->on(new Event2($this->id));
+        $this->assertTrue($listener->on(new Event1()));
 
         $this->assertTrue($listener->isEvent1Listened());
         $this->assertFalse($listener->isEvent2Listened());
         $this->assertFalse($listener->isEvent3Listened());
-        $this->assertFalse($listener->isEvent4Listened());
+        $this->assertFalse($listener->isNonEventListened());
 
-        $listener->on(new Event3($this->id));
-
-        $this->assertTrue($listener->isEvent1Listened());
-        $this->assertFalse($listener->isEvent2Listened());
-        $this->assertFalse($listener->isEvent3Listened());
-        $this->assertFalse($listener->isEvent4Listened());
-
-        $listener->on(new Event4($this->id));
+        $this->assertFalse($listener->on(new Event2()));
 
         $this->assertTrue($listener->isEvent1Listened());
         $this->assertFalse($listener->isEvent2Listened());
         $this->assertFalse($listener->isEvent3Listened());
-        $this->assertFalse($listener->isEvent4Listened());
-    }
+        $this->assertFalse($listener->isNonEventListened());
 
-    public function testNotAnEvent()
-    {
-        $exception = new \InvalidArgumentException('Event expected but message given');
-        $this->expectExceptionObject($exception);
+        $this->assertFalse($listener->on(new Event3()));
 
-        $listener = new ListenerStub();
-        $listener->on(new MessageStub());
+        $this->assertTrue($listener->isEvent1Listened());
+        $this->assertFalse($listener->isEvent2Listened());
+        $this->assertFalse($listener->isEvent3Listened());
+        $this->assertFalse($listener->isNonEventListened());
+
+        $this->assertFalse($listener->on(new Event4()));
+
+        $this->assertTrue($listener->isEvent1Listened());
+        $this->assertFalse($listener->isEvent2Listened());
+        $this->assertFalse($listener->isEvent3Listened());
+        $this->assertFalse($listener->isNonEventListened());
     }
 }
 
@@ -96,23 +79,24 @@ class ListenerStub
     private $event1Listened = false;
     private $event2Listened = false;
     private $event3Listened = false;
-    private $event4Listened = false;
+    private $nonEventListened = false;
 
     public function onEvent1(Event1 $event1)
     {
         $this->event1Listened = true;
     }
 
-    public function onEvent1WithOptionalEvent(Event2 $event2 = null)
+    public function onEvent2WithOptionalEvent(Event2 $event2 = null)
     {
     }
 
-    public function onEvent1WithAdditionalUnnecessaryParameter(Event2 $event2, $unnecessary)
+    public function onEvent2WithAdditionalUnnecessaryParameter(Event2 $event2, $unnecessary)
     {
     }
 
     public function onNonEvent(\stdClass $parameter)
     {
+        $this->nonEventListened = true;
     }
 
     public function isEvent1Listened() : bool
@@ -130,53 +114,32 @@ class ListenerStub
         return $this->event3Listened;
     }
 
-    public function isEvent4Listened() : bool
+    public function isNonEventListened() : bool
     {
-        return $this->event4Listened;
+        return $this->nonEventListened;
     }
 
-    protected function onEvent3(Event3 $event3)
+    protected function onEvent3ButProtected(Event3 $event3)
     {
         $this->event3Listened = true;
-    }
-
-    protected function onEvent4(Event4 $event4)
-    {
-        $this->event4Listened = true;
     }
 }
 
 abstract class EventStub implements Domain\Event
 {
-    private $id;
-
-    public function __construct(Domain\Id $id)
-    {
-        $this->id = $id;
-    }
-
-    public function producerId() : Domain\Id
-    {
-        return $this->id;
-    }
 }
-
 class Event1 extends EventStub
 {
 }
-
 class Event2 extends EventStub
 {
 }
-
 class Event3 extends EventStub
 {
 }
-
 class Event4 extends EventStub
 {
 }
-
-class MessageStub implements Domain\Message
+class MessageStub implements Domain\Event
 {
 }

@@ -18,6 +18,6 @@ use Streak\Domain\Comparable;
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-interface Sourced extends Comparable, Producer
+interface Sourced extends Producer, Consumer, Comparable
 {
 }

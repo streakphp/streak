@@ -24,19 +24,19 @@ use Streak\Domain;
 class ConcurrentWriteDetectedTest extends TestCase
 {
     /**
-     * @var Domain\AggregateRoot|\PHPUnit_Framework_MockObject_MockObject
+     * @var Domain\Id|\PHPUnit_Framework_MockObject_MockObject
      */
-    private $aggregate;
+    private $id;
 
     public function setUp()
     {
-        $this->aggregate = $this->getMockBuilder(Domain\AggregateRoot::class)->getMockForAbstractClass();
+        $this->id = $this->getMockBuilder(Domain\Id::class)->getMockForAbstractClass();
     }
 
     public function testException()
     {
-        $exception = new ConcurrentWriteDetected($this->aggregate);
+        $exception = new ConcurrentWriteDetected($this->id);
 
-        $this->assertSame($this->aggregate, $exception->aggregate());
+        $this->assertSame($this->id, $exception->id());
     }
 }

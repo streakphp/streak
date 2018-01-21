@@ -22,7 +22,7 @@ use Streak\Domain\Entity;
 trait Identification
 {
     use Entity\Identification {
-        Entity\Identification::identifyBy as identifyEntityBy;
+        Entity\Identification::identifyBy as private identifyEntityBy;
     }
 
     public function __construct(Aggregate\Id $id)
@@ -30,13 +30,13 @@ trait Identification
         $this->identifyBy($id);
     }
 
-    public function identifyBy(Aggregate\Id $id) : void
-    {
-        $this->identifyEntityBy($id);
-    }
-
     public function aggregateId() : Aggregate\Id
     {
         return $this->id;
+    }
+
+    protected function identifyBy(Aggregate\Id $id) : void
+    {
+        $this->identifyEntityBy($id);
     }
 }

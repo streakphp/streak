@@ -19,4 +19,8 @@
         <log type="coverage-clover" target="build/clover.xml"/>
         <log type="junit" target="build/junit.xml" logIncompleteSkipped="false"/>
     </logging>
+
+    <php>
+        <env name="DATABASE_URL" value="pgsql:dbname=phpunit;host=127.0.0.1;port=5432;user=phpunit;password=phpunit" />
+    </php>
 </phpunit>
