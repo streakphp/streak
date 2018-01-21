@@ -39,6 +39,7 @@ $config = PhpCsFixer\Config::create()
         'blank_line_before_return' => true,
         'return_type_declaration' => ['space_before' => 'one'],
         'declare_strict_types' => true,
+        'no_blank_lines_after_phpdoc' => false,
         'header_comment' => [
             'commentType' => 'PHPDoc',
             'location' => 'after_open',

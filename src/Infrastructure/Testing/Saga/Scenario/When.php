@@ -20,5 +20,5 @@ use Streak\Domain;
  */
 interface When
 {
-    public function when(Domain\Message $message) : Then;
+    public function when(Domain\Event $message) : Then;
 }

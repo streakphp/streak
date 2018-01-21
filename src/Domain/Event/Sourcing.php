@@ -13,21 +13,19 @@ declare(strict_types=1);
 
 namespace Streak\Domain\Event;
 
-use Streak\Domain;
 use Streak\Domain\Event;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-trait Sourcing //implements Event\Consumer, Event\Producer, Identifiable
+trait Sourcing // implements Event\Consumer, Event\Producer, Domain\Identifiable
 {
     private $events = [];
+    private $last;
     private $replaying = false;
     private $lastReplayed;
 
-    abstract public function id() : Domain\Id;
-
-    final public function replay(Domain\Event ...$events) : void
+    final public function replay(Event\Stream $events) : void
     {
         try {
             $this->replaying = true;
@@ -44,33 +42,28 @@ trait Sourcing //implements Event\Consumer, Event\Producer, Identifiable
         }
     }
 
-    final public function lastReplayed() : ?Domain\Event
+    final public function lastReplayed() : ?Event
     {
         return $this->lastReplayed;
     }
 
+    final public function last() : ?Event
+    {
+        return $this->last;
+    }
+
     /**
-     * @return Domain\Event[]
+     * @return Event[]
      */
     final public function events() : array
     {
         return $this->events;
     }
 
-    final protected function applyEvent(Domain\Event $event) : void
+    final protected function applyEvent(Event $event) : void
     {
         if (!$this instanceof Event\Consumer) {
             throw new Exception\SourcingObjectWithEventFailed($this, $event);
-        }
-
-        if (!$this->id()->equals($event->producerId())) {
-            throw new Domain\Exception\EventAndConsumerMismatch($this, $event);
-        }
-
-        if ($this->replaying) {
-            $this->lastReplayed = $event;
-        } else {
-            $this->events[] = $event;
         }
 
         $reflection = new \ReflectionObject($this);
@@ -101,7 +94,7 @@ trait Sourcing //implements Event\Consumer, Event\Producer, Identifiable
             $parameter = $parameter->getClass();
 
             // ..and its an event...
-            if (false === $parameter->isSubclassOf(Domain\Event::class)) {
+            if (false === $parameter->isSubclassOf(Event::class)) {
                 continue;
             }
 
@@ -141,6 +134,14 @@ trait Sourcing //implements Event\Consumer, Event\Producer, Identifiable
 
         if (false === $isPublic) {
             $method->setAccessible(false);
+        }
+
+        // TODO: test if lastReplayed/last do not change in case of listening error
+        $this->last = $event;
+        if ($this->replaying) {
+            $this->lastReplayed = $event;
+        } else {
+            $this->events[] = $event;
         }
     }
 }

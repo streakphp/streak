@@ -14,8 +14,8 @@ declare(strict_types=1);
 namespace Streak\Domain\Event;
 
 use PHPUnit\Framework\TestCase;
-use Streak\Domain;
 use Streak\Domain\Event\ProjectingTest\ProjectorStub;
+use Streak\Infrastructure\Event\InMemoryStream;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -38,7 +38,7 @@ class ProjectingTest extends TestCase
         $this->assertNull($projector->lastReplayed());
         $this->assertFalse($projector->replayed());
 
-        $projector->replay(...$events);
+        $projector->replay(new InMemoryStream(...$events));
 
         $this->assertSame($events, $projector->eventsThatPreEventHookFiredFor());
         $this->assertSame($events, $projector->eventsThatPostEventHookFiredFor());
@@ -75,23 +75,13 @@ class ProjectingTest extends TestCase
             throw $thrown;
         }
     }
-
-    public function testConsumingNonEvent()
-    {
-        $exception = new \InvalidArgumentException('Event expected but message given.');
-        $this->expectExceptionObject($exception);
-
-        $message = new Domain\Event\ProjectingTest\Message1Stub();
-
-        $projector = new ProjectorStub();
-        $projector->on($message);
-    }
 }
 
 namespace Streak\Domain\Event\ProjectingTest;
 
 use Streak\Domain;
 use Streak\Domain\Event;
+use Streak\Domain\Sensor;
 
 class ProjectorStub
 {
@@ -157,7 +147,7 @@ class ProjectorStub
     }
 
     /**
-     * @return Event[]
+     * @return Domain\Event[]
      */
     public function eventsThatPostEventHookFiredFor() : array
     {
@@ -190,6 +180,10 @@ class ProjectorStub
 
 class Event1Stub implements Domain\Event
 {
+    public function aggregateRootId() : Domain\AggregateRoot\Id
+    {
+    }
+
     public function producerId() : Domain\Id
     {
     }
@@ -197,6 +191,10 @@ class Event1Stub implements Domain\Event
 
 class Event2Stub implements Domain\Event
 {
+    public function aggregateRootId() : Domain\AggregateRoot\Id
+    {
+    }
+
     public function producerId() : Domain\Id
     {
     }
@@ -204,6 +202,10 @@ class Event2Stub implements Domain\Event
 
 class Event3Stub implements Domain\Event
 {
+    public function aggregateRootId() : Domain\AggregateRoot\Id
+    {
+    }
+
     public function producerId() : Domain\Id
     {
     }
@@ -211,6 +213,10 @@ class Event3Stub implements Domain\Event
 
 class Event4Stub implements Domain\Event
 {
+    public function aggregateRootId() : Domain\AggregateRoot\Id
+    {
+    }
+
     public function producerId() : Domain\Id
     {
     }
@@ -218,11 +224,22 @@ class Event4Stub implements Domain\Event
 
 class Event5Stub implements Domain\Event
 {
+    public function aggregateRootId() : Domain\AggregateRoot\Id
+    {
+    }
+
     public function producerId() : Domain\Id
     {
     }
 }
 
-class Message1Stub implements Domain\Message
+class ActorEvent1Stub implements Domain\Event
 {
+    public function actorId() : Sensor\Id
+    {
+    }
+
+    public function producerId() : Domain\Id
+    {
+    }
 }

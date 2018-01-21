@@ -11,23 +11,29 @@
 
 declare(strict_types=1);
 
-namespace Streak\Infrastructure\Testing\Event;
+namespace Streak\Infrastructure\Testing\Message;
 
 use Streak\Domain\Event;
-use Streak\Infrastructure\Testing\Message;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  *
  * @codeCoverageIgnore
  */
-abstract class TestCase extends Message\TestCase
+abstract class TestCase extends \PHPUnit\Framework\TestCase
 {
+    abstract public function provideExampleMessages() : array;
+
     /**
      * @dataProvider provideExampleMessages
      */
-    public function testConverting(Event $event)
+    public function testConverting(Event $message)
     {
-        parent::testConverting($event);
+        $array = $this->createConverter()->eventToArray($message);
+        $object = $this->createConverter()->arrayToEvent(get_class($message), $array);
+
+        $this->assertEquals($message, $object);
     }
+
+    abstract protected function createConverter() : Event\Converter;
 }

@@ -17,6 +17,7 @@ use PHPUnit\Framework\Assert;
 use Streak\Application;
 use Streak\Domain;
 use Streak\Infrastructure\EventStore\InMemoryEventStore;
+use Streak\Infrastructure\Testing\Command\Scenario\Given;
 use Streak\Infrastructure\UnitOfWork;
 
 /**
@@ -29,6 +30,7 @@ class Scenario implements Scenario\Given, Scenario\When, Scenario\Then
     private $handler;
     private $store;
     private $uow;
+    private $id;
     private $events = [];
 
     public function __construct(Application\CommandHandler $handler, InMemoryEventStore $store, UnitOfWork $uow)
@@ -38,10 +40,17 @@ class Scenario implements Scenario\Given, Scenario\When, Scenario\Then
         $this->uow = $uow;
     }
 
+    public function for(Domain\Id $id) : Given
+    {
+        $this->id = $id;
+
+        return $this;
+    }
+
     public function given(Domain\Event ...$events) : Scenario\When
     {
         $this->events = $events;
-        $this->store->add(...$events);
+        $this->store->add($this->id, null, ...$events);
 
         return $this;
     }
@@ -62,7 +71,9 @@ class Scenario implements Scenario\Given, Scenario\When, Scenario\Then
         $this->store->clear();
         $this->uow->commit();
 
-        $actual = $this->store->all();
+        $actual = iterator_to_array($this->store);
+
+        Domain\Event\Metadata::clear(...$actual);
 
         Assert::assertEquals($expected, $actual, 'Expected events don\'t match produced events.');
     }

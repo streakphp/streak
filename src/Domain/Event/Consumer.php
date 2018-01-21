@@ -13,18 +13,12 @@ declare(strict_types=1);
 
 namespace Streak\Domain\Event;
 
-use Streak\Domain;
-use Streak\Domain\Exception;
+use Streak\Domain\Event;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-interface Consumer
+interface Consumer extends Event\Replayable
 {
-    /**
-     * @throws Exception\EventAndConsumerMismatch
-     */
-    public function replay(Domain\Event ...$events) : void;
-
-    public function lastReplayed() : ?Domain\Event;
+    public function lastReplayed() : ?Event;
 }

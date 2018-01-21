@@ -39,6 +39,7 @@ class IdentificationTest extends TestCase
         $identification = $this->getMockBuilder(Identification::class)->setConstructorArgs([$this->id])->getMockForTrait();
 
         $this->assertSame($this->id, $identification->aggregateId());
+        $this->assertSame($this->id, $identification->entityId());
         $this->assertSame($this->id, $identification->id());
     }
 }

@@ -50,16 +50,16 @@ class EventSourcedRepository implements Domain\AggregateRoot\Repository
         $aggregate = $this->factory->create($id);
 
         if (!$aggregate instanceof Domain\Event\Sourced\AggregateRoot) {
-            throw new Exception\AggregateNotSupported($aggregate);
+            throw new Exception\ObjectNotSupported($aggregate);
         }
 
-        $events = $this->store->find($id);
+        $stream = $this->store->stream($id);
 
-        if (0 === \count($events)) {
+        if ($stream->empty()) {
             return null;
         }
 
-        $aggregate->replay(...$events);
+        $aggregate->replay($stream);
 
         $this->uow->add($aggregate);
 
@@ -69,7 +69,7 @@ class EventSourcedRepository implements Domain\AggregateRoot\Repository
     public function add(Domain\AggregateRoot $aggregate) : void
     {
         if (!$aggregate instanceof Event\Sourced\AggregateRoot) {
-            throw new Exception\AggregateNotSupported($aggregate);
+            throw new Exception\ObjectNotSupported($aggregate);
         }
 
         $this->uow->add($aggregate);

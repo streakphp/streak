@@ -13,12 +13,16 @@ declare(strict_types=1);
 
 namespace Streak\Domain\Event;
 
-use Streak\Domain\Message;
+use Streak\Domain\Event;
+use Streak\Domain\Identifiable;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-interface Listener extends Message\Listener
+interface Listener extends Identifiable
 {
-//    public function on(Domain\Event $event) : void;
+    /**
+     * @return bool whether event was processed/is supported
+     */
+    public function on(Event $event) : bool;
 }

@@ -19,6 +19,6 @@ use Streak\Domain\Event;
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-interface AggregateRoot extends Domain\AggregateRoot, Event\Sourced, Event\Consumer
+interface AggregateRoot extends Domain\AggregateRoot, Event\Sourced
 {
 }

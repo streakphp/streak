@@ -34,39 +34,24 @@ class UnitOfWork
     public function __construct(Domain\EventStore $store)
     {
         $this->store = $store;
+        $this->objects = new \SplObjectStorage();
     }
 
     public function add(Event\Sourced $object) : void
     {
-        foreach ($this->objects as $current) {
-            if ($current->equals($object)) {
-                return;
-            }
+        if (!$this->has($object)) {
+            $this->objects->attach($object, $object->lastReplayed());
         }
-
-        $this->objects[] = $object;
     }
 
     public function remove(Event\Sourced $object) : void
     {
-        foreach ($this->objects as $key => $current) {
-            if ($current->equals($object)) {
-                unset($this->objects[$key]);
-
-                break;
-            }
-        }
+        $this->objects->detach($object);
     }
 
     public function has(Event\Sourced $object) : bool
     {
-        foreach ($this->objects as $current) {
-            if ($current->equals($object)) {
-                return true;
-            }
-        }
-
-        return false;
+        return $this->objects->contains($object);
     }
 
     public function count() : int
@@ -76,20 +61,20 @@ class UnitOfWork
 
     public function commit() : void
     {
-        $events = [];
         foreach ($this->objects as $object) {
-            foreach ($object->events() as $event) {
-                $events[] = $event;
-            }
+            /* @var $object Event\Sourced */
+            /* @var $last Event|null */
+            $producerId = $object->producerId();
+            $last = $this->objects->getInfo();
+            $events = $object->events();
+            $this->store->add($producerId, $last, ...$events);
         }
-
-        $this->store->add(...$events);
 
         $this->clear();
     }
 
     public function clear() : void
     {
-        $this->objects = [];
+        $this->objects = new \SplObjectStorage();
     }
 }

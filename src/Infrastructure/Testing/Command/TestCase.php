@@ -46,7 +46,7 @@ abstract class TestCase extends PHPUnit\Framework\TestCase
         return $this->repository;
     }
 
-    public function given(Domain\Event ...$events) : Scenario\When
+    public function for(Domain\Id $id) : Scenario\Given
     {
         if (true === $this->scenarioExecuted) {
             $message = 'Scenario already executed.';
@@ -55,7 +55,7 @@ abstract class TestCase extends PHPUnit\Framework\TestCase
 
         $this->scenarioExecuted = true;
 
-        return $this->createScenario()->given(...$events);
+        return $this->createScenario()->for($id);
     }
 
     abstract protected function createFactory() : AggregateRoot\Factory;

@@ -22,7 +22,7 @@ use Streak\Domain\AggregateRoot;
 trait Identification
 {
     use Aggregate\Identification {
-        Aggregate\Identification::identifyBy as identifyAggregateBy;
+        Aggregate\Identification::identifyBy as private identifyAggregateBy;
     }
 
     public function __construct(AggregateRoot\Id $id)
@@ -30,13 +30,13 @@ trait Identification
         $this->identifyBy($id);
     }
 
-    public function identifyBy(AggregateRoot\Id $id) : void
-    {
-        $this->identifyAggregateBy($id);
-    }
-
     public function aggregateRootId() : AggregateRoot\Id
     {
         return $this->id;
+    }
+
+    protected function identifyBy(AggregateRoot\Id $id) : void
+    {
+        $this->identifyAggregateBy($id);
     }
 }
