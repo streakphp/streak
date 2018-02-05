@@ -37,23 +37,24 @@ final class Subscription implements Event\Subscription, Event\Sourced, Event\Com
 
     public function __construct(Event\Listener $listener)
     {
-        $this->listener = $listener;
+        $this->listener = $listener; // TODO: $this->listener = new LockableListener($listener);
+    }
+
+    public function start(\DateTimeInterface $startedAt)
+    {
+        $this->applyEvent(new SubscriptionStarted($startedAt));
     }
 
     public function subscribeTo(EventStore $store, $limit = 1) // TODO: put in ReadySubscription::process($limit = 1)
     {
         $stream = $store->stream();
 
-        if ($this->last()) {
-            $stream = $stream->after($this->last());
+        if ($this->lastReplayed()) {
+            $stream = $stream->after($this->lastReplayed());
         }
         $stream = $stream->limit($limit);
 
         foreach ($stream as $event) {
-            if (false === $this->started) {
-                $this->applyEvent(new SubscriptionStarted());
-            }
-
             $this->applyEvent(new SubscriptionListenedToEvent($event));
 
             if ($this->listener instanceof Event\Completable) {
@@ -68,14 +69,14 @@ final class Subscription implements Event\Subscription, Event\Sourced, Event\Com
     public function replay(Event\Stream $stream) : void
     {
         try {
-            $backup = $this->listener;
+            $backup = $this->listener; // TODO: $this->listener->lock();
             $this->listener = NullListener::from($this->listener);
             $this->doReplay($stream);
         } finally {
-            $this->listener = $backup;
+            $this->listener = $backup;  // TODO: $this->listener->unlock();
         }
 
-        if ($this->listener instanceof Event\Replayable) {
+        if ($this->listener instanceof Event\Replayable) { // TODO: $this->listener->decorates() instanceof Event\Replayable
             $unpacked = new class($stream) extends \FilterIterator implements Event\Stream { // extract into RuntimeFilteringStream class
                 private $stream;
                 private $position = 0;
@@ -157,13 +158,15 @@ final class Subscription implements Event\Subscription, Event\Sourced, Event\Com
 
     public function applyEventHandled(SubscriptionListenedToEvent $event)
     {
-        // TODO: check if subscription is started.
+        if (false === $this->started) {
+            throw new \BadMethodCallException();
+        }
+
         $this->listener->on($event->event());
     }
 
     public function applyCompleted(SubscriptionCompleted $event)
     {
-        // TODO: check if subscription is started.
         $this->completed = true;
     }
 

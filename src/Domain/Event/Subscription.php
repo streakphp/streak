@@ -24,4 +24,6 @@ interface Subscription
     public function subscriptionId() : Domain\Id;
 
     public function subscribeTo(EventStore $store);
+
+    public function start(\DateTimeInterface $startedAt);
 }

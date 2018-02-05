@@ -13,9 +13,9 @@ declare(strict_types=1);
 
 namespace Streak\Domain\Event\Listener;
 
-use Streak\Application\Saga\Exception;
 use Streak\Domain;
 use Streak\Domain\Event;
+use Streak\Domain\Event\Exception;
 use Streak\Domain\Event\Listener;
 
 /**
@@ -29,7 +29,7 @@ interface Factory
     public function create(Domain\Id $id) : Listener;
 
     /**
-     * @throws Exception\InvalidFirstEventGiven
+     * @throws Exception\InvalidEventGiven
      */
     public function createFor(Event $event) : Listener;
 }
