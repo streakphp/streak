@@ -16,27 +16,28 @@ namespace Streak\Domain\Event;
 use Streak\Domain;
 use Streak\Domain\Event;
 use Streak\Domain\EventBus;
-use Streak\Domain\EventStore;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
 class Subscriber implements Listener
 {
-    private $listener;
+    private $uuid;
+    private $listenerFactory;
+    private $subscriptionFactory;
+    private $subscriptions;
 
-    public function __construct(Listener $listener)
+    public function __construct(Event\Listener\Factory $listenerFactory, Event\Subscription\Factory $subscriptionFactory, Event\Subscription\Repository $subscriptions)
     {
-        $this->listener = $listener;
+        $this->uuid = Domain\Id\UUID::create();
+        $this->listenerFactory = $listenerFactory;
+        $this->subscriptionFactory = $subscriptionFactory;
+        $this->subscriptions = $subscriptions;
     }
 
     public function id() : Domain\Id
     {
-        return $this->listener->id();
-    }
-
-    public function subscribeTo(EventStore $store) : Subscription
-    {
+        return $this->uuid;
     }
 
     public function listenTo(EventBus $bus)
@@ -46,5 +47,21 @@ class Subscriber implements Listener
 
     public function on(Event $event) : bool
     {
+        try {
+            $listener = $this->listenerFactory->createFor($event);
+        } catch (Exception\InvalidEventGiven $e) {
+            return false;
+        }
+
+        $subscription = $this->subscriptions->findFor($listener);
+
+        if (null === $subscription) {
+            $subscription = $this->subscriptionFactory->create($listener);
+            $subscription->start(new \DateTime());
+
+            $this->subscriptions->add($subscription);
+        }
+
+        return true;
     }
 }

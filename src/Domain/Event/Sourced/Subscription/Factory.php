@@ -11,14 +11,20 @@
 
 declare(strict_types=1);
 
-namespace Streak\Domain\Event\Sourced;
+namespace Streak\Domain\Event\Sourced\Subscription;
 
-use Streak\Domain;
 use Streak\Domain\Event;
+use Streak\Domain\Event\Subscription;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-interface Entity extends Domain\Entity, Event\Sourced
+class Factory implements Subscription\Factory
 {
+    public function create(Event\Listener $listener) : Event\Subscription
+    {
+        $subscription = new Event\Sourced\Subscription($listener);
+
+        return $subscription;
+    }
 }

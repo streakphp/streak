@@ -15,7 +15,6 @@ namespace Streak\Infrastructure\Event\Subscription;
 
 use Streak\Domain;
 use Streak\Domain\Event;
-use Streak\Domain\Event\Listener;
 use Streak\Domain\Event\Subscription;
 use Streak\Domain\Exception;
 use Streak\Infrastructure;
@@ -25,11 +24,6 @@ use Streak\Infrastructure;
  */
 class EventSourcedRepository implements Subscription\Repository
 {
-    /**
-     * @var Listener\Factory
-     */
-    private $listeners;
-
     /**
      * @var Subscription\Factory
      */
@@ -45,17 +39,15 @@ class EventSourcedRepository implements Subscription\Repository
      */
     private $uow;
 
-    public function __construct(Listener\Factory $listeners, Subscription\Factory $subscriptions, Domain\EventStore $store, Infrastructure\UnitOfWork $uow)
+    public function __construct(Subscription\Factory $subscriptions, Domain\EventStore $store, Infrastructure\UnitOfWork $uow)
     {
-        $this->listeners = $listeners;
         $this->subscriptions = $subscriptions;
         $this->store = $store;
         $this->uow = $uow;
     }
 
-    public function find(Domain\Id $id) : ?Event\Subscription
+    public function findFor(Event\Listener $listener) : ?Event\Subscription
     {
-        $listener = $this->listeners->create($id);
         $subscription = $this->subscriptions->create($listener);
 
         if (!$subscription instanceof Domain\Event\Sourced\Subscription) {

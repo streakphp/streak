@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Streak\Domain\Event\Subscription;
 
-use Streak\Domain;
 use Streak\Domain\Event;
 use Streak\Domain\Exception;
 
@@ -25,7 +24,7 @@ interface Repository
     /**
      * @throws Exception\ObjectNotSupported
      */
-    public function find(Domain\Id $id) : ?Event\Subscription;
+    public function findFor(Event\Listener $listener) : ?Event\Subscription;
 
     /**
      * @return Event\Subscription[]

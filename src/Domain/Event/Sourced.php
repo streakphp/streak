@@ -14,10 +14,11 @@ declare(strict_types=1);
 namespace Streak\Domain\Event;
 
 use Streak\Domain\Comparable;
+use Streak\Domain\Event;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-interface Sourced extends Producer, Consumer, Comparable
+interface Sourced extends Event\Producer, Event\Consumer, Comparable
 {
 }
