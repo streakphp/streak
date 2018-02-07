@@ -11,7 +11,7 @@
 
 declare(strict_types=1);
 
-namespace Streak\Infrastructure\Testing\saga\Scenario;
+namespace Streak\Infrastructure\Testing\Saga\Scenario;
 
 use Streak\Domain;
 

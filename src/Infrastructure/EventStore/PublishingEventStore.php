@@ -35,6 +35,10 @@ class PublishingEventStore implements EventStore
 
     public function add(Domain\Id $producerId, ?Event $last = null, Event ...$events) : void
     {
+        if (0 === count($events)) {
+            return;
+        }
+
         $this->store->add($producerId, $last, ...$events);
         $this->bus->publish(...$events);
     }

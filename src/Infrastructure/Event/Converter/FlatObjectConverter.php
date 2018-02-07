@@ -56,18 +56,25 @@ class FlatObjectConverter implements Converter
         if (is_object($object)) { // converts object to array
             $reflection = new \ReflectionObject($object);
             $object = [];
-            foreach ($reflection->getProperties() as $property) {
-                $isPublic = $property->isPublic();
-                if (!$isPublic) {
-                    $property->setAccessible(true);
-                }
+            do {
+                foreach ($reflection->getProperties() as $property) {
+                    $isPublic = $property->isPublic();
+                    if (!$isPublic) {
+                        $property->setAccessible(true);
+                    }
 
-                $object[$property->getName()] = $property->getValue($event);
+                    $object[$property->getName()] = $property->getValue($event);
 
-                if (!$isPublic) {
-                    $property->setAccessible(false);
+                    if (!$isPublic) {
+                        $property->setAccessible(false);
+                    }
                 }
-            }
+                $reflection = $reflection->getParentClass();
+
+                if (false === $reflection) {
+                    break;
+                }
+            } while ($reflection->getProperties() > 0);
         }
 
         if (is_array($object)) {
@@ -102,11 +109,17 @@ class FlatObjectConverter implements Converter
 
         $reflection = new \ReflectionObject($event);
         foreach ($array as $name => $value) {
-            if (!$reflection->hasProperty($name)) {
-                throw new \InvalidArgumentException();
+            $current = $reflection;
+
+            while (false === $current->hasProperty($name)) {
+                $current = $current->getParentClass();
+
+                if (false === $current) {
+                    throw new \InvalidArgumentException('Property not found.');
+                }
             }
 
-            $property = $reflection->getProperty($name);
+            $property = $current->getProperty($name);
 
             $isPublic = $property->isPublic();
             if (!$isPublic) {

@@ -11,14 +11,13 @@
 
 declare(strict_types=1);
 
-namespace Streak\Infrastructure\Testing\Saga\Scenario;
+namespace Streak\Application\Sensor;
 
-use Streak\Domain;
+use Streak\Domain\Event\Producer;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-interface Given
+interface Id extends Producer\Id
 {
-    public function given(Domain\Event ...$messages) : When;
 }

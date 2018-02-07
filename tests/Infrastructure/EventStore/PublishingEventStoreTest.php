@@ -128,4 +128,22 @@ class PublishingEventStoreTest extends TestCase
 
         $this->assertSame($this->log, $store->log());
     }
+
+    public function testStoringNoEvents()
+    {
+        $store = new PublishingEventStore($this->store, $this->bus);
+
+        $this->store
+            ->expects($this->never())
+            ->method('add')
+        ;
+
+        $this->bus
+            ->expects($this->never())
+            ->method('publish')
+        ;
+
+        $events = [];
+        $store->add($this->id, null, ...$events);
+    }
 }

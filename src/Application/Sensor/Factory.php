@@ -11,14 +11,14 @@
 
 declare(strict_types=1);
 
-namespace Streak\Infrastructure\Testing\Saga\Scenario;
+namespace Streak\Application\Sensor;
 
-use Streak\Domain;
+use Streak\Application\Sensor;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-interface Given
+interface Factory
 {
-    public function given(Domain\Event ...$messages) : When;
+    public function create() : Sensor;
 }

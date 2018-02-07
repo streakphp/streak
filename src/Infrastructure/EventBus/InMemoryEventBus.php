@@ -54,6 +54,10 @@ class InMemoryEventBus implements EventBus
 
     public function publish(Domain\Event ...$events)
     {
+        if (0 === count($events)) {
+            return;
+        }
+
         array_push($this->events, ...$events);
 
         if (false === $this->publishing) {
