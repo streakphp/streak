@@ -95,7 +95,7 @@ class UnitOfWorkTest extends TestCase
     {
         $this->object1
             ->expects($this->once())
-            ->method('lastReplayed')
+            ->method('last')
             ->with()
             ->willReturn(null)
         ;
@@ -116,7 +116,7 @@ class UnitOfWorkTest extends TestCase
 
         $this->object2
             ->expects($this->once())
-            ->method('lastReplayed')
+            ->method('last')
             ->with()
             ->willReturn(null)
         ;
@@ -133,7 +133,7 @@ class UnitOfWorkTest extends TestCase
 
         $this->object3
             ->expects($this->once())
-            ->method('lastReplayed')
+            ->method('last')
             ->with()
             ->willReturn($this->event2)
         ;

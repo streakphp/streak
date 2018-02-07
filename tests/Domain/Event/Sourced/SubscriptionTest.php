@@ -51,6 +51,11 @@ class SubscriptionTest extends TestCase
     private $id1;
 
     /**
+     * @var Domain\Id|MockObject
+     */
+    private $id2;
+
+    /**
      * @var EventStore|MockObject
      */
     private $store;
@@ -92,6 +97,7 @@ class SubscriptionTest extends TestCase
         $this->listener3 = $this->getMockBuilder([Listener::class, Event\Completable::class])->getMock();
 
         $this->id1 = $this->getMockBuilder(Domain\Id::class)->getMockForAbstractClass();
+        $this->id2 = $this->getMockBuilder(Domain\Id::class)->getMockForAbstractClass();
 
         $this->store = $this->getMockBuilder(EventStore::class)->getMockForAbstractClass();
 
@@ -375,6 +381,45 @@ class SubscriptionTest extends TestCase
         $this->expectExceptionObject($exception);
 
         $subscription->subscribeTo($this->store, 1234);
+    }
+
+    public function testEquals()
+    {
+        $subscription1 = new Subscription($this->listener1);
+
+        $this->assertFalse($subscription1->equals(new \stdClass()));
+
+        $subscription2 = new Subscription($this->listener2);
+
+        $this->listener1
+            ->expects($this->atLeastOnce())
+            ->method('id')
+            ->willReturn($this->id1)
+        ;
+
+        $this->listener2
+            ->expects($this->atLeastOnce())
+            ->method('id')
+            ->willReturn($this->id2)
+        ;
+
+        $this->id1
+            ->expects($this->atLeastOnce())
+            ->method('equals')
+            ->with($this->id2)
+            ->willReturn(true)
+        ;
+
+        $this->assertTrue($subscription1->equals($subscription2));
+
+        $this->id2
+            ->expects($this->atLeastOnce())
+            ->method('equals')
+            ->with($this->id2)
+            ->willReturn(false)
+        ;
+
+        $this->assertFalse($subscription2->equals($subscription1));
     }
 
     private function isIteratorFor(MockObject $iterator, array $items)

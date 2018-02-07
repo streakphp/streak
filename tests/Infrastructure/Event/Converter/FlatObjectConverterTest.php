@@ -44,6 +44,18 @@ class FlatObjectConverterTest extends TestCase
         $this->assertEquals($message, $result);
     }
 
+    public function testConvertingWithInheritedProperties()
+    {
+        $converter = new FlatObjectConverter();
+
+        $message = new EventB('property1', 'property2');
+
+        $array = $converter->eventToArray($message);
+        $result = $converter->arrayToEvent($array);
+
+        $this->assertEquals($message, $result);
+    }
+
     public function testConvertingObjectsWithinEvent()
     {
         $converter = new FlatObjectConverter();
@@ -158,5 +170,26 @@ class Event1Stub implements Event
 
     public function producerId() : Domain\Id
     {
+    }
+}
+
+class EventA implements Event
+{
+    private $property1;
+
+    public function __construct(string $property1)
+    {
+        $this->property1 = $property1;
+    }
+}
+
+class EventB extends EventA
+{
+    private $property2;
+
+    public function __construct($property1, $property2)
+    {
+        parent::__construct($property1);
+        $this->property2 = $property2;
     }
 }

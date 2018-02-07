@@ -18,7 +18,6 @@ use Streak\Application;
 use Streak\Domain;
 use Streak\Infrastructure\CommandBus\SynchronousCommandBus;
 use Streak\Infrastructure\Event\InMemoryStream;
-use Streak\Infrastructure\Testing\saga\Scenario\Given;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>

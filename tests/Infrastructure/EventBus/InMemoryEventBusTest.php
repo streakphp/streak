@@ -122,5 +122,8 @@ class InMemoryEventBusTest extends TestCase
         $bus->add($this->listener2);
 
         $bus->publish($this->event2); // listener2 published event3, added listener3 and removed listener1
+
+        $events = [];
+        $bus->publish(...$events);
     }
 }

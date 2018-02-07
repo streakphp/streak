@@ -27,46 +27,45 @@ class UnitOfWork
     private $store;
 
     /**
-     * @var Event\Sourced[]
+     * @var Event\Producer[]
      */
-    private $objects = [];
+    private $producers = [];
 
     public function __construct(Domain\EventStore $store)
     {
         $this->store = $store;
-        $this->objects = new \SplObjectStorage();
+        $this->producers = new \SplObjectStorage();
     }
 
-    public function add(Event\Sourced $object) : void
+    public function add(Event\Producer $producer) : void
     {
-        if (!$this->has($object)) {
-            $this->objects->attach($object, $object->lastReplayed());
+        if (!$this->has($producer)) {
+            $this->producers->attach($producer, $producer->last());
         }
     }
 
-    public function remove(Event\Sourced $object) : void
+    public function remove(Event\Producer $producer) : void
     {
-        $this->objects->detach($object);
+        $this->producers->detach($producer);
     }
 
-    public function has(Event\Sourced $object) : bool
+    public function has(Event\Producer $producer) : bool
     {
-        return $this->objects->contains($object);
+        return $this->producers->contains($producer);
     }
 
     public function count() : int
     {
-        return count($this->objects);
+        return count($this->producers);
     }
 
     public function commit() : void
     {
-        foreach ($this->objects as $object) {
-            /* @var $object Event\Sourced */
-            /* @var $last Event|null */
-            $producerId = $object->producerId();
-            $last = $this->objects->getInfo();
-            $events = $object->events();
+        foreach ($this->producers as $producer) {
+            $producerId = $producer->producerId();
+            $last = $this->producers->getInfo();
+            $events = $producer->events();
+
             $this->store->add($producerId, $last, ...$events);
         }
 
@@ -75,6 +74,6 @@ class UnitOfWork
 
     public function clear() : void
     {
-        $this->objects = new \SplObjectStorage();
+        $this->producers = new \SplObjectStorage();
     }
 }
