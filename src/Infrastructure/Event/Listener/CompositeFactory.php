@@ -1,7 +1,7 @@
 <?php
 
 /**
- * This file is part of the cbs package.
+ * This file is part of the streak package.
  *
  * (C) Alan Gabriel Bem <alan.bem@gmail.com>
  *
@@ -14,9 +14,9 @@ declare(strict_types=1);
 namespace Streak\Infrastructure\Event\Listener;
 
 use Streak\Domain;
-use Streak\Domain\Exception;
 use Streak\Domain\Event;
 use Streak\Domain\Event\Listener;
+use Streak\Domain\Exception;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -56,5 +56,4 @@ class CompositeFactory implements Event\Listener\Factory
     {
         throw new \BadMethodCallException();
     }
-
 }

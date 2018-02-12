@@ -47,10 +47,11 @@ class UnitOfWork
     public function remove(Event\Producer $producer) : void
     {
         foreach ($this->producers as $key => [$current, $last]) {
-             if ($current === $producer) {
+            if ($current === $producer) {
                 unset($this->producers[$key]);
+
                 return;
-             }
+            }
         }
     }
 

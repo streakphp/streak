@@ -113,7 +113,7 @@ class FlatObjectConverter implements Converter
 
         $reflection = new \ReflectionObject($event);
         foreach ($array as $name => $value) {
-            if ($name === '__streak_metadata') {
+            if ('__streak_metadata' === $name) {
                 $event->__streak_metadata = $value;
                 continue;
             }
@@ -121,12 +121,9 @@ class FlatObjectConverter implements Converter
             $current = $reflection;
 
             while (false === $current->hasProperty($name)) {
-
                 $current = $current->getParentClass();
 
                 if (false === $current) {
-
-
                     throw new \InvalidArgumentException('Property not found.');
                 }
             }
