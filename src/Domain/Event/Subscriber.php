@@ -16,6 +16,7 @@ namespace Streak\Domain\Event;
 use Streak\Domain;
 use Streak\Domain\Event;
 use Streak\Domain\EventBus;
+use Streak\Infrastructure\UnitOfWork;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -26,13 +27,15 @@ class Subscriber implements Listener
     private $listenerFactory;
     private $subscriptionFactory;
     private $subscriptionsRepository;
+    private $uow;
 
-    public function __construct(Event\Listener\Factory $listenerFactory, Event\Subscription\Factory $subscriptionFactory, Event\Subscription\Repository $subscriptionsRepository)
+    public function __construct(Event\Listener\Factory $listenerFactory, Event\Subscription\Factory $subscriptionFactory, Event\Subscription\Repository $subscriptionsRepository, UnitOfWork $uow)
     {
         $this->uuid = Domain\Id\UUID::create();
         $this->listenerFactory = $listenerFactory;
         $this->subscriptionFactory = $subscriptionFactory;
         $this->subscriptionsRepository = $subscriptionsRepository;
+        $this->uow = $uow;
     }
 
     public function id() : Domain\Id
@@ -62,6 +65,8 @@ class Subscriber implements Listener
         $this->subscriptionsRepository->add($subscription);
 
         $subscription->start(new \DateTime());
+
+        $this->uow->commit(); // TODO: remove
 
         return true;
     }

@@ -26,6 +26,8 @@ class PublishingEventStore implements EventStore
 {
     private $store;
     private $bus;
+    private $transactions = [];
+    private $adding = false;
 
     public function __construct(EventStore $store, EventBus $bus)
     {
@@ -44,8 +46,23 @@ class PublishingEventStore implements EventStore
             return;
         }
 
-        $this->store->add($producerId, $last, ...$events);
-        $this->bus->publish(...$events);
+        array_push($this->transactions, [$producerId, $last, $events]);
+
+        if (false === $this->adding) {
+            $this->adding = true;
+
+            try {
+                $all = [];
+                while ($transaction = array_shift($this->transactions)) {
+                    [$producerId, $last, $events] = $transaction;
+                    $all = array_merge($all, $events);
+                    $this->store->add($producerId, $last, ...$events);
+                }
+            } finally {
+                $this->adding = false;
+            }
+            $this->bus->publish(...$all);
+        }
     }
 
     /**
