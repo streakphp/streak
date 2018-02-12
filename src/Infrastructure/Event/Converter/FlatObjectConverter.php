@@ -80,6 +80,10 @@ class FlatObjectConverter implements Converter
         if (is_array($object)) {
             foreach ($object as &$value) {
                 if (is_object($value)) {
+                    if ($value instanceof Event) {
+                        $value = $this->eventToArray($value);
+                        continue;
+                    }
                     throw new \InvalidArgumentException();
                 }
                 if (is_scalar($value)) {
@@ -109,12 +113,20 @@ class FlatObjectConverter implements Converter
 
         $reflection = new \ReflectionObject($event);
         foreach ($array as $name => $value) {
+            if ($name === '__streak_metadata') {
+                $event->__streak_metadata = $value;
+                continue;
+            }
+
             $current = $reflection;
 
             while (false === $current->hasProperty($name)) {
+
                 $current = $current->getParentClass();
 
                 if (false === $current) {
+
+
                     throw new \InvalidArgumentException('Property not found.');
                 }
             }
@@ -124,6 +136,10 @@ class FlatObjectConverter implements Converter
             $isPublic = $property->isPublic();
             if (!$isPublic) {
                 $property->setAccessible(true);
+            }
+
+            if (is_array($value) && 1 === count($value)) { // TODO: better code here
+                $value = $this->arrayToEvent($value);
             }
 
             $property->setValue($event, $value);

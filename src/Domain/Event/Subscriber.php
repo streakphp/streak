@@ -64,7 +64,7 @@ class Subscriber implements Listener
 
         $this->subscriptionsRepository->add($subscription);
 
-        $subscription->start(new \DateTime());
+        $subscription->start(new \DateTime(), $event);
 
         $this->uow->commit(); // TODO: remove
 
