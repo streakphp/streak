@@ -22,13 +22,13 @@ use Streak\Domain\Event;
  */
 class SubscriptionStarted implements Event
 {
-    private $startedAt;
     private $event;
+    private $startedAt;
 
-    public function __construct(\DateTimeInterface $startedAt, Event $event)
+    public function __construct(Event $event, \DateTimeInterface $startedAt)
     {
-        $this->startedAt = $startedAt->format(DATE_ATOM);
         $this->event = $event;
+        $this->startedAt = $startedAt->format(DATE_ATOM);
     }
 
     public function startedAt() : string

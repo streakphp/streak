@@ -30,5 +30,5 @@ interface Subscription
      */
     public function subscribeTo(EventStore $store) : iterable;
 
-    public function start(\DateTimeInterface $startedAt, Domain\Event $event); // TODO: refactor
+    public function startFor(Domain\Event $event, \DateTimeInterface $startedAt); // TODO: refactor
 }

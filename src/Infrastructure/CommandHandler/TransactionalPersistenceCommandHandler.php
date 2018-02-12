@@ -40,8 +40,6 @@ class TransactionalPersistenceCommandHandler implements Application\CommandHandl
 
     public function handle(Application\Command $command) : void
     {
-        $this->uow->clear();
-
         $this->handler->handle($command);
 
         if ($this->uow->count() > 1) {

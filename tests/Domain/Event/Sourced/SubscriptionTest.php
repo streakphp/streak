@@ -90,10 +90,13 @@ class SubscriptionTest extends TestCase
      */
     private $event3;
 
+    /**
+     * @var Event|MockObject
+     */
+    private $event4;
+
     public function setUp()
     {
-        $this->markTestSkipped('Fix it!');
-
         $this->listener1 = $this->getMockBuilder(Listener::class)->getMockForAbstractClass();
         $this->listener2 = $this->getMockBuilder([Listener::class, Event\Replayable::class])->getMock();
         $this->listener3 = $this->getMockBuilder([Listener::class, Event\Completable::class])->getMock();
@@ -111,6 +114,7 @@ class SubscriptionTest extends TestCase
         $this->event1 = $this->getMockBuilder(Event::class)->getMockForAbstractClass();
         $this->event2 = $this->getMockBuilder(Event::class)->getMockForAbstractClass();
         $this->event3 = $this->getMockBuilder(Event::class)->getMockForAbstractClass();
+        $this->event4 = $this->getMockBuilder(Event::class)->getMockForAbstractClass();
     }
 
     public function testObject()
@@ -131,13 +135,13 @@ class SubscriptionTest extends TestCase
         $this->assertNull($subscription->last());
         $this->assertEmpty($subscription->events());
 
-        $subscription->start($now);
+        $subscription->startFor($this->event1, $now);
 
         $this->assertSame($this->id1, $subscription->subscriptionId());
         $this->assertSame($this->id1, $subscription->producerId());
         $this->assertNull($subscription->lastReplayed());
-        $this->assertEquals(new SubscriptionStarted($now), $subscription->last());
-        $this->assertEquals([new SubscriptionStarted($now)], $subscription->events());
+        $this->assertEquals(new SubscriptionStarted($this->event1, $now), $subscription->last());
+        $this->assertEquals([new SubscriptionStarted($this->event1, $now)], $subscription->events());
 
         $this->store
             ->expects($this->once())
@@ -163,7 +167,7 @@ class SubscriptionTest extends TestCase
 
         $this->assertEquals([$this->event3], iterator_to_array($events));
 
-        $this->assertEquals([new SubscriptionStarted($now), new SubscriptionListenedToEvent($this->event1)], $subscription->events());
+        $this->assertEquals([new SubscriptionStarted($this->event1, $now), new SubscriptionListenedToEvent($this->event1)], $subscription->events());
     }
 
     public function testNonReplayableListener()
@@ -171,8 +175,8 @@ class SubscriptionTest extends TestCase
         $now = new \DateTime();
         $subscription = new Subscription($this->listener1);
 
-        $event1 = new SubscriptionStarted($now);
-        $event2 = new SubscriptionListenedToEvent($this->event1);
+        $event1 = new SubscriptionStarted($this->event1, $now);
+        $event2 = new SubscriptionListenedToEvent($this->event2);
 
         $this->isIteratorFor($this->stream1, [$event1, $event2]);
 
@@ -191,24 +195,24 @@ class SubscriptionTest extends TestCase
         $this->stream2
             ->expects($this->once())
             ->method('after')
-            ->with($event2)
+            ->with($this->event2)
             ->willReturnSelf()
         ;
 
-        $this->isIteratorFor($this->stream2, [$this->event3]);
+        $this->isIteratorFor($this->stream2, [$this->event4]);
 
         $this->listener1
             ->expects($this->once())
             ->method('on')
-            ->with($this->event3)
+            ->with($this->event4)
             ->willReturn(true)
         ;
 
         $events = $subscription->subscribeTo($this->store);
 
-        $this->assertEquals([$this->event3], iterator_to_array($events));
+        $this->assertEquals([$this->event4], iterator_to_array($events));
 
-        $this->assertEquals([new SubscriptionListenedToEvent($this->event3)], $subscription->events());
+        $this->assertEquals([new SubscriptionListenedToEvent($this->event4)], $subscription->events());
     }
 
     public function testReplayableListener()
@@ -216,8 +220,8 @@ class SubscriptionTest extends TestCase
         $now = new \DateTime();
         $subscription = new Subscription($this->listener2);
 
-        $event1 = new SubscriptionStarted($now);
-        $event2 = new SubscriptionListenedToEvent($this->event1);
+        $event1 = new SubscriptionStarted($this->event1, $now);
+        $event2 = new SubscriptionListenedToEvent($this->event2);
 
         $this->isIteratorFor($this->stream1, [$event1, $event2]);
 
@@ -247,24 +251,24 @@ class SubscriptionTest extends TestCase
         $this->stream2
             ->expects($this->once())
             ->method('after')
-            ->with($event2)
+            ->with($this->event2)
             ->willReturnSelf()
         ;
 
-        $this->isIteratorFor($this->stream2, [$this->event3]);
+        $this->isIteratorFor($this->stream2, [$this->event4]);
 
         $this->listener2
             ->expects($this->once())
             ->method('on')
-            ->with($this->event3)
+            ->with($this->event4)
             ->willReturn(true)
         ;
 
         $events = $subscription->subscribeTo($this->store);
 
-        $this->assertEquals([$this->event3], iterator_to_array($events));
+        $this->assertEquals([$this->event4], iterator_to_array($events));
 
-        $this->assertEquals([new SubscriptionListenedToEvent($this->event3)], $subscription->events());
+        $this->assertEquals([new SubscriptionListenedToEvent($this->event4)], $subscription->events());
     }
 
     public function testCompletableListener()
@@ -274,7 +278,7 @@ class SubscriptionTest extends TestCase
 
         $this->assertFalse($subscription->completed());
 
-        $event1 = new SubscriptionStarted($now);
+        $event1 = new SubscriptionStarted($this->event1, $now);
 
         $this->isIteratorFor($this->stream1, [$event1]);
 
@@ -292,8 +296,8 @@ class SubscriptionTest extends TestCase
 
         $this->stream2
             ->expects($this->once())
-            ->method('after')
-            ->with($event1)
+            ->method('from')
+            ->with($this->event1)
             ->willReturnSelf()
         ;
 
@@ -329,7 +333,7 @@ class SubscriptionTest extends TestCase
 
         $this->assertFalse($subscription->completed());
 
-        $event1 = new SubscriptionStarted($now);
+        $event1 = new SubscriptionStarted($this->event1, $now);
 
         $this->isIteratorFor($this->stream1, [$event1]);
 
@@ -347,8 +351,8 @@ class SubscriptionTest extends TestCase
 
         $this->stream2
             ->expects($this->once())
-            ->method('after')
-            ->with($event1)
+            ->method('from')
+            ->with($this->event1)
             ->willReturnSelf()
         ;
 

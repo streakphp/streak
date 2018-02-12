@@ -41,9 +41,9 @@ final class Subscription implements Event\Subscription, Event\Sourced, Event\Com
         $this->listener = $listener; // TODO: $this->listener = new LockableListener($listener);
     }
 
-    public function start(\DateTimeInterface $startedAt, Event $event)
+    public function startFor(Domain\Event $event, \DateTimeInterface $at)
     {
-        $this->applyEvent(new SubscriptionStarted($startedAt, $event));
+        $this->applyEvent(new SubscriptionStarted($event, $at));
     }
 
     /**
@@ -54,7 +54,15 @@ final class Subscription implements Event\Subscription, Event\Sourced, Event\Com
         $stream = $store->stream();
 
         if ($this->lastReplayed()) {
-            $stream = $stream->from($this->lastReplayed()->event());
+            $event = $this->lastReplayed();
+
+            if ($event instanceof SubscriptionStarted) {
+                $stream = $stream->from($event->event());
+            }
+
+            if ($event instanceof SubscriptionListenedToEvent) {
+                $stream = $stream->after($event->event());
+            }
         }
 
         if ($this->listener instanceof Event\Completable) {

@@ -31,6 +31,8 @@ class UnitOfWork
      */
     private $producers = [];
 
+    private $committing = false;
+
     public function __construct(Domain\EventStore $store)
     {
         $this->store = $store;
@@ -73,21 +75,29 @@ class UnitOfWork
 
     public function commit() : void
     {
-        while ($pair = array_shift($this->producers)) {
-            [$producer, $last] = $pair;
+        if (false === $this->committing) {
+            $this->committing = true;
 
             try {
-                $producerId = $producer->producerId();
-                $events = $producer->events();
+                while ($pair = array_shift($this->producers)) {
+                    [$producer, $last] = $pair;
 
-                $this->store->add($producerId, $last, ...$events);
-            } catch (\Exception $e) {
-                array_unshift($this->producers, [$producer, $last]);
-                throw $e;
+                    try {
+                        $producerId = $producer->producerId();
+                        $events = $producer->events();
+
+                        $this->store->add($producerId, $last, ...$events);
+                    } catch (\Exception $e) {
+                        array_unshift($this->producers, [$producer, $last]);
+                        throw $e;
+                    }
+                }
+
+                $this->clear();
+            } finally {
+                $this->committing = false;
             }
         }
-
-        $this->clear();
     }
 
     public function clear() : void

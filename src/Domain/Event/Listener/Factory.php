@@ -21,7 +21,7 @@ use Streak\Domain\Event\Listener;
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-interface Factory
+interface Factory // TODO: split into 2 interfaces
 {
     /**
      * @throws Domain\Exception\InvalidIdGiven

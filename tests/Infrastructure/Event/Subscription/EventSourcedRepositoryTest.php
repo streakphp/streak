@@ -139,8 +139,6 @@ class EventSourcedRepositoryTest extends TestCase
 
     protected function setUp()
     {
-        $this->markTestSkipped('Fix it!');
-
         $this->subscriptions = $this->getMockBuilder(Event\Subscription\Factory::class)->getMockForAbstractClass();
         $this->listeners = $this->getMockBuilder(Event\Listener\Factory::class)->getMockForAbstractClass();
         $this->store = $this->getMockBuilder(EventStore::class)->getMockForAbstractClass();
@@ -268,7 +266,7 @@ class EventSourcedRepositoryTest extends TestCase
     {
         $repository = new EventSourcedRepository($this->subscriptions, $this->listeners, $this->store, $this->uow);
         $subscription = new Event\Sourced\Subscription($this->listener1);
-        $event1 = new SubscriptionStarted(new \DateTime());
+        $event1 = new SubscriptionStarted($this->event1, new \DateTime());
         $event2 = new SubscriptionListenedToEvent($this->event1);
 
         $this->listeners
@@ -309,7 +307,7 @@ class EventSourcedRepositoryTest extends TestCase
     {
         $repository = new EventSourcedRepository($this->subscriptions, $this->listeners, $this->store, $this->uow);
         $subscription = new Event\Sourced\Subscription($this->listener1);
-        $event1 = new SubscriptionStarted(new \DateTime());
+        $event1 = new SubscriptionStarted($this->event1, new \DateTime());
         $event2 = new SubscriptionListenedToEvent($this->event1);
 
         $this->listener1
@@ -404,10 +402,10 @@ class EventSourcedRepositoryTest extends TestCase
             ->willReturnSelf()
         ;
 
-        $event1 = new SubscriptionStarted(new \DateTime());
-        $event2 = new SubscriptionStarted(new \DateTime());
+        $event1 = new SubscriptionStarted($this->event1, new \DateTime());
+        $event2 = new SubscriptionStarted($this->event1, new \DateTime());
         $event3 = new SubscriptionCompleted();
-        $event4 = new SubscriptionStarted(new \DateTime());
+        $event4 = new SubscriptionStarted($this->event1, new \DateTime());
 
         $this->isIteratorFor($this->stream1, [$event1, $event2, $event3, $event4]);
 

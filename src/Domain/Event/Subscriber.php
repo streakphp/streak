@@ -29,7 +29,7 @@ class Subscriber implements Listener
     private $subscriptionsRepository;
     private $uow;
 
-    public function __construct(Event\Listener\Factory $listenerFactory, Event\Subscription\Factory $subscriptionFactory, Event\Subscription\Repository $subscriptionsRepository, UnitOfWork $uow)
+    public function __construct(Event\Listener\Factory $listenerFactory, Event\Subscription\Factory $subscriptionFactory, Event\Subscription\Repository $subscriptionsRepository, UnitOfWork $uow) // TODO: GET RID OF UOW FROM HERE!
     {
         $this->uuid = Domain\Id\UUID::create();
         $this->listenerFactory = $listenerFactory;
@@ -64,7 +64,7 @@ class Subscriber implements Listener
 
         $this->subscriptionsRepository->add($subscription);
 
-        $subscription->start(new \DateTime(), $event);
+        $subscription->startFor($event, new \DateTime());
 
         $this->uow->commit(); // TODO: remove
 
