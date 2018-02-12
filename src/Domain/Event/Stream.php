@@ -20,9 +20,9 @@ use Streak\Domain\Event;
  */
 interface Stream extends \Iterator
 {
-    public function first() : ?Event;
+//    public function first() : ?Event;
 
-    public function last() : ?Event;
+//    public function last() : ?Event;
 
     public function empty() : bool;
 

@@ -30,6 +30,28 @@ class InMemoryEventStore implements EventStore, Event\Log
 
     private $current = 0;
 
+    public function producerId(Event $event) : Domain\Id
+    {
+        $metadata = Event\Metadata::fromObject($event);
+
+        if ($metadata->empty()) {
+            throw new Exception\EventNotInStore($event);
+        }
+
+        $producerType = $metadata->get('producer_type');
+        $producerId = $metadata->get('producer_id');
+
+        $reflection = new \ReflectionClass($producerType);
+
+        if (!$reflection->implementsInterface(Domain\Id::class)) {
+            throw new \InvalidArgumentException(); // TODO: domain exception here
+        }
+
+        $method = $reflection->getMethod('fromString');
+
+        return $method->invoke(null, $producerId);
+    }
+
     /**
      * @throws Exception\ConcurrentWriteDetected
      * @throws Exception\EventAlreadyInStore
@@ -45,7 +67,7 @@ class InMemoryEventStore implements EventStore, Event\Log
         if (null !== $last) {
             $metadata = Event\Metadata::fromObject($last);
 
-            if (!$metadata->has('version')) {
+            if ($metadata->empty()) {
                 throw new Exception\EventNotInStore($last);
             }
 
@@ -62,13 +84,14 @@ class InMemoryEventStore implements EventStore, Event\Log
         ];
         foreach ($events as $event) {
             ++$version;
+
             $metadata = Event\Metadata::fromObject($event);
 
-            if (!$metadata->has('uuid')) {
-                $metadata->set('uuid', Domain\Id\UUID::create()->toString());
+            if (!$metadata->empty()) {
+                throw new Exception\EventAlreadyInStore($event);
             }
 
-            $uuid = $metadata->get('uuid');
+            $uuid = Domain\Id\UUID::create()->toString();
 
             if (!isset($this->streams[$id])) {
                 $this->streams[$id] = [];
@@ -78,24 +101,27 @@ class InMemoryEventStore implements EventStore, Event\Log
                 throw new Exception\ConcurrentWriteDetected($producerId);
             }
 
+            $metadata->set('uuid', $uuid);
             $metadata->set('producer_type', get_class($producerId));
             $metadata->set('producer_id', $producerId->toString());
             $metadata->set('version', (string) $version);
 
-            if (in_array($uuid, $this->uuids, true)) {
-                throw new Exception\EventAlreadyInStore($event);
-            }
-
             $transaction['uuids'][] = $uuid;
             $transaction['stream'][$version] = $event;
             $transaction['all'][] = $event;
-
-            $metadata->toObject($event);
+            $transaction['metadata'][] = [$event, $metadata];
         }
 
         $this->uuids = array_merge($this->uuids, $transaction['uuids']);
         $this->streams[$id] = array_merge($this->streams[$id], $transaction['stream']);
         $this->all = array_merge($this->all, $transaction['all']);
+
+        foreach ($transaction['metadata'] as $pair) {
+            $event = $pair[0];
+            $metadata = $pair[1];
+            /* @var $metadata Event\Metadata */
+            $metadata->toObject($event);
+        }
     }
 
     public function streamFor(Domain\Id ...$producers) : Event\FilterableStream

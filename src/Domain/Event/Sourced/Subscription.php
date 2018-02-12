@@ -18,6 +18,7 @@ use Streak\Domain\Event;
 use Streak\Domain\Event\Sourced\Subscription\Event\SubscriptionCompleted;
 use Streak\Domain\Event\Sourced\Subscription\Event\SubscriptionListenedToEvent;
 use Streak\Domain\Event\Sourced\Subscription\Event\SubscriptionStarted;
+use Streak\Domain\Event\Sourced\Subscription\Stream as SubscriptionStream;
 use Streak\Domain\EventStore;
 use Streak\Infrastructure\Event\NullListener;
 
@@ -45,14 +46,22 @@ final class Subscription implements Event\Subscription, Event\Sourced, Event\Com
         $this->applyEvent(new SubscriptionStarted($startedAt));
     }
 
-    public function subscribeTo(EventStore $store, $limit = 1) // TODO: put in ReadySubscription::process($limit = 1)
+    /**
+     * @return iterable|Event[]
+     */
+    public function subscribeTo(EventStore $store) : iterable
     {
         $stream = $store->stream();
 
         if ($this->lastReplayed()) {
             $stream = $stream->after($this->lastReplayed());
         }
-        $stream = $stream->limit($limit);
+
+        if ($this->listener instanceof Event\Completable) {
+            if ($this->listener->completed()) {
+                return;
+            }
+        }
 
         foreach ($stream as $event) {
             $this->applyEvent(new SubscriptionListenedToEvent($event));
@@ -63,6 +72,8 @@ final class Subscription implements Event\Subscription, Event\Sourced, Event\Com
                     break; // we stop here
                 }
             }
+
+            yield $event;
         }
     }
 
@@ -77,76 +88,7 @@ final class Subscription implements Event\Subscription, Event\Sourced, Event\Com
         }
 
         if ($this->listener instanceof Event\Replayable) { // TODO: $this->listener->decorates() instanceof Event\Replayable
-            $unpacked = new class($stream) extends \FilterIterator implements Event\Stream { // extract into RuntimeFilteringStream class
-                private $stream;
-                private $position = 0;
-
-                public function __construct(Event\Stream $stream)
-                {
-                    parent::__construct($stream);
-
-                    $this->stream = $stream;
-                }
-
-                public function accept()
-                {
-                    $event = $this->getInnerIterator()->current();
-
-                    if ($event instanceof SubscriptionListenedToEvent) {
-                        return true;
-                    }
-
-                    return false;
-                }
-
-                public function next()
-                {
-                    parent::next();
-                    ++$this->position;
-                }
-
-                public function key()
-                {
-                    parent::key();
-
-                    return $this->position;
-                }
-
-                public function first() : ?Event
-                {
-                    $event = $this->stream->first();
-
-                    if ($event instanceof SubscriptionListenedToEvent) {
-                        return $event->event();
-                    }
-
-                    return $event;
-                }
-
-                public function last() : ?Event
-                {
-                    $event = $this->stream->last();
-
-                    if ($event instanceof SubscriptionListenedToEvent) {
-                        return $event->event();
-                    }
-
-                    return $event;
-                }
-
-                public function empty() : bool
-                {
-                    return $this->stream->empty();
-                }
-
-                public function current() : Event
-                {
-                    $event = $this->getInnerIterator()->current();
-
-                    return $event->event();
-                }
-            };
-
+            $unpacked = new SubscriptionStream($stream);
             $this->listener->replay($unpacked);
         }
     }

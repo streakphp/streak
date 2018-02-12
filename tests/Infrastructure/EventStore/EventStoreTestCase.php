@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Streak\Infrastructure\EventStore;
 
 use PHPUnit\Framework\TestCase;
+use Streak\Domain\Event\Metadata;
 use Streak\Domain\EventStore;
 use Streak\Domain\Exception\ConcurrentWriteDetected;
 use Streak\Domain\Exception\EventAlreadyInStore;
@@ -37,6 +38,45 @@ abstract class EventStoreTestCase extends TestCase
     protected function setUp()
     {
         $this->store = $this->newEventStore();
+    }
+
+    public function testGettingProducerId()
+    {
+        $event = new Event1();
+
+        $metadata = Metadata::fromObject($event);
+        $metadata->set('producer_type', ProducerId1::class);
+        $metadata->set('producer_id', 'uuid');
+        $metadata->toObject($event);
+
+        $id = $this->store->producerId($event);
+
+        $this->assertEquals($id, ProducerId1::fromString('uuid'));
+    }
+
+    public function testGettingProducerIdForEventNotInStore()
+    {
+        $event = new Event1();
+
+        $exception = new EventNotInStore($event);
+        $this->expectExceptionObject($exception);
+
+        $this->store->producerId($event);
+    }
+
+    public function testGettingProducerIdForEventWithInvalidMetadata()
+    {
+        $event = new Event1();
+
+        $metadata = Metadata::fromObject($event);
+        $metadata->set('producer_type', \stdClass::class);
+        $metadata->set('producer_id', 'uuid');
+        $metadata->toObject($event);
+
+        $exception = new \InvalidArgumentException();
+        $this->expectExceptionObject($exception);
+
+        $this->store->producerId($event);
     }
 
     public function testObject()
@@ -94,6 +134,12 @@ abstract class EventStoreTestCase extends TestCase
 
         $second = $this->store->stream($producer11);
         $this->assertNotSame($stream, $second);
+
+        $stream = $stream->of(Event1::class, Event4::class);
+        $this->assertEquals([$event111, $event114], iterator_to_array($stream));
+        $this->assertFalse($stream->empty());
+        $this->assertEquals($event111, $stream->first());
+        $this->assertEquals($event114, $stream->last());
 
         $stream = $this->store->stream($producer12);
         $this->assertEquals([], iterator_to_array($stream));
@@ -272,6 +318,11 @@ abstract class ValueId implements Domain\Id
     public function toString() : string
     {
         return $this->value;
+    }
+
+    public static function fromString(string $id) : Domain\Id
+    {
+        return new static($id);
     }
 }
 

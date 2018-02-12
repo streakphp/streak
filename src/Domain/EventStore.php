@@ -29,4 +29,9 @@ interface EventStore
     public function stream(Domain\Id ...$producers) : Event\FilterableStream;
 
     public function log() : Event\Log;
+
+    /**
+     * @throws Exception\EventNotInStore
+     */
+    public function producerId(Event $event) : Domain\Id;
 }

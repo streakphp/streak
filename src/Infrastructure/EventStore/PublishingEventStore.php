@@ -33,6 +33,11 @@ class PublishingEventStore implements EventStore
         $this->bus = $bus;
     }
 
+    public function producerId(Event $event) : Domain\Id
+    {
+        return $this->store->producerId($event);
+    }
+
     public function add(Domain\Id $producerId, ?Event $last = null, Event ...$events) : void
     {
         if (0 === count($events)) {

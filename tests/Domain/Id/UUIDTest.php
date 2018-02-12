@@ -40,6 +40,18 @@ class UUIDTest extends TestCase
         $this->assertFalse($uuid2a->equals($uuid1));
         $this->assertFalse($uuid1->equals($uuid2b));
         $this->assertFalse($uuid2b->equals($uuid1));
+        $this->assertTrue($uuid2a->equals($uuid2b));
+        $this->assertTrue($uuid2b->equals($uuid2a));
+
+        $uuid3a = UUID::fromString('0bc68acb-abd1-48ca-b8e2-5638efa5891b');
+        $uuid3b = UUID::fromString('0BC68ACB-ABD1-48CA-B8E2-5638EFA5891B');
+
+        $this->assertFalse($uuid1->equals($uuid3a));
+        $this->assertFalse($uuid3a->equals($uuid1));
+        $this->assertFalse($uuid1->equals($uuid3b));
+        $this->assertFalse($uuid3b->equals($uuid1));
+        $this->assertTrue($uuid3a->equals($uuid3b));
+        $this->assertTrue($uuid3b->equals($uuid3a));
     }
 
     public function testInvalidUUID()

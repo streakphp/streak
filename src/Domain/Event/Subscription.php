@@ -23,7 +23,12 @@ interface Subscription
 {
     public function subscriptionId() : Domain\Id;
 
-    public function subscribeTo(EventStore $store);
+    /**
+     * @param EventStore $store
+     *
+     * @return iterable|Domain\Event[]
+     */
+    public function subscribeTo(EventStore $store) : iterable;
 
     public function start(\DateTimeInterface $startedAt);
 }

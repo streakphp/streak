@@ -146,4 +146,20 @@ class PublishingEventStoreTest extends TestCase
         $events = [];
         $store->add($this->id, null, ...$events);
     }
+
+    public function testProducerId()
+    {
+        $store = new PublishingEventStore($this->store, $this->bus);
+
+        $this->store
+            ->expects($this->once())
+            ->method('producerId')
+            ->with($this->event1)
+            ->willReturn($this->id)
+        ;
+
+        $id = $store->producerId($this->event1);
+
+        $this->assertSame($id, $this->id);
+    }
 }

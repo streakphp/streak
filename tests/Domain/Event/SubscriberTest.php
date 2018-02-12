@@ -108,18 +108,18 @@ class SubscriberTest extends TestCase
             ->willReturn($this->listener1)
         ;
 
-        $this->subscriptionsRepository
-            ->expects($this->once())
-            ->method('findFor')
-            ->with($this->listener1)
-            ->willReturn(null)
-        ;
-
         $this->subscriptionFactory
             ->expects($this->once())
             ->method('create')
             ->with($this->listener1)
             ->willReturn($this->subscription1)
+        ;
+
+        $this->subscriptionsRepository
+            ->expects($this->once())
+            ->method('has')
+            ->with($this->subscription1)
+            ->willReturn(false)
         ;
 
         $this->subscriptionsRepository
@@ -144,16 +144,18 @@ class SubscriberTest extends TestCase
             ->willReturn($this->listener1)
         ;
 
-        $this->subscriptionsRepository
+        $this->subscriptionFactory
             ->expects($this->once())
-            ->method('findFor')
+            ->method('create')
             ->with($this->listener1)
             ->willReturn($this->subscription1)
         ;
 
-        $this->subscriptionFactory
-            ->expects($this->never())
-            ->method('create')
+        $this->subscriptionsRepository
+            ->expects($this->once())
+            ->method('has')
+            ->with($this->subscription1)
+            ->willReturn(true)
         ;
 
         $this->subscriptionsRepository

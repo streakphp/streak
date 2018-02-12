@@ -25,14 +25,14 @@ class Subscriber implements Listener
     private $uuid;
     private $listenerFactory;
     private $subscriptionFactory;
-    private $subscriptions;
+    private $subscriptionsRepository;
 
-    public function __construct(Event\Listener\Factory $listenerFactory, Event\Subscription\Factory $subscriptionFactory, Event\Subscription\Repository $subscriptions)
+    public function __construct(Event\Listener\Factory $listenerFactory, Event\Subscription\Factory $subscriptionFactory, Event\Subscription\Repository $subscriptionsRepository)
     {
         $this->uuid = Domain\Id\UUID::create();
         $this->listenerFactory = $listenerFactory;
         $this->subscriptionFactory = $subscriptionFactory;
-        $this->subscriptions = $subscriptions;
+        $this->subscriptionsRepository = $subscriptionsRepository;
     }
 
     public function id() : Domain\Id
@@ -53,14 +53,15 @@ class Subscriber implements Listener
             return false;
         }
 
-        $subscription = $this->subscriptions->findFor($listener);
+        $subscription = $this->subscriptionFactory->create($listener);
 
-        if (null === $subscription) {
-            $subscription = $this->subscriptionFactory->create($listener);
-            $subscription->start(new \DateTime());
-
-            $this->subscriptions->add($subscription);
+        if (true === $this->subscriptionsRepository->has($subscription)) {
+            return true;
         }
+
+        $this->subscriptionsRepository->add($subscription);
+
+        $subscription->start(new \DateTime());
 
         return true;
     }

@@ -21,4 +21,6 @@ use Streak\Domain;
 interface Id extends Domain\ValueObject
 {
     public function toString() : string;
+
+    public static function fromString(string $id) : Domain\Id;
 }
