@@ -15,6 +15,9 @@ namespace Streak\Domain\Event;
 
 use Streak\Domain;
 use Streak\Domain\Event;
+use Streak\Domain\Event\Sourced\Subscription\Event\SubscriptionCompleted;
+use Streak\Domain\Event\Sourced\Subscription\Event\SubscriptionListenedToEvent;
+use Streak\Domain\Event\Sourced\Subscription\Event\SubscriptionStarted;
 use Streak\Domain\EventBus;
 use Streak\Infrastructure\UnitOfWork;
 
@@ -50,6 +53,18 @@ class Subscriber implements Listener
 
     public function on(Event $event) : bool
     {
+        if ($event instanceof SubscriptionStarted) {
+            return false;
+        }
+
+        if ($event instanceof SubscriptionListenedToEvent) {
+            return false;
+        }
+
+        if ($event instanceof SubscriptionCompleted) {
+            return false;
+        }
+
         try {
             $listener = $this->listenerFactory->createFor($event);
         } catch (Exception\InvalidEventGiven $e) {
