@@ -40,13 +40,13 @@ class PublishingEventStore implements EventStore
         return $this->store->producerId($event);
     }
 
-    public function add(Domain\Id $producerId, ?Event $last = null, Event ...$events) : void
+    public function add(Domain\Id $producerId, ?int $version, Event ...$events) : void
     {
         if (0 === count($events)) {
             return;
         }
 
-        array_push($this->transactions, [$producerId, $last, $events]);
+        array_push($this->transactions, [$producerId, $version, $events]);
 
         if (false === $this->adding) {
             $this->adding = true;
@@ -54,9 +54,9 @@ class PublishingEventStore implements EventStore
             try {
                 $all = [];
                 while ($transaction = array_shift($this->transactions)) {
-                    [$producerId, $last, $events] = $transaction;
+                    [$producerId, $version, $events] = $transaction;
                     $all = array_merge($all, $events);
-                    $this->store->add($producerId, $last, ...$events);
+                    $this->store->add($producerId, $version, ...$events);
                 }
             } finally {
                 $this->adding = false;

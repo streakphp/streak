@@ -53,6 +53,7 @@ class Subscriber implements Listener
 
     public function on(Event $event) : bool
     {
+        // TODO: move filtering subscription-events to subscriber decorator or listener factory decorator.
         if ($event instanceof SubscriptionStarted) {
             return false;
         }

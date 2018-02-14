@@ -129,23 +129,10 @@ SQL;
         return $method->invoke(null, $producerId);
     }
 
-    public function add(Domain\Id $producerId, ?Event $last = null, Event ...$events) : void
+    public function add(Domain\Id $producerId, ?int $version, Event ...$events) : void
     {
         if (0 === count($events)) {
             return;
-        }
-
-        if (null !== $last) {
-            $metadata = Event\Metadata::fromObject($last);
-
-            if (!$metadata->has('version')) {
-                throw new Exception\EventNotInStore($last);
-            }
-
-            $version = $metadata->get('version', '0');
-            $version = (int) $version;
-        } else {
-            $version = 0;
         }
 
         $sql = 'INSERT INTO events (uuid, type, body, metadata, producer_type, producer_id, producer_version) ';
@@ -154,8 +141,6 @@ SQL;
         $values = [];
         $transaction = new \SplObjectStorage();
         foreach ($events as $key => $event) {
-            ++$version;
-
             $metadata = Event\Metadata::fromObject($event);
 
             if (!$metadata->empty()) {
@@ -164,6 +149,7 @@ SQL;
 
             $uuid = UUID::create();
 
+            $version = $this->bumpUp($version);
             $row = $this->toRow($producerId, $version, $uuid, $event);
 
             // TODO: if version set, maybe throw Exception\EventAlreadyStored exception here?
@@ -217,13 +203,11 @@ SQL;
             $metadata = $returned['metadata'];
             $metadata = json_decode($metadata, true);
             $metadata = Event\Metadata::fromArray($metadata);
-            $version = (string) $returned['producer_version'];
 
             foreach ($transaction as $current) {
                 $event = $transaction->getInfo();
                 if ($uuid->equals($current)) {
                     $metadata->set('sequence', $sequence);
-                    $metadata->set('version', $version);
                     $metadata->toObject($event);
                     continue 2;
                 }
@@ -437,6 +421,15 @@ SQL;
         return $this;
     }
 
+    private function bumpUp(?int $version) : ?int
+    {
+        if (null === $version) {
+            return null;
+        }
+
+        return ++$version;
+    }
+
     private function copy() : self
     {
         $stream = new self($this->pdo, $this->converter);
@@ -555,20 +548,18 @@ SQL;
         $metadata = json_decode($metadata, true);
         $metadata = Event\Metadata::fromArray($metadata);
         $metadata->set('sequence', (string) $row[self::EVENT_LOG_SEQUENCE_COLUMN]);
-        $metadata->set('version', (string) $row[self::EVENT_LOG_PRODUCER_VERSION_COLUMN]);
 
         $metadata->toObject($event);
 
         return $event;
     }
 
-    private function toRow(Domain\Id $producerId, int $version, UUID $uuid, $event) : array
+    private function toRow(Domain\Id $producerId, ?int $version, UUID $uuid, $event) : array
     {
         $metadata = Event\Metadata::fromObject($event);
         $metadata::clear($event);
         $metadata->set('producer_type', get_class($producerId));
         $metadata->set('producer_id', $producerId->toString());
-        $metadata->set('version', (string) $version);
 
         $row = [
             self::EVENT_LOG_EVENT_UUID_COLUMN => $uuid->toString(),

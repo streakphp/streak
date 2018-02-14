@@ -11,15 +11,12 @@
 
 declare(strict_types=1);
 
-namespace Streak\Domain\Event\Sourced;
-
-use Streak\Domain;
-use Streak\Domain\Event;
-use Streak\Domain\Versionable;
+namespace Streak\Domain;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-interface AggregateRoot extends Domain\AggregateRoot, Event\Sourced, Versionable
+interface Versionable
 {
+    public function version() : int;
 }

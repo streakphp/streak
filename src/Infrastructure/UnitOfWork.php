@@ -42,7 +42,11 @@ class UnitOfWork
     public function add(Event\Producer $producer) : void
     {
         if (!$this->has($producer)) {
-            $this->producers[] = [$producer, $producer->last()];
+            $version = null;
+            if ($producer instanceof Domain\Versionable) {
+                $version = $producer->version();
+            }
+            $this->producers[] = [$producer, $version];
         }
     }
 
@@ -80,15 +84,15 @@ class UnitOfWork
 
             try {
                 while ($pair = array_shift($this->producers)) {
-                    [$producer, $last] = $pair;
+                    [$producer, $version] = $pair;
 
                     try {
                         $producerId = $producer->producerId();
                         $events = $producer->events();
 
-                        $this->store->add($producerId, $last, ...$events);
+                        $this->store->add($producerId, $version, ...$events);
                     } catch (\Exception $e) {
-                        array_unshift($this->producers, [$producer, $last]);
+                        array_unshift($this->producers, [$producer, $version]);
                         throw $e;
                     }
                 }

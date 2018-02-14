@@ -24,7 +24,7 @@ interface EventStore
      * @throws Exception\ConcurrentWriteDetected
      * @throws Exception\InvalidAggregateGiven
      */
-    public function add(Domain\Id $producerId, ?Event $last = null, Event ...$events) : void;
+    public function add(Domain\Id $producerId, ?int $version, Event ...$events) : void;
 
     public function stream(Domain\Id ...$producers) : Event\FilterableStream;
 

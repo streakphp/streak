@@ -18,12 +18,13 @@ use Streak\Domain\Event;
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-trait Sourcing // implements Event\Consumer, Event\Producer, Domain\Identifiable
+trait Sourcing // implements Event\Consumer, Event\Producer, Domain\Identifiable, Domain\Versionable
 {
     private $events = [];
     private $last;
     private $replaying = false;
     private $lastReplayed;
+    private $version = 0;
 
     final public function replay(Event\Stream $events) : void
     {
@@ -50,6 +51,11 @@ trait Sourcing // implements Event\Consumer, Event\Producer, Domain\Identifiable
     final public function last() : ?Event
     {
         return $this->last;
+    }
+
+    final public function version() : int
+    {
+        return $this->version;
     }
 
     /**
@@ -138,6 +144,7 @@ trait Sourcing // implements Event\Consumer, Event\Producer, Domain\Identifiable
 
         // TODO: test if lastReplayed/last do not change in case of listening error
         $this->last = $event;
+        ++$this->version;
         if ($this->replaying) {
             $this->lastReplayed = $event;
         } else {

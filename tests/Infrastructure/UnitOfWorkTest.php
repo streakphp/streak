@@ -14,8 +14,12 @@ declare(strict_types=1);
 namespace Streak\Infrastructure;
 
 use PHPUnit\Framework\TestCase;
+use Streak\Domain;
 use Streak\Domain\Event;
 use Streak\Domain\EventStore;
+use Streak\Domain\Versionable;
+use Streak\Infrastructure\UnitOfWorkTest\NonVersionableEventSourcedStub;
+use Streak\Infrastructure\UnitOfWorkTest\VersionableEventSourcedStub;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -45,14 +49,29 @@ class UnitOfWorkTest extends TestCase
     private $object3;
 
     /**
-     * @var Event\Producer\Id|\PHPUnit_Framework_MockObject_MockObject
+     * @var Event\Sourced|Versionable|\PHPUnit_Framework_MockObject_MockObject
+     */
+    private $object4;
+
+    /**
+     * @var Domain\Id|\PHPUnit_Framework_MockObject_MockObject
      */
     private $id1;
 
     /**
-     * @var Event\Producer\Id|\PHPUnit_Framework_MockObject_MockObject
+     * @var Domain\Id|\PHPUnit_Framework_MockObject_MockObject
+     */
+    private $id2;
+
+    /**
+     * @var Domain\Id|\PHPUnit_Framework_MockObject_MockObject
      */
     private $id3;
+
+    /**
+     * @var Domain\Id|\PHPUnit_Framework_MockObject_MockObject
+     */
+    private $id4;
 
     /**
      * @var Event\Sourced|\PHPUnit_Framework_MockObject_MockObject
@@ -74,136 +93,192 @@ class UnitOfWorkTest extends TestCase
      */
     private $event4;
 
+    /**
+     * @var Event\Sourced|\PHPUnit_Framework_MockObject_MockObject
+     */
+    private $event5;
+
     public function setUp()
     {
         $this->store = $this->getMockBuilder(EventStore::class)->getMockForAbstractClass();
 
-        $this->object1 = $this->getMockBuilder(Event\Sourced::class)->setMockClassName('object1')->getMockForAbstractClass();
-        $this->object2 = $this->getMockBuilder(Event\Sourced::class)->setMockClassName('object2')->getMockForAbstractClass();
-        $this->object3 = $this->getMockBuilder(Event\Sourced::class)->setMockClassName('object3')->getMockForAbstractClass();
-
-        $this->id1 = $this->getMockBuilder(Event\Producer\Id::class)->setMockClassName('id1')->getMockForAbstractClass();
-        $this->id3 = $this->getMockBuilder(Event\Producer\Id::class)->setMockClassName('id3')->getMockForAbstractClass();
+        $this->id1 = $this->getMockBuilder(Domain\Id::class)->setMockClassName('id1')->getMockForAbstractClass();
+        $this->id2 = $this->getMockBuilder(Domain\Id::class)->setMockClassName('id2')->getMockForAbstractClass();
+        $this->id3 = $this->getMockBuilder(Domain\Id::class)->setMockClassName('id3')->getMockForAbstractClass();
+        $this->id4 = $this->getMockBuilder(Domain\Id::class)->setMockClassName('id4')->getMockForAbstractClass();
 
         $this->event1 = $this->getMockBuilder(Event::class)->setMockClassName('event1')->getMockForAbstractClass();
         $this->event2 = $this->getMockBuilder(Event::class)->setMockClassName('event2')->getMockForAbstractClass();
         $this->event3 = $this->getMockBuilder(Event::class)->setMockClassName('event3')->getMockForAbstractClass();
         $this->event4 = $this->getMockBuilder(Event::class)->setMockClassName('event4')->getMockForAbstractClass();
+        $this->event5 = $this->getMockBuilder(Event::class)->setMockClassName('event5')->getMockForAbstractClass();
     }
 
     public function testObject()
     {
-        $this->object1
-            ->expects($this->once())
-            ->method('last')
-            ->with()
-            ->willReturn(null)
-        ;
-
-        $this->object1
-            ->expects($this->once())
-            ->method('events')
-            ->with()
-            ->willReturn([$this->event1])
-        ;
-
-        $this->object1
-            ->expects($this->once())
-            ->method('producerId')
-            ->with()
-            ->willReturn($this->id1)
-        ;
-
-        $this->object2
-            ->expects($this->once())
-            ->method('last')
-            ->with()
-            ->willReturn(null)
-        ;
-
-        $this->object2
-            ->expects($this->never())
-            ->method('producerId')
-        ;
-
-        $this->object2
-            ->expects($this->never())
-            ->method('events')
-        ;
-
-        $this->object3
-            ->expects($this->once())
-            ->method('last')
-            ->with()
-            ->willReturn($this->event2)
-        ;
-
-        $this->object3
-            ->expects($this->once())
-            ->method('producerId')
-            ->with()
-            ->willReturn($this->id3)
-        ;
-
-        $this->object3
-            ->expects($this->once())
-            ->method('events')
-            ->with()
-            ->willReturn([$this->event3, $this->event4])
-        ;
+        $object1 = new VersionableEventSourcedStub($this->id1, 0, $this->event1);
+        $object2 = new VersionableEventSourcedStub($this->id2, 1, $this->event2);
+        $object3 = new VersionableEventSourcedStub($this->id3, 2, $this->event3, $this->event4);
+        $object4 = new NonVersionableEventSourcedStub($this->id4, $this->event5);
 
         $uow = new UnitOfWork($this->store);
 
         $this->assertEquals(0, $uow->count());
-        $this->assertFalse($uow->has($this->object1));
-        $this->assertFalse($uow->has($this->object2));
-        $this->assertFalse($uow->has($this->object3));
+        $this->assertFalse($uow->has($object1));
+        $this->assertFalse($uow->has($object2));
+        $this->assertFalse($uow->has($object3));
+        $this->assertFalse($uow->has($object4));
 
-        $uow->add($this->object1);
-
-        $this->assertEquals(1, $uow->count());
-        $this->assertTrue($uow->has($this->object1));
-        $this->assertFalse($uow->has($this->object2));
-        $this->assertFalse($uow->has($this->object3));
-
-        $uow->add($this->object2);
-
-        $this->assertEquals(2, $uow->count());
-        $this->assertTrue($uow->has($this->object1));
-        $this->assertTrue($uow->has($this->object2));
-        $this->assertFalse($uow->has($this->object3));
-
-        $uow->remove($this->object2);
+        $uow->add($object1);
 
         $this->assertEquals(1, $uow->count());
-        $this->assertTrue($uow->has($this->object1));
-        $this->assertFalse($uow->has($this->object2));
-        $this->assertFalse($uow->has($this->object3));
+        $this->assertTrue($uow->has($object1));
+        $this->assertFalse($uow->has($object2));
+        $this->assertFalse($uow->has($object3));
+        $this->assertFalse($uow->has($object4));
 
-        $uow->add($this->object3);
+        $uow->add($object2);
 
         $this->assertEquals(2, $uow->count());
-        $this->assertTrue($uow->has($this->object1));
-        $this->assertFalse($uow->has($this->object2));
-        $this->assertTrue($uow->has($this->object3));
+        $this->assertTrue($uow->has($object1));
+        $this->assertTrue($uow->has($object2));
+        $this->assertFalse($uow->has($object3));
+        $this->assertFalse($uow->has($object4));
+
+        $uow->remove($object2);
+
+        $this->assertEquals(1, $uow->count());
+        $this->assertTrue($uow->has($object1));
+        $this->assertFalse($uow->has($object2));
+        $this->assertFalse($uow->has($object3));
+        $this->assertFalse($uow->has($object4));
+
+        $uow->add($object3);
+
+        $this->assertEquals(2, $uow->count());
+        $this->assertTrue($uow->has($object1));
+        $this->assertFalse($uow->has($object2));
+        $this->assertTrue($uow->has($object3));
+        $this->assertFalse($uow->has($object4));
+
+        $uow->add($object4);
+
+        $this->assertEquals(3, $uow->count());
+        $this->assertTrue($uow->has($object1));
+        $this->assertFalse($uow->has($object2));
+        $this->assertTrue($uow->has($object3));
+        $this->assertTrue($uow->has($object4));
 
         $this->store
             ->expects($this->at(0))
             ->method('add')
-            ->with($this->id1, null, $this->event1)
+            ->with($this->id1, 0, $this->event1)
         ;
 
         $this->store
             ->expects($this->at(1))
             ->method('add')
-            ->with($this->id3, $this->event2, $this->event3, $this->event4)
+            ->with($this->id3, 2, $this->event3, $this->event4)
+        ;
+
+        $this->store
+            ->expects($this->at(2))
+            ->method('add')
+            ->with($this->id4, null, $this->event5)
         ;
 
         $uow->commit();
 
         $this->assertEquals(0, $uow->count());
-        $this->assertFalse($uow->has($this->object1));
-        $this->assertFalse($uow->has($this->object2));
-        $this->assertFalse($uow->has($this->object3));
+        $this->assertFalse($uow->has($object1));
+        $this->assertFalse($uow->has($object2));
+        $this->assertFalse($uow->has($object3));
+    }
+}
+
+namespace Streak\Infrastructure\UnitOfWorkTest;
+
+use Streak\Domain;
+use Streak\Domain\Event;
+use Streak\Domain\Versionable;
+
+class VersionableEventSourcedStub implements Event\Sourced, Versionable
+{
+    private $id;
+    private $version;
+    private $events;
+
+    public function __construct(Domain\Id $id, int $version, Event ...$events)
+    {
+        $this->id = $id;
+        $this->version = $version;
+        $this->events = $events;
+    }
+
+    public function equals($object) : bool
+    {
+        throw new \BadMethodCallException();
+    }
+
+    public function lastReplayed() : ?Event
+    {
+        throw new \BadMethodCallException();
+    }
+
+    public function producerId() : Domain\Id
+    {
+        return $this->id;
+    }
+
+    public function events() : array
+    {
+        return $this->events;
+    }
+
+    public function replay(Event\Stream $events) : void
+    {
+        throw new \BadMethodCallException();
+    }
+
+    public function version() : int
+    {
+        return $this->version;
+    }
+}
+
+class NonVersionableEventSourcedStub implements Event\Sourced
+{
+    private $id;
+    private $events;
+
+    public function __construct(Domain\Id $id, Event ...$events)
+    {
+        $this->id = $id;
+        $this->events = $events;
+    }
+
+    public function equals($object) : bool
+    {
+        throw new \BadMethodCallException();
+    }
+
+    public function lastReplayed() : ?Event
+    {
+        throw new \BadMethodCallException();
+    }
+
+    public function producerId() : Domain\Id
+    {
+        return $this->id;
+    }
+
+    public function events() : array
+    {
+        return $this->events;
+    }
+
+    public function replay(Event\Stream $events) : void
+    {
+        throw new \BadMethodCallException();
     }
 }

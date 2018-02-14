@@ -255,7 +255,14 @@ class SubscriptionTest extends TestCase
             ->willReturnSelf()
         ;
 
-        $this->isIteratorFor($this->stream2, [$this->event4]);
+        $now = new \DateTime();
+        $events = [
+            new SubscriptionStarted($this->event2, $now),
+            new SubscriptionListenedToEvent($this->event3),
+            $this->event1,
+            new SubscriptionCompleted(),
+        ];
+        $this->isIteratorFor($this->stream2, $events);
 
         $this->listener2
             ->expects($this->once())
@@ -301,7 +308,14 @@ class SubscriptionTest extends TestCase
             ->willReturnSelf()
         ;
 
-        $this->isIteratorFor($this->stream2, [$this->event1]);
+        $now = new \DateTime();
+        $events = [
+            $this->event1,
+            new SubscriptionStarted($this->event2, $now),
+            new SubscriptionListenedToEvent($this->event3),
+            new SubscriptionCompleted(),
+        ];
+        $this->isIteratorFor($this->stream2, $events);
 
         $this->listener3
             ->expects($this->once())

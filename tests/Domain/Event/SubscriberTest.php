@@ -16,6 +16,9 @@ namespace Streak\Domain\Event;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Streak\Domain\Event;
+use Streak\Domain\Event\Sourced\Subscription\Event\SubscriptionCompleted;
+use Streak\Domain\Event\Sourced\Subscription\Event\SubscriptionListenedToEvent;
+use Streak\Domain\Event\Sourced\Subscription\Event\SubscriptionStarted;
 use Streak\Domain\EventBus;
 use Streak\Domain\EventStore;
 use Streak\Domain\Id\UUID;
@@ -181,6 +184,33 @@ class SubscriberTest extends TestCase
         $processed = $subscriber->on($this->event1);
 
         $this->assertTrue($processed);
+    }
+
+    public function testSubscriberForSubscriptionsEvents()
+    {
+        $subscriber = new Subscriber($this->listenerFactory, $this->subscriptionFactory, $this->subscriptionsRepository, $this->uow);
+
+        $this->listenerFactory
+            ->expects($this->never())
+            ->method('createFor')
+        ;
+
+        $this->subscriptionFactory
+            ->expects($this->never())
+            ->method('create')
+        ;
+
+        $processed = $subscriber->on(new SubscriptionStarted($this->event1, new \DateTime()));
+
+        $this->assertFalse($processed);
+
+        $processed = $subscriber->on(new SubscriptionListenedToEvent($this->event1));
+
+        $this->assertFalse($processed);
+
+        $processed = $subscriber->on(new SubscriptionCompleted());
+
+        $this->assertFalse($processed);
     }
 
     public function testListening()

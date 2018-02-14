@@ -111,7 +111,7 @@ abstract class EventStoreTestCase extends TestCase
 
         $this->assertEquals(iterator_to_array($stream), iterator_to_array($second));
 
-        $this->store->add($producer11, null, $event111, $event112);
+        $this->store->add($producer11, 0, $event111, $event112);
         $this->assertEquals([$event111, $event112], iterator_to_array($this->store->log()));
 
         $stream = $this->store->stream($producer11);
@@ -123,7 +123,7 @@ abstract class EventStoreTestCase extends TestCase
         $second = $this->store->stream($producer11);
         $this->assertNotSame($stream, $second);
 
-        $this->store->add($producer11, $event112, $event113, $event114);
+        $this->store->add($producer11, 2, $event113, $event114);
         $this->assertEquals([$event111, $event112, $event113, $event114], iterator_to_array($this->store->log()));
 
         $stream = $this->store->stream($producer11);
@@ -150,7 +150,7 @@ abstract class EventStoreTestCase extends TestCase
         $second = $this->store->stream($producer12);
         $this->assertNotSame($stream, $second);
 
-        $this->store->add($producer12, null, $event121, $event122, $event123, $event124);
+        $this->store->add($producer12, 0, $event121, $event122, $event123, $event124);
         $this->assertEquals([$event111, $event112, $event113, $event114, $event121, $event122, $event123, $event124], iterator_to_array($this->store->log()));
 
         $stream = $this->store->stream($producer11);
@@ -212,20 +212,6 @@ abstract class EventStoreTestCase extends TestCase
         $this->assertEquals($event124, $stream->last());
     }
 
-    public function testLastEventNotInStore()
-    {
-        $event1 = new Event1();
-        $event2 = new Event2();
-        $event3 = new Event3();
-        $event4 = new Event4();
-        $producer = new ProducerId1('producer1');
-
-        $exception = new EventNotInStore($event1);
-        $this->expectExceptionObject($exception);
-
-        $this->store->add($producer, $event1, $event2, $event3, $event4);
-    }
-
     public function testConcurrentWriting()
     {
         $event1 = new Event1();
@@ -234,12 +220,12 @@ abstract class EventStoreTestCase extends TestCase
         $event4 = new Event4();
         $producer = new ProducerId1('producer1');
 
-        $this->store->add($producer, null, $event1, $event2);
+        $this->store->add($producer, 0, $event1, $event2);
 
         $exception = new ConcurrentWriteDetected($producer);
         $this->expectExceptionObject($exception);
 
-        $this->store->add($producer, null, $event3, $event4);
+        $this->store->add($producer, 0, $event3, $event4);
     }
 
     public function testEventAlreadyInStore()
@@ -249,12 +235,12 @@ abstract class EventStoreTestCase extends TestCase
         $event3 = new Event2();
         $producer = new ProducerId1('producer1');
 
-        $this->store->add($producer, null, $event1, $event2);
+        $this->store->add($producer, 0, $event1, $event2);
 
         $exception = new EventAlreadyInStore($event2);
         $this->expectExceptionObject($exception);
 
-        $this->store->add($producer, $event2, $event3, $event2);
+        $this->store->add($producer, 2, $event2, $event3);
     }
 
     public function testThatNoEventsAreAddedInCaseOfConcurrentWriteError()
@@ -265,10 +251,10 @@ abstract class EventStoreTestCase extends TestCase
         $event4 = new Event4();
         $producer = new ProducerId1('producer1');
 
-        $this->store->add($producer, null, $event1, $event2);
+        $this->store->add($producer, 0, $event1, $event2);
 
         try {
-            $this->store->add($producer, null, $event3, $event4);
+            $this->store->add($producer, 0, $event3, $event4);
         } catch (ConcurrentWriteDetected $e) {
             $this->assertEquals([$event1, $event2], iterator_to_array($this->store->log()));
         }
@@ -281,10 +267,10 @@ abstract class EventStoreTestCase extends TestCase
         $event3 = new Event3();
         $producer = new ProducerId1('producer1');
 
-        $this->store->add($producer, null, $event1, $event2);
+        $this->store->add($producer, 0, $event1, $event2);
 
         try {
-            $this->store->add($producer, $event2, $event3, $event1);
+            $this->store->add($producer, 2, $event3, $event1);
         } catch (EventAlreadyInStore $e) {
             $this->assertEquals([$event1, $event2], iterator_to_array($this->store->log()));
         }

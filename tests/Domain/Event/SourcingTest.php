@@ -49,12 +49,17 @@ class SourcingTest extends TestCase
         $sourcing = new SourcingTest\EventSourcedAggregateRootStub($this->id);
 
         $this->assertFalse($sourcing->isEventStubForTestingPublicHandlingMethodApplied());
+        $this->assertNull($sourcing->lastReplayed());
+        $this->assertNull($sourcing->last());
+        $this->assertEquals(0, $sourcing->version());
+        $this->assertEmpty($sourcing->events());
 
         $sourcing->replay(new InMemoryStream($event));
 
         $this->assertTrue($sourcing->isEventStubForTestingPublicHandlingMethodApplied());
         $this->assertSame($event, $sourcing->lastReplayed());
         $this->assertEquals($event, $sourcing->last());
+        $this->assertEquals(1, $sourcing->version());
         $this->assertEmpty($sourcing->events());
     }
 
@@ -70,6 +75,7 @@ class SourcingTest extends TestCase
         $this->assertTrue($sourcing->isEventStubForTestingNonPublicHandlingMethodApplied());
         $this->assertSame($event, $sourcing->lastReplayed());
         $this->assertEquals($event, $sourcing->last());
+        $this->assertEquals(1, $sourcing->version());
         $this->assertEmpty($sourcing->events());
     }
 
@@ -131,6 +137,7 @@ class SourcingTest extends TestCase
         $this->assertEquals(2, $sourcing->numberOfAppliesOfEvent7());
         $this->assertSame($event2, $sourcing->lastReplayed());
         $this->assertEquals($event2, $sourcing->last());
+        $this->assertEquals(2, $sourcing->version());
         $this->assertEmpty($sourcing->events());
     }
 
@@ -173,6 +180,7 @@ class SourcingTest extends TestCase
 
         $this->assertNull($sourcing->lastReplayed());
         $this->assertEquals($event, $sourcing->last());
+        $this->assertEquals(1, $sourcing->version());
         $this->assertEquals([$event], $sourcing->events());
     }
 

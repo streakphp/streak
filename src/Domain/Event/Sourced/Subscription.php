@@ -20,12 +20,13 @@ use Streak\Domain\Event\Sourced\Subscription\Event\SubscriptionListenedToEvent;
 use Streak\Domain\Event\Sourced\Subscription\Event\SubscriptionStarted;
 use Streak\Domain\Event\Sourced\Subscription\Stream as SubscriptionStream;
 use Streak\Domain\EventStore;
+use Streak\Domain\Versionable;
 use Streak\Infrastructure\Event\NullListener;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-final class Subscription implements Event\Subscription, Event\Sourced, Event\Completable
+final class Subscription implements Event\Subscription, Event\Sourced, Event\Completable, Versionable
 {
     use Event\Sourcing {
         Event\Sourcing::applyEvent as private doApplyEvent;
@@ -71,7 +72,8 @@ final class Subscription implements Event\Subscription, Event\Sourced, Event\Com
             }
         }
 
-        foreach ($stream as $event) {
+        $events = iterator_to_array($stream); // TODO: use iterator
+        foreach ($events as $event) {
             if ($event instanceof SubscriptionStarted) {
                 continue;
             }

@@ -56,7 +56,7 @@ class InMemoryEventStore implements EventStore, Event\Log
      * @throws Exception\ConcurrentWriteDetected
      * @throws Exception\EventAlreadyInStore
      */
-    public function add(Domain\Id $producerId, ?Event $last = null, Event ...$events) : void
+    public function add(Domain\Id $producerId, ?int $version, Event ...$events) : void
     {
         if (0 === count($events)) {
             return;
@@ -64,27 +64,12 @@ class InMemoryEventStore implements EventStore, Event\Log
 
         $id = $producerId->toString();
 
-        if (null !== $last) {
-            $metadata = Event\Metadata::fromObject($last);
-
-            if ($metadata->empty()) {
-                throw new Exception\EventNotInStore($last);
-            }
-
-            $version = $metadata->get('version', '0');
-            $version = (int) $version;
-        } else {
-            $version = 0;
-        }
-
         $transaction = [
             'uuids' => [],
             'all' => [],
             'stream' => [],
         ];
         foreach ($events as $event) {
-            ++$version;
-
             $metadata = Event\Metadata::fromObject($event);
 
             if (!$metadata->empty()) {
@@ -97,14 +82,18 @@ class InMemoryEventStore implements EventStore, Event\Log
                 $this->streams[$id] = [];
             }
 
-            if (isset($this->streams[$id][$version])) {
-                throw new Exception\ConcurrentWriteDetected($producerId);
+            if (null === $version) {
+                $version = count($this->streams[$id]);
+            } else {
+                ++$version;
+                if (isset($this->streams[$id][$version])) {
+                    throw new Exception\ConcurrentWriteDetected($producerId);
+                }
             }
 
             $metadata->set('uuid', $uuid);
             $metadata->set('producer_type', get_class($producerId));
             $metadata->set('producer_id', $producerId->toString());
-            $metadata->set('version', (string) $version);
 
             $transaction['uuids'][] = $uuid;
             $transaction['stream'][$version] = $event;
