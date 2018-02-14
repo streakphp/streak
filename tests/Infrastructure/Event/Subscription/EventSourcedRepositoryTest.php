@@ -370,7 +370,7 @@ class EventSourcedRepositoryTest extends TestCase
 
         $subscriptions = $repository->all();
 
-        $this->assertInstanceOf(\Traversable::class, $subscriptions);
+        $this->assertTrue(is_iterable($subscriptions));
         $this->assertEquals([], iterator_to_array($subscriptions));
     }
 
@@ -482,7 +482,7 @@ class EventSourcedRepositoryTest extends TestCase
 
         $subscriptions = $repository->all();
 
-        $this->assertInstanceOf(\Traversable::class, $subscriptions);
+        $this->assertTrue(is_iterable($subscriptions));
         $this->assertEquals([$subscription2, $subscription3], iterator_to_array($subscriptions));
     }
 

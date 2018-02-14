@@ -114,17 +114,19 @@ class EventSourcedRepository implements Subscription\Repository
         $stream = $this->store->stream();
         $stream = $stream->of(SubscriptionStarted::class, SubscriptionCompleted::class);
 
-        $ids = new \SplObjectStorage();
+        $ids = [];
 
         foreach ($stream as $event) {
             $id = $this->store->producerId($event);
 
             if ($event instanceof SubscriptionStarted) {
-                $ids->attach($id);
+                $ids[] = $id;
             }
 
             if ($event instanceof SubscriptionCompleted) {
-                $ids->detach($id);
+                if (false !== ($key = array_search($id, $ids))) { // TODO: make it look nicer
+                    unset($ids[$key]);
+                }
             }
         }
 

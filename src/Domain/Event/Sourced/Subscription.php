@@ -52,6 +52,10 @@ final class Subscription implements Event\Subscription, Event\Sourced, Event\Com
      */
     public function subscribeTo(EventStore $store) : iterable
     {
+        if (true === $this->completed) {
+            return;
+        }
+
         $stream = $store->stream();
 
         if ($this->lastReplayed()) {
@@ -66,21 +70,18 @@ final class Subscription implements Event\Subscription, Event\Sourced, Event\Com
             }
         }
 
-        if ($this->listener instanceof Event\Completable) {
-            if ($this->listener->completed()) {
-                return;
-            }
-        }
-
-        $events = iterator_to_array($stream); // TODO: use iterator
-        foreach ($events as $event) {
+        foreach ($stream as $event) {
+            // TODO: filter to not pollute ES (not sure if its good solution).
             if ($event instanceof SubscriptionStarted) {
+                yield $event;
                 continue;
             }
             if ($event instanceof SubscriptionListenedToEvent) {
+                yield $event;
                 continue;
             }
             if ($event instanceof SubscriptionCompleted) {
+                yield $event;
                 continue;
             }
             $this->applyEvent(new SubscriptionListenedToEvent($event));
@@ -88,7 +89,8 @@ final class Subscription implements Event\Subscription, Event\Sourced, Event\Com
             if ($this->listener instanceof Event\Completable) {
                 if ($this->listener->completed()) {
                     $this->applyEvent(new SubscriptionCompleted());
-                    break; // we stop here
+                    yield $event;
+                    break;
                 }
             }
 
