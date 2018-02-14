@@ -11,14 +11,12 @@
 
 declare(strict_types=1);
 
-namespace Streak\Application;
-
-use Streak\Domain\Event;
-use Streak\Domain\Resettable;
+namespace Streak\Domain;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-interface Projector extends Event\Listener, Resettable
+interface Resettable
 {
+    public function reset() : void;
 }

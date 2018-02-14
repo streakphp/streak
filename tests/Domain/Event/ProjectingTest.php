@@ -15,7 +15,6 @@ namespace Streak\Domain\Event;
 
 use PHPUnit\Framework\TestCase;
 use Streak\Domain\Event\ProjectingTest\ProjectorStub;
-use Streak\Infrastructure\Event\InMemoryStream;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -35,17 +34,16 @@ class ProjectingTest extends TestCase
         $projector = new ProjectorStub();
 
         $this->assertEmpty($projector->consumed());
-        $this->assertNull($projector->lastReplayed());
-        $this->assertFalse($projector->replayed());
 
-        $projector->replay(new InMemoryStream(...$events));
+        $projector->on($event1);
+        $projector->on($event2);
+        $projector->on($event3);
+        $projector->on($event4);
 
         $this->assertSame($events, $projector->eventsThatPreEventHookFiredFor());
         $this->assertSame($events, $projector->eventsThatPostEventHookFiredFor());
         $this->assertEmpty($projector->exceptionsThatOnExceptionHookFiredFor());
         $this->assertEquals($events, $projector->consumed());
-        $this->assertEquals($event4, $projector->lastReplayed());
-        $this->assertTrue($projector->replayed());
     }
 
     public function testErrors()
@@ -87,15 +85,13 @@ class ProjectorStub
 {
     use Event\Projecting;
 
-    private $replayed = false;
     private $consumed = [];
     private $eventsThatPreEventHookFiredFor = [];
     private $eventsThatPostEventHookFiredFor = [];
     private $exceptionsThatOnExceptionHookFiredFor = [];
 
-    public function onReplay() : void
+    public function reset() : void
     {
-        $this->replayed = true;
     }
 
     public function onEvent1Stub(Event1Stub $event) : void
@@ -123,11 +119,6 @@ class ProjectorStub
         $this->consumed[] = $event;
 
         throw new \RuntimeException('Consuming with error.');
-    }
-
-    public function replayed() : bool
-    {
-        return $this->replayed;
     }
 
     /**

@@ -21,22 +21,8 @@ use Streak\Domain\Event;
  */
 trait Projecting // implements Application\Projector
 {
-    use Event\Consuming {
-        Event\Consuming::replay as private doReplay;
-    }
     use Event\Listening {
         Event\Listening::on as private onEvent;
-    }
-
-    final public function replay(Event\Stream $events) : void
-    {
-        $this->onReplay();
-        $this->doReplay($events);
-    }
-
-    final public function lastReplayed() : ?Domain\Event
-    {
-        return $this->lastReplayed;
     }
 
     /**
@@ -56,7 +42,7 @@ trait Projecting // implements Application\Projector
         return $processed;
     }
 
-    abstract protected function onReplay() : void;
+    abstract protected function reset() : void;
 
     abstract protected function preEvent(Event $event) : void;
 
