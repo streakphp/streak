@@ -162,6 +162,76 @@ class UnitOfWorkTest extends TestCase
         $this->assertFalse($uow->has($object2));
         $this->assertFalse($uow->has($object3));
     }
+
+    public function testError()
+    {
+        $exception = new \RuntimeException();
+
+        $id1 = UUID::create();
+        $id2 = UUID::create();
+        $object1 = new VersionableEventSourcedStub($id1, 0, $this->event1);
+        $object2 = new VersionableEventSourcedStub($id2, 0, $this->event2);
+
+        $uow = new UnitOfWork($this->store);
+
+        $uow->add($object1);
+        $uow->add($object2);
+
+        $this->store
+            ->expects($this->at(0))
+            ->method('add')
+            ->with($id1, 0, $this->event1)
+            ->willThrowException($exception)
+        ;
+
+        $this->store
+            ->expects($this->at(1))
+            ->method('add')
+            ->with($id1, 0, $this->event1)
+        ;
+
+        $this->store
+            ->expects($this->at(2))
+            ->method('add')
+            ->with($id2, 0, $this->event2)
+            ->willThrowException($exception)
+        ;
+
+        $this->store
+            ->expects($this->at(3))
+            ->method('add')
+            ->with($id2, 0, $this->event2)
+        ;
+
+        try {
+            $uow->commit();
+        } catch (\RuntimeException $actual) {
+            $this->assertSame($exception, $actual);
+            $this->assertSame(2, $uow->count());
+            $this->assertTrue($uow->has($object1));
+            $this->assertTrue($uow->has($object2));
+        }
+
+        // retry
+        try {
+            $uow->commit();
+        } catch (\RuntimeException $actual) {
+            $this->assertSame($exception, $actual);
+            $this->assertSame(1, $uow->count());
+            $this->assertFalse($uow->has($object1));
+            $this->assertTrue($uow->has($object2));
+        }
+
+        // retry
+        try {
+            $uow->commit();
+        } catch (\RuntimeException $actual) {
+            $this->assertSame($exception, $actual);
+            $this->assertSame(0, $uow->count());
+            $this->assertFalse($uow->has($object1));
+            $this->assertFalse($uow->has($object2));
+        }
+    }
 }
 
 namespace Streak\Infrastructure\UnitOfWorkTest;
