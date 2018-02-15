@@ -14,7 +14,6 @@ declare(strict_types=1);
 namespace Streak\Infrastructure\CommandHandler;
 
 use Streak\Application;
-use Streak\Application\Exception;
 use Streak\Infrastructure;
 
 /**
@@ -41,10 +40,6 @@ class TransactionalPersistenceCommandHandler implements Application\CommandHandl
     public function handle(Application\Command $command) : void
     {
         $this->handler->handle($command);
-
-        if ($this->uow->count() > 1) {
-            throw new Exception\CommandTransactionCompromised($command);
-        }
 
         $this->uow->commit();
     }

@@ -70,20 +70,15 @@ final class Subscription implements Event\Subscription, Event\Sourced, Event\Com
             }
         }
 
+//        $stream->notBy($this->producerId());
+
         foreach ($stream as $event) {
             // TODO: filter to not pollute ES (not sure if its good solution).
-            if ($event instanceof SubscriptionStarted) {
+            if ($event instanceof Subscription\Event) {
                 yield $event;
                 continue;
             }
-            if ($event instanceof SubscriptionListenedToEvent) {
-                yield $event;
-                continue;
-            }
-            if ($event instanceof SubscriptionCompleted) {
-                yield $event;
-                continue;
-            }
+
             $this->applyEvent(new SubscriptionListenedToEvent($event));
 
             if ($this->listener instanceof Event\Completable) {

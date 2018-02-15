@@ -27,7 +27,7 @@ class UnitOfWork
     private $store;
 
     /**
-     * @var Event\Producer[]
+     * @var array[]
      */
     private $producers = [];
 
@@ -53,7 +53,8 @@ class UnitOfWork
     public function remove(Event\Producer $producer) : void
     {
         foreach ($this->producers as $key => [$current, $last]) {
-            if ($current === $producer) {
+            /* @var $current Event\Producer */
+            if ($current->producerId()->equals($producer->producerId())) {
                 unset($this->producers[$key]);
 
                 return;
@@ -64,7 +65,8 @@ class UnitOfWork
     public function has(Event\Producer $producer) : bool
     {
         foreach ($this->producers as $key => [$current, $last]) {
-            if ($current === $producer) {
+            /* @var $current Event\Producer */
+            if ($current->producerId()->equals($producer->producerId())) {
                 return true;
             }
         }
@@ -91,6 +93,10 @@ class UnitOfWork
                         $events = $producer->events();
 
                         $this->store->add($producerId, $version, ...$events);
+
+                        if ($producer instanceof Domain\Versionable) {
+                            $producer->commit();
+                        }
                     } catch (\Exception $e) {
                         array_unshift($this->producers, [$producer, $version]);
                         throw $e;

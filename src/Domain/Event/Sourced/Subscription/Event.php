@@ -11,14 +11,13 @@
 
 declare(strict_types=1);
 
-namespace Streak\Domain\Event;
+namespace Streak\Domain\Event\Sourced\Subscription;
 
-use Streak\Domain\Event;
+use Streak\Domain;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-interface Consumer extends Event\Replayable
+interface Event extends Domain\Event
 {
-    public function lastReplayed() : ?Event; // TODO: remove (use last() instead?)
 }

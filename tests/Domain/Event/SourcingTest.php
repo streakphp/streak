@@ -61,6 +61,14 @@ class SourcingTest extends TestCase
         $this->assertEquals($event, $sourcing->last());
         $this->assertEquals(1, $sourcing->version());
         $this->assertEmpty($sourcing->events());
+
+        $sourcing->commit();
+
+        $this->assertTrue($sourcing->isEventStubForTestingPublicHandlingMethodApplied());
+        $this->assertSame($event, $sourcing->lastReplayed());
+        $this->assertEquals($event, $sourcing->last());
+        $this->assertEquals(1, $sourcing->version());
+        $this->assertEmpty($sourcing->events());
     }
 
     public function testSuccessfullyApplyingEventWithNonPublicHandlingMethod()
@@ -182,6 +190,13 @@ class SourcingTest extends TestCase
         $this->assertEquals($event, $sourcing->last());
         $this->assertEquals(1, $sourcing->version());
         $this->assertEquals([$event], $sourcing->events());
+
+        $sourcing->commit();
+
+        $this->assertNull($sourcing->lastReplayed());
+        $this->assertEquals($event, $sourcing->last());
+        $this->assertEquals(2, $sourcing->version());
+        $this->assertEquals([], $sourcing->events());
     }
 
     public function testEventSourcingNonConsumer()

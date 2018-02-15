@@ -19,4 +19,6 @@ namespace Streak\Domain;
 interface Versionable
 {
     public function version() : int;
+
+    public function commit() : void;
 }

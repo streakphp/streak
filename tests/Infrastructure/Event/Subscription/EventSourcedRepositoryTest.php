@@ -282,6 +282,13 @@ class EventSourcedRepositoryTest extends TestCase
             ->willReturn($this->id1)
         ;
 
+        $this->id1
+            ->expects($this->atLeastOnce())
+            ->method('equals')
+            ->with($this->id1)
+            ->willReturn(true)
+        ;
+
         $this->subscriptions
             ->expects($this->once())
             ->method('create')
@@ -342,6 +349,19 @@ class EventSourcedRepositoryTest extends TestCase
     {
         $repository = new EventSourcedRepository($this->subscriptions, $this->listeners, $this->store, $this->uow);
         $subscription = new Event\Sourced\Subscription($this->listener1);
+
+        $this->listener1
+            ->expects($this->atLeastOnce())
+            ->method('id')
+            ->willReturn($this->id1)
+        ;
+
+        $this->id1
+            ->expects($this->atLeastOnce())
+            ->method('equals')
+            ->with($this->id1)
+            ->willReturn(true)
+        ;
 
         $repository->add($subscription);
 

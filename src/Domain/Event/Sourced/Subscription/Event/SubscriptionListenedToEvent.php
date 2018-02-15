@@ -13,21 +13,22 @@ declare(strict_types=1);
 
 namespace Streak\Domain\Event\Sourced\Subscription\Event;
 
-use Streak\Domain\Event;
+use Streak\Domain;
+use Streak\Domain\Event\Sourced\Subscription;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-class SubscriptionListenedToEvent implements Event
+class SubscriptionListenedToEvent implements Subscription\Event
 {
     private $event;
 
-    public function __construct(Event $event)
+    public function __construct(Domain\Event $event)
     {
         $this->event = $event;
     }
 
-    public function event() : Event
+    public function event() : Domain\Event
     {
         return $this->event;
     }

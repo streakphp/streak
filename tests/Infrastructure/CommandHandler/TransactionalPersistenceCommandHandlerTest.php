@@ -95,24 +95,4 @@ class TransactionalPersistenceCommandHandlerTest extends TestCase
 
         $handler->handle($this->command);
     }
-
-    public function testTransactionCompromise()
-    {
-        $handler = new TransactionalPersistenceCommandHandler($this->handler, $this->uow);
-
-        $this->handler
-            ->expects($this->once())
-            ->method('handle')
-            ->with($this->command)
-            ->willReturnCallback(function () : void {
-                $this->uow->add($this->aggregateRoot1);
-                $this->uow->add($this->aggregateRoot2);
-            })
-        ;
-
-        $exception = new Application\Exception\CommandTransactionCompromised($this->command);
-        $this->expectExceptionObject($exception);
-
-        $handler->handle($this->command);
-    }
 }

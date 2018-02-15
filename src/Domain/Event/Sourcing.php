@@ -66,6 +66,12 @@ trait Sourcing // implements Event\Consumer, Event\Producer, Domain\Identifiable
         return $this->events;
     }
 
+    public function commit() : void
+    {
+        $this->version = $this->version + count($this->events);
+        $this->events = [];
+    }
+
     final protected function applyEvent(Event $event) : void
     {
         if (!$this instanceof Event\Consumer) {
