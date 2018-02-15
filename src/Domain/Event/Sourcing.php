@@ -138,23 +138,39 @@ trait Sourcing // implements Event\Consumer, Event\Producer, Domain\Identifiable
 
         $isPublic = $method->isPublic();
 
-        if (false === $isPublic) {
-            $method->setAccessible(true);
-        }
+        try { // TODO: simplify?
+            $version = $this->version;
+            $lastReplayed = $this->lastReplayed;
+            $last = $this->last;
 
-        $method->invoke($this, $event);
+            if (false === $isPublic) {
+                $method->setAccessible(true);
+            }
 
-        if (false === $isPublic) {
-            $method->setAccessible(false);
-        }
+            $this->last = $event;
+            if ($this->replaying) {
+                ++$this->version;
+                $this->lastReplayed = $event;
+            } else {
+                $this->events[] = $event;
+            }
 
-        // TODO: test if lastReplayed/last do not change in case of listening error
-        $this->last = $event;
-        ++$this->version;
-        if ($this->replaying) {
-            $this->lastReplayed = $event;
-        } else {
-            $this->events[] = $event;
+            $method->invoke($this, $event);
+        } catch (\Throwable $e) {
+            $this->last = $last;
+
+            if ($this->replaying) {
+                $this->version = $version;
+                $this->lastReplayed = $lastReplayed;
+            } else {
+                array_pop($this->events);
+            }
+
+            throw $e;
+        } finally {
+            if (false === $isPublic) {
+                $method->setAccessible(false);
+            }
         }
     }
 }
