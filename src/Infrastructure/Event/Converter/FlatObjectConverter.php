@@ -136,7 +136,11 @@ class FlatObjectConverter implements Converter
             }
 
             if (is_array($value) && 1 === count($value)) { // TODO: better code here
-                $value = $this->arrayToEvent($value);
+                reset($value);
+                $class = key($value);
+                if (class_exists($class)) {
+                    $value = $this->arrayToEvent($value);
+                }
             }
 
             $property->setValue($event, $value);
