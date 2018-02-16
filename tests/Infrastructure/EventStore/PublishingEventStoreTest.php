@@ -91,8 +91,8 @@ class PublishingEventStoreTest extends TestCase
             ->method('add')
             ->withConsecutive(
                 [$this->id, null, $this->event2],
-                [$this->id, $this->event1, $this->event2],
-                [$this->id, $this->event1, $this->event2, $this->event3]
+                [$this->id, 1, $this->event2],
+                [$this->id, 2, $this->event2, $this->event3]
             )
         ;
 
@@ -107,8 +107,8 @@ class PublishingEventStoreTest extends TestCase
         ;
 
         $store->add($this->id, null, $this->event2);
-        $store->add($this->id, $this->event1, $this->event2);
-        $store->add($this->id, $this->event1, $this->event2, $this->event3);
+        $store->add($this->id, 1, $this->event2);
+        $store->add($this->id, 2, $this->event2, $this->event3);
 
         $this->store
             ->expects($this->once())
@@ -145,5 +145,22 @@ class PublishingEventStoreTest extends TestCase
 
         $events = [];
         $store->add($this->id, null, ...$events);
+        $store->add($this->id, 0, ...$events);
+    }
+
+    public function testProducerId()
+    {
+        $store = new PublishingEventStore($this->store, $this->bus);
+
+        $this->store
+            ->expects($this->once())
+            ->method('producerId')
+            ->with($this->event1)
+            ->willReturn($this->id)
+        ;
+
+        $id = $store->producerId($this->event1);
+
+        $this->assertSame($id, $this->id);
     }
 }

@@ -28,7 +28,7 @@ class FlatObjectConverterTest extends TestCase
     {
         $converter = new FlatObjectConverter();
 
-        $message = new Event1Stub(
+        $event = new Event1Stub(
             'private', 'public', 'protected',
             0, 1, 2,
             0.0, 1.0, 2.0,
@@ -38,29 +38,55 @@ class FlatObjectConverterTest extends TestCase
             null, null, null
         );
 
-        $array = $converter->eventToArray($message);
+        $array = $converter->eventToArray($event);
         $result = $converter->arrayToEvent($array);
 
-        $this->assertEquals($message, $result);
+        $this->assertEquals($event, $result);
     }
 
     public function testConvertingWithInheritedProperties()
     {
         $converter = new FlatObjectConverter();
 
-        $message = new EventB('property1', 'property2');
+        $event = new EventB('property1', 'property2');
 
-        $array = $converter->eventToArray($message);
+        $array = $converter->eventToArray($event);
         $result = $converter->arrayToEvent($array);
 
-        $this->assertEquals($message, $result);
+        $this->assertEquals($event, $result);
+    }
+
+    public function testConvertingEventsWithinEvents()
+    {
+        $converter = new FlatObjectConverter();
+
+        $event = new EventC(new EventB('property1', 'property2'));
+
+        $array = $converter->eventToArray($event);
+        $result = $converter->arrayToEvent($array);
+
+        $this->assertEquals($event, $result);
+    }
+
+    public function testConvertingEventsWithMetadata()
+    {
+        $converter = new FlatObjectConverter();
+
+        $event = new EventB('property1', 'property2');
+
+        Event\Metadata::fromArray(['meta' => 'data'])->toObject($event);
+
+        $array = $converter->eventToArray($event);
+        $result = $converter->arrayToEvent($array);
+
+        $this->assertEquals($event, $result);
     }
 
     public function testConvertingObjectsWithinEvent()
     {
         $converter = new FlatObjectConverter();
 
-        $message = new Event1Stub(
+        $event = new Event1Stub(
             'private', 'public', 'protected',
             0, 1, 2,
             0.0, 1.0, 2.0,
@@ -68,10 +94,10 @@ class FlatObjectConverterTest extends TestCase
             null, null, null
         );
 
-        $exception = new Event\Exception\ConversionToArrayNotPossible($message, new \InvalidArgumentException());
+        $exception = new Event\Exception\ConversionToArrayNotPossible($event, new \InvalidArgumentException());
         $this->expectExceptionObject($exception);
 
-        $converter->eventToArray($message);
+        $converter->eventToArray($event);
     }
 
     public function testConvertingArrayForInvalidClass()
@@ -191,5 +217,15 @@ class EventB extends EventA
     {
         parent::__construct($property1);
         $this->property2 = $property2;
+    }
+}
+
+class EventC implements Event
+{
+    private $event;
+
+    public function __construct(Event $event)
+    {
+        $this->event = $event;
     }
 }

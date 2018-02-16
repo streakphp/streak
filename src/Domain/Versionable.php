@@ -13,14 +13,12 @@ declare(strict_types=1);
 
 namespace Streak\Domain;
 
-use Streak\Domain;
-
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-interface Id extends Domain\ValueObject
+interface Versionable
 {
-    public function toString() : string;
+    public function version() : int;
 
-    public static function fromString(string $id) : Domain\Id;
+    public function commit() : void;
 }

@@ -11,16 +11,13 @@
 
 declare(strict_types=1);
 
-namespace Streak\Domain;
+namespace Streak\Domain\Event\Sourced\Subscription;
 
 use Streak\Domain;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-interface Id extends Domain\ValueObject
+interface Event extends Domain\Event
 {
-    public function toString() : string;
-
-    public static function fromString(string $id) : Domain\Id;
 }

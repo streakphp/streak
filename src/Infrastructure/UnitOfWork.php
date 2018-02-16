@@ -27,31 +27,51 @@ class UnitOfWork
     private $store;
 
     /**
-     * @var Event\Producer[]
+     * @var array[]
      */
     private $producers = [];
+
+    private $committing = false;
 
     public function __construct(Domain\EventStore $store)
     {
         $this->store = $store;
-        $this->producers = new \SplObjectStorage();
+        $this->producers = [];
     }
 
     public function add(Event\Producer $producer) : void
     {
         if (!$this->has($producer)) {
-            $this->producers->attach($producer, $producer->last());
+            $version = null;
+            if ($producer instanceof Domain\Versionable) {
+                $version = $producer->version();
+            }
+            $this->producers[] = [$producer, $version];
         }
     }
 
     public function remove(Event\Producer $producer) : void
     {
-        $this->producers->detach($producer);
+        foreach ($this->producers as $key => [$current, $last]) {
+            /* @var $current Event\Producer */
+            if ($current->producerId()->equals($producer->producerId())) {
+                unset($this->producers[$key]);
+
+                return;
+            }
+        }
     }
 
     public function has(Event\Producer $producer) : bool
     {
-        return $this->producers->contains($producer);
+        foreach ($this->producers as $key => [$current, $last]) {
+            /* @var $current Event\Producer */
+            if ($current->producerId()->equals($producer->producerId())) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public function count() : int
@@ -61,19 +81,37 @@ class UnitOfWork
 
     public function commit() : void
     {
-        foreach ($this->producers as $producer) {
-            $producerId = $producer->producerId();
-            $last = $this->producers->getInfo();
-            $events = $producer->events();
+        if (false === $this->committing) {
+            $this->committing = true;
 
-            $this->store->add($producerId, $last, ...$events);
+            try {
+                while ($pair = array_shift($this->producers)) {
+                    [$producer, $version] = $pair;
+
+                    try {
+                        $producerId = $producer->producerId();
+                        $events = $producer->events();
+
+                        $this->store->add($producerId, $version, ...$events);
+
+                        if ($producer instanceof Domain\Versionable) {
+                            $producer->commit();
+                        }
+                    } catch (\Exception $e) {
+                        array_unshift($this->producers, [$producer, $version]);
+                        throw $e;
+                    }
+                }
+
+                $this->clear();
+            } finally {
+                $this->committing = false;
+            }
         }
-
-        $this->clear();
     }
 
     public function clear() : void
     {
-        $this->producers = new \SplObjectStorage();
+        $this->producers = [];
     }
 }

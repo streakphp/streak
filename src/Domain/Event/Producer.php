@@ -26,6 +26,4 @@ interface Producer
      * @return Domain\Event[]
      */
     public function events() : array;
-
-    public function last() : ?Domain\Event;
 }

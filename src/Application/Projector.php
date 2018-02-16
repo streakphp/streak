@@ -14,10 +14,11 @@ declare(strict_types=1);
 namespace Streak\Application;
 
 use Streak\Domain\Event;
+use Streak\Domain\Resettable;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-interface Projector extends Event\Consumer, Event\Listener
+interface Projector extends Event\Listener, Resettable
 {
 }

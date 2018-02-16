@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Streak\Infrastructure\EventStore;
 
 use PHPUnit\Framework\TestCase;
+use Streak\Domain\Event\Metadata;
 use Streak\Domain\EventStore;
 use Streak\Domain\Exception\ConcurrentWriteDetected;
 use Streak\Domain\Exception\EventAlreadyInStore;
@@ -37,6 +38,45 @@ abstract class EventStoreTestCase extends TestCase
     protected function setUp()
     {
         $this->store = $this->newEventStore();
+    }
+
+    public function testGettingProducerId()
+    {
+        $event = new Event1();
+
+        $metadata = Metadata::fromObject($event);
+        $metadata->set('producer_type', ProducerId1::class);
+        $metadata->set('producer_id', 'uuid');
+        $metadata->toObject($event);
+
+        $id = $this->store->producerId($event);
+
+        $this->assertEquals($id, ProducerId1::fromString('uuid'));
+    }
+
+    public function testGettingProducerIdForEventNotInStore()
+    {
+        $event = new Event1();
+
+        $exception = new EventNotInStore($event);
+        $this->expectExceptionObject($exception);
+
+        $this->store->producerId($event);
+    }
+
+    public function testGettingProducerIdForEventWithInvalidMetadata()
+    {
+        $event = new Event1();
+
+        $metadata = Metadata::fromObject($event);
+        $metadata->set('producer_type', \stdClass::class);
+        $metadata->set('producer_id', 'uuid');
+        $metadata->toObject($event);
+
+        $exception = new \InvalidArgumentException();
+        $this->expectExceptionObject($exception);
+
+        $this->store->producerId($event);
     }
 
     public function testObject()
@@ -71,7 +111,7 @@ abstract class EventStoreTestCase extends TestCase
 
         $this->assertEquals(iterator_to_array($stream), iterator_to_array($second));
 
-        $this->store->add($producer11, null, $event111, $event112);
+        $this->store->add($producer11, 0, $event111, $event112);
         $this->assertEquals([$event111, $event112], iterator_to_array($this->store->log()));
 
         $stream = $this->store->stream($producer11);
@@ -83,7 +123,7 @@ abstract class EventStoreTestCase extends TestCase
         $second = $this->store->stream($producer11);
         $this->assertNotSame($stream, $second);
 
-        $this->store->add($producer11, $event112, $event113, $event114);
+        $this->store->add($producer11, 2, $event113, $event114);
         $this->assertEquals([$event111, $event112, $event113, $event114], iterator_to_array($this->store->log()));
 
         $stream = $this->store->stream($producer11);
@@ -95,6 +135,12 @@ abstract class EventStoreTestCase extends TestCase
         $second = $this->store->stream($producer11);
         $this->assertNotSame($stream, $second);
 
+        $stream = $stream->of(Event1::class, Event4::class);
+        $this->assertEquals([$event111, $event114], iterator_to_array($stream));
+        $this->assertFalse($stream->empty());
+        $this->assertEquals($event111, $stream->first());
+        $this->assertEquals($event114, $stream->last());
+
         $stream = $this->store->stream($producer12);
         $this->assertEquals([], iterator_to_array($stream));
         $this->assertTrue($stream->empty());
@@ -104,7 +150,7 @@ abstract class EventStoreTestCase extends TestCase
         $second = $this->store->stream($producer12);
         $this->assertNotSame($stream, $second);
 
-        $this->store->add($producer12, null, $event121, $event122, $event123, $event124);
+        $this->store->add($producer12, 0, $event121, $event122, $event123, $event124);
         $this->assertEquals([$event111, $event112, $event113, $event114, $event121, $event122, $event123, $event124], iterator_to_array($this->store->log()));
 
         $stream = $this->store->stream($producer11);
@@ -166,20 +212,6 @@ abstract class EventStoreTestCase extends TestCase
         $this->assertEquals($event124, $stream->last());
     }
 
-    public function testLastEventNotInStore()
-    {
-        $event1 = new Event1();
-        $event2 = new Event2();
-        $event3 = new Event3();
-        $event4 = new Event4();
-        $producer = new ProducerId1('producer1');
-
-        $exception = new EventNotInStore($event1);
-        $this->expectExceptionObject($exception);
-
-        $this->store->add($producer, $event1, $event2, $event3, $event4);
-    }
-
     public function testConcurrentWriting()
     {
         $event1 = new Event1();
@@ -188,12 +220,12 @@ abstract class EventStoreTestCase extends TestCase
         $event4 = new Event4();
         $producer = new ProducerId1('producer1');
 
-        $this->store->add($producer, null, $event1, $event2);
+        $this->store->add($producer, 0, $event1, $event2);
 
         $exception = new ConcurrentWriteDetected($producer);
         $this->expectExceptionObject($exception);
 
-        $this->store->add($producer, null, $event3, $event4);
+        $this->store->add($producer, 0, $event3, $event4);
     }
 
     public function testEventAlreadyInStore()
@@ -203,12 +235,12 @@ abstract class EventStoreTestCase extends TestCase
         $event3 = new Event2();
         $producer = new ProducerId1('producer1');
 
-        $this->store->add($producer, null, $event1, $event2);
+        $this->store->add($producer, 0, $event1, $event2);
 
         $exception = new EventAlreadyInStore($event2);
         $this->expectExceptionObject($exception);
 
-        $this->store->add($producer, $event2, $event3, $event2);
+        $this->store->add($producer, 2, $event2, $event3);
     }
 
     public function testThatNoEventsAreAddedInCaseOfConcurrentWriteError()
@@ -219,10 +251,10 @@ abstract class EventStoreTestCase extends TestCase
         $event4 = new Event4();
         $producer = new ProducerId1('producer1');
 
-        $this->store->add($producer, null, $event1, $event2);
+        $this->store->add($producer, 0, $event1, $event2);
 
         try {
-            $this->store->add($producer, null, $event3, $event4);
+            $this->store->add($producer, 0, $event3, $event4);
         } catch (ConcurrentWriteDetected $e) {
             $this->assertEquals([$event1, $event2], iterator_to_array($this->store->log()));
         }
@@ -235,10 +267,10 @@ abstract class EventStoreTestCase extends TestCase
         $event3 = new Event3();
         $producer = new ProducerId1('producer1');
 
-        $this->store->add($producer, null, $event1, $event2);
+        $this->store->add($producer, 0, $event1, $event2);
 
         try {
-            $this->store->add($producer, $event2, $event3, $event1);
+            $this->store->add($producer, 2, $event3, $event1);
         } catch (EventAlreadyInStore $e) {
             $this->assertEquals([$event1, $event2], iterator_to_array($this->store->log()));
         }
@@ -272,6 +304,11 @@ abstract class ValueId implements Domain\Id
     public function toString() : string
     {
         return $this->value;
+    }
+
+    public static function fromString(string $id) : Domain\Id
+    {
+        return new static($id);
     }
 }
 

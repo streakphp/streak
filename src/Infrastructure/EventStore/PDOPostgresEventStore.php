@@ -52,6 +52,7 @@ class PDOPostgresEventStore implements EventStore, Event\Log, Event\FilterableSt
     private $statement;
 
     private $producers = [];
+    private $types = [];
     private $from;
     private $to;
     private $after;
@@ -106,38 +107,50 @@ SQL;
         $statement->execute();
     }
 
-    public function add(Domain\Id $producerId, ?Event $last = null, Event ...$events) : void
+    public function producerId(Event $event) : Domain\Id
+    {
+        $metadata = Event\Metadata::fromObject($event);
+
+        if ($metadata->empty()) {
+            throw new Exception\EventNotInStore($event);
+        }
+
+        $producerType = $metadata->get('producer_type');
+        $producerId = $metadata->get('producer_id');
+
+        $reflection = new \ReflectionClass($producerType);
+
+        if (!$reflection->implementsInterface(Domain\Id::class)) {
+            throw new \InvalidArgumentException(); // TODO: domain exception here
+        }
+
+        $method = $reflection->getMethod('fromString');
+
+        return $method->invoke(null, $producerId);
+    }
+
+    public function add(Domain\Id $producerId, ?int $version, Event ...$events) : void
     {
         if (0 === count($events)) {
             return;
-        }
-
-        if (null !== $last) {
-            $metadata = Event\Metadata::fromObject($last);
-
-            if (!$metadata->has('version')) {
-                throw new Exception\EventNotInStore($last);
-            }
-
-            $version = $metadata->get('version', '0');
-            $version = (int) $version;
-        } else {
-            $version = 0;
         }
 
         $sql = 'INSERT INTO events (uuid, type, body, metadata, producer_type, producer_id, producer_version) ';
 
         $parameters = [];
         $values = [];
+        $transaction = new \SplObjectStorage();
         foreach ($events as $key => $event) {
-            ++$version;
             $metadata = Event\Metadata::fromObject($event);
-            if (!$metadata->has('version')) {
-                $metadata->set('version', (string) $version);
-                $metadata->toObject($event);
+
+            if (!$metadata->empty()) {
+                throw new Exception\EventAlreadyInStore($event);
             }
 
-            $row = $this->toRow($producerId, $version, $event);
+            $uuid = UUID::create();
+
+            $version = $this->bumpUp($version);
+            $row = $this->toRow($producerId, $version, $uuid, $event);
 
             // TODO: if version set, maybe throw Exception\EventAlreadyStored exception here?
 
@@ -150,12 +163,13 @@ SQL;
             }
 
             $values[] = '('.implode(',', $placeholders).')';
+            $transaction[$uuid] = $event;
         }
 
         $values = implode(',', $values);
 
         $sql = "$sql VALUES $values";
-        $sql = "$sql RETURNING number, uuid, producer_version";
+        $sql = "$sql RETURNING number, uuid, metadata, producer_version";
 
         try {
             $statement = $this->pdo->prepare($sql);
@@ -182,17 +196,20 @@ SQL;
         }
 
         while ($returned = $statement->fetch($this->pdo::FETCH_ASSOC)) {
-            $sequence = $returned['number'];
+            $sequence = (string) $returned['number'];
             $uuid = $returned['uuid'];
             $uuid = mb_strtoupper($uuid);
-            $version = $returned['producer_version'];
+            $uuid = new UUID($uuid);
+            $metadata = $returned['metadata'];
+            $metadata = json_decode($metadata, true);
+            $metadata = Event\Metadata::fromArray($metadata);
 
-            foreach ($events as $event) {
-                $metadata = Event\Metadata::fromObject($event);
-                if ($uuid === $metadata->get('uuid')) {
-                    $metadata->set('sequence', (string) $sequence);
-                    $metadata->set('version', (string) $version);
+            foreach ($transaction as $current) {
+                $event = $transaction->getInfo();
+                if ($uuid->equals($current)) {
+                    $metadata->set('sequence', $sequence);
                     $metadata->toObject($event);
+                    continue 2;
                 }
             }
         }
@@ -247,6 +264,16 @@ SQL;
         return $this->streamFor(...$producers);
     }
 
+    public function of(string ...$types) : Event\FilterableStream
+    {
+        $stream = $this->copy();
+        $stream->types = $types;
+
+        // TODO: check if type is Domain\Id
+
+        return $stream;
+    }
+
     public function limit(int $limit) : FilterableStream
     {
         $count = $this->count();
@@ -271,6 +298,7 @@ SQL;
             $this->after,
             $this->before,
             $this->producers,
+            $this->types,
             1,
             null
         );
@@ -306,6 +334,7 @@ SQL;
             $this->after,
             $this->before,
             $this->producers,
+            $this->types,
             $limit,
             $offset
         );
@@ -331,6 +360,7 @@ SQL;
             $this->after,
             $this->before,
             $this->producers,
+            $this->types,
             null,
             null
         );
@@ -378,6 +408,7 @@ SQL;
             $this->after,
             $this->before,
             $this->producers,
+            $this->types,
             $this->limit,
             null
         );
@@ -390,6 +421,15 @@ SQL;
         return $this;
     }
 
+    private function bumpUp(?int $version) : ?int
+    {
+        if (null === $version) {
+            return null;
+        }
+
+        return ++$version;
+    }
+
     private function copy() : self
     {
         $stream = new self($this->pdo, $this->converter);
@@ -399,6 +439,7 @@ SQL;
         $stream->before = $this->before;
         $stream->limit = $this->limit;
         $stream->producers = $this->producers;
+        $stream->types = $this->types;
 
         return $stream;
     }
@@ -411,6 +452,7 @@ SQL;
         ?Event $after,
         ?Event $before,
         ?array $producers,
+        ?array $types,
         ?int $limit,
         ?int $offset
     ) : \PDOStatement {
@@ -431,6 +473,16 @@ SQL;
                 $sub[] = " (producer_type = :producer_type_$key AND producer_id = :producer_id_$key) ";
                 $parameters["producer_type_$key"] = get_class($id);
                 $parameters["producer_id_$key"] = $id->toString();
+            }
+            $where[] = '('.implode(' OR ', $sub).')';
+        }
+
+        if ($types) {
+            /* @var $types string[] */
+            $sub = [];
+            foreach ($types as $key => $type) {
+                $sub[] = " (type = :type_$key) ";
+                $parameters["type_$key"] = $type;
             }
             $where[] = '('.implode(' OR ', $sub).')';
         }
@@ -496,24 +548,21 @@ SQL;
         $metadata = json_decode($metadata, true);
         $metadata = Event\Metadata::fromArray($metadata);
         $metadata->set('sequence', (string) $row[self::EVENT_LOG_SEQUENCE_COLUMN]);
-        $metadata->set('version', (string) $row[self::EVENT_LOG_PRODUCER_VERSION_COLUMN]);
 
         $metadata->toObject($event);
 
         return $event;
     }
 
-    private function toRow(Domain\Id $producerId, int $version, $event) : array
+    private function toRow(Domain\Id $producerId, ?int $version, UUID $uuid, $event) : array
     {
         $metadata = Event\Metadata::fromObject($event);
         $metadata::clear($event);
-
-        if (!$metadata->has('uuid')) {
-            $metadata->set('uuid', UUID::create()->toString());
-        }
+        $metadata->set('producer_type', get_class($producerId));
+        $metadata->set('producer_id', $producerId->toString());
 
         $row = [
-            self::EVENT_LOG_EVENT_UUID_COLUMN => $metadata->get('uuid'),
+            self::EVENT_LOG_EVENT_UUID_COLUMN => $uuid->toString(),
             self::EVENT_LOG_EVENT_TYPE_COLUMN => get_class($event),
             self::EVENT_LOG_EVENT_BODY_COLUMN => json_encode($this->converter->eventToArray($event)),
             self::EVENT_LOG_EVENT_METADATA_COLUMN => json_encode($metadata->toArray()),
@@ -521,8 +570,6 @@ SQL;
             self::EVENT_LOG_PRODUCER_ID_COLUMN => $producerId->toString(),
             self::EVENT_LOG_PRODUCER_VERSION_COLUMN => $version,
         ];
-
-        $metadata->toObject($event);
 
         return $row; // put metadata back
     }

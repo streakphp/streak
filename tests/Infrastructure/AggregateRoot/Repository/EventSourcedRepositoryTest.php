@@ -216,6 +216,20 @@ class EventSourcedRepositoryTest extends TestCase
 
     public function testAddingAggregate()
     {
+        $this->aggregateRoot
+            ->expects($this->atLeastOnce())
+            ->method('producerId')
+            ->with()
+            ->willReturn($this->aggregateRootId)
+        ;
+
+        $this->aggregateRootId
+            ->expects($this->atLeastOnce())
+            ->method('equals')
+            ->with($this->aggregateRootId)
+            ->willReturn(true)
+        ;
+
         $repository = new EventSourcedRepository($this->factory, $this->store, $this->uow);
         $repository->add($this->aggregateRoot);
 

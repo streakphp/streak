@@ -15,10 +15,11 @@ namespace Streak\Domain\Event\Sourced;
 
 use Streak\Domain;
 use Streak\Domain\Event;
+use Streak\Domain\Versionable;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-interface AggregateRoot extends Domain\AggregateRoot, Event\Sourced
+interface AggregateRoot extends Domain\AggregateRoot, Event\Sourced, Versionable
 {
 }

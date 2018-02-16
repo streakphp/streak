@@ -13,24 +13,32 @@ declare(strict_types=1);
 
 namespace Streak\Domain\Event\Sourced\Subscription\Event;
 
-use Streak\Domain\Event;
+use Streak\Domain;
+use Streak\Domain\Event\Sourced\Subscription;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  *
  * @codeCoverageIgnore
  */
-class SubscriptionStarted implements Event
+class SubscriptionStarted implements Subscription\Event
 {
+    private $event;
     private $startedAt;
 
-    public function __construct(\DateTimeInterface $startedAt)
+    public function __construct(Domain\Event $event, \DateTimeInterface $startedAt)
     {
+        $this->event = $event;
         $this->startedAt = $startedAt->format(DATE_ATOM);
     }
 
     public function startedAt() : string
     {
         return $this->startedAt;
+    }
+
+    public function event() : Domain\Event
+    {
+        return $this->event;
     }
 }

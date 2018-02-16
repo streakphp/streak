@@ -29,4 +29,6 @@ interface FilterableStream extends Stream
     public function before(Event $event) : self;
 
     public function limit(int $limit) : self;
+
+    public function of(string ...$types) : self;
 }

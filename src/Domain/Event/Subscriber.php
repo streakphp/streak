@@ -15,7 +15,11 @@ namespace Streak\Domain\Event;
 
 use Streak\Domain;
 use Streak\Domain\Event;
+use Streak\Domain\Event\Sourced\Subscription\Event\SubscriptionCompleted;
+use Streak\Domain\Event\Sourced\Subscription\Event\SubscriptionListenedToEvent;
+use Streak\Domain\Event\Sourced\Subscription\Event\SubscriptionStarted;
 use Streak\Domain\EventBus;
+use Streak\Infrastructure\UnitOfWork;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -25,14 +29,16 @@ class Subscriber implements Listener
     private $uuid;
     private $listenerFactory;
     private $subscriptionFactory;
-    private $subscriptions;
+    private $subscriptionsRepository;
+    private $uow;
 
-    public function __construct(Event\Listener\Factory $listenerFactory, Event\Subscription\Factory $subscriptionFactory, Event\Subscription\Repository $subscriptions)
+    public function __construct(Event\Listener\Factory $listenerFactory, Event\Subscription\Factory $subscriptionFactory, Event\Subscription\Repository $subscriptionsRepository, UnitOfWork $uow) // TODO: GET RID OF UOW FROM HERE!
     {
         $this->uuid = Domain\Id\UUID::create();
         $this->listenerFactory = $listenerFactory;
         $this->subscriptionFactory = $subscriptionFactory;
-        $this->subscriptions = $subscriptions;
+        $this->subscriptionsRepository = $subscriptionsRepository;
+        $this->uow = $uow;
     }
 
     public function id() : Domain\Id
@@ -47,20 +53,36 @@ class Subscriber implements Listener
 
     public function on(Event $event) : bool
     {
+        // TODO: move filtering subscription-events to subscriber decorator or listener factory decorator.
+        if ($event instanceof SubscriptionStarted) {
+            return false;
+        }
+
+        if ($event instanceof SubscriptionListenedToEvent) {
+            return false;
+        }
+
+        if ($event instanceof SubscriptionCompleted) {
+            return false;
+        }
+
         try {
             $listener = $this->listenerFactory->createFor($event);
         } catch (Exception\InvalidEventGiven $e) {
             return false;
         }
 
-        $subscription = $this->subscriptions->findFor($listener);
+        $subscription = $this->subscriptionFactory->create($listener);
 
-        if (null === $subscription) {
-            $subscription = $this->subscriptionFactory->create($listener);
-            $subscription->start(new \DateTime());
-
-            $this->subscriptions->add($subscription);
+        if (true === $this->subscriptionsRepository->has($subscription)) {
+            return true;
         }
+
+        $this->subscriptionsRepository->add($subscription);
+
+        $subscription->startFor($event, new \DateTime());
+
+        $this->uow->commit(); // TODO: remove
 
         return true;
     }

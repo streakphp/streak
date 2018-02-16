@@ -34,7 +34,11 @@ final class Metadata
 
     public function has(string $name)
     {
-        return array_key_exists($name, $this->metadata);
+        if (isset($this->metadata[$name])) {
+            return true;
+        }
+
+        return false;
     }
 
     public function get(string $name, string $default = null) : ?string
@@ -79,5 +83,10 @@ final class Metadata
     public function toArray() : array
     {
         return $this->metadata;
+    }
+
+    public function empty() : bool
+    {
+        return 0 === count($this->metadata);
     }
 }

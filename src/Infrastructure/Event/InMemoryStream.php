@@ -98,6 +98,21 @@ final class InMemoryStream implements Event\FilterableStream
         return $stream;
     }
 
+    public function of(string ...$types) : FilterableStream
+    {
+        $stream = new self();
+        foreach ($this->events as $event) {
+            foreach ($types as $type) {
+                if ($event instanceof $type) {
+                    $stream->add($event);
+                    continue 2;
+                }
+            }
+        }
+
+        return $stream;
+    }
+
     public function limit(int $limit) : FilterableStream
     {
         $events = array_slice($this->events, 0, $limit);

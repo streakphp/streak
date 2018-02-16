@@ -16,8 +16,13 @@ namespace Streak\Domain\Event;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Streak\Domain\Event;
+use Streak\Domain\Event\Sourced\Subscription\Event\SubscriptionCompleted;
+use Streak\Domain\Event\Sourced\Subscription\Event\SubscriptionListenedToEvent;
+use Streak\Domain\Event\Sourced\Subscription\Event\SubscriptionStarted;
 use Streak\Domain\EventBus;
+use Streak\Domain\EventStore;
 use Streak\Domain\Id\UUID;
+use Streak\Infrastructure\UnitOfWork;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -26,6 +31,11 @@ use Streak\Domain\Id\UUID;
  */
 class SubscriberTest extends TestCase
 {
+    /**
+     * @var EventStore|MockObject
+     */
+    private $store;
+
     /**
      * @var EventBus|MockObject
      */
@@ -61,8 +71,14 @@ class SubscriberTest extends TestCase
      */
     private $event1;
 
+    /**
+     * @var UnitOfWork
+     */
+    private $uow;
+
     protected function setUp()
     {
+        $this->store = $this->getMockBuilder(EventStore::class)->getMockForAbstractClass();
         $this->bus = $this->getMockBuilder(EventBus::class)->getMockForAbstractClass();
         $this->listenerFactory = $this->getMockBuilder(Event\Listener\Factory::class)->getMockForAbstractClass();
         $this->subscriptionFactory = $this->getMockBuilder(Event\Subscription\Factory::class)->getMockForAbstractClass();
@@ -73,17 +89,19 @@ class SubscriberTest extends TestCase
         $this->subscription1 = $this->getMockBuilder(Event\Subscription::class)->getMockForAbstractClass();
 
         $this->event1 = $this->getMockBuilder(Event::class)->getMockForAbstractClass();
+
+        $this->uow = new UnitOfWork($this->store);
     }
 
     public function testSubscriber()
     {
-        $subscriber = new Subscriber($this->listenerFactory, $this->subscriptionFactory, $this->subscriptionsRepository);
+        $subscriber = new Subscriber($this->listenerFactory, $this->subscriptionFactory, $this->subscriptionsRepository, $this->uow);
         $this->assertInstanceOf(UUID::class, $subscriber->id());
     }
 
     public function testSubscriberForEventThatSpawnsNoListener()
     {
-        $subscriber = new Subscriber($this->listenerFactory, $this->subscriptionFactory, $this->subscriptionsRepository);
+        $subscriber = new Subscriber($this->listenerFactory, $this->subscriptionFactory, $this->subscriptionsRepository, $this->uow);
 
         $this->listenerFactory
             ->expects($this->once())
@@ -99,7 +117,7 @@ class SubscriberTest extends TestCase
 
     public function testSubscriberForNewListener()
     {
-        $subscriber = new Subscriber($this->listenerFactory, $this->subscriptionFactory, $this->subscriptionsRepository);
+        $subscriber = new Subscriber($this->listenerFactory, $this->subscriptionFactory, $this->subscriptionsRepository, $this->uow);
 
         $this->listenerFactory
             ->expects($this->once())
@@ -108,18 +126,18 @@ class SubscriberTest extends TestCase
             ->willReturn($this->listener1)
         ;
 
-        $this->subscriptionsRepository
-            ->expects($this->once())
-            ->method('findFor')
-            ->with($this->listener1)
-            ->willReturn(null)
-        ;
-
         $this->subscriptionFactory
             ->expects($this->once())
             ->method('create')
             ->with($this->listener1)
             ->willReturn($this->subscription1)
+        ;
+
+        $this->subscriptionsRepository
+            ->expects($this->once())
+            ->method('has')
+            ->with($this->subscription1)
+            ->willReturn(false)
         ;
 
         $this->subscriptionsRepository
@@ -135,7 +153,7 @@ class SubscriberTest extends TestCase
 
     public function testSubscriberForExistingListener()
     {
-        $subscriber = new Subscriber($this->listenerFactory, $this->subscriptionFactory, $this->subscriptionsRepository);
+        $subscriber = new Subscriber($this->listenerFactory, $this->subscriptionFactory, $this->subscriptionsRepository, $this->uow);
 
         $this->listenerFactory
             ->expects($this->once())
@@ -144,16 +162,18 @@ class SubscriberTest extends TestCase
             ->willReturn($this->listener1)
         ;
 
-        $this->subscriptionsRepository
+        $this->subscriptionFactory
             ->expects($this->once())
-            ->method('findFor')
+            ->method('create')
             ->with($this->listener1)
             ->willReturn($this->subscription1)
         ;
 
-        $this->subscriptionFactory
-            ->expects($this->never())
-            ->method('create')
+        $this->subscriptionsRepository
+            ->expects($this->once())
+            ->method('has')
+            ->with($this->subscription1)
+            ->willReturn(true)
         ;
 
         $this->subscriptionsRepository
@@ -166,9 +186,36 @@ class SubscriberTest extends TestCase
         $this->assertTrue($processed);
     }
 
+    public function testSubscriberForSubscriptionsEvents()
+    {
+        $subscriber = new Subscriber($this->listenerFactory, $this->subscriptionFactory, $this->subscriptionsRepository, $this->uow);
+
+        $this->listenerFactory
+            ->expects($this->never())
+            ->method('createFor')
+        ;
+
+        $this->subscriptionFactory
+            ->expects($this->never())
+            ->method('create')
+        ;
+
+        $processed = $subscriber->on(new SubscriptionStarted($this->event1, new \DateTime()));
+
+        $this->assertFalse($processed);
+
+        $processed = $subscriber->on(new SubscriptionListenedToEvent($this->event1));
+
+        $this->assertFalse($processed);
+
+        $processed = $subscriber->on(new SubscriptionCompleted());
+
+        $this->assertFalse($processed);
+    }
+
     public function testListening()
     {
-        $subscriber = new Subscriber($this->listenerFactory, $this->subscriptionFactory, $this->subscriptionsRepository);
+        $subscriber = new Subscriber($this->listenerFactory, $this->subscriptionFactory, $this->subscriptionsRepository, $this->uow);
 
         $this->bus
             ->expects($this->once())

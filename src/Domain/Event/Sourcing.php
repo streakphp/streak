@@ -18,12 +18,13 @@ use Streak\Domain\Event;
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-trait Sourcing // implements Event\Consumer, Event\Producer, Domain\Identifiable
+trait Sourcing // implements Event\Consumer, Event\Producer, Domain\Identifiable, Domain\Versionable
 {
     private $events = [];
     private $last;
     private $replaying = false;
     private $lastReplayed;
+    private $version = 0;
 
     final public function replay(Event\Stream $events) : void
     {
@@ -52,12 +53,23 @@ trait Sourcing // implements Event\Consumer, Event\Producer, Domain\Identifiable
         return $this->last;
     }
 
+    final public function version() : int
+    {
+        return $this->version;
+    }
+
     /**
      * @return Event[]
      */
     final public function events() : array
     {
         return $this->events;
+    }
+
+    public function commit() : void
+    {
+        $this->version = $this->version + count($this->events);
+        $this->events = [];
     }
 
     final protected function applyEvent(Event $event) : void
@@ -126,22 +138,39 @@ trait Sourcing // implements Event\Consumer, Event\Producer, Domain\Identifiable
 
         $isPublic = $method->isPublic();
 
-        if (false === $isPublic) {
-            $method->setAccessible(true);
-        }
+        try { // TODO: simplify?
+            $version = $this->version;
+            $lastReplayed = $this->lastReplayed;
+            $last = $this->last;
 
-        $method->invoke($this, $event);
+            if (false === $isPublic) {
+                $method->setAccessible(true);
+            }
 
-        if (false === $isPublic) {
-            $method->setAccessible(false);
-        }
+            $this->last = $event;
+            if ($this->replaying) {
+                ++$this->version;
+                $this->lastReplayed = $event;
+            } else {
+                $this->events[] = $event;
+            }
 
-        // TODO: test if lastReplayed/last do not change in case of listening error
-        $this->last = $event;
-        if ($this->replaying) {
-            $this->lastReplayed = $event;
-        } else {
-            $this->events[] = $event;
+            $method->invoke($this, $event);
+        } catch (\Throwable $e) {
+            $this->last = $last;
+
+            if ($this->replaying) {
+                $this->version = $version;
+                $this->lastReplayed = $lastReplayed;
+            } else {
+                array_pop($this->events);
+            }
+
+            throw $e;
+        } finally {
+            if (false === $isPublic) {
+                $method->setAccessible(false);
+            }
         }
     }
 }

@@ -13,14 +13,14 @@ declare(strict_types=1);
 
 namespace Streak\Domain\Event\Sourced\Subscription\Event;
 
-use Streak\Domain\Event;
+use Streak\Domain\Event\Sourced\Subscription;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  *
  * @codeCoverageIgnore
  */
-class SubscriptionCompleted implements Event
+class SubscriptionCompleted implements Subscription\Event
 {
     public function __construct()
     {
