@@ -135,13 +135,7 @@ class FlatObjectConverter implements Converter
                 $property->setAccessible(true);
             }
 
-            if (is_array($value) && 1 === count($value)) { // TODO: better code here
-                reset($value);
-                $class = key($value);
-                if (class_exists($class)) {
-                    $value = $this->arrayToEvent($value);
-                }
-            }
+            $value = $this->convertIfEvent($value);
 
             $property->setValue($event, $value);
 
@@ -151,5 +145,29 @@ class FlatObjectConverter implements Converter
         }
 
         return $event;
+    }
+
+    private function convertIfEvent($value)
+    {
+        if (!is_array($value)) {
+            return $value;
+        }
+
+        if (1 !== count($value)) {
+            return $value;
+        }
+
+        reset($value);
+        $class = key($value);
+
+        if (!is_string($class)) {
+            return $value;
+        }
+
+        if (!class_exists($class)) {
+            return $value;
+        }
+
+        return $this->arrayToEvent($value);
     }
 }
