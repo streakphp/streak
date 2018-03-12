@@ -72,7 +72,7 @@ trait Sourcing // implements Event\Consumer, Event\Producer, Domain\Identifiable
         $this->events = [];
     }
 
-    final protected function applyEvent(Event $event) : void
+    final protected function applyEvent(Event $event)
     {
         if (!$this instanceof Event\Consumer) {
             throw new Exception\SourcingObjectWithEventFailed($this, $event);
@@ -155,7 +155,7 @@ trait Sourcing // implements Event\Consumer, Event\Producer, Domain\Identifiable
                 $this->events[] = $event;
             }
 
-            $method->invoke($this, $event);
+            return $method->invoke($this, $event);
         } catch (\Throwable $e) {
             $this->last = $last;
 
@@ -172,5 +172,15 @@ trait Sourcing // implements Event\Consumer, Event\Producer, Domain\Identifiable
                 $method->setAccessible(false);
             }
         }
+    }
+
+    private function undo() : void
+    {
+        if (0 === count($this->events)) { // cannot undo any more.
+            return;
+        }
+
+        array_pop($this->events);
+        --$this->version;
     }
 }

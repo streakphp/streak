@@ -259,20 +259,33 @@ class SubscriptionTest extends TestCase
         $event2 = new SubscriptionListenedToEvent($this->event3);
         $event3 = $this->event1;
         $event4 = new SubscriptionCompleted();
-        $events = [$event1, $event2, $event3, $event4];
 
-        $this->isIteratorFor($this->stream2, $events);
+        $this->isIteratorFor($this->stream2, [$event1, $event2, $event3, $event4]);
 
         $this->listener2
-            ->expects($this->once())
+            ->expects($this->exactly(4))
             ->method('on')
-            ->with($this->event4)
-            ->willReturn(true)
+            ->withConsecutive(
+                [$event1],
+                [$event2],
+                [$event3],
+                [$event4]
+            )
+            ->willReturnOnConsecutiveCalls(
+                false,
+                false,
+                true,
+                false,
+                false
+            )
         ;
 
-        $expected = $subscription->subscribeTo($this->store);
+        $expected = [$this->event1];
 
-        $this->assertEquals($events, iterator_to_array($expected));
+        $actual = $subscription->subscribeTo($this->store);
+        $actual = iterator_to_array($actual);
+
+        $this->assertEquals($expected, $actual);
 
         $this->assertEquals([new SubscriptionListenedToEvent($this->event4)], $subscription->events());
     }
