@@ -62,7 +62,9 @@ class InMemoryEventStore implements EventStore, Event\Log
             return;
         }
 
+        $type = get_class($producerId);
         $id = $producerId->toString();
+        $stream = $type.$id;
 
         $transaction = [
             'uuids' => [],
@@ -78,15 +80,15 @@ class InMemoryEventStore implements EventStore, Event\Log
 
             $uuid = Domain\Id\UUID::create()->toString();
 
-            if (!isset($this->streams[$id])) {
-                $this->streams[$id] = [];
+            if (!isset($this->streams[$stream])) {
+                $this->streams[$stream] = [];
             }
 
             if (null === $version) {
-                $version = count($this->streams[$id]);
+                $version = count($this->streams[$stream]);
             } else {
                 ++$version;
-                if (isset($this->streams[$id][$version])) {
+                if (isset($this->streams[$stream][$version])) {
                     throw new Exception\ConcurrentWriteDetected($producerId);
                 }
             }
@@ -102,7 +104,7 @@ class InMemoryEventStore implements EventStore, Event\Log
         }
 
         $this->uuids = array_merge($this->uuids, $transaction['uuids']);
-        $this->streams[$id] = array_merge($this->streams[$id], $transaction['stream']);
+        $this->streams[$stream] = array_merge($this->streams[$stream], $transaction['stream']);
         $this->all = array_merge($this->all, $transaction['all']);
 
         foreach ($transaction['metadata'] as $pair) {
@@ -115,11 +117,17 @@ class InMemoryEventStore implements EventStore, Event\Log
 
     public function streamFor(Domain\Id ...$producers) : Event\FilterableStream
     {
+        if (0 === count($producers)) {
+            return new InMemoryStream(...$this->all);
+        }
+
         $streams = [];
         foreach ($producers as $producer) {
-            $producer = $producer->toString();
-            if (isset($this->streams[$producer])) {
-                $streams = array_merge($streams, $this->streams[$producer]);
+            $type = get_class($producer);
+            $id = $producer->toString();
+            $stream = $type.$id;
+            if (isset($this->streams[$stream])) {
+                $streams = array_merge($streams, $this->streams[$stream]);
             }
         }
 

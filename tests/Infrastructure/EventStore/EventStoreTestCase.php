@@ -24,6 +24,7 @@ use Streak\Infrastructure\EventBus\PDOPostgresEventStoreTest\Event2;
 use Streak\Infrastructure\EventBus\PDOPostgresEventStoreTest\Event3;
 use Streak\Infrastructure\EventBus\PDOPostgresEventStoreTest\Event4;
 use Streak\Infrastructure\EventBus\PDOPostgresEventStoreTest\ProducerId1;
+use Streak\Infrastructure\EventBus\PDOPostgresEventStoreTest\ProducerId2;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -83,8 +84,9 @@ abstract class EventStoreTestCase extends TestCase
     {
         $this->assertSame($this->store->log(), $this->store->log());
 
-        $producer11 = new ProducerId1('producer1-1');
-        $producer12 = new ProducerId1('producer1-2');
+        $producer11 = new ProducerId1('producer1');
+        $producer12 = new ProducerId1('producer2');
+        $producer21 = new ProducerId2('producer1');
 
         $event111 = new Event1();
         $event112 = new Event2();
@@ -95,6 +97,11 @@ abstract class EventStoreTestCase extends TestCase
         $event122 = new Event2();
         $event123 = new Event3();
         $event124 = new Event4();
+
+        $event211 = new Event1();
+        $event212 = new Event2();
+        $event213 = new Event3();
+        $event214 = new Event4();
 
         $this->assertEquals([], iterator_to_array($this->store->log()));
 
@@ -210,6 +217,20 @@ abstract class EventStoreTestCase extends TestCase
         $this->assertFalse($stream->empty());
         $this->assertEquals($event111, $stream->first());
         $this->assertEquals($event124, $stream->last());
+
+        $this->store->add($producer21, 0, $event211, $event212, $event213, $event214);
+
+        $stream = $this->store->stream($producer21);
+        $this->assertEquals([$event211, $event212, $event213, $event214], iterator_to_array($stream));
+        $this->assertFalse($stream->empty());
+        $this->assertEquals($event211, $stream->first());
+        $this->assertEquals($event214, $stream->last());
+
+        $stream = $this->store->stream();
+        $this->assertEquals([$event111, $event112, $event113, $event114, $event121, $event122, $event123, $event124, $event211, $event212, $event213, $event214], iterator_to_array($stream));
+        $this->assertFalse($stream->empty());
+        $this->assertEquals($event111, $stream->first());
+        $this->assertEquals($event214, $stream->last());
     }
 
     public function testConcurrentWriting()
