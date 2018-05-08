@@ -31,11 +31,15 @@ class UUID implements Domain\Id
         $value = mb_strtoupper($value);
         $value = trim($value);
 
-        if (!uuid_is_valid($value)) {
-            throw new \InvalidArgumentException();
+        try {
+            $uuid = \Ramsey\Uuid\Uuid::fromString($value);
+        } catch (\Throwable $e) {
+            throw new \InvalidArgumentException('', 0, $e);
         }
 
-        if (uuid_is_null($value)) {
+        $null = \Ramsey\Uuid\Uuid::fromString('00000000-0000-0000-0000-000000000000');
+
+        if ($uuid->equals($null)) {
             throw new \InvalidArgumentException();
         }
 
@@ -44,7 +48,7 @@ class UUID implements Domain\Id
 
     public static function create()
     {
-        $uuid = uuid_create(UUID_TYPE_RANDOM);
+        $uuid = \Ramsey\Uuid\Uuid::uuid4()->toString();
 
         return new static($uuid);
     }
@@ -55,7 +59,7 @@ class UUID implements Domain\Id
             return false;
         }
 
-        if (0 !== uuid_compare($uuid->value, $this->value)) {
+        if ($uuid->value !== $this->value) {
             return false;
         }
 
