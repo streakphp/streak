@@ -11,7 +11,7 @@
 
 declare(strict_types=1);
 
-namespace Streak\Infrastructure\Testing\Saga;
+namespace Streak\Infrastructure\Testing\ProcessManager;
 
 use Streak\Infrastructure\Testing;
 

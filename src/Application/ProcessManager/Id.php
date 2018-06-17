@@ -11,15 +11,13 @@
 
 declare(strict_types=1);
 
-namespace Streak\Infrastructure\Testing\Saga;
+namespace Streak\Application\ProcessManager;
 
-use Streak\Infrastructure\Testing;
+use Streak\Domain;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
- *
- * @codeCoverageIgnore
  */
-abstract class TestCase extends Testing\Listener\TestCase
+interface Id extends Domain\Id
 {
 }

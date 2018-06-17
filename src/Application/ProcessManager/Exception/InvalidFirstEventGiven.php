@@ -11,15 +11,13 @@
 
 declare(strict_types=1);
 
-namespace Streak\Infrastructure\Testing\Saga;
+namespace Streak\Application\ProcessManager\Exception;
 
-use Streak\Infrastructure\Testing;
+use Streak\Domain\Event\Exception\InvalidEventGiven;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
- *
- * @codeCoverageIgnore
  */
-abstract class TestCase extends Testing\Listener\TestCase
+class InvalidFirstEventGiven extends InvalidEventGiven
 {
 }

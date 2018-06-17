@@ -11,14 +11,14 @@
 
 declare(strict_types=1);
 
-namespace Streak\Infrastructure\Testing\Saga\Scenario;
+namespace Streak\Application;
 
-use Streak\Application;
+use Streak\Domain\Event;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-interface Then
+interface ProcessManager extends Event\Listener, Event\Replayable, Event\Completable
 {
-    public function then(Application\Command $command = null) : void;
+    public function processManagerId() : ProcessManager\Id;
 }

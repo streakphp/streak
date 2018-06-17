@@ -11,24 +11,23 @@
 
 declare(strict_types=1);
 
-namespace Streak\Infrastructure\Saga\LoggingSaga;
+namespace Streak\Infrastructure\Event\LoggingListener;
 
 use Psr\Log\LoggerInterface;
-use Streak\Application\Saga;
 use Streak\Domain;
 use Streak\Domain\Event;
 use Streak\Domain\Event\Listener;
-use Streak\Infrastructure\Saga\LoggingSaga;
+use Streak\Infrastructure\Event\LoggingListener;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-class Factory implements Saga\Factory
+class Factory implements Listener\Factory
 {
     private $factory;
     private $logger;
 
-    public function __construct(Saga\Factory $factory, LoggerInterface $logger)
+    public function __construct(Listener\Factory $factory, LoggerInterface $logger)
     {
         $this->factory = $factory;
         $this->logger = $logger;
@@ -37,7 +36,7 @@ class Factory implements Saga\Factory
     public function create(Domain\Id $id) : Listener
     {
         $saga = $this->factory->create($id);
-        $saga = new LoggingSaga($saga, $this->logger);
+        $saga = new LoggingListener($saga, $this->logger);
 
         return $saga;
     }
@@ -45,7 +44,7 @@ class Factory implements Saga\Factory
     public function createFor(Event $event) : Listener
     {
         $saga = $this->factory->createFor($event);
-        $saga = new LoggingSaga($saga, $this->logger);
+        $saga = new LoggingListener($saga, $this->logger);
 
         return $saga;
     }

@@ -14,11 +14,9 @@ declare(strict_types=1);
 namespace Streak\Infrastructure;
 
 use PHPUnit\Framework\TestCase;
-use Streak\Domain;
 use Streak\Domain\Event;
 use Streak\Domain\EventStore;
 use Streak\Domain\Id\UUID;
-use Streak\Domain\Versionable;
 use Streak\Infrastructure\UnitOfWorkTest\NonVersionableEventSourcedStub;
 use Streak\Infrastructure\UnitOfWorkTest\VersionableEventSourcedStub;
 
