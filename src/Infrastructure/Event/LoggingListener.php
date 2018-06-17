@@ -11,44 +11,47 @@
 
 declare(strict_types=1);
 
-namespace Streak\Infrastructure\Saga;
+namespace Streak\Infrastructure\Event;
 
 use Psr\Log;
-use Streak\Application;
 use Streak\Domain;
 use Streak\Domain\Event;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-class LoggingSaga implements Application\Saga
+class LoggingListener implements Event\Listener, Event\Replayable, Event\Completable
 {
-    private $saga;
+    private $listener;
     private $logger;
 
-    public function __construct(Application\Saga $saga, Log\LoggerInterface $logger)
+    public function __construct(Event\Listener $listener, Log\LoggerInterface $logger)
     {
-        $this->saga = $saga;
+        $this->listener = $listener;
         $this->logger = $logger;
     }
 
     public function completed() : bool
     {
-        return $this->saga->completed();
+        if ($this->listener instanceof Event\Completable) {
+            return $this->listener->completed();
+        }
+
+        return false;
     }
 
     public function id() : Domain\Id
     {
-        return $this->saga->id();
+        return $this->listener->id();
     }
 
     public function on(Event $event) : bool
     {
         try {
-            return $this->saga->on($event);
+            return $this->listener->on($event);
         } catch (\Throwable $exception) {
-            $this->logger->debug('Saga "{saga}" has thrown "{class}" exception with "{message}" message on "{event}" event.', [
-                'saga' => get_class($this->saga),
+            $this->logger->debug('Listener "{listener}" has thrown "{class}" exception with "{message}" message on "{event}" event.', [
+                'listener' => get_class($this->listener),
                 'class' => get_class($exception),
                 'message' => $exception->getMessage(),
                 'event' => get_class($event),
@@ -61,11 +64,15 @@ class LoggingSaga implements Application\Saga
 
     public function replay(Event\Stream $events) : void
     {
+        if (!$this->listener instanceof Event\Replayable) {
+            return;
+        }
+
         try {
-            $this->saga->replay($events);
+            $this->listener->replay($events);
         } catch (\Throwable $exception) {
-            $this->logger->debug('Saga "{saga}" has thrown "{class}" exception with "{message}" message while replaying events.', [
-                'saga' => get_class($this->saga),
+            $this->logger->debug('Listener "{listener}" has thrown "{class}" exception with "{message}" message while replaying events.', [
+                'listener' => get_class($this->listener),
                 'class' => get_class($exception),
                 'message' => $exception->getMessage(),
                 'exception' => $exception,
@@ -73,10 +80,5 @@ class LoggingSaga implements Application\Saga
 
             throw $exception;
         }
-    }
-
-    public function sagaId() : Application\Saga\Id
-    {
-        return $this->saga->sagaId();
     }
 }

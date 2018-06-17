@@ -11,19 +11,19 @@
 
 declare(strict_types=1);
 
-namespace Streak\Infrastructure\Saga\LoggingSaga;
+namespace Streak\Infrastructure\Event\LoggingListener;
 
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Streak\Application\Saga;
 use Streak\Domain\Event;
-use Streak\Infrastructure\Saga\LoggingSaga;
+use Streak\Infrastructure\Event\LoggingListener;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  *
- * @covers \Streak\Infrastructure\Saga\LoggingSaga\Factory
+ * @covers \Streak\Infrastructure\Event\LoggingListener\Factory
  */
 class FactoryTest extends TestCase
 {
@@ -64,7 +64,7 @@ class FactoryTest extends TestCase
     public function testFactory()
     {
         $factory = new Factory($this->factory, $this->logger);
-        $saga = new LoggingSaga($this->saga, $this->logger);
+        $saga = new LoggingListener($this->saga, $this->logger);
 
         $this->factory
             ->expects($this->once())

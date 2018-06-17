@@ -31,7 +31,7 @@
     "psr/log": "~1.0"
   },
   "require-dev": {
-    "phpunit/phpunit": "^6.4",
+    "phpunit/phpunit": "^7.0",
     "friendsofphp/php-cs-fixer": "^2.9",
     "php-amqplib/rabbitmq-bundle": "^1.14"
   },

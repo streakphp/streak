@@ -11,25 +11,30 @@
 
 declare(strict_types=1);
 
-namespace Streak\Infrastructure\Saga;
+namespace Streak\Infrastructure\Event;
 
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
-use Streak\Application\Saga;
 use Streak\Domain\Event;
+use Streak\Domain\Id;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  *
- * @covers \Streak\Infrastructure\Saga\LoggingSaga
+ * @covers \Streak\Infrastructure\Event\LoggingListener
  */
-class LoggingSagaTest extends TestCase
+class LoggingListenerTest extends TestCase
 {
     /**
-     * @var Saga|MockObject
+     * @var Event\Listener|MockObject
      */
-    private $saga;
+    private $listener;
+
+    /**
+     * @var Event\Listener|MockObject
+     */
+    private $rawListener;
 
     /**
      * @var LoggerInterface|MockObject
@@ -37,9 +42,9 @@ class LoggingSagaTest extends TestCase
     private $logger;
 
     /**
-     * @var Saga\Id|MockObject
+     * @var Id|MockObject
      */
-    private $sagaId;
+    private $listenerId;
 
     /**
      * @var Event|MockObject
@@ -53,72 +58,84 @@ class LoggingSagaTest extends TestCase
 
     protected function setUp()
     {
-        $this->saga = $this->getMockBuilder(Saga::class)->setMockClassName('SagaMock001')->getMockForAbstractClass();
+        $this->listener = $this->getMockBuilder([Event\Listener::class, Event\Replayable::class, Event\Completable::class])->setMockClassName('ListenerMock001')->getMock();
+        $this->rawListener = $this->getMockBuilder(Event\Listener::class)->setMockClassName('ListenerMock002')->setMethods(['completed', 'replay'])->getMockForAbstractClass();
         $this->logger = $this->getMockBuilder(LoggerInterface::class)->getMockForAbstractClass();
-        $this->sagaId = $this->getMockBuilder(Saga\Id::class)->getMockForAbstractClass();
+        $this->listenerId = $this->getMockBuilder(Id::class)->getMockForAbstractClass();
         $this->event = $this->getMockBuilder(Event::class)->setMockClassName('EventMock001')->getMockForAbstractClass();
         $this->stream = $this->getMockBuilder(Event\Stream::class)->getMockForAbstractClass();
     }
 
     public function testObject()
     {
-        $saga = new LoggingSaga($this->saga, $this->logger);
+        $listener = new LoggingListener($this->rawListener, $this->logger);
 
         $this->logger
             ->expects($this->never())
             ->method('debug')
         ;
 
-        $this->saga
+        $this->rawListener
+            ->expects($this->never())
+            ->method('completed')
+        ;
+        $this->assertFalse($listener->completed());
+
+        $this->rawListener
+            ->expects($this->never())
+            ->method('replay')
+        ;
+        $listener->replay($this->stream);
+
+        $listener = new LoggingListener($this->listener, $this->logger);
+
+        $this->logger
+            ->expects($this->never())
+            ->method('debug')
+        ;
+
+        $this->listener
             ->expects($this->exactly(2))
             ->method('completed')
             ->willReturnOnConsecutiveCalls(true, false)
         ;
 
-        $this->assertTrue($saga->completed());
-        $this->assertFalse($saga->completed());
+        $this->assertTrue($listener->completed());
+        $this->assertFalse($listener->completed());
 
-        $this->saga
-            ->expects($this->once())
-            ->method('id')
-            ->willReturn($this->sagaId)
-        ;
-
-        $this->assertSame($this->sagaId, $saga->id());
-
-        $this->saga
+        $this->listener
             ->expects($this->exactly(2))
             ->method('on')
             ->with($this->event)
             ->willReturnOnConsecutiveCalls(true, false)
         ;
 
-        $this->assertTrue($saga->on($this->event));
-        $this->assertFalse($saga->on($this->event));
+        $this->assertTrue($listener->on($this->event));
+        $this->assertFalse($listener->on($this->event));
 
-        $this->saga
+        $this->listener
             ->expects($this->once())
             ->method('replay')
             ->with($this->stream)
         ;
 
-        $saga->replay($this->stream);
+        $listener->replay($this->stream);
 
-        $this->saga
+        $this->listener
             ->expects($this->once())
-            ->method('sagaId')
-            ->willReturn($this->sagaId)
+            ->method('id')
+            ->willReturn($this->listenerId)
         ;
 
-        $this->assertSame($this->sagaId, $saga->sagaId());
+        $this->assertSame($this->listenerId, $listener->id());
     }
 
     public function testExceptionOnEvent()
     {
-        $saga = new LoggingSaga($this->saga, $this->logger);
+        $listener = new LoggingListener($this->listener, $this->logger);
 
         $exception = new \Exception('Exception test message.');
-        $this->saga
+        $this->listener
             ->expects($this->once())
             ->method('on')
             ->with($this->event)
@@ -129,7 +146,7 @@ class LoggingSagaTest extends TestCase
             ->expects($this->once())
             ->method('debug')
             ->with($this->isType('string'), [
-                'saga' => 'SagaMock001',
+                'listener' => 'ListenerMock001',
                 'class' => 'Exception',
                 'message' => 'Exception test message.',
                 'event' => 'EventMock001',
@@ -139,15 +156,15 @@ class LoggingSagaTest extends TestCase
 
         $this->expectExceptionObject($exception);
 
-        $saga->on($this->event);
+        $listener->on($this->event);
     }
 
     public function testExceptionWhenReplayingEvents()
     {
-        $saga = new LoggingSaga($this->saga, $this->logger);
+        $listener = new LoggingListener($this->listener, $this->logger);
 
         $exception = new \Exception('Exception test message.');
-        $this->saga
+        $this->listener
             ->expects($this->once())
             ->method('replay')
             ->with($this->stream)
@@ -158,7 +175,7 @@ class LoggingSagaTest extends TestCase
             ->expects($this->once())
             ->method('debug')
             ->with($this->isType('string'), [
-                'saga' => 'SagaMock001',
+                'listener' => 'ListenerMock001',
                 'class' => 'Exception',
                 'message' => 'Exception test message.',
                 'exception' => $exception,
@@ -167,6 +184,6 @@ class LoggingSagaTest extends TestCase
 
         $this->expectExceptionObject($exception);
 
-        $saga->replay($this->stream);
+        $listener->replay($this->stream);
     }
 }

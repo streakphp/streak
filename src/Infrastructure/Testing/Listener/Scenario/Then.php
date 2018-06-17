@@ -11,15 +11,18 @@
 
 declare(strict_types=1);
 
-namespace Streak\Infrastructure\Testing\Saga;
+namespace Streak\Infrastructure\Testing\Listener\Scenario;
 
-use Streak\Infrastructure\Testing;
+use Streak\Application;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
- *
- * @codeCoverageIgnore
  */
-abstract class TestCase extends Testing\Listener\TestCase
+interface Then
 {
+    public function then(Application\Command $command = null, \Throwable $error = null) : Then;
+
+    public function completed(bool $completed) : Then;
+
+    public function run() : void;
 }

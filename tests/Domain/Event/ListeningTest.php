@@ -14,7 +14,6 @@ declare(strict_types=1);
 namespace Streak\Domain\Event;
 
 use PHPUnit\Framework\TestCase;
-use Streak\Domain;
 use Streak\Domain\Event\ListeningTest\Event1;
 use Streak\Domain\Event\ListeningTest\Event2;
 use Streak\Domain\Event\ListeningTest\Event3;

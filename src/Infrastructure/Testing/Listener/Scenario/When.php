@@ -11,14 +11,14 @@
 
 declare(strict_types=1);
 
-namespace Streak\Infrastructure\Testing\Saga\Scenario;
+namespace Streak\Infrastructure\Testing\Listener\Scenario;
 
 use Streak\Domain;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-interface Given
+interface When
 {
-    public function given(Domain\Event ...$messages) : When;
+    public function when(Domain\Event $event) : Then;
 }

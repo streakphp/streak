@@ -15,7 +15,6 @@ namespace Streak\Application\Sensor;
 
 use PHPUnit\Framework\TestCase;
 use Streak\Application\Sensor;
-use Streak\Application\Sensor\ProcessingTest\A;
 use Streak\Application\Sensor\ProcessingTest\AProcessed;
 use Streak\Application\Sensor\ProcessingTest\ArrayProcessed;
 use Streak\Application\Sensor\ProcessingTest\B1;
