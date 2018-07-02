@@ -78,7 +78,7 @@ class InMemoryEventStore implements EventStore, Event\Log
                 throw new Exception\EventAlreadyInStore($event);
             }
 
-            $uuid = Domain\Id\UUID::create()->toString();
+            $uuid = Domain\Id\UUID4::create()->toString();
 
             if (!isset($this->streams[$stream])) {
                 $this->streams[$stream] = [];

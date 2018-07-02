@@ -19,6 +19,7 @@ use Streak\Domain\Event\FilterableStream;
 use Streak\Domain\EventStore;
 use Streak\Domain\Exception;
 use Streak\Domain\Id\UUID;
+use Streak\Domain\Id\UUID4;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -147,7 +148,7 @@ SQL;
                 throw new Exception\EventAlreadyInStore($event);
             }
 
-            $uuid = UUID::create();
+            $uuid = UUID4::create();
 
             $version = $this->bumpUp($version);
             $row = $this->toRow($producerId, $version, $uuid, $event);
@@ -199,7 +200,7 @@ SQL;
             $sequence = (string) $returned['number'];
             $uuid = $returned['uuid'];
             $uuid = mb_strtoupper($uuid);
-            $uuid = new UUID($uuid);
+            $uuid = new UUID4($uuid);
             $metadata = $returned['metadata'];
             $metadata = json_decode($metadata, true);
             $metadata = Event\Metadata::fromArray($metadata);
