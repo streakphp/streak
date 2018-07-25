@@ -39,7 +39,7 @@ final class Subscription implements Event\Subscription, Event\Sourced, Event\Com
 
     public function __construct(Event\Listener $listener)
     {
-        $this->listener = $listener; // TODO: $this->listener = new LockableListener($listener);
+        $this->listener = $listener;
     }
 
     public function startFor(Domain\Event $event, \DateTimeInterface $at)
@@ -71,39 +71,36 @@ final class Subscription implements Event\Subscription, Event\Sourced, Event\Com
         }
 
 //        $stream->notBy($this->producerId());
+//        $stream->notOf(Subscription\Event::class); // should infer all implementations (not interfaces/abstract classes) in descendants tree.
 
         foreach ($stream as $event) {
-            // TODO: filter to not pollute ES (not sure if its good solution).
-            if ($event instanceof Subscription\Event) {
-                yield $event;
+            if (false === $this->applyEvent(new SubscriptionListenedToEvent($event))) {
+                $this->undo();
                 continue;
             }
 
-            $this->applyEvent(new SubscriptionListenedToEvent($event));
+            yield $event;
 
             if ($this->listener instanceof Event\Completable) {
                 if ($this->listener->completed()) {
                     $this->applyEvent(new SubscriptionCompleted());
-                    yield $event;
                     break;
                 }
             }
-
-            yield $event;
         }
     }
 
     public function replay(Event\Stream $stream) : void
     {
         try {
-            $backup = $this->listener; // TODO: $this->listener->lock();
-            $this->listener = NullListener::from($this->listener);
+            $backup = $this->listener;
+            $this->listener = NullListener::from($this->listener); // replay() changes only state of subscription. It is not running actual listeners.
             $this->doReplay($stream);
         } finally {
-            $this->listener = $backup;  // TODO: $this->listener->unlock();
+            $this->listener = $backup;
         }
 
-        if ($this->listener instanceof Event\Replayable) { // TODO: $this->listener->decorates() instanceof Event\Replayable
+        if ($this->listener instanceof Event\Replayable) {
             $unpacked = new SubscriptionStream($stream);
             $this->listener->replay($unpacked);
         }
@@ -114,13 +111,13 @@ final class Subscription implements Event\Subscription, Event\Sourced, Event\Com
         $this->started = true;
     }
 
-    public function applyEventHandled(SubscriptionListenedToEvent $event)
+    public function applyEventHandled(SubscriptionListenedToEvent $event) : bool
     {
         if (false === $this->started) {
             throw new \BadMethodCallException();
         }
 
-        $this->listener->on($event->event());
+        return $this->listener->on($event->event());
     }
 
     public function applyCompleted(SubscriptionCompleted $event)
