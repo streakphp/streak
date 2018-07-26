@@ -16,13 +16,9 @@ namespace Streak\Domain\Id;
 use Streak\Domain;
 
 /**
- * UUID v4.
- *
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
- *
- * @see https://gist.github.com/tdomarkas/c5fbc10385ae004cbde6
  */
-class UUID implements Domain\Id
+abstract class UUID implements Domain\Id
 {
     private $value;
 
@@ -46,14 +42,7 @@ class UUID implements Domain\Id
         $this->value = $value;
     }
 
-    public static function create()
-    {
-        $uuid = \Ramsey\Uuid\Uuid::uuid4()->toString();
-
-        return new static($uuid);
-    }
-
-    public function equals($uuid) : bool
+    final public function equals($uuid) : bool
     {
         if (!$uuid instanceof self) {
             return false;
@@ -66,13 +55,13 @@ class UUID implements Domain\Id
         return true;
     }
 
-    public function toString() : string
+    final public function toString() : string
     {
         return $this->value;
     }
 
-    public static function fromString(string $uuid) : Domain\Id
+    final public static function fromString(string $uuid) : Domain\Id
     {
-        return new self($uuid);
+        return new static($uuid);
     }
 }

@@ -16,7 +16,7 @@ namespace Streak\Infrastructure;
 use PHPUnit\Framework\TestCase;
 use Streak\Domain\Event;
 use Streak\Domain\EventStore;
-use Streak\Domain\Id\UUID;
+use Streak\Domain\Id\UUID4;
 use Streak\Infrastructure\UnitOfWorkTest\NonVersionableEventSourcedStub;
 use Streak\Infrastructure\UnitOfWorkTest\VersionableEventSourcedStub;
 
@@ -70,10 +70,10 @@ class UnitOfWorkTest extends TestCase
 
     public function testObject()
     {
-        $id1 = UUID::create();
-        $id2 = UUID::create();
-        $id3 = UUID::create();
-        $id4 = UUID::create();
+        $id1 = UUID4::create();
+        $id2 = UUID4::create();
+        $id3 = UUID4::create();
+        $id4 = UUID4::create();
 
         $object1 = new VersionableEventSourcedStub($id1, 0, $this->event1);
         $object2 = new VersionableEventSourcedStub($id2, 1, $this->event2);
@@ -165,8 +165,8 @@ class UnitOfWorkTest extends TestCase
     {
         $exception = new \RuntimeException();
 
-        $id1 = UUID::create();
-        $id2 = UUID::create();
+        $id1 = UUID4::create();
+        $id2 = UUID4::create();
         $object1 = new VersionableEventSourcedStub($id1, 0, $this->event1);
         $object2 = new VersionableEventSourcedStub($id2, 0, $this->event2);
 

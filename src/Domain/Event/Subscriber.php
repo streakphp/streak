@@ -34,7 +34,7 @@ class Subscriber implements Listener
 
     public function __construct(Event\Listener\Factory $listenerFactory, Event\Subscription\Factory $subscriptionFactory, Event\Subscription\Repository $subscriptionsRepository, UnitOfWork $uow) // TODO: GET RID OF UOW FROM HERE!
     {
-        $this->uuid = Domain\Id\UUID::create();
+        $this->uuid = Domain\Id\UUID4::create();
         $this->listenerFactory = $listenerFactory;
         $this->subscriptionFactory = $subscriptionFactory;
         $this->subscriptionsRepository = $subscriptionsRepository;
