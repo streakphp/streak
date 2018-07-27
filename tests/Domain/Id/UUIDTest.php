@@ -67,4 +67,15 @@ class UUIDTest extends TestCase
 
         new UUID('00000000-0000-0000-0000-000000000000');
     }
+
+    public function testExtendedUUIDCreatesProperClassFromString()
+    {
+        $uuid = ExtendedUUID::fromString('0bc68acb-abd1-48ca-b8e2-5638efa5891b');
+
+        $this->assertInstanceOf(ExtendedUUID::class, $uuid);
+    }
+}
+
+class ExtendedUUID extends UUID
+{
 }
