@@ -73,6 +73,6 @@ class UUID implements Domain\Id
 
     public static function fromString(string $uuid) : Domain\Id
     {
-        return new self($uuid);
+        return new static($uuid);
     }
 }
