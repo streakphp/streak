@@ -29,7 +29,6 @@ use Streak\Infrastructure\Event\NullListener;
 final class Subscription implements Event\Subscription, Event\Sourced, Event\Completable, Versionable
 {
     use Event\Sourcing {
-        Event\Sourcing::applyEvent as private doApplyEvent;
         Event\Sourcing::replay as private doReplay;
     }
 

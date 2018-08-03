@@ -26,6 +26,9 @@ trait Sourcing // implements Event\Consumer, Event\Producer, Domain\Identifiable
     private $lastReplayed;
     private $version = 0;
 
+    /**
+     * @throws \Throwable
+     */
     final public function replay(Event\Stream $events) : void
     {
         try {
@@ -72,12 +75,50 @@ trait Sourcing // implements Event\Consumer, Event\Producer, Domain\Identifiable
         $this->events = [];
     }
 
-    final protected function applyEvent(Event $event) : void
+    /**
+     * @throws \Throwable
+     */
+    final private function applyEvent(Event $event) : void
     {
         if (!$this instanceof Event\Consumer) {
             throw new Exception\SourcingObjectWithEventFailed($this, $event);
         }
 
+        try { // TODO: simplify?
+            $version = $this->version;
+            $lastReplayed = $this->lastReplayed;
+            $last = $this->last;
+
+            $this->last = $event;
+            if ($this->replaying) {
+                ++$this->version;
+                $this->lastReplayed = $event;
+            } else {
+                $this->events[] = $event;
+            }
+
+            $this->doApplyEvent($event);
+        } catch (\Throwable $e) {
+            $this->last = $last;
+
+            if ($this->replaying) {
+                $this->version = $version;
+                $this->lastReplayed = $lastReplayed;
+            } else {
+                array_pop($this->events);
+            }
+
+            throw $e;
+        }
+    }
+
+    /**
+     * @throws Event\Exception\NoEventApplyingMethodFound
+     * @throws Event\Exception\TooManyEventApplyingMethodsFound
+     * @throws \Throwable
+     */
+    private function doApplyEvent(Event $event) : void
+    {
         $reflection = new \ReflectionObject($this);
 
         $methods = [];
@@ -137,36 +178,12 @@ trait Sourcing // implements Event\Consumer, Event\Producer, Domain\Identifiable
         $method = array_shift($methods);
 
         $isPublic = $method->isPublic();
+        if (false === $isPublic) {
+            $method->setAccessible(true);
+        }
 
-        try { // TODO: simplify?
-            $version = $this->version;
-            $lastReplayed = $this->lastReplayed;
-            $last = $this->last;
-
-            if (false === $isPublic) {
-                $method->setAccessible(true);
-            }
-
-            $this->last = $event;
-            if ($this->replaying) {
-                ++$this->version;
-                $this->lastReplayed = $event;
-            } else {
-                $this->events[] = $event;
-            }
-
+        try {
             $method->invoke($this, $event);
-        } catch (\Throwable $e) {
-            $this->last = $last;
-
-            if ($this->replaying) {
-                $this->version = $version;
-                $this->lastReplayed = $lastReplayed;
-            } else {
-                array_pop($this->events);
-            }
-
-            throw $e;
         } finally {
             if (false === $isPublic) {
                 $method->setAccessible(false);
