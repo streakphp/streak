@@ -175,20 +175,12 @@ SQL;
             $statement = $this->pdo->prepare($sql);
             $statement->execute($parameters);
         } catch (\PDOException $e) {
-            if ('23505' === $e->getCode()) {
-                if (false !== mb_strpos($e->getMessage(), 'ERROR:  duplicate key value violates unique constraint "events_producer_type_producer_id_producer_version_key"')) {
+            $code = (string) $e->getCode();
+            $message = $e->getMessage();
+            if ('23505' === $code) {
+                // check for constraint names only, as message may be localised
+                if (false !== mb_strpos($message, '"events_producer_type_producer_id_producer_version_key"')) {
                     throw new Exception\ConcurrentWriteDetected($producerId);
-                }
-                if (false !== mb_strpos($e->getMessage(), 'ERROR:  duplicate key value violates unique constraint "events_uuid_key"')) {
-                    if (1 === preg_match('/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/', $e->getMessage(), $matches)) {
-                        $uuid = $matches[0];
-                        $uuid = mb_strtoupper($uuid);
-                        foreach ($events as $event) {
-                            if (Event\Metadata::fromObject($event)->get('uuid', '') === $uuid) {
-                                throw new Exception\EventAlreadyInStore($event);
-                            }
-                        }
-                    }
                 }
             }
 
