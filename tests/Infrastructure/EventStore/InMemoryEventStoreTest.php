@@ -14,11 +14,11 @@ declare(strict_types=1);
 namespace Streak\Infrastructure\EventStore;
 
 use Streak\Domain\EventStore;
-use Streak\Infrastructure\EventBus\PDOPostgresEventStoreTest\Event1;
-use Streak\Infrastructure\EventBus\PDOPostgresEventStoreTest\Event2;
-use Streak\Infrastructure\EventBus\PDOPostgresEventStoreTest\Event3;
-use Streak\Infrastructure\EventBus\PDOPostgresEventStoreTest\Event4;
-use Streak\Infrastructure\EventBus\PDOPostgresEventStoreTest\ProducerId1;
+use Streak\Infrastructure\EventBus\EventStoreTestCase\Event1;
+use Streak\Infrastructure\EventBus\EventStoreTestCase\Event2;
+use Streak\Infrastructure\EventBus\EventStoreTestCase\Event3;
+use Streak\Infrastructure\EventBus\EventStoreTestCase\Event4;
+use Streak\Infrastructure\EventBus\EventStoreTestCase\ProducerId1;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>

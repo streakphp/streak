@@ -19,12 +19,12 @@ use Streak\Domain\EventStore;
 use Streak\Domain\Exception\ConcurrentWriteDetected;
 use Streak\Domain\Exception\EventAlreadyInStore;
 use Streak\Domain\Exception\EventNotInStore;
-use Streak\Infrastructure\EventBus\PDOPostgresEventStoreTest\Event1;
-use Streak\Infrastructure\EventBus\PDOPostgresEventStoreTest\Event2;
-use Streak\Infrastructure\EventBus\PDOPostgresEventStoreTest\Event3;
-use Streak\Infrastructure\EventBus\PDOPostgresEventStoreTest\Event4;
-use Streak\Infrastructure\EventBus\PDOPostgresEventStoreTest\ProducerId1;
-use Streak\Infrastructure\EventBus\PDOPostgresEventStoreTest\ProducerId2;
+use Streak\Infrastructure\EventBus\EventStoreTestCase\Event1;
+use Streak\Infrastructure\EventBus\EventStoreTestCase\Event2;
+use Streak\Infrastructure\EventBus\EventStoreTestCase\Event3;
+use Streak\Infrastructure\EventBus\EventStoreTestCase\Event4;
+use Streak\Infrastructure\EventBus\EventStoreTestCase\ProducerId1;
+use Streak\Infrastructure\EventBus\EventStoreTestCase\ProducerId2;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -300,7 +300,7 @@ abstract class EventStoreTestCase extends TestCase
     abstract protected function newEventStore() : EventStore;
 }
 
-namespace Streak\Infrastructure\EventBus\PDOPostgresEventStoreTest;
+namespace Streak\Infrastructure\EventBus\EventStoreTestCase;
 
 use Streak\Domain;
 
