@@ -16,6 +16,7 @@ namespace Streak\Infrastructure;
 use PHPUnit\Framework\TestCase;
 use Streak\Domain\Event;
 use Streak\Domain\EventStore;
+use Streak\Domain\Exception\ConcurrentWriteDetected;
 use Streak\Domain\Id\UUID;
 use Streak\Infrastructure\UnitOfWorkTest\NonVersionableEventSourcedStub;
 use Streak\Infrastructure\UnitOfWorkTest\VersionableEventSourcedStub;
@@ -163,12 +164,15 @@ class UnitOfWorkTest extends TestCase
 
     public function testError()
     {
-        $exception = new \RuntimeException();
-
         $id1 = UUID::create();
         $id2 = UUID::create();
+        $id3 = UUID::create();
         $object1 = new VersionableEventSourcedStub($id1, 0, $this->event1);
         $object2 = new VersionableEventSourcedStub($id2, 0, $this->event2);
+        $object3 = new VersionableEventSourcedStub($id3, 1, $this->event3);
+
+        $unknownError = new \RuntimeException();
+        $concurrencyError = new ConcurrentWriteDetected($id3);
 
         $uow = new UnitOfWork($this->store);
 
@@ -179,7 +183,7 @@ class UnitOfWorkTest extends TestCase
             ->expects($this->at(0))
             ->method('add')
             ->with($id1, 0, $this->event1)
-            ->willThrowException($exception)
+            ->willThrowException($unknownError)
         ;
 
         $this->store
@@ -192,7 +196,7 @@ class UnitOfWorkTest extends TestCase
             ->expects($this->at(2))
             ->method('add')
             ->with($id2, 0, $this->event2)
-            ->willThrowException($exception)
+            ->willThrowException($unknownError)
         ;
 
         $this->store
@@ -201,33 +205,58 @@ class UnitOfWorkTest extends TestCase
             ->with($id2, 0, $this->event2)
         ;
 
+        $this->store
+            ->expects($this->at(4))
+            ->method('add')
+            ->with($id3, 1, $this->event3)
+            ->willThrowException($concurrencyError)
+        ;
+
         try {
             $uow->commit();
-        } catch (\RuntimeException $actual) {
-            $this->assertSame($exception, $actual);
+        } catch (\RuntimeException $exception1) {
+            $this->assertSame($unknownError, $exception1);
             $this->assertSame(2, $uow->count());
             $this->assertTrue($uow->has($object1));
             $this->assertTrue($uow->has($object2));
+        } finally {
+            $this->assertTrue(isset($exception1));
         }
 
         // retry
         try {
             $uow->commit();
-        } catch (\RuntimeException $actual) {
-            $this->assertSame($exception, $actual);
+        } catch (\RuntimeException $exception2) {
+            $this->assertSame($unknownError, $exception2);
             $this->assertSame(1, $uow->count());
             $this->assertFalse($uow->has($object1));
             $this->assertTrue($uow->has($object2));
+        } finally {
+            $this->assertTrue(isset($exception2));
         }
 
         // retry
         try {
             $uow->commit();
-        } catch (\RuntimeException $actual) {
-            $this->assertSame($exception, $actual);
+        } catch (\RuntimeException $exception3) {
+        } finally {
             $this->assertSame(0, $uow->count());
             $this->assertFalse($uow->has($object1));
             $this->assertFalse($uow->has($object2));
+            $this->assertFalse(isset($exception3));
+        }
+
+        $uow->add($object3);
+
+        try {
+            $uow->commit();
+        } catch (ConcurrentWriteDetected $exception4) {
+            $this->assertSame(0, $uow->count());
+            $this->assertFalse($uow->has($object1));
+            $this->assertFalse($uow->has($object2));
+            $this->assertFalse($uow->has($object3)); // object was removed instead of saved for later retry
+        } finally {
+            $this->assertTrue(isset($exception4));
         }
     }
 }

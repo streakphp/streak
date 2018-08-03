@@ -15,6 +15,7 @@ namespace Streak\Infrastructure;
 
 use Streak\Domain;
 use Streak\Domain\Event;
+use Streak\Domain\Exception\ConcurrentWriteDetected;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -97,7 +98,11 @@ class UnitOfWork
                         if ($producer instanceof Domain\Versionable) {
                             $producer->commit();
                         }
+                    } catch (ConcurrentWriteDetected $e) {
+                        // version must be wrong so nothing good if we retry it later on...
+                        throw $e;
                     } catch (\Exception $e) {
+                        // something unexpected occurred, so lets leave uow in state from just before it happened - we may like to retry it later...
                         array_unshift($this->producers, [$producer, $version]);
                         throw $e;
                     }
