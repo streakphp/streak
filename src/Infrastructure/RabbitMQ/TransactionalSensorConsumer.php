@@ -39,7 +39,7 @@ class TransactionalSensorConsumer implements ConsumerInterface
             $result = $this->consumer->execute($message);
 
             if (false !== $result) {
-                $this->uow->commit();
+                iterator_to_array($this->uow->commit());
             }
 
             return $result;

@@ -72,7 +72,12 @@ class SubscriberTest extends TestCase
     private $event1;
 
     /**
-     * @var UnitOfWork
+     * @var Event\Producer|MockObject
+     */
+    private $producer1;
+
+    /**
+     * @var UnitOfWork|MockObject
      */
     private $uow;
 
@@ -83,14 +88,11 @@ class SubscriberTest extends TestCase
         $this->listenerFactory = $this->getMockBuilder(Event\Listener\Factory::class)->getMockForAbstractClass();
         $this->subscriptionFactory = $this->getMockBuilder(Event\Subscription\Factory::class)->getMockForAbstractClass();
         $this->subscriptionsRepository = $this->getMockBuilder(Event\Subscription\Repository::class)->getMockForAbstractClass();
-
         $this->listener1 = $this->getMockBuilder(Event\Listener::class)->getMockForAbstractClass();
-
         $this->subscription1 = $this->getMockBuilder(Event\Subscription::class)->getMockForAbstractClass();
-
         $this->event1 = $this->getMockBuilder(Event::class)->getMockForAbstractClass();
-
-        $this->uow = new UnitOfWork($this->store);
+        $this->producer1 = $this->getMockBuilder(Event\Producer::class)->getMockForAbstractClass();
+        $this->uow = $this->getMockBuilder(UnitOfWork::class)->getMockForAbstractClass();
     }
 
     public function testSubscriber()
@@ -108,6 +110,11 @@ class SubscriberTest extends TestCase
             ->method('createFor')
             ->with($this->event1)
             ->willThrowException(new Exception\InvalidEventGiven($this->event1))
+        ;
+
+        $this->uow
+            ->expects($this->never())
+            ->method('commit')
         ;
 
         $processed = $subscriber->on($this->event1);
@@ -146,6 +153,13 @@ class SubscriberTest extends TestCase
             ->with($this->subscription1)
         ;
 
+        $this->uow
+            ->expects($this->once())
+            ->method('commit')
+            ->with()
+            ->willReturn($this->committed($this->producer1))
+        ;
+
         $processed = $subscriber->on($this->event1);
 
         $this->assertTrue($processed);
@@ -181,6 +195,11 @@ class SubscriberTest extends TestCase
             ->method('add')
         ;
 
+        $this->uow
+            ->expects($this->never())
+            ->method('commit')
+        ;
+
         $processed = $subscriber->on($this->event1);
 
         $this->assertTrue($processed);
@@ -198,6 +217,11 @@ class SubscriberTest extends TestCase
         $this->subscriptionFactory
             ->expects($this->never())
             ->method('create')
+        ;
+
+        $this->uow
+            ->expects($this->never())
+            ->method('commit')
         ;
 
         $processed = $subscriber->on(new SubscriptionStarted($this->event1, new \DateTime()));
@@ -224,5 +248,12 @@ class SubscriberTest extends TestCase
         ;
 
         $subscriber->listenTo($this->bus);
+    }
+
+    public function committed(Event\Producer ...$producers) : \Generator
+    {
+        foreach ($producers as $producer) {
+            yield $producer;
+        }
     }
 }

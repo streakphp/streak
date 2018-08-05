@@ -82,7 +82,7 @@ class Subscriber implements Listener
 
         $subscription->startFor($event, new \DateTime());
 
-        $this->uow->commit(); // TODO: remove
+        iterator_to_array($this->uow->commit()); // TODO: remove
 
         return true;
     }

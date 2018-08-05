@@ -42,7 +42,7 @@ class TransactionalSensorConsumerTest extends TestCase
     protected function setUp()
     {
         $this->consumer = $this->getMockBuilder(ConsumerInterface::class)->getMockForAbstractClass();
-        $this->uow = $this->getMockBuilder(UnitOfWork::class)->disableOriginalConstructor()->getMock();
+        $this->uow = $this->getMockBuilder(UnitOfWork::class)->getMockForAbstractClass();
     }
 
     public function testAck()

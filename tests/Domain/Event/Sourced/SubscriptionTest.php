@@ -132,7 +132,7 @@ class SubscriptionTest extends TestCase
         $this->assertSame($this->id1, $subscription->subscriptionId());
         $this->assertSame($this->id1, $subscription->producerId());
         $this->assertNull($subscription->lastReplayed());
-        $this->assertNull($subscription->last());
+        $this->assertNull($subscription->lastEvent());
         $this->assertEmpty($subscription->events());
 
         $subscription->startFor($this->event1, $now);
@@ -140,7 +140,7 @@ class SubscriptionTest extends TestCase
         $this->assertSame($this->id1, $subscription->subscriptionId());
         $this->assertSame($this->id1, $subscription->producerId());
         $this->assertNull($subscription->lastReplayed());
-        $this->assertEquals(new SubscriptionStarted($this->event1, $now), $subscription->last());
+        $this->assertEquals(new SubscriptionStarted($this->event1, $now), $subscription->lastEvent());
         $this->assertEquals([new SubscriptionStarted($this->event1, $now)], $subscription->events());
 
         $this->store
@@ -183,7 +183,7 @@ class SubscriptionTest extends TestCase
         $subscription->replay($this->stream1);
 
         $this->assertSame($event2, $subscription->lastReplayed());
-        $this->assertSame($event2, $subscription->last());
+        $this->assertSame($event2, $subscription->lastEvent());
         $this->assertEmpty($subscription->events());
 
         $this->store
@@ -239,7 +239,7 @@ class SubscriptionTest extends TestCase
         $subscription->replay($this->stream1);
 
         $this->assertSame($event2, $subscription->lastReplayed());
-        $this->assertSame($event2, $subscription->last());
+        $this->assertSame($event2, $subscription->lastEvent());
         $this->assertEmpty($subscription->events());
 
         $this->store
@@ -291,7 +291,7 @@ class SubscriptionTest extends TestCase
         $subscription->replay($this->stream1);
 
         $this->assertSame($event1, $subscription->lastReplayed());
-        $this->assertSame($event1, $subscription->last());
+        $this->assertSame($event1, $subscription->lastEvent());
         $this->assertEmpty($subscription->events());
 
         $this->store
@@ -361,7 +361,7 @@ class SubscriptionTest extends TestCase
         $subscription->replay($this->stream1);
 
         $this->assertSame($event2, $subscription->lastReplayed());
-        $this->assertSame($event2, $subscription->last());
+        $this->assertSame($event2, $subscription->lastEvent());
         $this->assertEmpty($subscription->events());
 
         $this->store
@@ -406,7 +406,7 @@ class SubscriptionTest extends TestCase
         $this->assertSame($this->id1, $subscription->subscriptionId());
         $this->assertSame($this->id1, $subscription->producerId());
         $this->assertNull($subscription->lastReplayed());
-        $this->assertNull($subscription->last());
+        $this->assertNull($subscription->lastEvent());
         $this->assertEmpty($subscription->events());
 
         $this->store

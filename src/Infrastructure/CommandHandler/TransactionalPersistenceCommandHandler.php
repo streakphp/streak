@@ -41,6 +41,6 @@ class TransactionalPersistenceCommandHandler implements Application\CommandHandl
     {
         $this->handler->handle($command);
 
-        $this->uow->commit();
+        iterator_to_array($this->uow->commit());
     }
 }

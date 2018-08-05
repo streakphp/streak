@@ -16,7 +16,8 @@ namespace Streak\Infrastructure\AggregateRoot\Repository;
 use Streak\Domain;
 use Streak\Domain\Event;
 use Streak\Domain\Exception;
-use Streak\Infrastructure;
+use Streak\Infrastructure\AggregateRoot\Snapshotter;
+use Streak\Infrastructure\UnitOfWork;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -34,14 +35,20 @@ class EventSourcedRepository implements Domain\AggregateRoot\Repository
     private $store;
 
     /**
-     * @var Infrastructure\UnitOfWork
+     * @var Snapshotter
+     */
+    private $snapshotter;
+
+    /**
+     * @var UnitOfWork
      */
     private $uow;
 
-    public function __construct(Domain\AggregateRoot\Factory $factory, Domain\EventStore $store, Infrastructure\UnitOfWork $uow)
+    public function __construct(Domain\AggregateRoot\Factory $factory, Domain\EventStore $store, Snapshotter $snapshotter, UnitOfWork $uow)
     {
         $this->factory = $factory;
         $this->store = $store;
+        $this->snapshotter = $snapshotter;
         $this->uow = $uow;
     }
 
@@ -53,10 +60,30 @@ class EventSourcedRepository implements Domain\AggregateRoot\Repository
             throw new Exception\ObjectNotSupported($aggregate);
         }
 
+        $aggregate = $this->snapshotter->restoreToSnapshot($aggregate);
+
+        if (!$aggregate instanceof Domain\Event\Sourced\AggregateRoot) {
+            throw new Exception\ObjectNotSupported($aggregate);
+        }
+
         $stream = $this->store->stream($id);
 
+        if ($aggregate->lastEvent()) {
+            $stream = $stream->after($aggregate->lastEvent());
+        }
+
         if ($stream->empty()) {
-            return null;
+            // aggregate from snapshot is fresh
+            if ($aggregate->version() > 0) {
+                $this->uow->add($aggregate);
+
+                return $aggregate;
+            }
+
+            // aggregate does not exist
+            if (0 === $aggregate->version()) {
+                return null;
+            }
         }
 
         $aggregate->replay($stream);

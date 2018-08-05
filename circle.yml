@@ -3,16 +3,22 @@ version: 2
 jobs:
   build:
     docker:
-      - image: streakphp/php:latest
+      - image: streakphp/php72-cli:latest
+        environment:
+          COMPOSER_NO_INTERACTION: 1
+          COMPOSER_ALLOW_SUPERUSER: 1
+          PHPUNIT_POSTGRES_DNS: pgsql:dbname=phpunit;host=localhost;port=5432;user=phpunit;password=phpunit
+          PHPUNIT_REDIS_HOST: localhost
       - image: postgres:9.5
         environment:
-        - POSTGRES_USER=phpunit
-        - POSTGRES_DB=phpunit
+          POSTGRES_USER: phpunit
+          POSTGRES_DB: phpunit
+      - image: redis
     working_directory: ~/streak
     steps:
       - checkout
 
-      - run: sudo composer self-update
+      - run: composer self-update
       - restore_cache:
           keys:
             - composer-v1-{{ checksum "composer.json" }}
@@ -24,7 +30,7 @@ jobs:
             - vendor/
 
       - run: bin/php-cs-fixer fix --config=.php_cs.dist --diff --diff-format=udiff -v --show-progress=estimating --dry-run
-      - run: bin/phpunit
+      - run: xphp bin/phpunit
 
       - store_artifacts:
           path: build/code-coverage/

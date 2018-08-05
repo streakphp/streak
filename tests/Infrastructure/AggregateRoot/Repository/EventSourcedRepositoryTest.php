@@ -13,10 +13,12 @@ declare(strict_types=1);
 
 namespace Streak\Infrastructure\AggregateRoot\Repository;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Streak\Domain;
 use Streak\Domain\Event;
 use Streak\Infrastructure;
+use Streak\Infrastructure\UnitOfWork;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -26,57 +28,62 @@ use Streak\Infrastructure;
 class EventSourcedRepositoryTest extends TestCase
 {
     /**
-     * @var Domain\AggregateRoot\Factory|\PHPUnit_Framework_MockObject_MockObject
+     * @var Domain\AggregateRoot\Factory|MockObject
      */
     private $factory;
 
     /**
-     * @var Domain\EventStore|\PHPUnit_Framework_MockObject_MockObject
+     * @var Domain\EventStore|MockObject
      */
     private $store;
 
     /**
-     * @var Infrastructure\UnitOfWork
+     * @var Infrastructure\AggregateRoot\Snapshotter|MockObject
+     */
+    private $snapshotter;
+
+    /**
+     * @var UnitOfWork|MockObject
      */
     private $uow;
 
     /**
-     * @var Domain\AggregateRoot|\PHPUnit_Framework_MockObject_MockObject
+     * @var Domain\AggregateRoot|MockObject
      */
     private $nonEventSourcedAggregateRoot;
 
     /**
-     * @var Event\Sourced\AggregateRoot|\PHPUnit_Framework_MockObject_MockObject
+     * @var Event\Sourced\AggregateRoot|MockObject
      */
     private $aggregateRoot;
 
     /**
-     * @var Event\Sourced\AggregateRoot\Id|\PHPUnit_Framework_MockObject_MockObject
+     * @var Event\Sourced\AggregateRoot\Id|MockObject
      */
     private $aggregateRootId;
 
     /**
-     * @var Domain\Event|\PHPUnit_Framework_MockObject_MockObject
+     * @var Domain\Event|MockObject
      */
     private $event1;
 
     /**
-     * @var Domain\Event|\PHPUnit_Framework_MockObject_MockObject
+     * @var Domain\Event|MockObject
      */
     private $event2;
 
     /**
-     * @var Domain\Event|\PHPUnit_Framework_MockObject_MockObject
+     * @var Domain\Event|MockObject
      */
     private $event3;
 
     /**
-     * @var Domain\Event|\PHPUnit_Framework_MockObject_MockObject
+     * @var Domain\Event|MockObject
      */
     private $event4;
 
     /**
-     * @var Event\Stream|\PHPUnit_Framework_MockObject_MockObject
+     * @var Event\Stream|MockObject
      */
     private $stream;
 
@@ -84,7 +91,8 @@ class EventSourcedRepositoryTest extends TestCase
     {
         $this->factory = $this->getMockBuilder(Domain\AggregateRoot\Factory::class)->getMockForAbstractClass();
         $this->store = $this->getMockBuilder(Domain\EventStore::class)->getMockForAbstractClass();
-        $this->uow = new Infrastructure\UnitOfWork($this->store);
+        $this->snapshotter = $this->getMockBuilder(Infrastructure\AggregateRoot\Snapshotter::class)->getMockForAbstractClass();
+        $this->uow = $this->getMockBuilder(UnitOfWork::class)->getMockForAbstractClass();
 
         $this->nonEventSourcedAggregateRoot = $this->getMockBuilder(Domain\AggregateRoot::class)->getMockForAbstractClass();
         $this->aggregateRoot = $this->getMockBuilder(Event\Sourced\AggregateRoot::class)->getMockForAbstractClass();
@@ -100,6 +108,11 @@ class EventSourcedRepositoryTest extends TestCase
 
     public function testFindingNonEventSourcedAggregate()
     {
+        $this->uow
+            ->expects($this->never())
+            ->method($this->anything())
+        ;
+
         $this->factory
             ->expects($this->once())
             ->method('create')
@@ -107,7 +120,31 @@ class EventSourcedRepositoryTest extends TestCase
             ->willReturn($this->nonEventSourcedAggregateRoot)
         ;
 
-        $repository = new EventSourcedRepository($this->factory, $this->store, $this->uow);
+        $repository = new EventSourcedRepository($this->factory, $this->store, $this->snapshotter, $this->uow);
+
+        $exception = new Domain\Exception\ObjectNotSupported($this->nonEventSourcedAggregateRoot);
+        $this->expectExceptionObject($exception);
+
+        $repository->find($this->aggregateRootId);
+    }
+
+    public function testRestoringToNonEventSourcedAggregate()
+    {
+        $this->factory
+            ->expects($this->once())
+            ->method('create')
+            ->with($this->aggregateRootId)
+            ->willReturn($this->aggregateRoot)
+        ;
+
+        $this->snapshotter
+            ->expects($this->once())
+            ->method('restoreToSnapshot')
+            ->with($this->aggregateRoot)
+            ->willReturn($this->nonEventSourcedAggregateRoot)
+        ;
+
+        $repository = new EventSourcedRepository($this->factory, $this->store, $this->snapshotter, $this->uow);
 
         $exception = new Domain\Exception\ObjectNotSupported($this->nonEventSourcedAggregateRoot);
         $this->expectExceptionObject($exception);
@@ -117,6 +154,11 @@ class EventSourcedRepositoryTest extends TestCase
 
     public function testFindingAggregateNotCompatibleWithStore()
     {
+        $this->uow
+            ->expects($this->never())
+            ->method($this->anything())
+        ;
+
         $this->factory
             ->expects($this->once())
             ->method('create')
@@ -133,7 +175,7 @@ class EventSourcedRepositoryTest extends TestCase
             ->willThrowException($exception1)
         ;
 
-        $repository = new EventSourcedRepository($this->factory, $this->store, $this->uow);
+        $repository = new EventSourcedRepository($this->factory, $this->store, $this->snapshotter, $this->uow);
 
         $exception2 = new Domain\Exception\ObjectNotSupported($this->nonEventSourcedAggregateRoot, $exception1);
         $this->expectExceptionObject($exception2);
@@ -143,11 +185,72 @@ class EventSourcedRepositoryTest extends TestCase
 
     public function testFindingAggregateIfNoEventsInStore()
     {
+        $this->uow
+            ->expects($this->never())
+            ->method($this->anything())
+        ;
+
         $this->factory
             ->expects($this->once())
             ->method('create')
             ->with($this->aggregateRootId)
             ->willReturn($this->aggregateRoot)
+        ;
+
+        $this->snapshotter
+            ->expects($this->once())
+            ->method('restoreToSnapshot')
+            ->with($this->aggregateRoot)
+            ->willReturn($this->aggregateRoot)
+        ;
+
+        $this->store
+            ->expects($this->once())
+            ->method('stream')
+            ->with($this->aggregateRootId)
+            ->willReturn($this->stream)
+        ;
+
+        $this->aggregateRoot
+            ->expects($this->atLeastOnce())
+            ->method('version')
+            ->willReturn(0)
+        ;
+
+        $this->stream
+            ->expects($this->once())
+            ->method('empty')
+            ->willReturn(true)
+        ;
+
+        $repository = new EventSourcedRepository($this->factory, $this->store, $this->snapshotter, $this->uow);
+
+        $aggregate = $repository->find($this->aggregateRootId);
+
+        $this->assertNull($aggregate);
+    }
+
+    public function testFindingStaleSnapshottedAggregate()
+    {
+        $this->factory
+            ->expects($this->once())
+            ->method('create')
+            ->with($this->aggregateRootId)
+            ->willReturn($this->aggregateRoot)
+        ;
+
+        $this->snapshotter
+            ->expects($this->once())
+            ->method('restoreToSnapshot')
+            ->with($this->aggregateRoot)
+            ->willReturn($this->aggregateRoot)
+        ;
+
+        $this->aggregateRoot
+            ->expects($this->atLeastOnce())
+            ->method('lastEvent')
+            ->with()
+            ->willReturn($this->event1)
         ;
 
         $this->store
@@ -159,15 +262,102 @@ class EventSourcedRepositoryTest extends TestCase
 
         $this->stream
             ->expects($this->once())
+            ->method('after')
+            ->with($this->event1)
+            ->willReturnSelf()
+        ;
+
+        $this->stream
+            ->expects($this->once())
+            ->method('empty')
+            ->willReturn(false)
+        ;
+
+        $this->aggregateRoot
+            ->expects($this->once())
+            ->method('replay')
+            ->with($this->stream)
+        ;
+
+        $this->uow
+            ->expects($this->once())
+            ->method('add')
+            ->with($this->aggregateRoot)
+        ;
+
+        $repository = new EventSourcedRepository($this->factory, $this->store, $this->snapshotter, $this->uow);
+
+        $aggregate = $repository->find($this->aggregateRootId);
+
+        $this->assertSame($this->aggregateRoot, $aggregate);
+    }
+
+    public function testFindingFreshSnapshottedAggregate()
+    {
+        $this->factory
+            ->expects($this->once())
+            ->method('create')
+            ->with($this->aggregateRootId)
+            ->willReturn($this->aggregateRoot)
+        ;
+
+        $this->snapshotter
+            ->expects($this->once())
+            ->method('restoreToSnapshot')
+            ->with($this->aggregateRoot)
+            ->willReturn($this->aggregateRoot)
+        ;
+
+        $this->aggregateRoot
+            ->expects($this->atLeastOnce())
+            ->method('lastEvent')
+            ->with()
+            ->willReturn($this->event1)
+        ;
+
+        $this->store
+            ->expects($this->once())
+            ->method('stream')
+            ->with($this->aggregateRootId)
+            ->willReturn($this->stream)
+        ;
+
+        $this->stream
+            ->expects($this->once())
+            ->method('after')
+            ->with($this->event1)
+            ->willReturnSelf()
+        ;
+
+        $this->stream
+            ->expects($this->once())
             ->method('empty')
             ->willReturn(true)
         ;
 
-        $repository = new EventSourcedRepository($this->factory, $this->store, $this->uow);
+        $this->aggregateRoot
+            ->expects($this->atLeastOnce())
+            ->method('version')
+            ->willReturn(1)
+        ;
+
+        $this->aggregateRoot
+            ->expects($this->never())
+            ->method('replay')
+            ->with($this->stream)
+        ;
+
+        $this->uow
+            ->expects($this->once())
+            ->method('add')
+            ->with($this->aggregateRoot)
+        ;
+
+        $repository = new EventSourcedRepository($this->factory, $this->store, $this->snapshotter, $this->uow);
 
         $aggregate = $repository->find($this->aggregateRootId);
 
-        $this->assertNull($aggregate);
+        $this->assertSame($this->aggregateRoot, $aggregate);
     }
 
     public function testFindingAggregate()
@@ -176,6 +366,13 @@ class EventSourcedRepositoryTest extends TestCase
             ->expects($this->once())
             ->method('create')
             ->with($this->aggregateRootId)
+            ->willReturn($this->aggregateRoot)
+        ;
+
+        $this->snapshotter
+            ->expects($this->once())
+            ->method('restoreToSnapshot')
+            ->with($this->aggregateRoot)
             ->willReturn($this->aggregateRoot)
         ;
 
@@ -198,7 +395,13 @@ class EventSourcedRepositoryTest extends TestCase
             ->with($this->stream)
         ;
 
-        $repository = new EventSourcedRepository($this->factory, $this->store, $this->uow);
+        $this->uow
+            ->expects($this->once())
+            ->method('add')
+            ->with($this->aggregateRoot)
+        ;
+
+        $repository = new EventSourcedRepository($this->factory, $this->store, $this->snapshotter, $this->uow);
 
         $aggregate = $repository->find($this->aggregateRootId);
 
@@ -207,32 +410,27 @@ class EventSourcedRepositoryTest extends TestCase
 
     public function testAddingNonEventSourcedAggregate()
     {
+        $this->uow
+            ->expects($this->never())
+            ->method($this->anything())
+        ;
+
         $exception = new Domain\Exception\ObjectNotSupported($this->nonEventSourcedAggregateRoot);
         $this->expectExceptionObject($exception);
 
-        $repository = new EventSourcedRepository($this->factory, $this->store, $this->uow);
+        $repository = new EventSourcedRepository($this->factory, $this->store, $this->snapshotter, $this->uow);
         $repository->add($this->nonEventSourcedAggregateRoot);
     }
 
     public function testAddingAggregate()
     {
-        $this->aggregateRoot
-            ->expects($this->atLeastOnce())
-            ->method('producerId')
-            ->with()
-            ->willReturn($this->aggregateRootId)
+        $this->uow
+            ->expects($this->once())
+            ->method('add')
+            ->with($this->aggregateRoot)
         ;
 
-        $this->aggregateRootId
-            ->expects($this->atLeastOnce())
-            ->method('equals')
-            ->with($this->aggregateRootId)
-            ->willReturn(true)
-        ;
-
-        $repository = new EventSourcedRepository($this->factory, $this->store, $this->uow);
+        $repository = new EventSourcedRepository($this->factory, $this->store, $this->snapshotter, $this->uow);
         $repository->add($this->aggregateRoot);
-
-        $this->assertTrue($this->uow->has($this->aggregateRoot));
     }
 }

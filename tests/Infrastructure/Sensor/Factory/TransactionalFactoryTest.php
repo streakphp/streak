@@ -43,7 +43,7 @@ class TransactionalFactoryTest extends TestCase
     protected function setUp()
     {
         $this->factory = $this->getMockBuilder(Sensor\Factory::class)->getMockForAbstractClass();
-        $this->uow = $this->getMockBuilder(UnitOfWork::class)->disableOriginalConstructor()->getMock();
+        $this->uow = $this->getMockBuilder(UnitOfWork::class)->getMockForAbstractClass();
         $this->sensor = $this->getMockBuilder(Sensor::class)->getMockForAbstractClass();
     }
 

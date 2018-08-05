@@ -69,7 +69,7 @@ class Scenario implements Scenario\Given, Scenario\When, Scenario\Then
         Assert::assertNotEmpty($this->events, 'No events provided for scenario.');
 
         $this->store->clear();
-        $this->uow->commit();
+        iterator_to_array($this->uow->commit());
 
         $actual = iterator_to_array($this->store);
 
