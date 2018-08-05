@@ -11,16 +11,22 @@
 
 declare(strict_types=1);
 
-namespace Streak\Domain\Event\Sourced;
+namespace Streak\Infrastructure\Serializer;
 
-use Streak\Domain;
-use Streak\Domain\Event;
-use Streak\Domain\Versionable;
+use Streak\Infrastructure\Serializer;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-interface AggregateRoot extends Domain\AggregateRoot, Event\Sourced, Versionable
+class PhpSerializer implements Serializer
 {
-    public function lastEvent() : ?Event;
+    public function serialize($subject) : string
+    {
+        return \serialize($subject);
+    }
+
+    public function unserialize($serialized)
+    {
+        return \unserialize($serialized);
+    }
 }

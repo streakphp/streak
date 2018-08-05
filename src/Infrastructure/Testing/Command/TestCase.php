@@ -18,8 +18,9 @@ use Streak\Application;
 use Streak\Domain;
 use Streak\Domain\AggregateRoot;
 use Streak\Infrastructure\AggregateRoot\Repository\EventSourcedRepository;
+use Streak\Infrastructure\AggregateRoot\Snapshotter\NullSnapshotter;
 use Streak\Infrastructure\EventStore\InMemoryEventStore;
-use Streak\Infrastructure\UnitOfWork;
+use Streak\Infrastructure\UnitOfWork\EventStoreUnitOfWork;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -29,6 +30,7 @@ use Streak\Infrastructure\UnitOfWork;
 abstract class TestCase extends PHPUnit\Framework\TestCase
 {
     private $store;
+    private $snapshotter;
     private $uow;
     private $repository;
     private $scenarioExecuted;
@@ -36,8 +38,9 @@ abstract class TestCase extends PHPUnit\Framework\TestCase
     public function setUp()
     {
         $this->store = new InMemoryEventStore();
-        $this->uow = new UnitOfWork($this->store);
-        $this->repository = new EventSourcedRepository($this->createFactory(), $this->store, $this->uow);
+        $this->snapshotter = new NullSnapshotter();
+        $this->uow = new EventStoreUnitOfWork($this->store);
+        $this->repository = new EventSourcedRepository($this->createFactory(), $this->store, $this->snapshotter, $this->uow);
         $this->scenarioExecuted = false;
     }
 

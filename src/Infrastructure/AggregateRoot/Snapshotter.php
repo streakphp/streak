@@ -11,16 +11,16 @@
 
 declare(strict_types=1);
 
-namespace Streak\Domain\Event\Sourced;
+namespace Streak\Infrastructure\AggregateRoot;
 
-use Streak\Domain;
-use Streak\Domain\Event;
-use Streak\Domain\Versionable;
+use Streak\Domain\AggregateRoot;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-interface AggregateRoot extends Domain\AggregateRoot, Event\Sourced, Versionable
+interface Snapshotter
 {
-    public function lastEvent() : ?Event;
+    public function restoreToSnapshot(AggregateRoot $aggregate) : AggregateRoot;
+
+    public function takeSnapshot(AggregateRoot $aggregate) : AggregateRoot;
 }

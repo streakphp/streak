@@ -21,7 +21,7 @@ use Streak\Domain\Event;
 trait Sourcing // implements Event\Consumer, Event\Producer, Domain\Identifiable, Domain\Versionable
 {
     private $events = [];
-    private $last;
+    private $lastEvent;
     private $replaying = false;
     private $lastReplayed;
     private $version = 0;
@@ -51,9 +51,9 @@ trait Sourcing // implements Event\Consumer, Event\Producer, Domain\Identifiable
         return $this->lastReplayed;
     }
 
-    final public function last() : ?Event
+    final public function lastEvent() : ?Event
     {
-        return $this->last;
+        return $this->lastEvent;
     }
 
     final public function version() : int
@@ -87,19 +87,20 @@ trait Sourcing // implements Event\Consumer, Event\Producer, Domain\Identifiable
         try { // TODO: simplify?
             $version = $this->version;
             $lastReplayed = $this->lastReplayed;
-            $last = $this->last;
+            $last = $this->lastEvent;
 
-            $this->last = $event;
+            $this->lastEvent = $event;
             if ($this->replaying) {
                 ++$this->version;
                 $this->lastReplayed = $event;
             } else {
                 $this->events[] = $event;
             }
+            $this->lastEvent = $event;
 
             $this->doApplyEvent($event);
         } catch (\Throwable $e) {
-            $this->last = $last;
+            $this->lastEvent = $last;
 
             if ($this->replaying) {
                 $this->version = $version;

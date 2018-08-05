@@ -11,16 +11,14 @@
 
 declare(strict_types=1);
 
-namespace Streak\Domain\Event\Sourced;
-
-use Streak\Domain;
-use Streak\Domain\Event;
-use Streak\Domain\Versionable;
+namespace Streak\Infrastructure;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-interface AggregateRoot extends Domain\AggregateRoot, Event\Sourced, Versionable
+interface Serializer
 {
-    public function lastEvent() : ?Event;
+    public function serialize($subject) : string;
+
+    public function unserialize($serialized);
 }

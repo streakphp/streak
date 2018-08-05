@@ -11,8 +11,9 @@
 
 declare(strict_types=1);
 
-namespace Streak\Infrastructure;
+namespace Streak\Infrastructure\UnitOfWork;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Streak\Domain\Event;
 use Streak\Domain\EventStore;
@@ -24,37 +25,37 @@ use Streak\Infrastructure\UnitOfWorkTest\VersionableEventSourcedStub;
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  *
- * @covers \Streak\Infrastructure\UnitOfWork
+ * @covers \Streak\Infrastructure\UnitOfWork\EventStoreUnitOfWork
  */
-class UnitOfWorkTest extends TestCase
+class EventStoreUnitOfWorkTest extends TestCase
 {
     /**
-     * @var EventStore|\PHPUnit_Framework_MockObject_MockObject
+     * @var EventStore|MockObject
      */
     private $store;
 
     /**
-     * @var Event\Sourced|\PHPUnit_Framework_MockObject_MockObject
+     * @var Event\Sourced|MockObject
      */
     private $event1;
 
     /**
-     * @var Event\Sourced|\PHPUnit_Framework_MockObject_MockObject
+     * @var Event\Sourced|MockObject
      */
     private $event2;
 
     /**
-     * @var Event\Sourced|\PHPUnit_Framework_MockObject_MockObject
+     * @var Event\Sourced|MockObject
      */
     private $event3;
 
     /**
-     * @var Event\Sourced|\PHPUnit_Framework_MockObject_MockObject
+     * @var Event\Sourced|MockObject
      */
     private $event4;
 
     /**
-     * @var Event\Sourced|\PHPUnit_Framework_MockObject_MockObject
+     * @var Event\Sourced|MockObject
      */
     private $event5;
 
@@ -81,7 +82,15 @@ class UnitOfWorkTest extends TestCase
         $object3 = new VersionableEventSourcedStub($id3, 2, $this->event3, $this->event4);
         $object4 = new NonVersionableEventSourcedStub($id4, $this->event5);
 
-        $uow = new UnitOfWork($this->store);
+        $uow = new EventStoreUnitOfWork($this->store);
+
+        $this->assertEquals(0, $uow->count());
+        $this->assertFalse($uow->has($object1));
+        $this->assertFalse($uow->has($object2));
+        $this->assertFalse($uow->has($object3));
+        $this->assertFalse($uow->has($object4));
+
+        $uow->remove($object1);
 
         $this->assertEquals(0, $uow->count());
         $this->assertFalse($uow->has($object1));
@@ -151,8 +160,10 @@ class UnitOfWorkTest extends TestCase
         $this->assertFalse($object2->commited());
         $this->assertFalse($object3->commited());
 
-        $uow->commit();
+        $commited = $uow->commit();
+        $commited = iterator_to_array($commited);
 
+        $this->assertSame([$object1, $object3, $object4], $commited);
         $this->assertTrue($object1->commited());
         $this->assertFalse($object2->commited());
         $this->assertTrue($object3->commited());
@@ -160,6 +171,7 @@ class UnitOfWorkTest extends TestCase
         $this->assertFalse($uow->has($object1));
         $this->assertFalse($uow->has($object2));
         $this->assertFalse($uow->has($object3));
+        $this->assertFalse($uow->has($object4));
     }
 
     public function testError()
@@ -174,7 +186,7 @@ class UnitOfWorkTest extends TestCase
         $unknownError = new \RuntimeException();
         $concurrencyError = new ConcurrentWriteDetected($id3);
 
-        $uow = new UnitOfWork($this->store);
+        $uow = new EventStoreUnitOfWork($this->store);
 
         $uow->add($object1);
         $uow->add($object2);
@@ -213,7 +225,7 @@ class UnitOfWorkTest extends TestCase
         ;
 
         try {
-            $uow->commit();
+            $commited = iterator_to_array($uow->commit());
         } catch (\RuntimeException $exception1) {
             $this->assertSame($unknownError, $exception1);
             $this->assertSame(2, $uow->count());
@@ -225,7 +237,7 @@ class UnitOfWorkTest extends TestCase
 
         // retry
         try {
-            $uow->commit();
+            $commited = iterator_to_array($uow->commit());
         } catch (\RuntimeException $exception2) {
             $this->assertSame($unknownError, $exception2);
             $this->assertSame(1, $uow->count());
@@ -237,8 +249,9 @@ class UnitOfWorkTest extends TestCase
 
         // retry
         try {
-            $uow->commit();
+            $commited = iterator_to_array($uow->commit());
         } catch (\RuntimeException $exception3) {
+            $this->assertSame([$object1], $commited);
         } finally {
             $this->assertSame(0, $uow->count());
             $this->assertFalse($uow->has($object1));
@@ -249,7 +262,7 @@ class UnitOfWorkTest extends TestCase
         $uow->add($object3);
 
         try {
-            $uow->commit();
+            $commited = iterator_to_array($uow->commit());
         } catch (ConcurrentWriteDetected $exception4) {
             $this->assertSame(0, $uow->count());
             $this->assertFalse($uow->has($object1));

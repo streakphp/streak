@@ -2,17 +2,22 @@ version: '3'
 services:
 
   php:
-    image: streakphp/php:latest
+    image: streakphp/php72-cli:latest
     volumes:
       - .:/var/www/project
+    working_dir: /var/www/project
     depends_on:
       - postgres
+      - redis
+    environment:
+      COMPOSER_ALLOW_SUPERUSER: 1
 
   postgres:
     image: postgres
-    ports:
-      - 5432:5432
     environment:
       POSTGRES_USER: phpunit
       POSTGRES_PASSWORD: phpunit
       POSTGRES_DB: phpunit
+
+  redis:
+    image: redis

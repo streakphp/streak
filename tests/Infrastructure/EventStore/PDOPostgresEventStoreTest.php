@@ -34,7 +34,7 @@ class PDOPostgresEventStoreTest extends EventStoreTestCase
 
     public static function setUpBeforeClass()
     {
-        self::$pdo = new \PDO($_ENV['DATABASE_URL']);
+        self::$pdo = new \PDO($_ENV['PHPUNIT_POSTGRES_DNS']);
     }
 
     public function messages() : array

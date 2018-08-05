@@ -13,110 +13,31 @@ declare(strict_types=1);
 
 namespace Streak\Infrastructure;
 
-use Streak\Domain;
+use Generator;
 use Streak\Domain\Event;
-use Streak\Domain\Exception\ConcurrentWriteDetected;
+use Streak\Domain\Exception;
+use Throwable;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-class UnitOfWork
+interface UnitOfWork
 {
-    /**
-     * @var Domain\EventStore
-     */
-    private $store;
+    public function add(Event\Producer $producer) : void;
+
+    public function remove(Event\Producer $producer) : void;
+
+    public function has(Event\Producer $producer) : bool;
+
+    public function count() : int;
 
     /**
-     * @var array[]
+     * @return Generator|Event\Producer[]
+     *
+     * @throws Exception\ConcurrentWriteDetected
+     * @throws Throwable
      */
-    private $producers = [];
+    public function commit() : \Generator;
 
-    private $committing = false;
-
-    public function __construct(Domain\EventStore $store)
-    {
-        $this->store = $store;
-        $this->producers = [];
-    }
-
-    public function add(Event\Producer $producer) : void
-    {
-        if (!$this->has($producer)) {
-            $version = null;
-            if ($producer instanceof Domain\Versionable) {
-                $version = $producer->version();
-            }
-            $this->producers[] = [$producer, $version];
-        }
-    }
-
-    public function remove(Event\Producer $producer) : void
-    {
-        foreach ($this->producers as $key => [$current, $last]) {
-            /* @var $current Event\Producer */
-            if ($current->producerId()->equals($producer->producerId())) {
-                unset($this->producers[$key]);
-
-                return;
-            }
-        }
-    }
-
-    public function has(Event\Producer $producer) : bool
-    {
-        foreach ($this->producers as $key => [$current, $last]) {
-            /* @var $current Event\Producer */
-            if ($current->producerId()->equals($producer->producerId())) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    public function count() : int
-    {
-        return count($this->producers);
-    }
-
-    public function commit() : void
-    {
-        if (false === $this->committing) {
-            $this->committing = true;
-
-            try {
-                while ($pair = array_shift($this->producers)) {
-                    [$producer, $version] = $pair;
-
-                    try {
-                        $producerId = $producer->producerId();
-                        $events = $producer->events();
-
-                        $this->store->add($producerId, $version, ...$events);
-
-                        if ($producer instanceof Domain\Versionable) {
-                            $producer->commit();
-                        }
-                    } catch (ConcurrentWriteDetected $e) {
-                        // version must be wrong so nothing good if we retry it later on...
-                        throw $e;
-                    } catch (\Exception $e) {
-                        // something unexpected occurred, so lets leave uow in state from just before it happened - we may like to retry it later...
-                        array_unshift($this->producers, [$producer, $version]);
-                        throw $e;
-                    }
-                }
-
-                $this->clear();
-            } finally {
-                $this->committing = false;
-            }
-        }
-    }
-
-    public function clear() : void
-    {
-        $this->producers = [];
-    }
+    public function clear() : void;
 }
