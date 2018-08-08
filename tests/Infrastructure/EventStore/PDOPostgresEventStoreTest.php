@@ -16,9 +16,9 @@ namespace Streak\Infrastructure\EventStore;
 use PHPUnit\Framework\MockObject\MockObject;
 use Streak\Domain\EventStore;
 use Streak\Domain\Exception\ConcurrentWriteDetected;
-use Streak\Infrastructure\Event\Converter\FlatObjectConverter;
 use Streak\Infrastructure\EventBus\EventStoreTestCase\Event1;
 use Streak\Infrastructure\EventBus\EventStoreTestCase\ProducerId1;
+use Streak\Infrastructure\Serializer\JsonSerializer;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -55,7 +55,7 @@ class PDOPostgresEventStoreTest extends EventStoreTestCase
         /** @var \PDOStatement|MockObject $statement */
         $statement = $this->getMockBuilder(\PDOStatement::class)->getMock();
         $exception = new \PDOException($message, 23505);
-        $store = new PDOPostgresEventStore($pdo, new FlatObjectConverter());
+        $store = new PDOPostgresEventStore($pdo, new JsonSerializer());
 
         $pdo
             ->expects($this->once())
@@ -79,7 +79,7 @@ class PDOPostgresEventStoreTest extends EventStoreTestCase
 
     protected function newEventStore() : EventStore
     {
-        $store = new PDOPostgresEventStore(self::$pdo, new FlatObjectConverter());
+        $store = new PDOPostgresEventStore(self::$pdo, new JsonSerializer());
         $store->drop();
         $store->create();
 

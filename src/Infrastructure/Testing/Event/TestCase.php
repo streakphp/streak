@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Streak\Infrastructure\Testing\Message;
 
 use Streak\Domain\Event;
+use Streak\Infrastructure\Serializer;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -27,13 +28,13 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
     /**
      * @dataProvider provideExampleMessages
      */
-    public function testConverting(Event $message)
+    public function testSerialization(Event $message)
     {
-        $array = $this->createConverter()->eventToArray($message);
-        $object = $this->createConverter()->arrayToEvent(get_class($message), $array);
+        $serialized = $this->createSerializer()->serialize($message);
+        $unserialized = $this->createSerializer()->unserialize($serialized);
 
-        $this->assertEquals($message, $object);
+        $this->assertEquals($message, $unserialized);
     }
 
-    abstract protected function createConverter() : Event\Converter;
+    abstract protected function createSerializer() : Serializer;
 }

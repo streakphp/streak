@@ -19,29 +19,18 @@ use Streak\Domain\Event\FilterableStream;
 use Streak\Domain\EventStore;
 use Streak\Domain\Exception;
 use Streak\Domain\Id\UUID;
+use Streak\Infrastructure\Serializer\JsonSerializer;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
 class PDOPostgresEventStore implements EventStore, Event\Log, Event\FilterableStream
 {
-    // TODO: make it configurable
-    private const EVENT_LOG_TABLE = 'events';
-    private const EVENT_LOG_SEQUENCE_COLUMN = 'number';
-    private const EVENT_LOG_PRODUCER_TYPE_COLUMN = 'producer_type';
-    private const EVENT_LOG_PRODUCER_ID_COLUMN = 'producer_id';
-    private const EVENT_LOG_PRODUCER_VERSION_COLUMN = 'producer_version';
-    private const EVENT_LOG_EVENT_UUID_COLUMN = 'uuid';
-    private const EVENT_LOG_EVENT_TYPE_COLUMN = 'type';
-    private const EVENT_LOG_EVENT_BODY_COLUMN = 'body';
-    private const EVENT_LOG_EVENT_METADATA_COLUMN = 'metadata';
-    private const EVENT_LOG_EVENT_APPENDED_AT_COLUMN = 'appended_at';
-
     private const DIRECTION_FORWARD = 'forward';
     private const DIRECTION_BACKWARD = 'backward';
 
     private $pdo;
-    private $converter;
+    private $serializer;
 
     private $current = false;
     private $key = 0;
@@ -59,13 +48,11 @@ class PDOPostgresEventStore implements EventStore, Event\Log, Event\FilterableSt
     private $before;
     private $limit;
 
-    public function __construct(
-        \PDO $pdo,
-        Event\Converter $converter
-    ) {
+    public function __construct(\PDO $pdo, JsonSerializer $serializer)
+    {
         $this->pdo = $pdo;
         $this->pdo->setAttribute($pdo::ATTR_ERRMODE, $pdo::ERRMODE_EXCEPTION);
-        $this->converter = $converter;
+        $this->serializer = $serializer;
     }
 
     public function create()
@@ -193,7 +180,7 @@ SQL;
             $uuid = mb_strtoupper($uuid);
             $uuid = new UUID($uuid);
             $metadata = $returned['metadata'];
-            $metadata = json_decode($metadata, true);
+            $metadata = $this->serializer->unserialize($metadata);
             $metadata = Event\Metadata::fromArray($metadata);
 
             foreach ($transaction as $current) {
@@ -424,7 +411,7 @@ SQL;
 
     private function copy() : self
     {
-        $stream = new self($this->pdo, $this->converter);
+        $stream = new self($this->pdo, $this->serializer);
         $stream->from = $this->from;
         $stream->to = $this->to;
         $stream->after = $this->after;
@@ -532,14 +519,13 @@ SQL;
     private function fromRow($row) : Event
     {
         // TODO: use identity map
-        $event = $row[self::EVENT_LOG_EVENT_BODY_COLUMN];
-        $event = json_decode($event, true);
-        $event = $this->converter->arrayToEvent($event);
+        $event = $row['body'];
+        $event = $this->serializer->unserialize($event);
 
-        $metadata = $row[self::EVENT_LOG_EVENT_METADATA_COLUMN];
-        $metadata = json_decode($metadata, true);
+        $metadata = $row['metadata'];
+        $metadata = $this->serializer->unserialize($metadata);
         $metadata = Event\Metadata::fromArray($metadata);
-        $metadata->set('sequence', (string) $row[self::EVENT_LOG_SEQUENCE_COLUMN]);
+        $metadata->set('sequence', (string) $row['number']);
 
         $metadata->toObject($event);
 
@@ -554,13 +540,13 @@ SQL;
         $metadata->set('producer_id', $producerId->toString());
 
         $row = [
-            self::EVENT_LOG_EVENT_UUID_COLUMN => $uuid->toString(),
-            self::EVENT_LOG_EVENT_TYPE_COLUMN => get_class($event),
-            self::EVENT_LOG_EVENT_BODY_COLUMN => json_encode($this->converter->eventToArray($event)),
-            self::EVENT_LOG_EVENT_METADATA_COLUMN => json_encode($metadata->toArray()),
-            self::EVENT_LOG_PRODUCER_TYPE_COLUMN => get_class($producerId),
-            self::EVENT_LOG_PRODUCER_ID_COLUMN => $producerId->toString(),
-            self::EVENT_LOG_PRODUCER_VERSION_COLUMN => $version,
+            'uuid' => $uuid->toString(),
+            'type' => get_class($event),
+            'body' => $this->serializer->serialize($event),
+            'metadata' => $this->serializer->serialize($metadata->toArray()),
+            'producer_type' => get_class($producerId),
+            'producer_id' => $producerId->toString(),
+            'producer_version' => $version,
         ];
 
         return $row; // put metadata back
