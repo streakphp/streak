@@ -13,6 +13,9 @@ declare(strict_types=1);
 
 namespace Streak\Infrastructure\EventStore;
 
+use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
+use Doctrine\DBAL\Statement;
 use Streak\Domain;
 use Streak\Domain\Event;
 use Streak\Domain\Event\FilterableStream;
@@ -23,24 +26,14 @@ use Streak\Domain\Id\UUID;
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-class PDOPostgresEventStore implements EventStore, Event\Log, Event\FilterableStream
+class DbalPostgresEventStore implements EventStore, Event\Log, Event\FilterableStream, Schemable, Schema
 {
-    // TODO: make it configurable
-    private const EVENT_LOG_TABLE = 'events';
-    private const EVENT_LOG_SEQUENCE_COLUMN = 'number';
-    private const EVENT_LOG_PRODUCER_TYPE_COLUMN = 'producer_type';
-    private const EVENT_LOG_PRODUCER_ID_COLUMN = 'producer_id';
-    private const EVENT_LOG_PRODUCER_VERSION_COLUMN = 'producer_version';
-    private const EVENT_LOG_EVENT_UUID_COLUMN = 'uuid';
-    private const EVENT_LOG_EVENT_TYPE_COLUMN = 'type';
-    private const EVENT_LOG_EVENT_BODY_COLUMN = 'body';
-    private const EVENT_LOG_EVENT_METADATA_COLUMN = 'metadata';
-    private const EVENT_LOG_EVENT_APPENDED_AT_COLUMN = 'appended_at';
+    private const POSTGRES_PLATFORM_NAME = 'postgresql';
 
     private const DIRECTION_FORWARD = 'forward';
     private const DIRECTION_BACKWARD = 'backward';
 
-    private $pdo;
+    private $connection;
     private $converter;
 
     private $current = false;
@@ -59,18 +52,34 @@ class PDOPostgresEventStore implements EventStore, Event\Log, Event\FilterableSt
     private $before;
     private $limit;
 
-    public function __construct(
-        \PDO $pdo,
-        Event\Converter $converter
-    ) {
-        $this->pdo = $pdo;
-        $this->pdo->setAttribute($pdo::ATTR_ERRMODE, $pdo::ERRMODE_EXCEPTION);
+    public function __construct(Connection $connection, Event\Converter $converter)
+    {
+        $this->connection = $connection;
         $this->converter = $converter;
     }
 
-    public function create()
+    /**
+     * @throws \Doctrine\DBAL\DBALException
+     * @throws \RuntimeException
+     */
+    public function checkPlatform()
     {
-        $this->pdo->beginTransaction();
+        $platform = $this->connection->getDatabasePlatform();
+
+        if (self::POSTGRES_PLATFORM_NAME !== $platform->getName()) {
+            throw new \RuntimeException('Only PostgreSQL database is supported by selected event store.');
+        }
+    }
+
+    /**
+     * @throws \Doctrine\DBAL\ConnectionException
+     * @throws \Doctrine\DBAL\DBALException
+     * @throws \RuntimeException
+     */
+    public function create() : void
+    {
+        $this->checkPlatform();
+        $this->connection->beginTransaction();
 
         $sqls[] = <<<SQL
 CREATE TABLE IF NOT EXISTS events (
@@ -93,18 +102,29 @@ SQL;
         $sqls[] = 'CREATE INDEX ON events (producer_type, producer_id, producer_version);';
 
         foreach ($sqls as $sql) {
-            $statement = $this->pdo->prepare($sql);
+            $statement = $this->connection->prepare($sql);
             $statement->execute();
         }
 
-        $this->pdo->commit();
+        $this->connection->commit();
     }
 
-    public function drop()
+    /**
+     * @throws \Doctrine\DBAL\DBALException
+     * @throws \RuntimeException
+     */
+    public function drop() : void
     {
+        $this->checkPlatform();
+
         $sql = 'DROP TABLE IF EXISTS events';
-        $statement = $this->pdo->prepare($sql);
+        $statement = $this->connection->prepare($sql);
         $statement->execute();
+    }
+
+    public function schema() : ?Schema
+    {
+        return $this;
     }
 
     public function producerId(Event $event) : Domain\Id
@@ -172,22 +192,17 @@ SQL;
         $sql = "$sql RETURNING number, uuid, metadata, producer_version";
 
         try {
-            $statement = $this->pdo->prepare($sql);
+            $statement = $this->connection->prepare($sql);
             $statement->execute($parameters);
-        } catch (\PDOException $e) {
-            $code = (string) $e->getCode();
-            $message = $e->getMessage();
-            if ('23505' === $code) {
-                // check for constraint names only, as message may be localised
-                if (false !== mb_strpos($message, '"events_producer_type_producer_id_producer_version_key"')) {
-                    throw new Exception\ConcurrentWriteDetected($producerId);
-                }
+        } catch (UniqueConstraintViolationException $e) {
+            // check for constraint names only, as message may be localised
+            if (false !== mb_strpos($e->getMessage(), '"events_producer_type_producer_id_producer_version_key"')) {
+                throw new Exception\ConcurrentWriteDetected($producerId);
             }
-
             throw $e;
         }
 
-        while ($returned = $statement->fetch($this->pdo::FETCH_ASSOC)) {
+        while ($returned = $statement->fetch(\PDO::FETCH_ASSOC)) {
             $sequence = (string) $returned['number'];
             $uuid = $returned['uuid'];
             $uuid = mb_strtoupper($uuid);
@@ -295,7 +310,7 @@ SQL;
             null
         );
 
-        $row = $statement->fetch($this->pdo::FETCH_ASSOC);
+        $row = $statement->fetch(\PDO::FETCH_ASSOC);
 
         if (!$row) {
             return null;
@@ -331,7 +346,7 @@ SQL;
             $offset
         );
 
-        $row = $statement->fetch($this->pdo::FETCH_ASSOC);
+        $row = $statement->fetch(\PDO::FETCH_ASSOC);
 
         if (!$row) {
             return null;
@@ -376,7 +391,7 @@ SQL;
 
     public function next()
     {
-        $this->current = $this->statement->fetch($this->pdo::FETCH_ASSOC);
+        $this->current = $this->statement->fetch(\PDO::FETCH_ASSOC);
         $this->key = $this->key + 1;
     }
 
@@ -404,7 +419,7 @@ SQL;
             $this->limit,
             null
         );
-        $this->current = $this->statement->fetch($this->pdo::FETCH_ASSOC);
+        $this->current = $this->statement->fetch(\PDO::FETCH_ASSOC);
         $this->key = 0;
     }
 
@@ -424,7 +439,7 @@ SQL;
 
     private function copy() : self
     {
-        $stream = new self($this->pdo, $this->converter);
+        $stream = new self($this->connection, $this->converter);
         $stream->from = $this->from;
         $stream->to = $this->to;
         $stream->after = $this->after;
@@ -447,7 +462,7 @@ SQL;
         ?array $types,
         ?int $limit,
         ?int $offset
-    ) : \PDOStatement {
+    ) : Statement {
         $columns = implode(' , ', $columns);
 
         if (!$columns) {
@@ -523,7 +538,7 @@ SQL;
             $sql .= " LIMIT {$limit} ";
         }
 
-        $statement = $this->pdo->prepare($sql);
+        $statement = $this->connection->prepare($sql);
         $statement->execute($parameters);
 
         return $statement;
@@ -532,14 +547,14 @@ SQL;
     private function fromRow($row) : Event
     {
         // TODO: use identity map
-        $event = $row[self::EVENT_LOG_EVENT_BODY_COLUMN];
+        $event = $row['body'];
         $event = json_decode($event, true);
         $event = $this->converter->arrayToEvent($event);
 
-        $metadata = $row[self::EVENT_LOG_EVENT_METADATA_COLUMN];
+        $metadata = $row['metadata'];
         $metadata = json_decode($metadata, true);
         $metadata = Event\Metadata::fromArray($metadata);
-        $metadata->set('sequence', (string) $row[self::EVENT_LOG_SEQUENCE_COLUMN]);
+        $metadata->set('sequence', (string) $row['number']);
 
         $metadata->toObject($event);
 
@@ -554,13 +569,13 @@ SQL;
         $metadata->set('producer_id', $producerId->toString());
 
         $row = [
-            self::EVENT_LOG_EVENT_UUID_COLUMN => $uuid->toString(),
-            self::EVENT_LOG_EVENT_TYPE_COLUMN => get_class($event),
-            self::EVENT_LOG_EVENT_BODY_COLUMN => json_encode($this->converter->eventToArray($event)),
-            self::EVENT_LOG_EVENT_METADATA_COLUMN => json_encode($metadata->toArray()),
-            self::EVENT_LOG_PRODUCER_TYPE_COLUMN => get_class($producerId),
-            self::EVENT_LOG_PRODUCER_ID_COLUMN => $producerId->toString(),
-            self::EVENT_LOG_PRODUCER_VERSION_COLUMN => $version,
+            'uuid' => $uuid->toString(),
+            'type' => get_class($event),
+            'body' => json_encode($this->converter->eventToArray($event)),
+            'metadata' => json_encode($metadata->toArray()),
+            'producer_type' => get_class($producerId),
+            'producer_id' => $producerId->toString(),
+            'producer_version' => $version,
         ];
 
         return $row; // put metadata back

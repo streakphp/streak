@@ -21,8 +21,12 @@
     </logging>
 
     <php>
-        <env name="PHPUNIT_POSTGRES_DNS" value="pgsql:dbname=phpunit;host=postgres;port=5432;user=phpunit;password=phpunit" />
-        <env name="PHPUNIT_REDIS_HOST" value="redis" />
+        <env name="PHPUNIT_POSTGRES_HOSTNAME" value="postgres" />
+        <env name="PHPUNIT_POSTGRES_PORT" value="5432" />
+        <env name="PHPUNIT_POSTGRES_DATABASE" value="phpunit" />
+        <env name="PHPUNIT_POSTGRES_USERNAME" value="phpunit" />
+        <env name="PHPUNIT_POSTGRES_PASSWORD" value="phpunit" />
+        <env name="PHPUNIT_REDIS_HOSTNAME" value="redis" />
         <env name="PHPUNIT_REDIS_PORT" value="6379" />
         <env name="PHPUNIT_REDIS_DATABASE" value="0" />
     </php>

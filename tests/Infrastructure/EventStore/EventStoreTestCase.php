@@ -32,7 +32,7 @@ use Streak\Infrastructure\EventBus\EventStoreTestCase\ProducerId2;
 abstract class EventStoreTestCase extends TestCase
 {
     /**
-     * @var PDOPostgresEventStore
+     * @var DbalPostgresEventStore
      */
     private $store;
 
@@ -247,6 +247,24 @@ abstract class EventStoreTestCase extends TestCase
         $this->expectExceptionObject($exception);
 
         $this->store->add($producer, 0, $event3, $event4);
+    }
+
+    public function testNoConcurrentWritingErrorForUnversionedEvents()
+    {
+        $event1a = new Event1();
+        $event2a = new Event2();
+        $event1b = new Event1();
+        $event2b = new Event2();
+        $producer = new ProducerId1('producer1');
+
+        $this->store->add($producer, null, $event1a, $event2a);
+
+        try {
+            $this->store->add($producer, null, $event1b, $event2b);
+        } catch (\Throwable $notExpected) {
+        } finally {
+            $this->assertFalse(isset($notExpected));
+        }
     }
 
     public function testEventAlreadyInStore()
