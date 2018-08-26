@@ -7,13 +7,20 @@ jobs:
         environment:
           COMPOSER_NO_INTERACTION: 1
           COMPOSER_ALLOW_SUPERUSER: 1
-          PHPUNIT_POSTGRES_DNS: pgsql:dbname=phpunit;host=localhost;port=5432;user=phpunit;password=phpunit
-          PHPUNIT_REDIS_HOST: localhost
-      - image: postgres:9.5
+          PHPUNIT_POSTGRES_HOSTNAME: localhost
+          PHPUNIT_POSTGRES_PORT: 5432
+          PHPUNIT_POSTGRES_DATABASE: phpunit
+          PHPUNIT_POSTGRES_USERNAME: phpunit
+          PHPUNIT_POSTGRES_PASSWORD: phpunit
+          PHPUNIT_REDIS_HOSTNAME: localhost
+          PHPUNIT_REDIS_PORT: 6379
+          PHPUNIT_REDIS_DATABASE: 0
+      - image: postgres:9.4-alpine
         environment:
           POSTGRES_USER: phpunit
+          POSTGRES_PASSWORD: phpunit
           POSTGRES_DB: phpunit
-      - image: redis
+      - image: redis:alpine
     working_directory: ~/streak
     steps:
       - checkout

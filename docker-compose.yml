@@ -13,11 +13,11 @@ services:
       COMPOSER_ALLOW_SUPERUSER: 1
 
   postgres:
-    image: postgres
+    image: postgres:9.4-alpine
     environment:
       POSTGRES_USER: phpunit
       POSTGRES_PASSWORD: phpunit
       POSTGRES_DB: phpunit
 
   redis:
-    image: redis
+    image: redis:alpine

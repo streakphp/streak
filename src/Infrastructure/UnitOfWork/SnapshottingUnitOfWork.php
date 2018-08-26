@@ -25,6 +25,7 @@ class SnapshottingUnitOfWork implements UnitOfWork
     private $uow;
     private $snapshotter;
     private $producers;
+    private $committing = false;
 
     public function __construct(UnitOfWork $uow, Snapshotter $snapshotter)
     {
@@ -66,28 +67,35 @@ class SnapshottingUnitOfWork implements UnitOfWork
 
     public function commit() : \Generator
     {
-        foreach ($this->uow->commit() as $committed) {
-            if (!$committed instanceof Event\Sourced\AggregateRoot) {
-                yield $committed;
-                continue;
+        if (false === $this->committing) {
+            $this->committing = true;
+
+            foreach ($this->uow->commit() as $committed) {
+                if (!$committed instanceof Event\Sourced\AggregateRoot) {
+                    yield $committed;
+                    continue;
+                }
+
+                $before = $this->producers->offsetGet($committed->producerId());
+                $after = $committed->version();
+
+                $this->producers->offsetUnset($committed->producerId());
+
+                if (!$this->isReadyForSnapshot($before, $after)) {
+                    yield $committed;
+                    continue;
+                }
+
+                $snapshotted = $this->snapshotter->takeSnapshot($committed);
+
+                yield $snapshotted;
             }
 
-            $before = $this->producers->offsetGet($committed->producerId());
-            $after = $committed->version();
+            // TODO: add some kind of error handling during commit
 
-            $this->producers->offsetUnset($committed->producerId());
-
-            if (!$this->isReadyForSnapshot($before, $after)) {
-                yield $committed;
-                continue;
-            }
-
-            $snapshotted = $this->snapshotter->takeSnapshot($committed);
-
-            yield $snapshotted;
+            $this->committing = false;
+            $this->clear();
         }
-
-        $this->clear();
     }
 
     public function clear() : void

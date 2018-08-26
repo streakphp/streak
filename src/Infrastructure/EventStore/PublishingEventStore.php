@@ -22,7 +22,7 @@ use Streak\Domain\Exception;
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-class PublishingEventStore implements EventStore
+class PublishingEventStore implements EventStore, Schemable
 {
     private $store;
     private $bus;
@@ -76,5 +76,14 @@ class PublishingEventStore implements EventStore
     public function log() : Event\Log
     {
         return $this->store->log();
+    }
+
+    public function schema() : ?Schema
+    {
+        if ($this->store instanceof Schemable) {
+            return $this->store->schema();
+        }
+
+        return null;
     }
 }

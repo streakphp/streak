@@ -33,6 +33,11 @@ class PublishingEventStoreTest extends TestCase
     private $store;
 
     /**
+     * @var EventStore|Schemable|MockObject
+     */
+    private $schemableStore;
+
+    /**
      * @var EventBus|MockObject
      */
     private $bus;
@@ -67,9 +72,15 @@ class PublishingEventStoreTest extends TestCase
      */
     private $stream;
 
+    /**
+     * @var Schema|MockObject
+     */
+    private $schema;
+
     protected function setUp()
     {
         $this->store = $this->getMockBuilder(EventStore::class)->getMockForAbstractClass();
+        $this->schemableStore = $this->getMockBuilder([EventStore::class, Schemable::class])->getMock();
         $this->bus = $this->getMockBuilder(EventBus::class)->getMockForAbstractClass();
 
         $this->id = $this->getMockBuilder(Domain\Id::class)->getMockForAbstractClass();
@@ -80,6 +91,7 @@ class PublishingEventStoreTest extends TestCase
 
         $this->log = $this->getMockBuilder(Event\Log::class)->getMockForAbstractClass();
         $this->stream = $this->getMockBuilder(Event\FilterableStream::class)->getMockForAbstractClass();
+        $this->schema = $this->getMockBuilder(Schema::class)->getMockForAbstractClass();
     }
 
     public function testStore()
@@ -162,5 +174,35 @@ class PublishingEventStoreTest extends TestCase
         $id = $store->producerId($this->event1);
 
         $this->assertSame($id, $this->id);
+    }
+
+    public function testSchemalessEventStore()
+    {
+        $store = new PublishingEventStore($this->store, $this->bus);
+
+        $this->store
+            ->expects($this->never())
+            ->method($this->anything())
+        ;
+
+        $schema = $store->schema();
+
+        $this->assertNull($schema);
+    }
+
+    public function testSchemableEventStore()
+    {
+        $store = new PublishingEventStore($this->schemableStore, $this->bus);
+
+        $this->schemableStore
+            ->expects($this->once())
+            ->method('schema')
+            ->with()
+            ->willReturn($this->schema)
+        ;
+
+        $schema = $store->schema();
+
+        $this->assertSame($this->schema, $schema);
     }
 }

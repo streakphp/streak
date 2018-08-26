@@ -53,7 +53,7 @@ class RedisStorageTest extends TestCase
     protected function setUp()
     {
         $this->redis = new \Redis();
-        $this->redis->connect($_ENV['PHPUNIT_REDIS_HOST'], (int) $_ENV['PHPUNIT_REDIS_PORT']);
+        $this->redis->connect($_ENV['PHPUNIT_REDIS_HOSTNAME'], (int) $_ENV['PHPUNIT_REDIS_PORT']);
         $this->redis->select((int) $_ENV['PHPUNIT_REDIS_DATABASE']);
 
         $this->aggregate1 = $this->getMockBuilder(AggregateRoot::class)->setMockClassName('streak__aggregate_1')->getMockForAbstractClass();

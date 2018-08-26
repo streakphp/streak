@@ -84,7 +84,7 @@ class InMemoryEventStore implements EventStore, Event\Log
                 $this->streams[$stream] = [];
             }
 
-            if (null === $version) {
+            if (null === $version) { // no versioning
                 $version = count($this->streams[$stream]);
             } else {
                 ++$version;
@@ -104,7 +104,7 @@ class InMemoryEventStore implements EventStore, Event\Log
         }
 
         $this->uuids = array_merge($this->uuids, $transaction['uuids']);
-        $this->streams[$stream] = array_merge($this->streams[$stream], $transaction['stream']);
+        $this->streams[$stream] = $this->streams[$stream] + $transaction['stream'];
         $this->all = array_merge($this->all, $transaction['all']);
 
         foreach ($transaction['metadata'] as $pair) {
