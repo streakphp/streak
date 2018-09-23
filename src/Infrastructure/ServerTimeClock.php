@@ -11,12 +11,17 @@
 
 declare(strict_types=1);
 
-namespace Streak\Domain\Event;
+namespace Streak\Infrastructure;
+
+use Streak\Domain\Clock;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-interface Completable
+class ServerTimeClock implements Clock
 {
-    public function completed() : bool;
+    public function now() : \DateTimeImmutable
+    {
+        return new \DateTimeImmutable();
+    }
 }

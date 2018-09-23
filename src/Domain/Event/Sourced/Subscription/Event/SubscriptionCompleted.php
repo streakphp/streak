@@ -17,13 +17,27 @@ use Streak\Domain\Event\Sourced\Subscription;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
- *
- * @codeCoverageIgnore
  */
 class SubscriptionCompleted implements Subscription\Event
 {
-    public function __construct()
+    const DATE_FORMAT = 'U.u';
+
+    private $version;
+    private $timestamp;
+
+    public function __construct(int $version, \DateTimeInterface $timestamp)
     {
-        // remove @codeCoverageIgnore if any logic appear here.
+        $this->version = $version;
+        $this->timestamp = $timestamp->format(self::DATE_FORMAT);
+    }
+
+    public function subscriptionVersion() : int
+    {
+        return $this->version;
+    }
+
+    public function timestamp() : \DateTimeImmutable
+    {
+        return \DateTimeImmutable::createFromFormat(self::DATE_FORMAT, $this->timestamp);
     }
 }

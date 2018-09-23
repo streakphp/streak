@@ -20,7 +20,7 @@ use Streak\Domain\Event;
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-class LoggingListener implements Event\Listener, Event\Replayable, Event\Completable
+class LoggingListener implements Event\Listener, Event\Replayable, Event\Process
 {
     private $listener;
     private $logger;
@@ -33,7 +33,7 @@ class LoggingListener implements Event\Listener, Event\Replayable, Event\Complet
 
     public function completed() : bool
     {
-        if ($this->listener instanceof Event\Completable) {
+        if ($this->listener instanceof Event\Process) {
             return $this->listener->completed();
         }
 

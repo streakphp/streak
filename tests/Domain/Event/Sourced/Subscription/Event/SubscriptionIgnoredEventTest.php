@@ -19,9 +19,9 @@ use Streak\Domain\Event;
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  *
- * @covers \Streak\Domain\Event\Sourced\Subscription\Event\SubscriptionListenedToEvent
+ * @covers \Streak\Domain\Event\Sourced\Subscription\Event\SubscriptionIgnoredEvent
  */
-class SubscriptionListenedToEventTest extends TestCase
+class SubscriptionIgnoredEventTest extends TestCase
 {
     private $event;
 
@@ -32,7 +32,7 @@ class SubscriptionListenedToEventTest extends TestCase
 
     public function testObject()
     {
-        $event = new SubscriptionListenedToEvent($this->event, 1, $now = new \DateTimeImmutable());
+        $event = new SubscriptionIgnoredEvent($this->event, 1, $now = new \DateTimeImmutable());
 
         $this->assertSame($this->event, $event->event());
         $this->assertSame(1, $event->subscriptionVersion());

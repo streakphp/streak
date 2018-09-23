@@ -228,11 +228,11 @@ class SubscriberTest extends TestCase
 
         $this->assertFalse($processed);
 
-        $processed = $subscriber->on(new SubscriptionListenedToEvent($this->event1));
+        $processed = $subscriber->on(new SubscriptionListenedToEvent($this->event1, 232344, new \DateTime()));
 
         $this->assertFalse($processed);
 
-        $processed = $subscriber->on(new SubscriptionCompleted());
+        $processed = $subscriber->on(new SubscriptionCompleted(453534, new \DateTime()));
 
         $this->assertFalse($processed);
     }

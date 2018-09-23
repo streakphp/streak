@@ -176,11 +176,12 @@ class SourcingTest extends TestCase
     public function testApplyingEventViaCommand()
     {
         $sourcing = new SourcingTest\EventSourcedAggregateRootStub($this->id);
+        $this->assertEmpty($sourcing->events());
         $this->assertNull($sourcing->lastEvent());
 
         $this->assertFalse($sourcing->isEvent9Applied());
 
-        $sourcing->command($this->id);
+        $sourcing->command1($this->id);
 
         $this->assertTrue($sourcing->isEvent9Applied());
 
@@ -197,6 +198,30 @@ class SourcingTest extends TestCase
         $this->assertEquals($event, $sourcing->lastEvent());
         $this->assertEquals(1, $sourcing->version());
         $this->assertEquals([], $sourcing->events());
+    }
+
+    public function testApplyingEventViaCommandResultingInAnException()
+    {
+        $sourcing = new SourcingTest\EventSourcedAggregateRootStub($this->id);
+
+        $exception = new \Exception('Command resulting in an exception');
+        $this->expectExceptionObject($exception);
+
+        try {
+            $this->assertEmpty($sourcing->events());
+            $this->assertNull($sourcing->lastEvent());
+            $this->assertNull($sourcing->lastReplayed());
+
+            $sourcing->command2($this->id);
+        } catch (\Exception $thrown) {
+            $this->assertEmpty($sourcing->events());
+            $this->assertNull($sourcing->lastEvent());
+            $this->assertNull($sourcing->lastReplayed());
+        } finally {
+            $this->assertTrue(isset($thrown));
+
+            throw $thrown;
+        }
     }
 
     public function testEventSourcingNonConsumer()
@@ -255,9 +280,14 @@ class EventSourcedAggregateRootStub implements Event\Consumer
     {
     }
 
-    public function command(AggregateRoot\Id $id)
+    public function command1(AggregateRoot\Id $id)
     {
         $this->applyEvent(new EventStubForTestingApplyingViaCommand());
+    }
+
+    public function command2(AggregateRoot\Id $id)
+    {
+        $this->applyEvent(new EventStubForTestingApplyingViaCommandResultingInException());
     }
 
     public function isEventStubForTestingPublicHandlingMethodApplied() : bool
@@ -320,6 +350,11 @@ class EventSourcedAggregateRootStub implements Event\Consumer
         $this->event9Applied = true;
     }
 
+    private function applyEvent10(EventStubForTestingApplyingViaCommandResultingInException $event)
+    {
+        throw new \Exception('Command resulting in an exception');
+    }
+
     private function applyNonEvent(\stdClass $parameter)
     {
     }
@@ -365,6 +400,9 @@ class AnotherEventWhichIsSubclassOfEvent8 extends Event8
 {
 }
 class EventStubForTestingApplyingViaCommand implements Event
+{
+}
+class EventStubForTestingApplyingViaCommandResultingInException implements Event
 {
 }
 

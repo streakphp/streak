@@ -18,7 +18,7 @@ use Streak\Domain\Event;
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-interface Saga extends Event\Listener, Event\Completable
+interface Saga extends Event\Listener, Event\Process
 {
 //    public static function beginsWith(Domain\Event $event) : bool;
 

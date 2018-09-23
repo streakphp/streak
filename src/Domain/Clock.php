@@ -11,17 +11,12 @@
 
 declare(strict_types=1);
 
-namespace Streak\Domain\Event;
-
-use Streak\Domain;
-use Streak\Domain\Event;
+namespace Streak\Domain;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-interface Log extends \Iterator
+interface Clock
 {
-    public function streamFor(Domain\Id ...$producers) : Event\Stream;
-
-    public function current() : Event;
+    public function now() : \DateTimeImmutable;
 }

@@ -103,7 +103,7 @@ class EventSourcedRepositoryTest extends TestCase
         $this->event2 = $this->getMockBuilder(Domain\Event::class)->getMockForAbstractClass();
         $this->event3 = $this->getMockBuilder(Domain\Event::class)->getMockForAbstractClass();
         $this->event4 = $this->getMockBuilder(Domain\Event::class)->getMockForAbstractClass();
-        $this->stream = $this->getMockBuilder(Event\FilterableStream::class)->getMockForAbstractClass();
+        $this->stream = $this->getMockBuilder(Event\Stream::class)->getMockForAbstractClass();
     }
 
     public function testFindingNonEventSourcedAggregate()

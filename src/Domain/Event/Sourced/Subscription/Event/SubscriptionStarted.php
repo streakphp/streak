@@ -18,27 +18,32 @@ use Streak\Domain\Event\Sourced\Subscription;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
- *
- * @codeCoverageIgnore
  */
 class SubscriptionStarted implements Subscription\Event
 {
-    private $event;
-    private $startedAt;
+    const DATE_FORMAT = 'U.u';
 
-    public function __construct(Domain\Event $event, \DateTimeInterface $startedAt)
+    private $startFrom;
+    private $timestamp;
+
+    public function __construct(Domain\Event $startFrom, \DateTimeInterface $timestamp)
     {
-        $this->event = $event;
-        $this->startedAt = $startedAt->format(DATE_ATOM);
+        $this->startFrom = $startFrom;
+        $this->timestamp = $timestamp->format(self::DATE_FORMAT);
     }
 
-    public function startedAt() : string
+    public function startFrom() : Domain\Event
     {
-        return $this->startedAt;
+        return $this->startFrom;
     }
 
-    public function event() : Domain\Event
+    public function timestamp() : \DateTimeImmutable
     {
-        return $this->event;
+        return \DateTimeImmutable::createFromFormat(self::DATE_FORMAT, $this->timestamp);
+    }
+
+    public function subscriptionVersion() : int
+    {
+        return 1;
     }
 }

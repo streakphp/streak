@@ -18,7 +18,7 @@ use Streak\Domain\Event;
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-interface ProcessManager extends Event\Listener, Event\Replayable, Event\Completable
+interface ProcessManager extends Event\Listener, Event\Replayable, Event\Process
 {
     public function processManagerId() : ProcessManager\Id;
 }
