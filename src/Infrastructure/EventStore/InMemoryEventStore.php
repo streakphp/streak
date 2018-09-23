@@ -115,7 +115,7 @@ class InMemoryEventStore implements EventStore, Event\Log
         }
     }
 
-    public function streamFor(Domain\Id ...$producers) : Event\FilterableStream
+    public function streamFor(Domain\Id ...$producers) : Event\Stream
     {
         if (0 === count($producers)) {
             return new InMemoryStream(...$this->all);
@@ -141,7 +141,7 @@ class InMemoryEventStore implements EventStore, Event\Log
         return new InMemoryStream(...$events);
     }
 
-    public function stream(Domain\Id ...$producers) : Event\FilterableStream
+    public function stream(Domain\Id ...$producers) : Event\Stream
     {
         return $this->streamFor(...$producers);
     }

@@ -53,11 +53,6 @@ class InMemoryEventStoreTest extends EventStoreTestCase
         $this->assertEquals([], iterator_to_array($store));
     }
 
-    public function testObject()
-    {
-        parent::testObject();
-    }
-
     protected function newEventStore() : EventStore
     {
         $store = new InMemoryEventStore();

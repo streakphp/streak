@@ -29,12 +29,12 @@ trait Sourcing // implements Event\Consumer, Event\Producer, Domain\Identifiable
     /**
      * @throws \Throwable
      */
-    final public function replay(Event\Stream $events) : void
+    final public function replay(Event\Stream $stream) : void
     {
         try {
             $this->replaying = true;
 
-            foreach ($events as $event) {
+            foreach ($stream as $event) {
                 $this->applyEvent($event);
             }
 

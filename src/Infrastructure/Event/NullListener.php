@@ -35,7 +35,7 @@ class NullListener implements Event\Listener
 
     public function on(Event $event) : bool
     {
-        return false;
+        return true;
     }
 
     public static function from(Event\Listener $listener)

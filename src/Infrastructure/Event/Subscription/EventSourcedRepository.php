@@ -16,6 +16,7 @@ namespace Streak\Infrastructure\Event\Subscription;
 use Streak\Domain;
 use Streak\Domain\Event;
 use Streak\Domain\Event\Sourced\Subscription\Event\SubscriptionCompleted;
+use Streak\Domain\Event\Sourced\Subscription\Event\SubscriptionRestarted;
 use Streak\Domain\Event\Sourced\Subscription\Event\SubscriptionStarted;
 use Streak\Domain\Event\Subscription;
 use Streak\Domain\Exception;
@@ -69,6 +70,12 @@ class EventSourcedRepository implements Subscription\Repository
             return null;
         }
 
+        $reset = $stream->only(SubscriptionRestarted::class)->last();
+
+        if (null !== $reset) {
+            $stream = $stream->from($reset);
+        }
+
         $subscription->replay($stream);
 
         $this->uow->add($subscription);
@@ -112,7 +119,7 @@ class EventSourcedRepository implements Subscription\Repository
     public function all() : iterable
     {
         $stream = $this->store->stream();
-        $stream = $stream->of(SubscriptionStarted::class, SubscriptionCompleted::class);
+        $stream = $stream->only(SubscriptionStarted::class, SubscriptionRestarted::class, SubscriptionCompleted::class);
 
         $ids = [];
 
@@ -126,6 +133,12 @@ class EventSourcedRepository implements Subscription\Repository
             if ($event instanceof SubscriptionCompleted) {
                 if (false !== ($key = array_search($id, $ids))) { // TODO: make it look nicer
                     unset($ids[$key]);
+                }
+            }
+
+            if ($event instanceof SubscriptionRestarted) {
+                if (false === ($key = array_search($id, $ids))) { // TODO: make it look nicer
+                    $ids[] = $id;
                 }
             }
         }

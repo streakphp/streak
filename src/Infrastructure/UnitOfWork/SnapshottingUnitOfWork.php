@@ -70,31 +70,32 @@ class SnapshottingUnitOfWork implements UnitOfWork
         if (false === $this->committing) {
             $this->committing = true;
 
-            foreach ($this->uow->commit() as $committed) {
-                if (!$committed instanceof Event\Sourced\AggregateRoot) {
-                    yield $committed;
-                    continue;
+            try {
+                foreach ($this->uow->commit() as $committed) {
+                    if (!$committed instanceof Event\Sourced\AggregateRoot) {
+                        yield $committed;
+                        continue;
+                    }
+
+                    $before = $this->producers->offsetGet($committed->producerId());
+                    $after = $committed->version();
+
+                    $this->producers->offsetUnset($committed->producerId());
+
+                    if (!$this->isReadyForSnapshot($before, $after)) {
+                        yield $committed;
+                        continue;
+                    }
+
+                    $snapshotted = $this->snapshotter->takeSnapshot($committed);
+
+                    yield $snapshotted;
                 }
 
-                $before = $this->producers->offsetGet($committed->producerId());
-                $after = $committed->version();
-
-                $this->producers->offsetUnset($committed->producerId());
-
-                if (!$this->isReadyForSnapshot($before, $after)) {
-                    yield $committed;
-                    continue;
-                }
-
-                $snapshotted = $this->snapshotter->takeSnapshot($committed);
-
-                yield $snapshotted;
+                $this->clear();
+            } finally {
+                $this->committing = false;
             }
-
-            // TODO: add some kind of error handling during commit
-
-            $this->committing = false;
-            $this->clear();
         }
     }
 

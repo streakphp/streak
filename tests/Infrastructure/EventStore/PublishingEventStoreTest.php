@@ -68,7 +68,7 @@ class PublishingEventStoreTest extends TestCase
     private $log;
 
     /**
-     * @var Event\FilterableStream|MockObject
+     * @var Event\Stream|MockObject
      */
     private $stream;
 
@@ -90,7 +90,7 @@ class PublishingEventStoreTest extends TestCase
         $this->event3 = $this->getMockBuilder(Event::class)->setMockClassName('event3')->getMockForAbstractClass();
 
         $this->log = $this->getMockBuilder(Event\Log::class)->getMockForAbstractClass();
-        $this->stream = $this->getMockBuilder(Event\FilterableStream::class)->getMockForAbstractClass();
+        $this->stream = $this->getMockBuilder(Event\Stream::class)->getMockForAbstractClass();
         $this->schema = $this->getMockBuilder(Schema::class)->getMockForAbstractClass();
     }
 

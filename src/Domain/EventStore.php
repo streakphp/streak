@@ -26,7 +26,7 @@ interface EventStore
      */
     public function add(Domain\Id $producerId, ?int $version, Event ...$events) : void;
 
-    public function stream(Domain\Id ...$producers) : Event\FilterableStream;
+    public function stream(Domain\Id ...$producers) : Event\Stream;
 
     public function log() : Event\Log;
 

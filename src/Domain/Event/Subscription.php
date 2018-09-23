@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Streak\Domain\Event;
 
 use Streak\Domain;
+use Streak\Domain\Event\Subscription\Exception;
 use Streak\Domain\EventStore;
 
 /**
@@ -27,8 +28,20 @@ interface Subscription
      * @param EventStore $store
      *
      * @return iterable|Domain\Event[]
+     *
+     * @throws Exception\SubscriptionAlreadyCompleted
+     * @throws Exception\SubscriptionNotStartedYet
      */
     public function subscribeTo(EventStore $store) : iterable;
 
-    public function startFor(Domain\Event $event, \DateTimeInterface $startedAt); // TODO: refactor
+    /**
+     * @param Domain\Event $event
+     */
+    public function startFor(Domain\Event $event) : void;
+
+    /**
+     * @throws Exception\SubscriptionNotStartedYet
+     * @throws Exception\SubscriptionRestartNotPossible
+     */
+    public function restart() : void;
 }

@@ -13,22 +13,10 @@ declare(strict_types=1);
 
 namespace Streak\Domain\Event;
 
-use Streak\Domain\Event;
-
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-interface FilterableStream extends Stream
+interface Process
 {
-    public function from(Event $event) : self;
-
-    public function to(Event $event) : self;
-
-    public function after(Event $event) : self;
-
-    public function before(Event $event) : self;
-
-    public function limit(int $limit) : self;
-
-    public function of(string ...$types) : self;
+    public function completed() : bool;
 }

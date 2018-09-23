@@ -20,4 +20,7 @@ use Streak\Domain;
  */
 interface Event extends Domain\Event
 {
+    public function subscriptionVersion() : int;
+
+    public function timestamp() : \DateTimeImmutable;
 }

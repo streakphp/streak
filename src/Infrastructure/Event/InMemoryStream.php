@@ -14,159 +14,214 @@ declare(strict_types=1);
 namespace Streak\Infrastructure\Event;
 
 use Streak\Domain\Event;
-use Streak\Domain\Event\FilterableStream;
+use Streak\Domain\Event\Stream;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-final class InMemoryStream implements Event\FilterableStream
+final class InMemoryStream implements \IteratorAggregate, Event\Stream
 {
     private $events = [];
-    private $current = 0;
-    private $count = 0;
+
+    private $producers = [];
+    private $including = [];
+    private $excluding = [];
+    private $from;
+    private $to;
+    private $after;
+    private $before;
+    private $limit;
 
     public function __construct(Event ...$events)
     {
         $this->events = $events;
-        $this->count = count($events);
+        $this->events = array_values($this->events); // reset keys
     }
 
-    public function from(Event $first) : FilterableStream
+    public function from(Event $event) : Stream
     {
-        $stream = new self();
-        $found = false;
-        foreach ($this->events as $event) {
-            if ($event === $first) {
-                $found = true;
-            }
-
-            if (true === $found) {
-                $stream->add($event);
-            }
-        }
+        $stream = $this->copy();
+        $stream->from = $event;
+        $stream->after = null;
 
         return $stream;
+    }
+
+    public function count() : int
+    {
+        $events = $this->filter();
+
+        return count($events);
     }
 
     public function empty() : bool
     {
-        return 0 === count($this->events);
+        return 0 === $this->count();
     }
 
-    public function to(Event $last) : FilterableStream
+    public function to(Event $event) : Stream
     {
-        $stream = new self();
-        foreach ($this->events as $event) {
-            $stream->add($event);
-
-            if ($event === $last) {
-                return $stream;
-            }
-        }
+        $stream = $this->copy();
+        $stream->to = $event;
+        $stream->before = null;
 
         return $stream;
     }
 
-    public function after(Event $first) : FilterableStream
+    public function after(Event $event) : Stream
     {
-        $stream = new self();
-        $found = false;
-        foreach ($this->events as $event) {
-            if (true === $found) {
-                $stream->add($event);
-            }
-
-            if ($event === $first) {
-                $found = true;
-            }
-        }
+        $stream = $this->copy();
+        $stream->from = null;
+        $stream->after = $event;
 
         return $stream;
     }
 
-    public function before(Event $last) : FilterableStream
+    public function before(Event $event) : Stream
     {
-        $stream = new self();
-        foreach ($this->events as $event) {
-            if ($event === $last) {
-                return $stream;
-            }
-
-            $stream->add($event);
-        }
+        $stream = $this->copy();
+        $stream->to = null;
+        $stream->before = $event;
 
         return $stream;
     }
 
-    public function of(string ...$types) : FilterableStream
+    public function only(string ...$types) : Stream
     {
-        $stream = new self();
-        foreach ($this->events as $event) {
-            foreach ($types as $type) {
-                if ($event instanceof $type) {
-                    $stream->add($event);
-                    continue 2;
-                }
-            }
-        }
+        $stream = $this->copy();
+        $stream->including = $types;
+        $stream->excluding = [];
+
+        // TODO: check if type is Domain\Id
 
         return $stream;
     }
 
-    public function limit(int $limit) : FilterableStream
+    public function without(string ...$types) : Stream
     {
-        $events = array_slice($this->events, 0, $limit);
-        $stream = new self(...$events);
+        $stream = $this->copy();
+        $stream->excluding = $types;
+        $stream->including = [];
+
+        // TODO: check if type is Domain\Id
+
+        return $stream;
+    }
+
+    public function limit(int $limit) : Stream
+    {
+        $stream = $this->copy();
+        $stream->limit = $limit;
 
         return $stream;
     }
 
     public function first() : ?Event
     {
-        if ($this->empty()) {
-            return null;
-        }
+        $events = $this->filter();
 
-        return $this->events[0];
+        return array_shift($events);
     }
 
     public function last() : ?Event
     {
-        if ($this->empty()) {
-            return null;
+        $events = $this->filter();
+
+        return array_pop($events);
+    }
+
+    public function getIterator()
+    {
+        return new \ArrayIterator($this->filter());
+    }
+
+    private function copy() : self
+    {
+        $stream = new self(...$this->events);
+        $stream->from = $this->from;
+        $stream->to = $this->to;
+        $stream->after = $this->after;
+        $stream->before = $this->before;
+        $stream->limit = $this->limit;
+        $stream->producers = $this->producers;
+        $stream->including = $this->including;
+
+        return $stream;
+    }
+
+    /**
+     * @return Event[]
+     */
+    private function filter() : array
+    {
+        $events = $this->events;
+
+        if ($this->from) {
+            $index = array_search($this->from, $events, true);
+
+            foreach ($events as $key => $event) {
+                if ($key < $index) {
+                    unset($events[$key]);
+                }
+            }
         }
 
-        return $this->events[$this->count - 1];
-    }
+        if ($this->after) {
+            $index = array_search($this->after, $events, true);
 
-    public function current() : Event
-    {
-        return $this->events[$this->current];
-    }
+            foreach ($events as $key => $event) {
+                if ($key <= $index) {
+                    unset($events[$key]);
+                }
+            }
+        }
 
-    public function next()
-    {
-        $this->current = $this->current + 1;
-    }
+        if ($this->before) {
+            $index = array_search($this->before, $events, true);
 
-    public function key()
-    {
-        return $this->current;
-    }
+            foreach ($events as $key => $event) {
+                if ($key >= $index) {
+                    unset($events[$key]);
+                }
+            }
+        }
 
-    public function valid()
-    {
-        return array_key_exists($this->current, $this->events);
-    }
+        if ($this->to) {
+            $index = array_search($this->to, $events, true);
 
-    public function rewind()
-    {
-        $this->current = 0;
-    }
+            foreach ($events as $key => $event) {
+                if ($key > $index) {
+                    unset($events[$key]);
+                }
+            }
+        }
 
-    private function add(Event $event)
-    {
-        $this->events[] = $event;
-        ++$this->count;
+        if ($this->including) {
+            foreach ($events as $key => $event) {
+                $type = get_class($event);
+
+                if (!in_array($type, $this->including, true)) {
+                    unset($events[$key]);
+                }
+            }
+        }
+
+        if ($this->excluding) {
+            foreach ($events as $key => $event) {
+                $type = get_class($event);
+
+                if (in_array($type, $this->excluding, true)) {
+                    unset($events[$key]);
+                }
+            }
+        }
+
+        if ($this->limit) {
+            $events = array_slice($events, 0, $this->limit);
+        }
+
+        $events = array_values($events);
+
+        return $events;
     }
 }

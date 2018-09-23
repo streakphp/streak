@@ -68,7 +68,7 @@ class PublishingEventStore implements EventStore, Schemable
     /**
      * @throws Exception\InvalidAggregateGiven
      */
-    public function stream(Domain\Id ...$ids) : Event\FilterableStream
+    public function stream(Domain\Id ...$ids) : Event\Stream
     {
         return $this->store->stream(...$ids);
     }

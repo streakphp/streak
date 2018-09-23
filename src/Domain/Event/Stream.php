@@ -18,13 +18,25 @@ use Streak\Domain\Event;
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-interface Stream extends \Iterator
+interface Stream extends \Traversable
 {
-//    public function first() : ?Event;
+    public function first() : ?Event;
 
-//    public function last() : ?Event;
+    public function last() : ?Event;
 
     public function empty() : bool;
 
-    public function current() : Event;
+    public function from(Event $event) : self;
+
+    public function to(Event $event) : self;
+
+    public function after(Event $event) : self;
+
+    public function before(Event $event) : self;
+
+    public function limit(int $limit) : self;
+
+    public function only(string ...$types) : self;
+
+    public function without(string ...$types) : self;
 }

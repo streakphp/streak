@@ -60,6 +60,6 @@ class NullListenerTest extends TestCase
         $this->assertInstanceOf(NullListener::class, $listener);
         $this->assertSame($this->id, $listener->id());
 
-        $this->assertFalse($listener->on($this->event));
+        $this->assertTrue($listener->on($this->event));
     }
 }

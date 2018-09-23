@@ -18,7 +18,7 @@ use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\DBAL\Statement;
 use Streak\Domain;
 use Streak\Domain\Event;
-use Streak\Domain\Event\FilterableStream;
+use Streak\Domain\Event\Stream;
 use Streak\Domain\EventStore;
 use Streak\Domain\Exception;
 use Streak\Domain\Id\UUID;
@@ -26,7 +26,7 @@ use Streak\Domain\Id\UUID;
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-class DbalPostgresEventStore implements EventStore, Event\Log, Event\FilterableStream, Schemable, Schema
+class DbalPostgresEventStore implements \Iterator, EventStore, Event\Log, Event\Stream, Schemable, Schema
 {
     private const POSTGRES_PLATFORM_NAME = 'postgresql';
 
@@ -45,7 +45,8 @@ class DbalPostgresEventStore implements EventStore, Event\Log, Event\FilterableS
     private $statement;
 
     private $producers = [];
-    private $types = [];
+    private $including = [];
+    private $excluding = [];
     private $from;
     private $to;
     private $after;
@@ -222,7 +223,7 @@ SQL;
         }
     }
 
-    public function from(Event $event) : Event\FilterableStream
+    public function from(Event $event) : Event\Stream
     {
         $stream = $this->copy();
         $stream->from = $event;
@@ -231,7 +232,7 @@ SQL;
         return $stream;
     }
 
-    public function to(Event $event) : Event\FilterableStream
+    public function to(Event $event) : Event\Stream
     {
         $stream = $this->copy();
         $stream->to = $event;
@@ -240,7 +241,7 @@ SQL;
         return $stream;
     }
 
-    public function after(Event $event) : Event\FilterableStream
+    public function after(Event $event) : Event\Stream
     {
         $stream = $this->copy();
         $stream->from = null;
@@ -249,7 +250,7 @@ SQL;
         return $stream;
     }
 
-    public function before(Event $event) : Event\FilterableStream
+    public function before(Event $event) : Event\Stream
     {
         $stream = $this->copy();
         $stream->to = null;
@@ -258,7 +259,7 @@ SQL;
         return $stream;
     }
 
-    public function streamFor(Domain\Id ...$producers) : Event\FilterableStream
+    public function streamFor(Domain\Id ...$producers) : Event\Stream
     {
         $stream = $this->copy();
         $stream->producers = $producers;
@@ -266,22 +267,34 @@ SQL;
         return $stream;
     }
 
-    public function stream(Domain\Id ...$producers) : Event\FilterableStream
+    public function stream(Domain\Id ...$producers) : Event\Stream
     {
         return $this->streamFor(...$producers);
     }
 
-    public function of(string ...$types) : Event\FilterableStream
+    public function only(string ...$types) : Event\Stream
     {
         $stream = $this->copy();
-        $stream->types = $types;
+        $stream->including = $types;
+        $stream->excluding = [];
 
         // TODO: check if type is Domain\Id
 
         return $stream;
     }
 
-    public function limit(int $limit) : FilterableStream
+    public function without(string ...$types) : Event\Stream
+    {
+        $stream = $this->copy();
+        $stream->excluding = $types;
+        $stream->including = [];
+
+        // TODO: check if type is Domain\Id
+
+        return $stream;
+    }
+
+    public function limit(int $limit) : Stream
     {
         $count = $this->count();
 
@@ -305,7 +318,8 @@ SQL;
             $this->after,
             $this->before,
             $this->producers,
-            $this->types,
+            $this->including,
+            $this->excluding,
             1,
             null
         );
@@ -341,7 +355,8 @@ SQL;
             $this->after,
             $this->before,
             $this->producers,
-            $this->types,
+            $this->including,
+            $this->excluding,
             $limit,
             $offset
         );
@@ -355,26 +370,6 @@ SQL;
         $event = $this->fromRow($row);
 
         return $event;
-    }
-
-    public function count() : int
-    {
-        $statement = $this->select(
-            null,
-            ['COUNT(number)'],
-            $this->from,
-            $this->to,
-            $this->after,
-            $this->before,
-            $this->producers,
-            $this->types,
-            null,
-            null
-        );
-
-        $count = $statement->fetchColumn(0);
-
-        return $count;
     }
 
     public function empty() : bool
@@ -415,7 +410,8 @@ SQL;
             $this->after,
             $this->before,
             $this->producers,
-            $this->types,
+            $this->including,
+            $this->excluding,
             $this->limit,
             null
         );
@@ -426,6 +422,27 @@ SQL;
     public function log() : Event\Log
     {
         return $this;
+    }
+
+    private function count() : int
+    {
+        $statement = $this->select(
+            null,
+            ['COUNT(number)'],
+            $this->from,
+            $this->to,
+            $this->after,
+            $this->before,
+            $this->producers,
+            $this->including,
+            $this->excluding,
+            null,
+            null
+        );
+
+        $count = $statement->fetchColumn(0);
+
+        return $count;
     }
 
     private function bumpUp(?int $version) : ?int
@@ -446,7 +463,7 @@ SQL;
         $stream->before = $this->before;
         $stream->limit = $this->limit;
         $stream->producers = $this->producers;
-        $stream->types = $this->types;
+        $stream->including = $this->including;
 
         return $stream;
     }
@@ -459,7 +476,8 @@ SQL;
         ?Event $after,
         ?Event $before,
         ?array $producers,
-        ?array $types,
+        ?array $including,
+        ?array $excluding,
         ?int $limit,
         ?int $offset
     ) : Statement {
@@ -484,14 +502,24 @@ SQL;
             $where[] = '('.implode(' OR ', $sub).')';
         }
 
-        if ($types) {
-            /* @var $types string[] */
+        if ($including) {
+            /* @var $including string[] */
             $sub = [];
-            foreach ($types as $key => $type) {
-                $sub[] = " (type = :type_$key) ";
-                $parameters["type_$key"] = $type;
+            foreach ($including as $key => $type) {
+                $sub[] = " (type = :include_type_$key) ";
+                $parameters["include_type_$key"] = $type;
             }
             $where[] = '('.implode(' OR ', $sub).')';
+        }
+
+        if ($excluding) {
+            /* @var $excluding string[] */
+            $sub = [];
+            foreach ($excluding as $key => $type) {
+                $sub[] = " (type != :exclude_type_$key) ";
+                $parameters["exclude_type_$key"] = $type;
+            }
+            $where[] = '('.implode(' AND ', $sub).')';
         }
 
         if ($from) {

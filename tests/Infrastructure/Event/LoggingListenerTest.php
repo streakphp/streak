@@ -58,7 +58,7 @@ class LoggingListenerTest extends TestCase
 
     protected function setUp()
     {
-        $this->listener = $this->getMockBuilder([Event\Listener::class, Event\Replayable::class, Event\Completable::class])->setMockClassName('ListenerMock001')->getMock();
+        $this->listener = $this->getMockBuilder([Event\Listener::class, Event\Replayable::class, Event\Process::class])->setMockClassName('ListenerMock001')->getMock();
         $this->rawListener = $this->getMockBuilder(Event\Listener::class)->setMockClassName('ListenerMock002')->setMethods(['completed', 'replay'])->getMockForAbstractClass();
         $this->logger = $this->getMockBuilder(LoggerInterface::class)->getMockForAbstractClass();
         $this->listenerId = $this->getMockBuilder(Id::class)->getMockForAbstractClass();

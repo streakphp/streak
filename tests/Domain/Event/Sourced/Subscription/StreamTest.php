@@ -26,7 +26,7 @@ use Streak\Domain\Event\Sourced\Subscription\Event\SubscriptionListenedToEvent;
 class StreamTest extends TestCase
 {
     /**
-     * @var Event\Stream|MockObject
+     * @var Event\Stream|\IteratorAggregate|MockObject
      */
     private $stream;
 
@@ -52,7 +52,7 @@ class StreamTest extends TestCase
 
     protected function setUp()
     {
-        $this->stream = $this->getMockBuilder(Event\Stream::class)->getMockForAbstractClass();
+        $this->stream = $this->getMockBuilder([Event\Stream::class, \IteratorAggregate::class])->getMock();
 
         $this->event1 = $this->getMockBuilder(Event::class)->getMockForAbstractClass();
         $this->event2 = $this->getMockBuilder(Event::class)->getMockForAbstractClass();
@@ -62,7 +62,7 @@ class StreamTest extends TestCase
 
     public function testStream()
     {
-        $this->isIteratorFor($this->stream, [$this->event1, new SubscriptionListenedToEvent($this->event2), $this->event3, new SubscriptionListenedToEvent($this->event4)]);
+        $this->isIteratorFor($this->stream, [$this->event1, new SubscriptionListenedToEvent($this->event2, 1, new \DateTimeImmutable()), $this->event3, new SubscriptionListenedToEvent($this->event4, 100, new \DateTimeImmutable())]);
 
         $stream = new Stream($this->stream);
 
@@ -71,6 +71,8 @@ class StreamTest extends TestCase
 
     public function testEmpty()
     {
+        $this->isIteratorFor($this->stream, []);
+
         $this->stream
             ->expects($this->exactly(2))
             ->method('empty')
@@ -96,48 +98,104 @@ class StreamTest extends TestCase
         $this->assertEquals([], iterator_to_array($stream));
     }
 
+    public function testFrom()
+    {
+        $this->isIteratorFor($this->stream, []);
+
+        $this->expectExceptionObject(new \BadMethodCallException('Method not supported.'));
+
+        $stream = new Stream($this->stream);
+        $stream->from($this->event1);
+    }
+
+    public function testTo()
+    {
+        $this->isIteratorFor($this->stream, []);
+
+        $this->expectExceptionObject(new \BadMethodCallException('Method not supported.'));
+
+        $stream = new Stream($this->stream);
+        $stream->to($this->event1);
+    }
+
+    public function testAfter()
+    {
+        $this->isIteratorFor($this->stream, []);
+
+        $this->expectExceptionObject(new \BadMethodCallException('Method not supported.'));
+
+        $stream = new Stream($this->stream);
+        $stream->after($this->event1);
+    }
+
+    public function testBefore()
+    {
+        $this->isIteratorFor($this->stream, []);
+
+        $this->expectExceptionObject(new \BadMethodCallException('Method not supported.'));
+
+        $stream = new Stream($this->stream);
+        $stream->before($this->event1);
+    }
+
+    public function testLimit()
+    {
+        $this->isIteratorFor($this->stream, []);
+
+        $this->expectExceptionObject(new \BadMethodCallException('Method not supported.'));
+
+        $stream = new Stream($this->stream);
+        $stream->limit(1);
+    }
+
+    public function testOnly()
+    {
+        $this->isIteratorFor($this->stream, []);
+
+        $this->expectExceptionObject(new \BadMethodCallException('Method not supported.'));
+
+        $stream = new Stream($this->stream);
+        $stream->only('event1', 'event2');
+    }
+
+    public function testWithout()
+    {
+        $this->isIteratorFor($this->stream, []);
+
+        $this->expectExceptionObject(new \BadMethodCallException('Method not supported.'));
+
+        $stream = new Stream($this->stream);
+        $stream->without('event1', 'event2');
+    }
+
+    public function testFirst()
+    {
+        $this->isIteratorFor($this->stream, []);
+
+        $this->expectExceptionObject(new \BadMethodCallException('Method not supported.'));
+
+        $stream = new Stream($this->stream);
+        $stream->first();
+    }
+
+    public function testLast()
+    {
+        $this->isIteratorFor($this->stream, []);
+
+        $this->expectExceptionObject(new \BadMethodCallException('Method not supported.'));
+
+        $stream = new Stream($this->stream);
+        $stream->last();
+    }
+
     private function isIteratorFor(MockObject $iterator, array $items)
     {
         $internal = new \ArrayIterator($items);
 
         $iterator
             ->expects($this->any())
-            ->method('rewind')
-            ->willReturnCallback(function () use ($internal) {
-                $internal->rewind();
-            })
-        ;
-
-        $iterator
-            ->expects($this->any())
-            ->method('current')
-            ->willReturnCallback(function () use ($internal) {
-                return $internal->current();
-            })
-        ;
-
-        $iterator
-            ->expects($this->any())
-            ->method('key')
-            ->willReturnCallback(function () use ($internal) {
-                return $internal->key();
-            })
-        ;
-
-        $iterator
-            ->expects($this->any())
-            ->method('next')
-            ->willReturnCallback(function () use ($internal) {
-                $internal->next();
-            })
-        ;
-
-        $iterator
-            ->expects($this->any())
-            ->method('valid')
-            ->willReturnCallback(function () use ($internal) {
-                return $internal->valid();
-            })
+            ->method('getIterator')
+            ->willReturn($internal)
         ;
 
         return $iterator;

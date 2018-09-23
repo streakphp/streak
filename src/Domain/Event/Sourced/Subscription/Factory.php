@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Streak\Domain\Event\Sourced\Subscription;
 
+use Streak\Domain\Clock;
 use Streak\Domain\Event;
 use Streak\Domain\Event\Subscription;
 
@@ -21,9 +22,16 @@ use Streak\Domain\Event\Subscription;
  */
 class Factory implements Subscription\Factory
 {
+    private $clock;
+
+    public function __construct(Clock $clock)
+    {
+        $this->clock = $clock;
+    }
+
     public function create(Event\Listener $listener) : Event\Subscription
     {
-        $subscription = new Event\Sourced\Subscription($listener);
+        $subscription = new Event\Sourced\Subscription($listener, $this->clock);
 
         return $subscription;
     }

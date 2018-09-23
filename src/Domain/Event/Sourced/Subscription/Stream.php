@@ -28,7 +28,9 @@ class Stream extends \FilterIterator implements Event\Stream
 
     public function __construct(Event\Stream $stream)
     {
-        parent::__construct($stream);
+        $iterator = new \IteratorIterator($stream);
+
+        parent::__construct($iterator);
 
         $this->stream = $stream;
     }
@@ -67,5 +69,50 @@ class Stream extends \FilterIterator implements Event\Stream
         $event = $this->getInnerIterator()->current();
 
         return $event->event();
+    }
+
+    public function from(Event $event) : Event\Stream
+    {
+        throw new \BadMethodCallException('Method not supported.');
+    }
+
+    public function to(Event $event) : Event\Stream
+    {
+        throw new \BadMethodCallException('Method not supported.');
+    }
+
+    public function after(Event $event) : Event\Stream
+    {
+        throw new \BadMethodCallException('Method not supported.');
+    }
+
+    public function before(Event $event) : Event\Stream
+    {
+        throw new \BadMethodCallException('Method not supported.');
+    }
+
+    public function limit(int $limit) : Event\Stream
+    {
+        throw new \BadMethodCallException('Method not supported.');
+    }
+
+    public function only(string ...$types) : Event\Stream
+    {
+        throw new \BadMethodCallException('Method not supported.');
+    }
+
+    public function without(string ...$types) : Event\Stream
+    {
+        throw new \BadMethodCallException('Method not supported.');
+    }
+
+    public function first() : ?Event
+    {
+        throw new \BadMethodCallException('Method not supported.');
+    }
+
+    public function last() : ?Event
+    {
+        throw new \BadMethodCallException('Method not supported.');
     }
 }
