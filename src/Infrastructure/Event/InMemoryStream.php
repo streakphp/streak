@@ -23,7 +23,6 @@ final class InMemoryStream implements \IteratorAggregate, Event\Stream
 {
     private $events = [];
 
-    private $producers = [];
     private $including = [];
     private $excluding = [];
     private $from;
@@ -143,8 +142,8 @@ final class InMemoryStream implements \IteratorAggregate, Event\Stream
         $stream->after = $this->after;
         $stream->before = $this->before;
         $stream->limit = $this->limit;
-        $stream->producers = $this->producers;
         $stream->including = $this->including;
+        $stream->excluding = $this->excluding;
 
         return $stream;
     }
@@ -154,73 +153,72 @@ final class InMemoryStream implements \IteratorAggregate, Event\Stream
      */
     private function filter() : array
     {
-        $events = $this->events;
+        if (0 === count($this->events)) {
+            return [];
+        }
+
+        $start = 0;
 
         if ($this->from) {
-            $index = array_search($this->from, $events, true);
+            $index = array_search($this->from, $this->events, true);
 
-            foreach ($events as $key => $event) {
-                if ($key < $index) {
-                    unset($events[$key]);
-                }
+            if (false !== $index) {
+                $start = $index;
             }
         }
 
         if ($this->after) {
-            $index = array_search($this->after, $events, true);
+            $index = array_search($this->after, $this->events, true);
 
-            foreach ($events as $key => $event) {
-                if ($key <= $index) {
-                    unset($events[$key]);
-                }
+            if (false !== $index) {
+                $start = $index + 1;
+            }
+        }
+
+        $stop = count($this->events) - 1;
+
+        if ($this->to) {
+            $index = array_search($this->to, $this->events, true);
+
+            if (false !== $index) {
+                $stop = $index;
             }
         }
 
         if ($this->before) {
-            $index = array_search($this->before, $events, true);
+            $index = array_search($this->before, $this->events, true);
 
-            foreach ($events as $key => $event) {
-                if ($key >= $index) {
-                    unset($events[$key]);
-                }
+            if (false !== $index) {
+                $stop = $index - 1;
             }
         }
 
-        if ($this->to) {
-            $index = array_search($this->to, $events, true);
+        $events = [];
+        for ($current = $start; $current <= $stop; ++$current) {
+            $event = $this->events[$current];
 
-            foreach ($events as $key => $event) {
-                if ($key > $index) {
-                    unset($events[$key]);
-                }
-            }
-        }
-
-        if ($this->including) {
-            foreach ($events as $key => $event) {
+            if ($this->including) {
                 $type = get_class($event);
 
                 if (!in_array($type, $this->including, true)) {
-                    unset($events[$key]);
+                    continue;
                 }
             }
-        }
 
-        if ($this->excluding) {
-            foreach ($events as $key => $event) {
+            if ($this->excluding) {
                 $type = get_class($event);
 
                 if (in_array($type, $this->excluding, true)) {
-                    unset($events[$key]);
+                    continue;
                 }
             }
+
+            $events[] = $event;
         }
 
         if ($this->limit) {
             $events = array_slice($events, 0, $this->limit);
         }
-
-        $events = array_values($events);
 
         return $events;
     }

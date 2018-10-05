@@ -40,17 +40,17 @@ class InMemoryEventStoreTest extends EventStoreTestCase
         $event3 = new Event3();
         $event4 = new Event4();
 
-        $this->assertEquals([], iterator_to_array($store));
+        $this->assertEquals([], iterator_to_array($store->stream()));
 
         $store->add($producer11, null, $event1, $event2);
-        $this->assertEquals([$event1, $event2], iterator_to_array($store));
+        $this->assertEquals([$event1, $event2], iterator_to_array($store->stream()));
 
         $store->add($producer12, null, $event3, $event4);
-        $this->assertEquals([$event1, $event2, $event3, $event4], iterator_to_array($store));
+        $this->assertEquals([$event1, $event2, $event3, $event4], iterator_to_array($store->stream()));
 
         $store->clear();
 
-        $this->assertEquals([], iterator_to_array($store));
+        $this->assertEquals([], iterator_to_array($store->stream()));
     }
 
     protected function newEventStore() : EventStore

@@ -19,6 +19,8 @@ use Streak\Domain\Event\Sourced\Subscription\Event\SubscriptionCompleted;
 use Streak\Domain\Event\Sourced\Subscription\Event\SubscriptionRestarted;
 use Streak\Domain\Event\Sourced\Subscription\Event\SubscriptionStarted;
 use Streak\Domain\Event\Subscription;
+use Streak\Domain\Event\Subscription\Repository\Filter;
+use Streak\Domain\EventStore;
 use Streak\Domain\Exception;
 use Streak\Infrastructure;
 
@@ -64,7 +66,10 @@ class EventSourcedRepository implements Subscription\Repository
             throw new Exception\ObjectNotSupported($subscription);
         }
 
-        $stream = $this->store->stream($subscription->producerId());
+        $filter = new EventStore\Filter();
+        $filter = $filter->filterProducerIds($subscription->producerId());
+
+        $stream = $this->store->stream($filter);
 
         if ($stream->empty()) {
             return null;
@@ -92,7 +97,10 @@ class EventSourcedRepository implements Subscription\Repository
             throw new Exception\ObjectNotSupported($subscription);
         }
 
-        $stream = $this->store->stream($subscription->producerId());
+        $filter = new EventStore\Filter();
+        $filter = $filter->filterProducerIds($subscription->producerId());
+
+        $stream = $this->store->stream($filter);
 
         if ($stream->empty()) {
             return false;
@@ -116,13 +124,19 @@ class EventSourcedRepository implements Subscription\Repository
     /**
      * @return iterable|Event\Subscription[]
      */
-    public function all() : iterable
+    public function all(?Filter $filter = null) : iterable
     {
-        $stream = $this->store->stream();
+        if (null === $filter) {
+            $filter = Filter::nothing();
+        }
+
+        $streamFilter = new EventStore\Filter();
+        $streamFilter = $streamFilter->filterProducerTypes(...$filter->subscriptionTypes());
+
+        $stream = $this->store->stream($streamFilter);
         $stream = $stream->only(SubscriptionStarted::class, SubscriptionRestarted::class, SubscriptionCompleted::class);
 
         $ids = [];
-
         foreach ($stream as $event) {
             $id = $this->store->producerId($event);
 
@@ -130,9 +144,11 @@ class EventSourcedRepository implements Subscription\Repository
                 $ids[] = $id;
             }
 
-            if ($event instanceof SubscriptionCompleted) {
-                if (false !== ($key = array_search($id, $ids))) { // TODO: make it look nicer
-                    unset($ids[$key]);
+            if (true === $filter->areCompletedSubscriptionsIgnored()) {
+                if ($event instanceof SubscriptionCompleted) {
+                    if (false !== ($key = array_search($id, $ids))) { // TODO: make it look nicer
+                        unset($ids[$key]);
+                    }
                 }
             }
 

@@ -38,7 +38,9 @@ interface Repository
     public function add(Event\Subscription $subscription) : void;
 
     /**
+     * @param null|Repository\Filter $filter
+     *
      * @return iterable|Event\Subscription[]
      */
-    public function all() : iterable;
+    public function all(?Repository\Filter $filter = null) : iterable;
 }

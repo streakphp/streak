@@ -26,7 +26,7 @@ use Streak\Domain\Id\UUID;
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-class DbalPostgresEventStore implements \Iterator, EventStore, Event\Log, Event\Stream, Schemable, Schema
+class DbalPostgresEventStore implements \Iterator, EventStore, Event\Stream, Schemable, Schema
 {
     private const POSTGRES_PLATFORM_NAME = 'postgresql';
 
@@ -44,7 +44,7 @@ class DbalPostgresEventStore implements \Iterator, EventStore, Event\Log, Event\
      */
     private $statement;
 
-    private $producers = [];
+    private $filter = [];
     private $including = [];
     private $excluding = [];
     private $from;
@@ -57,6 +57,7 @@ class DbalPostgresEventStore implements \Iterator, EventStore, Event\Log, Event\
     {
         $this->connection = $connection;
         $this->converter = $converter;
+        $this->filter = new EventStore\Filter();
     }
 
     /**
@@ -259,17 +260,14 @@ SQL;
         return $stream;
     }
 
-    public function streamFor(Domain\Id ...$producers) : Event\Stream
+    public function stream(?EventStore\Filter $filter = null) : Event\Stream
     {
         $stream = $this->copy();
-        $stream->producers = $producers;
+        if (null !== $filter) {
+            $stream->filter = $filter;
+        }
 
         return $stream;
-    }
-
-    public function stream(Domain\Id ...$producers) : Event\Stream
-    {
-        return $this->streamFor(...$producers);
     }
 
     public function only(string ...$types) : Event\Stream
@@ -311,13 +309,13 @@ SQL;
     public function first() : ?Event
     {
         $statement = $this->select(
+            $this->filter,
             self::DIRECTION_FORWARD,
             [],
             $this->from,
             $this->to,
             $this->after,
             $this->before,
-            $this->producers,
             $this->including,
             $this->excluding,
             1,
@@ -337,24 +335,24 @@ SQL;
 
     public function last() : ?Event
     {
-        if (null === $this->limit) {
-            $direction = self::DIRECTION_BACKWARD;
-            $limit = 1;
-            $offset = null;
-        } elseif (null !== $this->limit) {
+        $direction = self::DIRECTION_BACKWARD;
+        $limit = 1;
+        $offset = null;
+
+        if (null !== $this->limit) {
             $direction = self::DIRECTION_FORWARD;
             $limit = $this->limit;
             $offset = $this->limit - 1;
         }
 
         $statement = $this->select(
+            $this->filter,
             $direction,
             [],
             $this->from,
             $this->to,
             $this->after,
             $this->before,
-            $this->producers,
             $this->including,
             $this->excluding,
             $limit,
@@ -403,13 +401,13 @@ SQL;
     public function rewind()
     {
         $this->statement = $this->select(
+            $this->filter,
             self::DIRECTION_FORWARD,
             [],
             $this->from,
             $this->to,
             $this->after,
             $this->before,
-            $this->producers,
             $this->including,
             $this->excluding,
             $this->limit,
@@ -419,21 +417,16 @@ SQL;
         $this->key = 0;
     }
 
-    public function log() : Event\Log
-    {
-        return $this;
-    }
-
     private function count() : int
     {
         $statement = $this->select(
+            $this->filter,
             null,
             ['COUNT(number)'],
             $this->from,
             $this->to,
             $this->after,
             $this->before,
-            $this->producers,
             $this->including,
             $this->excluding,
             null,
@@ -462,20 +455,21 @@ SQL;
         $stream->after = $this->after;
         $stream->before = $this->before;
         $stream->limit = $this->limit;
-        $stream->producers = $this->producers;
+        $stream->filter = $this->filter;
         $stream->including = $this->including;
+        $stream->excluding = $this->excluding;
 
         return $stream;
     }
 
     private function select(
+        EventStore\Filter $filter,
         ?string $direction,
         ?array $columns,
         ?Event $from,
         ?Event $to,
         ?Event $after,
         ?Event $before,
-        ?array $producers,
         ?array $including,
         ?array $excluding,
         ?int $limit,
@@ -491,13 +485,23 @@ SQL;
         $where = [];
         $parameters = [];
 
-        if ($producers) {
-            /* @var $producers Domain\Id[] */
+        if (count($filter->producerIds()) > 0) {
+            /* @var $filter Domain\Id[] */
             $sub = [];
-            foreach ($producers as $key => $id) {
+            foreach ($filter->producerIds() as $key => $id) {
                 $sub[] = " (producer_type = :producer_type_$key AND producer_id = :producer_id_$key) ";
                 $parameters["producer_type_$key"] = get_class($id);
                 $parameters["producer_id_$key"] = $id->toString();
+            }
+            $where[] = '('.implode(' OR ', $sub).')';
+        }
+
+        if (count($filter->producerTypes()) > 0) {
+            /* @var $filter Domain\Id[] */
+            $sub = [];
+            foreach ($filter->producerTypes() as $key => $type) {
+                $sub[] = " (producer_type = :only_producer_type_$key) ";
+                $parameters["only_producer_type_$key"] = $type;
             }
             $where[] = '('.implode(' OR ', $sub).')';
         }

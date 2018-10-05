@@ -82,8 +82,6 @@ abstract class EventStoreTestCase extends TestCase
 
     public function testObject()
     {
-        $this->assertSame($this->store->log(), $this->store->log());
-
         $producer11 = new ProducerId1('producer1');
         $producer12 = new ProducerId1('producer2');
         $producer21 = new ProducerId2('producer1');
@@ -103,9 +101,7 @@ abstract class EventStoreTestCase extends TestCase
         $event213 = new Event3();
         $event214 = new Event4();
 
-        $this->assertEquals([], iterator_to_array($this->store->log()));
-
-        $stream = $this->store->stream($producer11);
+        $stream = $this->store->stream(EventStore\Filter::nothing()->filterProducerIds($producer11));
         $this->assertEquals([], iterator_to_array($stream));
         $this->assertTrue($stream->empty());
         $this->assertNull($stream->first());
@@ -113,33 +109,33 @@ abstract class EventStoreTestCase extends TestCase
 
         $this->store->add($producer11, null);
 
-        $second = $this->store->stream($producer11);
+        $second = $this->store->stream(EventStore\Filter::nothing()->filterProducerIds($producer11));
         $this->assertNotSame($stream, $second);
 
         $this->assertEquals(iterator_to_array($stream), iterator_to_array($second));
 
         $this->store->add($producer11, 0, $event111, $event112);
-        $this->assertEquals([$event111, $event112], iterator_to_array($this->store->log()));
+        $this->assertEquals([$event111, $event112], iterator_to_array($this->store->stream()));
 
-        $stream = $this->store->stream($producer11);
+        $stream = $this->store->stream(EventStore\Filter::nothing()->filterProducerIds($producer11));
         $this->assertEquals([$event111, $event112], iterator_to_array($stream));
         $this->assertFalse($stream->empty());
         $this->assertEquals($event111, $stream->first());
         $this->assertEquals($event112, $stream->last());
 
-        $second = $this->store->stream($producer11);
+        $second = $this->store->stream(EventStore\Filter::nothing()->filterProducerIds($producer11));
         $this->assertNotSame($stream, $second);
 
         $this->store->add($producer11, 2, $event113, $event114);
-        $this->assertEquals([$event111, $event112, $event113, $event114], iterator_to_array($this->store->log()));
+        $this->assertEquals([$event111, $event112, $event113, $event114], iterator_to_array($this->store->stream()));
 
-        $stream = $this->store->stream($producer11);
+        $stream = $this->store->stream(EventStore\Filter::nothing()->filterProducerIds($producer11));
         $this->assertEquals([$event111, $event112, $event113, $event114], iterator_to_array($stream));
         $this->assertFalse($stream->empty());
         $this->assertEquals($event111, $stream->first());
         $this->assertEquals($event114, $stream->last());
 
-        $second = $this->store->stream($producer11);
+        $second = $this->store->stream(EventStore\Filter::nothing()->filterProducerIds($producer11));
         $this->assertNotSame($stream, $second);
 
         $stream = $stream->only(Event1::class, Event4::class);
@@ -166,37 +162,37 @@ abstract class EventStoreTestCase extends TestCase
         $this->assertNull($stream->first());
         $this->assertNull($stream->last());
 
-        $stream = $this->store->stream($producer12);
+        $stream = $this->store->stream(EventStore\Filter::nothing()->filterProducerIds($producer12));
         $this->assertEquals([], iterator_to_array($stream));
         $this->assertTrue($stream->empty());
         $this->assertNull($stream->first());
         $this->assertNull($stream->last());
 
-        $second = $this->store->stream($producer12);
+        $second = $this->store->stream(EventStore\Filter::nothing()->filterProducerIds($producer12));
         $this->assertNotSame($stream, $second);
 
         $this->store->add($producer12, 0, $event121, $event122, $event123, $event124);
-        $this->assertEquals([$event111, $event112, $event113, $event114, $event121, $event122, $event123, $event124], iterator_to_array($this->store->log()));
+        $this->assertEquals([$event111, $event112, $event113, $event114, $event121, $event122, $event123, $event124], iterator_to_array($this->store->stream()));
 
-        $stream = $this->store->stream($producer11);
+        $stream = $this->store->stream(EventStore\Filter::nothing()->filterProducerIds($producer11));
         $this->assertEquals([$event111, $event112, $event113, $event114], iterator_to_array($stream));
         $this->assertFalse($stream->empty());
         $this->assertEquals($event111, $stream->first());
         $this->assertEquals($event114, $stream->last());
 
-        $second = $this->store->stream($producer11);
+        $second = $this->store->stream(EventStore\Filter::nothing()->filterProducerIds($producer11));
         $this->assertNotSame($stream, $second);
 
-        $stream = $this->store->stream($producer12);
+        $stream = $this->store->stream(EventStore\Filter::nothing()->filterProducerIds($producer12));
         $this->assertEquals([$event121, $event122, $event123, $event124], iterator_to_array($stream));
         $this->assertFalse($stream->empty());
         $this->assertEquals($event121, $stream->first());
         $this->assertEquals($event124, $stream->last());
 
-        $second = $this->store->stream($producer12);
+        $second = $this->store->stream(EventStore\Filter::nothing()->filterProducerIds($producer12));
         $this->assertNotSame($stream, $second);
 
-        $stream = $this->store->stream($producer11);
+        $stream = $this->store->stream(EventStore\Filter::nothing()->filterProducerIds($producer11));
         $this->assertEquals([$event111, $event112, $event113, $event114], iterator_to_array($stream));
         $this->assertFalse($stream->empty());
         $this->assertEquals($event111, $stream->first());
@@ -230,7 +226,13 @@ abstract class EventStoreTestCase extends TestCase
         $this->assertEquals($event111, $filtered4->first());
         $this->assertEquals($event114, $filtered4->last());
 
-        $stream = $this->store->stream($producer11, $producer12);
+        $stream = $this->store->stream(EventStore\Filter::nothing()->filterProducerIds($producer11, $producer12));
+        $this->assertEquals([$event111, $event112, $event113, $event114, $event121, $event122, $event123, $event124], iterator_to_array($stream));
+        $this->assertFalse($stream->empty());
+        $this->assertEquals($event111, $stream->first());
+        $this->assertEquals($event124, $stream->last());
+
+        $stream = $this->store->stream(EventStore\Filter::nothing()->filterProducerTypes(ProducerId1::class));
         $this->assertEquals([$event111, $event112, $event113, $event114, $event121, $event122, $event123, $event124], iterator_to_array($stream));
         $this->assertFalse($stream->empty());
         $this->assertEquals($event111, $stream->first());
@@ -238,13 +240,43 @@ abstract class EventStoreTestCase extends TestCase
 
         $this->store->add($producer21, 0, $event211, $event212, $event213, $event214);
 
-        $stream = $this->store->stream($producer21);
+        $stream = $this->store->stream(EventStore\Filter::nothing()->filterProducerIds($producer21));
+        $this->assertEquals([$event211, $event212, $event213, $event214], iterator_to_array($stream));
+        $this->assertFalse($stream->empty());
+        $this->assertEquals($event211, $stream->first());
+        $this->assertEquals($event214, $stream->last());
+
+        $stream = $this->store->stream(EventStore\Filter::nothing()->filterProducerTypes(ProducerId1::class));
+        $this->assertEquals([$event111, $event112, $event113, $event114, $event121, $event122, $event123, $event124], iterator_to_array($stream));
+        $this->assertFalse($stream->empty());
+        $this->assertEquals($event111, $stream->first());
+        $this->assertEquals($event124, $stream->last());
+
+        $stream = $this->store->stream(EventStore\Filter::nothing()->filterProducerIds($producer11, $producer12));
+        $this->assertEquals([$event111, $event112, $event113, $event114, $event121, $event122, $event123, $event124], iterator_to_array($stream));
+        $this->assertFalse($stream->empty());
+        $this->assertEquals($event111, $stream->first());
+        $this->assertEquals($event124, $stream->last());
+
+        $stream = $this->store->stream(EventStore\Filter::nothing()->filterProducerTypes(ProducerId2::class));
+        $this->assertEquals([$event211, $event212, $event213, $event214], iterator_to_array($stream));
+        $this->assertFalse($stream->empty());
+        $this->assertEquals($event211, $stream->first());
+        $this->assertEquals($event214, $stream->last());
+
+        $stream = $this->store->stream(EventStore\Filter::nothing()->filterProducerIds($producer21));
         $this->assertEquals([$event211, $event212, $event213, $event214], iterator_to_array($stream));
         $this->assertFalse($stream->empty());
         $this->assertEquals($event211, $stream->first());
         $this->assertEquals($event214, $stream->last());
 
         $stream = $this->store->stream();
+        $this->assertEquals([$event111, $event112, $event113, $event114, $event121, $event122, $event123, $event124, $event211, $event212, $event213, $event214], iterator_to_array($stream));
+        $this->assertFalse($stream->empty());
+        $this->assertEquals($event111, $stream->first());
+        $this->assertEquals($event214, $stream->last());
+
+        $stream = $this->store->stream(EventStore\Filter::nothing()->filterProducerTypes(ProducerId1::class, ProducerId2::class));
         $this->assertEquals([$event111, $event112, $event113, $event114, $event121, $event122, $event123, $event124, $event211, $event212, $event213, $event214], iterator_to_array($stream));
         $this->assertFalse($stream->empty());
         $this->assertEquals($event111, $stream->first());
@@ -313,7 +345,7 @@ abstract class EventStoreTestCase extends TestCase
         try {
             $this->store->add($producer, 0, $event3, $event4);
         } catch (ConcurrentWriteDetected $e) {
-            $this->assertEquals([$event1, $event2], iterator_to_array($this->store->log()));
+            $this->assertEquals([$event1, $event2], iterator_to_array($this->store->stream()));
         }
     }
 
@@ -329,7 +361,7 @@ abstract class EventStoreTestCase extends TestCase
         try {
             $this->store->add($producer, 2, $event3, $event1);
         } catch (EventAlreadyInStore $e) {
-            $this->assertEquals([$event1, $event2], iterator_to_array($this->store->log()));
+            $this->assertEquals([$event1, $event2], iterator_to_array($this->store->stream()));
         }
     }
 

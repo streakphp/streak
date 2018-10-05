@@ -171,7 +171,7 @@ class EventSourcedRepositoryTest extends TestCase
         $this->store
             ->expects($this->never())
             ->method('stream')
-            ->with($this->aggregateRootId)
+            ->with(Domain\EventStore\Filter::nothing()->filterProducerIds($this->aggregateRootId))
             ->willThrowException($exception1)
         ;
 
@@ -207,7 +207,7 @@ class EventSourcedRepositoryTest extends TestCase
         $this->store
             ->expects($this->once())
             ->method('stream')
-            ->with($this->aggregateRootId)
+            ->with(Domain\EventStore\Filter::nothing()->filterProducerIds($this->aggregateRootId))
             ->willReturn($this->stream)
         ;
 
@@ -256,7 +256,7 @@ class EventSourcedRepositoryTest extends TestCase
         $this->store
             ->expects($this->once())
             ->method('stream')
-            ->with($this->aggregateRootId)
+            ->with(Domain\EventStore\Filter::nothing()->filterProducerIds($this->aggregateRootId))
             ->willReturn($this->stream)
         ;
 
@@ -318,7 +318,7 @@ class EventSourcedRepositoryTest extends TestCase
         $this->store
             ->expects($this->once())
             ->method('stream')
-            ->with($this->aggregateRootId)
+            ->with(Domain\EventStore\Filter::nothing()->filterProducerIds($this->aggregateRootId))
             ->willReturn($this->stream)
         ;
 
@@ -379,7 +379,7 @@ class EventSourcedRepositoryTest extends TestCase
         $this->store
             ->expects($this->once())
             ->method('stream')
-            ->with($this->aggregateRootId)
+            ->with(Domain\EventStore\Filter::nothing()->filterProducerIds($this->aggregateRootId))
             ->willReturn($this->stream)
         ;
 
