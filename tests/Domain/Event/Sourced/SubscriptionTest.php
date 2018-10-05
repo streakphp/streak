@@ -79,11 +79,6 @@ class SubscriptionTest extends TestCase
     private $store;
 
     /**
-     * @var Event\Log|MockObject
-     */
-    private $log;
-
-    /**
      * @var Event\Stream|MockObject
      */
     private $stream1;
@@ -141,8 +136,6 @@ class SubscriptionTest extends TestCase
         $this->id2 = $this->getMockBuilder(Domain\Id::class)->getMockForAbstractClass();
 
         $this->store = $this->getMockBuilder(EventStore::class)->getMockForAbstractClass();
-
-        $this->log = $this->getMockBuilder(Event\Log::class)->getMockForAbstractClass();
 
         $this->stream1 = $this->getMockBuilder([Event\Stream::class, \IteratorAggregate::class])->getMock();
         $this->stream2 = $this->getMockBuilder([Event\Stream::class, \IteratorAggregate::class])->getMock();

@@ -66,7 +66,10 @@ class EventSourcedRepository implements Domain\AggregateRoot\Repository
             throw new Exception\ObjectNotSupported($aggregate);
         }
 
-        $stream = $this->store->stream($id);
+        $filter = new Domain\EventStore\Filter();
+        $filter = $filter->filterProducerIds($id);
+
+        $stream = $this->store->stream($filter);
 
         if ($aggregate->lastEvent()) {
             $stream = $stream->after($aggregate->lastEvent());

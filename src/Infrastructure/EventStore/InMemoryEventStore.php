@@ -22,7 +22,7 @@ use Streak\Infrastructure\Event\InMemoryStream;
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-class InMemoryEventStore implements EventStore, Event\Log
+class InMemoryEventStore implements EventStore
 {
     private $uuids = [];
     private $streams = [];
@@ -115,20 +115,36 @@ class InMemoryEventStore implements EventStore, Event\Log
         }
     }
 
-    public function streamFor(Domain\Id ...$producers) : Event\Stream
+    public function stream(?EventStore\Filter $filter = null) : Event\Stream
     {
-        if (0 === count($producers)) {
+        if (null === $filter) {
+            $filter = EventStore\Filter::nothing();
+        }
+
+        if (0 === count($filter->producerIds()) && 0 === count($filter->producerTypes())) {
             return new InMemoryStream(...$this->all);
         }
 
-        $streams = [];
-        foreach ($producers as $producer) {
-            $type = get_class($producer);
-            $id = $producer->toString();
-            $stream = $type.$id;
-            if (isset($this->streams[$stream])) {
-                $streams = array_merge($streams, $this->streams[$stream]);
+        $keys = [];
+        foreach ($filter->producerIds() as $producerId) {
+            $producerId = get_class($producerId).$producerId->toString();
+
+            if (array_key_exists($producerId, $this->streams)) {
+                $keys[] = $producerId;
             }
+        }
+
+        foreach ($filter->producerTypes() as $producerType) {
+            foreach ($this->streams as $type => $stream) {
+                if (0 === mb_strpos($type, $producerType)) {
+                    $keys[] = $type;
+                }
+            }
+        }
+
+        $streams = [];
+        foreach ($keys as $key) {
+            $streams = array_merge($streams, $this->streams[$key]);
         }
 
         $events = [];
@@ -141,44 +157,9 @@ class InMemoryEventStore implements EventStore, Event\Log
         return new InMemoryStream(...$events);
     }
 
-    public function stream(Domain\Id ...$producers) : Event\Stream
-    {
-        return $this->streamFor(...$producers);
-    }
-
     public function clear()
     {
         $this->streams = [];
         $this->all = [];
-    }
-
-    public function current() : Event
-    {
-        return $this->all[$this->current];
-    }
-
-    public function next()
-    {
-        $this->current = $this->current + 1;
-    }
-
-    public function key()
-    {
-        return $this->current;
-    }
-
-    public function valid()
-    {
-        return array_key_exists($this->current, $this->all);
-    }
-
-    public function rewind()
-    {
-        $this->current = 0;
-    }
-
-    public function log() : Event\Log
-    {
-        return $this;
     }
 }

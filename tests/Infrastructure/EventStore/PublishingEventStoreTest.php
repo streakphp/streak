@@ -63,14 +63,14 @@ class PublishingEventStoreTest extends TestCase
     private $event3;
 
     /**
-     * @var Event\Log|MockObject
+     * @var Event\Stream|MockObject
      */
-    private $log;
+    private $stream1;
 
     /**
      * @var Event\Stream|MockObject
      */
-    private $stream;
+    private $stream2;
 
     /**
      * @var Schema|MockObject
@@ -89,8 +89,8 @@ class PublishingEventStoreTest extends TestCase
         $this->event2 = $this->getMockBuilder(Event::class)->setMockClassName('event2')->getMockForAbstractClass();
         $this->event3 = $this->getMockBuilder(Event::class)->setMockClassName('event3')->getMockForAbstractClass();
 
-        $this->log = $this->getMockBuilder(Event\Log::class)->getMockForAbstractClass();
-        $this->stream = $this->getMockBuilder(Event\Stream::class)->getMockForAbstractClass();
+        $this->stream1 = $this->getMockBuilder(Event\Stream::class)->getMockForAbstractClass();
+        $this->stream2 = $this->getMockBuilder(Event\Stream::class)->getMockForAbstractClass();
         $this->schema = $this->getMockBuilder(Schema::class)->getMockForAbstractClass();
     }
 
@@ -121,24 +121,6 @@ class PublishingEventStoreTest extends TestCase
         $store->add($this->id, null, $this->event2);
         $store->add($this->id, 1, $this->event2);
         $store->add($this->id, 2, $this->event2, $this->event3);
-
-        $this->store
-            ->expects($this->once())
-            ->method('stream')
-            ->with($this->id)
-            ->willReturn($this->stream)
-        ;
-
-        $this->assertSame($this->stream, $store->stream($this->id));
-
-        $this->store
-            ->expects($this->once())
-            ->method('log')
-            ->with()
-            ->willReturn($this->log)
-        ;
-
-        $this->assertSame($this->log, $store->log());
     }
 
     public function testStoringNoEvents()
@@ -204,5 +186,32 @@ class PublishingEventStoreTest extends TestCase
         $schema = $store->schema();
 
         $this->assertSame($this->schema, $schema);
+    }
+
+    public function testRetrievingStream()
+    {
+        $store = new PublishingEventStore($this->store, $this->bus);
+        $filter = EventStore\Filter::nothing();
+
+        $this->store
+            ->expects($this->exactly(2))
+            ->method('stream')
+            ->withConsecutive(
+                [null],
+                [$filter]
+            )
+            ->willReturn(
+                $this->stream1,
+                $this->stream2
+            )
+        ;
+
+        $stream = $store->stream();
+
+        $this->assertSame($this->stream1, $stream);
+
+        $stream = $store->stream($filter);
+
+        $this->assertSame($this->stream2, $stream);
     }
 }

@@ -247,7 +247,7 @@ class EventSourcedRepositoryTest extends TestCase
         $this->store
             ->expects($this->once())
             ->method('stream')
-            ->with($this->id1)
+            ->with(Domain\EventStore\Filter::nothing()->filterProducerIds($this->id1))
             ->willReturn(new InMemoryStream()) // empty stream
         ;
 
@@ -275,7 +275,7 @@ class EventSourcedRepositoryTest extends TestCase
         $this->store
             ->expects($this->once())
             ->method('stream')
-            ->with($this->id1)
+            ->with(Domain\EventStore\Filter::nothing()->filterProducerIds($this->id1))
             ->willReturn(new InMemoryStream()) // empty stream
         ;
 
@@ -322,7 +322,7 @@ class EventSourcedRepositoryTest extends TestCase
         $this->store
             ->expects($this->once())
             ->method('stream')
-            ->with($this->id1)
+            ->with(Domain\EventStore\Filter::nothing()->filterProducerIds($this->id1))
             ->willReturn($this->stream1)
         ;
 
@@ -377,7 +377,7 @@ class EventSourcedRepositoryTest extends TestCase
         $this->store
             ->expects($this->once())
             ->method('stream')
-            ->with($this->id1)
+            ->with(Domain\EventStore\Filter::nothing()->filterProducerIds($this->id1))
             ->willReturn(new InMemoryStream($event1, $event2)) // TODO: mock the stream
         ;
 
@@ -432,7 +432,7 @@ class EventSourcedRepositoryTest extends TestCase
         $this->store
             ->expects($this->once())
             ->method('stream')
-            ->with()
+            ->with(EventStore\Filter::nothing())
             ->willReturn($this->stream1)
         ;
 
@@ -463,9 +463,9 @@ class EventSourcedRepositoryTest extends TestCase
             ->expects($this->exactly(3))
             ->method('stream')
             ->withConsecutive(
-                [],
-                [$this->id3],
-                [$this->id1]
+                [EventStore\Filter::nothing()],
+                [EventStore\Filter::nothing()->filterProducerIds($this->id3)],
+                [EventStore\Filter::nothing()->filterProducerIds($this->id1)]
             )
             ->willReturnOnConsecutiveCalls(
                 $this->all,
@@ -561,9 +561,9 @@ class EventSourcedRepositoryTest extends TestCase
             ->expects($this->exactly(3))
             ->method('stream')
             ->withConsecutive(
-                [],
-                [$this->id3],
-                [$this->id1]
+                [EventStore\Filter::nothing()],
+                [EventStore\Filter::nothing()->filterProducerIds($this->id3)],
+                [EventStore\Filter::nothing()->filterProducerIds($this->id1)]
             )
             ->willReturnOnConsecutiveCalls(
                 $this->all,
