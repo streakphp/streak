@@ -71,7 +71,7 @@ class Scenario implements Scenario\Given, Scenario\When, Scenario\Then
         $this->store->clear();
         iterator_to_array($this->uow->commit());
 
-        $actual = iterator_to_array($this->store);
+        $actual = iterator_to_array($this->store->stream());
 
         Domain\Event\Metadata::clear(...$actual);
 
