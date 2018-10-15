@@ -13,10 +13,11 @@ declare(strict_types=1);
 
 namespace Streak\Infrastructure\Event\Listener;
 
-use Streak\Domain;
 use Streak\Domain\Event;
+use Streak\Domain\Event\Exception\InvalidEventGiven;
 use Streak\Domain\Event\Listener;
 use Streak\Domain\Exception;
+use Streak\Domain\Exception\InvalidIdGiven;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -34,9 +35,9 @@ class CompositeFactory implements Event\Listener\Factory
     }
 
     /**
-     * @throws Exception\InvalidIdGiven
+     * @throws InvalidIdGiven
      */
-    public function create(Domain\Id $id) : Listener
+    public function create(Listener\Id $id) : Listener
     {
         foreach ($this->factories as $factory) {
             try {
@@ -50,9 +51,9 @@ class CompositeFactory implements Event\Listener\Factory
     }
 
     /**
-     * @throws Exception\InvalidIdGiven
+     * @throws InvalidEventGiven
      */
-    public function createFor(Event $event) : Listener
+    public function createFor(Event $event) : Event\Listener
     {
         throw new \BadMethodCallException();
     }

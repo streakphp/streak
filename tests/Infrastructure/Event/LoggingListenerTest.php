@@ -17,7 +17,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Streak\Domain\Event;
-use Streak\Domain\Id;
+use Streak\Domain\Event\Listener;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -29,12 +29,12 @@ class LoggingListenerTest extends TestCase
     /**
      * @var Event\Listener|MockObject
      */
-    private $listener;
+    private $listener1;
 
     /**
-     * @var Event\Listener|MockObject
+     * @var Event\Listener|Event\Listener\Replayable|Event\Listener\Completable|Event\Listener\Resettable|MockObject
      */
-    private $rawListener;
+    private $listener2;
 
     /**
      * @var LoggerInterface|MockObject
@@ -42,7 +42,7 @@ class LoggingListenerTest extends TestCase
     private $logger;
 
     /**
-     * @var Id|MockObject
+     * @var Listener\Id|MockObject
      */
     private $listenerId;
 
@@ -58,43 +58,46 @@ class LoggingListenerTest extends TestCase
 
     protected function setUp()
     {
-        $this->listener = $this->getMockBuilder([Event\Listener::class, Event\Replayable::class, Event\Process::class])->setMockClassName('ListenerMock001')->getMock();
-        $this->rawListener = $this->getMockBuilder(Event\Listener::class)->setMockClassName('ListenerMock002')->setMethods(['completed', 'replay'])->getMockForAbstractClass();
+        $this->listener1 = $this->getMockBuilder(Listener::class)->setMethods(['replay', 'reset', 'completed'])->setMockClassName('ListenerMock001')->getMockForAbstractClass();
+        $this->listener2 = $this->getMockBuilder([Event\Listener::class, Event\Listener\Replayable::class, Event\Listener\Completable::class, Event\Listener\Resettable::class])->setMockClassName('ListenerMock002')->getMock();
         $this->logger = $this->getMockBuilder(LoggerInterface::class)->getMockForAbstractClass();
-        $this->listenerId = $this->getMockBuilder(Id::class)->getMockForAbstractClass();
+        $this->listenerId = $this->getMockBuilder(Listener\Id::class)->getMockForAbstractClass();
         $this->event = $this->getMockBuilder(Event::class)->setMockClassName('EventMock001')->getMockForAbstractClass();
         $this->stream = $this->getMockBuilder(Event\Stream::class)->getMockForAbstractClass();
     }
 
     public function testObject()
     {
-        $listener = new LoggingListener($this->rawListener, $this->logger);
+        $listener = new LoggingListener($this->listener1, $this->logger);
 
         $this->logger
             ->expects($this->never())
             ->method('debug')
         ;
-
-        $this->rawListener
-            ->expects($this->never())
-            ->method('completed')
-        ;
-        $this->assertFalse($listener->completed());
-
-        $this->rawListener
+        $this->listener1
             ->expects($this->never())
             ->method('replay')
         ;
+        $this->listener1
+            ->expects($this->never())
+            ->method('reset')
+        ;
+        $this->listener1
+            ->expects($this->never())
+            ->method('completed')
+        ;
         $listener->replay($this->stream);
+        $listener->reset();
+        $this->assertFalse($listener->completed());
 
-        $listener = new LoggingListener($this->listener, $this->logger);
+        $listener = new LoggingListener($this->listener2, $this->logger);
 
         $this->logger
             ->expects($this->never())
             ->method('debug')
         ;
 
-        $this->listener
+        $this->listener2
             ->expects($this->exactly(2))
             ->method('completed')
             ->willReturnOnConsecutiveCalls(true, false)
@@ -103,7 +106,7 @@ class LoggingListenerTest extends TestCase
         $this->assertTrue($listener->completed());
         $this->assertFalse($listener->completed());
 
-        $this->listener
+        $this->listener2
             ->expects($this->exactly(2))
             ->method('on')
             ->with($this->event)
@@ -113,7 +116,7 @@ class LoggingListenerTest extends TestCase
         $this->assertTrue($listener->on($this->event));
         $this->assertFalse($listener->on($this->event));
 
-        $this->listener
+        $this->listener2
             ->expects($this->once())
             ->method('replay')
             ->with($this->stream)
@@ -121,21 +124,24 @@ class LoggingListenerTest extends TestCase
 
         $listener->replay($this->stream);
 
-        $this->listener
-            ->expects($this->once())
-            ->method('id')
+        $this->listener2
+            ->expects($this->atLeastOnce())
+            ->method('listenerId')
             ->willReturn($this->listenerId)
         ;
 
+        $this->assertSame($this->listenerId, $listener->listenerId());
         $this->assertSame($this->listenerId, $listener->id());
+
+        $listener->reset();
     }
 
     public function testExceptionOnEvent()
     {
-        $listener = new LoggingListener($this->listener, $this->logger);
+        $listener = new LoggingListener($this->listener2, $this->logger);
 
         $exception = new \Exception('Exception test message.');
-        $this->listener
+        $this->listener2
             ->expects($this->once())
             ->method('on')
             ->with($this->event)
@@ -146,7 +152,7 @@ class LoggingListenerTest extends TestCase
             ->expects($this->once())
             ->method('debug')
             ->with($this->isType('string'), [
-                'listener' => 'ListenerMock001',
+                'listener' => 'ListenerMock002',
                 'class' => 'Exception',
                 'message' => 'Exception test message.',
                 'event' => 'EventMock001',
@@ -161,10 +167,10 @@ class LoggingListenerTest extends TestCase
 
     public function testExceptionWhenReplayingEvents()
     {
-        $listener = new LoggingListener($this->listener, $this->logger);
+        $listener = new LoggingListener($this->listener2, $this->logger);
 
         $exception = new \Exception('Exception test message.');
-        $this->listener
+        $this->listener2
             ->expects($this->once())
             ->method('replay')
             ->with($this->stream)
@@ -175,7 +181,7 @@ class LoggingListenerTest extends TestCase
             ->expects($this->once())
             ->method('debug')
             ->with($this->isType('string'), [
-                'listener' => 'ListenerMock001',
+                'listener' => 'ListenerMock002',
                 'class' => 'Exception',
                 'message' => 'Exception test message.',
                 'exception' => $exception,
@@ -185,5 +191,33 @@ class LoggingListenerTest extends TestCase
         $this->expectExceptionObject($exception);
 
         $listener->replay($this->stream);
+    }
+
+    public function testExceptionWhenResettingListener()
+    {
+        $listener = new LoggingListener($this->listener2, $this->logger);
+
+        $exception = new \Exception('Exception test message #2');
+        $this->listener2
+            ->expects($this->once())
+            ->method('reset')
+            ->with()
+            ->willThrowException($exception)
+        ;
+
+        $this->logger
+            ->expects($this->once())
+            ->method('debug')
+            ->with($this->isType('string'), [
+                'listener' => 'ListenerMock002',
+                'class' => 'Exception',
+                'message' => 'Exception test message #2',
+                'exception' => $exception,
+            ])
+        ;
+
+        $this->expectExceptionObject($exception);
+
+        $listener->reset();
     }
 }

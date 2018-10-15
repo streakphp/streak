@@ -14,6 +14,8 @@ declare(strict_types=1);
 namespace Streak\Domain\Id;
 
 use PHPUnit\Framework\TestCase;
+use Streak\Domain\Id\UUIDTest\ExtendedUUID1;
+use Streak\Domain\Id\UUIDTest\ExtendedUUID2;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -31,10 +33,10 @@ class UUIDTest extends TestCase
         $this->assertFalse($uuid1->equals(new \stdClass()));
 
         $uuid2a = new UUID('0bc68acb-abd1-48ca-b8e2-5638efa5891b');
-        $uuid2b = new UUID('0BC68ACB-ABD1-48CA-B8E2-5638EFA5891B');
+        $uuid2b = new UUID('0bc68acb-abd1-48ca-b8e2-5638efa5891b');
 
-        $this->assertSame('0BC68ACB-ABD1-48CA-B8E2-5638EFA5891B', $uuid2a->toString());
-        $this->assertSame('0BC68ACB-ABD1-48CA-B8E2-5638EFA5891B', $uuid2b->toString());
+        $this->assertSame('0bc68acb-abd1-48ca-b8e2-5638efa5891b', $uuid2a->toString());
+        $this->assertSame('0bc68acb-abd1-48ca-b8e2-5638efa5891b', $uuid2b->toString());
 
         $this->assertFalse($uuid1->equals($uuid2a));
         $this->assertFalse($uuid2a->equals($uuid1));
@@ -44,7 +46,7 @@ class UUIDTest extends TestCase
         $this->assertTrue($uuid2b->equals($uuid2a));
 
         $uuid3a = UUID::fromString('0bc68acb-abd1-48ca-b8e2-5638efa5891b');
-        $uuid3b = UUID::fromString('0BC68ACB-ABD1-48CA-B8E2-5638EFA5891B');
+        $uuid3b = UUID::fromString('0bc68acb-abd1-48ca-b8e2-5638efa5891b');
 
         $this->assertFalse($uuid1->equals($uuid3a));
         $this->assertFalse($uuid3a->equals($uuid1));
@@ -70,12 +72,39 @@ class UUIDTest extends TestCase
 
     public function testExtendedUUIDCreatesProperClassFromString()
     {
-        $uuid = ExtendedUUID::fromString('0bc68acb-abd1-48ca-b8e2-5638efa5891b');
+        $uuid = ExtendedUUID1::fromString('0bc68acb-abd1-48ca-b8e2-5638efa5891b');
 
-        $this->assertInstanceOf(ExtendedUUID::class, $uuid);
+        $this->assertInstanceOf(ExtendedUUID1::class, $uuid);
+    }
+
+    public function testExtendedUUIDsComparison()
+    {
+        $uuid = UUID::fromString('0bc68acb-abd1-48ca-b8e2-5638efa5891b');
+        $uuid1 = ExtendedUUID1::fromString('0bc68acb-abd1-48ca-b8e2-5638efa5891b');
+        $uuid2 = ExtendedUUID2::fromString('0bc68acb-abd1-48ca-b8e2-5638efa5891b');
+
+        $this->assertTrue($uuid->equals($uuid));
+        $this->assertTrue($uuid->equals($uuid1));
+        $this->assertTrue($uuid->equals($uuid2));
+
+        $this->assertFalse($uuid1->equals($uuid));
+        $this->assertTrue($uuid1->equals($uuid1));
+        $this->assertFalse($uuid1->equals($uuid2));
+
+        $this->assertFalse($uuid2->equals($uuid));
+        $this->assertFalse($uuid2->equals($uuid1));
+        $this->assertTrue($uuid2->equals($uuid2));
     }
 }
 
-class ExtendedUUID extends UUID
+namespace Streak\Domain\Id\UUIDTest;
+
+use Streak\Domain\Id\UUID;
+
+class ExtendedUUID1 extends UUID
+{
+}
+
+class ExtendedUUID2 extends UUID
 {
 }

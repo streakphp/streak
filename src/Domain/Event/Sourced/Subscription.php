@@ -28,8 +28,10 @@ use Streak\Infrastructure\Event\NullListener;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * TODO: move under Application?
  */
-final class Subscription implements Event\Subscription, Event\Sourced, Event\Process, Versionable
+final class Subscription implements Event\Subscription, Event\Sourced, Versionable
 {
     use Event\Sourcing {
         Event\Sourcing::replay as private doReplay;
@@ -38,12 +40,9 @@ final class Subscription implements Event\Subscription, Event\Sourced, Event\Pro
     private $listener;
     private $clock;
     private $completedBy;
-    private $startedFor;
+    private $startedBy;
     private $starting = false;
 
-    /**
-     * @TODO: subscription requires system clock
-     */
     public function __construct(Event\Listener $listener, Domain\Clock $clock)
     {
         $this->listener = $listener;
@@ -77,32 +76,28 @@ final class Subscription implements Event\Subscription, Event\Sourced, Event\Pro
 
         $stream = $store->stream();
 
-        // process represents transaction that has beginning (hence filtering stream) and end.
-        if ($this->listener instanceof Event\Process) {
-            // TODO: It should be more explicit:
-            //  - make listener able to configure which event should be its starting event
-            //  - make subscription be configurable via (maybe) different kind of subscribers
-            //
-            // Problem with ideas above is "what should we do with stateful/replayable listeners that are started with event #100 and then
-            // points to event #1 as starting event? Should be event #100 used to initialize state of the listener and feed it with stream from event #1?".
-            //
-            // An example might be process manager for syncing user account balances with currency exchange.
-            // Lets assume that every exchange has its own process manager (which holds exchange id for reference) and such process manager is started by exchange-created event.
-            // We have to feed exchange with account-credited & account-debited events from before this aforementioned exchange-created event, but if we do that how does process manager know its exchange id?
+        if ($last instanceof SubscriptionStarted) {
+            $starter = $this->startedBy;
 
-            if ($last instanceof SubscriptionStarted) {
-                // lets start from event that brought up this subscription
-                $stream = $stream->from($last->startFrom());
+            if ($this->listener instanceof Event\Picker) {
+                $starter = $this->listener->pick($store);
             }
 
-            if ($last instanceof SubscriptionRestarted) {
-                // lets start over
-                $stream = $stream->from($last->restartFrom());
+            $stream = $stream->from($starter);
+        }
+
+        if ($last instanceof SubscriptionRestarted) {
+            $starter = $this->startedBy;
+
+            if ($this->listener instanceof Event\Picker) {
+                $starter = $this->listener->pick($store);
             }
+
+            $stream = $stream->from($starter);
         }
 
         if ($last instanceof SubscriptionListenedToEvent) {
-            // lets continue from next event after last one we have listened too
+            // lets continue from next event after last one we have listened to
             $stream = $stream->after($last->event());
         }
 
@@ -111,7 +106,7 @@ final class Subscription implements Event\Subscription, Event\Sourced, Event\Pro
             $stream = $stream->after($last->event());
         }
 
-        // we are not interested in other subscriptions events
+        // we are not interested in events of other subscriptions
         $stream = $stream->without(SubscriptionStarted::class, SubscriptionListenedToEvent::class, SubscriptionIgnoredEvent::class, SubscriptionCompleted::class, SubscriptionRestarted::class);
 
         foreach ($stream as $event) {
@@ -121,7 +116,7 @@ final class Subscription implements Event\Subscription, Event\Sourced, Event\Pro
                 $this->applyEvent(new SubscriptionIgnoredEvent($exception->event()->event(), $this->nextExpectedVersion(), $this->clock->now()));
             }
 
-            if ($this->listener instanceof Event\Process) {
+            if ($this->listener instanceof Event\Listener\Completable) {
                 if ($this->listener->completed()) {
                     $this->applyEvent(new SubscriptionCompleted($this->nextExpectedVersion(), $this->clock->now()));
                     yield $event;
@@ -146,7 +141,7 @@ final class Subscription implements Event\Subscription, Event\Sourced, Event\Pro
             throw new Exception\SubscriptionNotStartedYet($this);
         }
 
-        if (!$this->listener instanceof Domain\Resettable) {
+        if (!$this->listener instanceof Event\Listener\Resettable) {
             throw new Exception\SubscriptionRestartNotPossible($this);
         }
 
@@ -154,7 +149,7 @@ final class Subscription implements Event\Subscription, Event\Sourced, Event\Pro
             return;
         }
 
-        $this->applyEvent(new SubscriptionRestarted($this->startedFor, $this->nextExpectedVersion(), $this->clock->now()));
+        $this->applyEvent(new SubscriptionRestarted($this->startedBy, $this->nextExpectedVersion(), $this->clock->now()));
     }
 
     /**
@@ -190,7 +185,7 @@ final class Subscription implements Event\Subscription, Event\Sourced, Event\Pro
             $this->listener = $backup;
         }
 
-        if ($this->listener instanceof Event\Replayable) {
+        if ($this->listener instanceof Event\Listener\Replayable) {
             $unpacked = new SubscriptionStream($stream);
             $this->listener->replay($unpacked);
         }
@@ -214,14 +209,14 @@ final class Subscription implements Event\Subscription, Event\Sourced, Event\Pro
         return $this->subscriptionId();
     }
 
-    public function subscriptionId() : Domain\Id
+    public function subscriptionId() : Event\Listener\Id
     {
-        return $this->listener->id();
+        return $this->listener->listenerId();
     }
 
     public function started() : bool
     {
-        return null !== $this->startedFor;
+        return null !== $this->startedBy;
     }
 
     public function completed() : bool
@@ -235,7 +230,7 @@ final class Subscription implements Event\Subscription, Event\Sourced, Event\Pro
 
         if (true === $this->starting) {
             // we are (re)starting subscription, lets reset listener if possible
-            if ($this->listener instanceof Domain\Resettable) {
+            if ($this->listener instanceof Event\Listener\Resettable) {
                 $this->listener->reset();
             }
         }
@@ -261,13 +256,13 @@ final class Subscription implements Event\Subscription, Event\Sourced, Event\Pro
 
     private function applySubscriptionStarted(SubscriptionStarted $event)
     {
-        $this->startedFor = $event->startFrom();
+        $this->startedBy = $event->startedBy();
         $this->starting = true;
     }
 
     private function applySubscriptionRestarted(SubscriptionRestarted $event)
     {
-        $this->startedFor = $event->restartFrom();
+        $this->startedBy = $event->originallyStartedBy();
         $this->completedBy = null;
         $this->starting = true;
     }

@@ -34,7 +34,7 @@ class SubscriptionStartedTest extends TestCase
     {
         $event = new SubscriptionStarted($this->event, $now = new \DateTime());
 
-        $this->assertSame($this->event, $event->startFrom());
+        $this->assertSame($this->event, $event->startedBy());
         $this->assertSame(1, $event->subscriptionVersion());
         $this->assertEquals($now, $event->timestamp());
     }

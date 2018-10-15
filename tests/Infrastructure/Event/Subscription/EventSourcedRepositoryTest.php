@@ -17,6 +17,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Streak\Domain;
 use Streak\Domain\Event;
+use Streak\Domain\Event\Listener;
 use Streak\Domain\Event\Sourced\Subscription\Event\SubscriptionCompleted;
 use Streak\Domain\Event\Sourced\Subscription\Event\SubscriptionListenedToEvent;
 use Streak\Domain\Event\Sourced\Subscription\Event\SubscriptionRestarted;
@@ -80,22 +81,22 @@ class EventSourcedRepositoryTest extends TestCase
     private $nonEventSourcedSubscription1;
 
     /**
-     * @var Domain\Id|MockObject
+     * @var Listener\Id|MockObject
      */
     private $id1;
 
     /**
-     * @var Domain\Id|MockObject
+     * @var Listener\Id|MockObject
      */
     private $id2;
 
     /**
-     * @var Domain\Id|MockObject
+     * @var Listener\Id|MockObject
      */
     private $id3;
 
     /**
-     * @var Domain\Id|MockObject
+     * @var Listener\Id|MockObject
      */
     private $id4;
 
@@ -158,10 +159,10 @@ class EventSourcedRepositoryTest extends TestCase
 
         $this->nonEventSourcedSubscription1 = $this->getMockBuilder(Event\Subscription::class)->getMockForAbstractClass();
 
-        $this->id1 = $this->getMockBuilder(Domain\Id::class)->setMockClassName('id1')->getMockForAbstractClass();
-        $this->id2 = $this->getMockBuilder(Domain\Id::class)->setMockClassName('id2')->getMockForAbstractClass();
-        $this->id3 = $this->getMockBuilder(Domain\Id::class)->setMockClassName('id3')->getMockForAbstractClass();
-        $this->id4 = $this->getMockBuilder(Domain\Id::class)->setMockClassName('id4')->getMockForAbstractClass();
+        $this->id1 = $this->getMockBuilder(Listener\Id::class)->setMockClassName('id1')->getMockForAbstractClass();
+        $this->id2 = $this->getMockBuilder(Listener\Id::class)->setMockClassName('id2')->getMockForAbstractClass();
+        $this->id3 = $this->getMockBuilder(Listener\Id::class)->setMockClassName('id3')->getMockForAbstractClass();
+        $this->id4 = $this->getMockBuilder(Listener\Id::class)->setMockClassName('id4')->getMockForAbstractClass();
 
         $this->event1 = $this->getMockBuilder(Event::class)->setMockClassName('event1')->getMockForAbstractClass();
         $this->event2 = $this->getMockBuilder(Event::class)->setMockClassName('event2')->getMockForAbstractClass();
@@ -233,7 +234,7 @@ class EventSourcedRepositoryTest extends TestCase
 
         $this->listener1
             ->expects($this->atLeastOnce())
-            ->method('id')
+            ->method('listenerId')
             ->willReturn($this->id1)
         ;
 
@@ -268,7 +269,7 @@ class EventSourcedRepositoryTest extends TestCase
 
         $this->listener1
             ->expects($this->atLeastOnce())
-            ->method('id')
+            ->method('listenerId')
             ->willReturn($this->id1)
         ;
 
@@ -308,7 +309,7 @@ class EventSourcedRepositoryTest extends TestCase
 
         $this->listener1
             ->expects($this->atLeastOnce())
-            ->method('id')
+            ->method('listenerId')
             ->willReturn($this->id1)
         ;
 
@@ -370,7 +371,7 @@ class EventSourcedRepositoryTest extends TestCase
 
         $this->listener1
             ->expects($this->atLeastOnce())
-            ->method('id')
+            ->method('listenerId')
             ->willReturn($this->id1)
         ;
 
@@ -587,14 +588,14 @@ class EventSourcedRepositoryTest extends TestCase
 
         $this->listener1
             ->expects($this->atLeastOnce())
-            ->method('id')
+            ->method('listenerId')
             ->with()
             ->willReturn($this->id1)
         ;
 
         $this->listener3
             ->expects($this->atLeastOnce())
-            ->method('id')
+            ->method('listenerId')
             ->with()
             ->willReturn($this->id3)
         ;

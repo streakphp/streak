@@ -57,7 +57,7 @@ class EventSourcedRepository implements Subscription\Repository
         $this->uow = $uow;
     }
 
-    public function find(Domain\Id $id) : ?Event\Subscription
+    public function find(Event\Listener\Id $id) : ?Event\Subscription
     {
         $listener = $this->listeners->create($id);
         $subscription = $this->subscriptions->create($listener);

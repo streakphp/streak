@@ -19,7 +19,6 @@ use Streak\Domain\Event;
 use Streak\Domain\Event\Listener;
 use Streak\Domain\Event\Listener\Factory;
 use Streak\Domain\Exception\InvalidIdGiven;
-use Streak\Domain\Id;
 use Streak\Infrastructure\Event\Listener\CompositeFactory;
 
 /**
@@ -30,7 +29,7 @@ use Streak\Infrastructure\Event\Listener\CompositeFactory;
 class CompositeFactoryTest extends TestCase
 {
     /**
-     * @var Id|MockObject
+     * @var Listener\Id|MockObject
      */
     private $id1;
 
@@ -45,6 +44,11 @@ class CompositeFactoryTest extends TestCase
     private $factory2;
 
     /**
+     * @var Factory|MockObject
+     */
+    private $factory3;
+
+    /**
      * @var Listener|MockObject
      */
     private $listener1;
@@ -56,12 +60,13 @@ class CompositeFactoryTest extends TestCase
 
     protected function setUp()
     {
-        $this->id1 = $this->getMockBuilder(Id::class)->getMockForAbstractClass();
+        $this->id1 = $this->getMockBuilder(Listener\Id::class)->getMockForAbstractClass();
 
         $this->factory1 = $this->getMockBuilder(Factory::class)->getMockForAbstractClass();
         $this->factory2 = $this->getMockBuilder(Factory::class)->getMockForAbstractClass();
+        $this->factory3 = $this->getMockBuilder(Factory::class)->getMockForAbstractClass();
 
-        $this->listener1 = $this->getMockBuilder(Listener::class)->getMockForAbstractClass();
+        $this->listener1 = $this->getMockBuilder(Listener::class)->setMethods(['replay', 'reset', 'completed'])->getMockForAbstractClass();
 
         $this->event1 = $this->getMockBuilder(Event::class)->getMockForAbstractClass();
     }
@@ -81,6 +86,7 @@ class CompositeFactoryTest extends TestCase
         $factory = new CompositeFactory();
         $factory->add($this->factory1);
         $factory->add($this->factory2);
+        $factory->add($this->factory3);
 
         $this->factory1
             ->expects($this->once())
@@ -96,17 +102,17 @@ class CompositeFactoryTest extends TestCase
             ->willReturn($this->listener1)
         ;
 
+        $this->factory3
+            ->expects($this->never())
+            ->method('create')
+            ->with($this->id1)
+        ;
+
         $listener = $factory->create($this->id1);
 
         $this->assertSame($listener, $this->listener1);
-    }
 
-    public function testCreateFor()
-    {
-        $factory = new CompositeFactory();
-
-        $exception = new \BadMethodCallException();
-        $this->expectExceptionObject($exception);
+        $this->expectExceptionObject(new \BadMethodCallException());
 
         $factory->createFor($this->event1);
     }

@@ -13,10 +13,13 @@ declare(strict_types=1);
 
 namespace Streak\Domain\Event;
 
+use Streak\Domain\Event;
+use Streak\Domain\EventStore;
+
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-interface Process
+interface Picker
 {
-    public function completed() : bool;
+    public function pick(EventStore $store) : Event;
 }
