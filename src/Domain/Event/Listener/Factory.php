@@ -13,23 +13,23 @@ declare(strict_types=1);
 
 namespace Streak\Domain\Event\Listener;
 
-use Streak\Domain;
 use Streak\Domain\Event;
-use Streak\Domain\Event\Exception;
+use Streak\Domain\Event\Exception\InvalidEventGiven;
 use Streak\Domain\Event\Listener;
+use Streak\Domain\Exception\InvalidIdGiven;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-interface Factory // TODO: split into 2 interfaces
+interface Factory
 {
     /**
-     * @throws Domain\Exception\InvalidIdGiven
+     * @throws InvalidIdGiven
      */
-    public function create(Domain\Id $id) : Listener;
+    public function create(Listener\Id $id) : Listener;
 
     /**
-     * @throws Exception\InvalidEventGiven
+     * @throws InvalidEventGiven
      */
-    public function createFor(Event $event) : Listener;
+    public function createFor(Event $event) : Event\Listener;
 }

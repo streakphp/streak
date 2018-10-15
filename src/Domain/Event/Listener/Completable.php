@@ -11,13 +11,12 @@
 
 declare(strict_types=1);
 
-namespace Streak\Application\Saga\Exception;
-
-use Streak\Domain\Event\Exception\InvalidEventGiven;
+namespace Streak\Domain\Event\Listener;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-class InvalidFirstEventGiven extends InvalidEventGiven
+interface Completable
 {
+    public function completed() : bool;
 }

@@ -13,25 +13,15 @@ declare(strict_types=1);
 
 namespace Streak\Infrastructure\Event;
 
-use Streak\Domain;
 use Streak\Domain\Event;
+use Streak\Domain\Event\Listener;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
 class NullListener implements Event\Listener
 {
-    private $id;
-
-    private function __construct(Domain\Id $id)
-    {
-        $this->id = $id;
-    }
-
-    public function id() : Domain\Id
-    {
-        return $this->id;
-    }
+    use Listener\Identifying;
 
     public function on(Event $event) : bool
     {
@@ -40,6 +30,6 @@ class NullListener implements Event\Listener
 
     public static function from(Event\Listener $listener)
     {
-        return new self($listener->id());
+        return new self($listener->listenerId());
     }
 }

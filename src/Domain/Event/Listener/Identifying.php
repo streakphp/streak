@@ -11,32 +11,35 @@
 
 declare(strict_types=1);
 
-namespace Streak\Application\Saga;
+namespace Streak\Domain\Event\Listener;
 
-use Streak\Application\Saga;
+use Streak\Domain;
 use Streak\Domain\Event\Listener;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-trait Identification
+trait Identifying
 {
-    use Listener\Identification {
-        Listener\Identification::identifyBy as private identifyListenerBy;
-    }
+    private $id;
 
-    public function __construct(Saga\Id $id)
+    public function __construct(Listener\Id $id)
     {
         $this->identifyBy($id);
     }
 
-    public function sagaId() : Saga\Id
+    public function listenerId() : Listener\Id
     {
         return $this->id;
     }
 
-    protected function identifyBy(Saga\Id $id) : void
+    public function id() : Domain\Id
     {
-        $this->identifyListenerBy($id);
+        return $this->listenerId();
+    }
+
+    protected function identifyBy(Listener\Id $id) : void
+    {
+        $this->id = $id;
     }
 }

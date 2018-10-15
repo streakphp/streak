@@ -11,14 +11,14 @@
 
 declare(strict_types=1);
 
-namespace Streak\Application;
+namespace Streak\Domain\Event\Subscriber;
 
-use Streak\Domain\Event;
-use Streak\Domain\Resettable;
+use Streak\Domain\Event\Listener;
+use Streak\Domain\Id\UUID;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-interface Projector extends Event\Listener, Resettable
+class Id extends UUID implements Listener\Id
 {
 }

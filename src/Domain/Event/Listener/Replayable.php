@@ -13,27 +13,11 @@ declare(strict_types=1);
 
 namespace Streak\Domain\Event\Listener;
 
-use Streak\Domain;
+use Streak\Domain\Event;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-trait Identification
+interface Replayable extends Event\Replayable
 {
-    private $id;
-
-    public function __construct(Domain\Id $id)
-    {
-        $this->identifyBy($id);
-    }
-
-    public function id() : Domain\Id
-    {
-        return $this->id;
-    }
-
-    protected function identifyBy(Domain\Id $id) : void
-    {
-        $this->id = $id;
-    }
 }

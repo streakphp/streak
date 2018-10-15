@@ -34,7 +34,7 @@ class SubscriptionRestartedTest extends TestCase
     {
         $event = new SubscriptionRestarted($this->event, 1, $now = new \DateTimeImmutable());
 
-        $this->assertSame($this->event, $event->restartFrom());
+        $this->assertSame($this->event, $event->originallyStartedBy());
         $this->assertSame(1, $event->subscriptionVersion());
         $this->assertEquals($now, $event->timestamp());
     }

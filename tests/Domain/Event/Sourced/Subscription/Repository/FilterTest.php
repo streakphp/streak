@@ -15,8 +15,8 @@ namespace Streak\Domain\Event\Sourced\Subscription\Repository;
 
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Streak\Domain\Event\Listener;
 use Streak\Domain\Event\Subscription\Repository\Filter;
-use Streak\Domain\Id;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -26,19 +26,19 @@ use Streak\Domain\Id;
 class FilterTest extends TestCase
 {
     /**
-     * @var Id|MockObject
+     * @var Listener\Id|MockObject
      */
     private $id1;
 
     /**
-     * @var Id|MockObject
+     * @var Listener\Id|MockObject
      */
     private $id2;
 
     protected function setUp()
     {
-        $this->id1 = $this->getMockBuilder(Id::class)->setMockClassName('id1')->getMock();
-        $this->id2 = $this->getMockBuilder(Id::class)->setMockClassName('id2')->getMockForAbstractClass();
+        $this->id1 = $this->getMockBuilder(Listener\Id::class)->setMockClassName('id1')->getMock();
+        $this->id2 = $this->getMockBuilder(Listener\Id::class)->setMockClassName('id2')->getMockForAbstractClass();
     }
 
     public function testFilter()

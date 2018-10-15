@@ -16,11 +16,12 @@ namespace Streak\Infrastructure\Event;
 use Psr\Log;
 use Streak\Domain;
 use Streak\Domain\Event;
+use Streak\Domain\Event\Listener;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-class LoggingListener implements Event\Listener, Event\Replayable, Event\Process
+class LoggingListener implements Event\Listener, Event\Listener\Replayable, Event\Listener\Completable, Listener\Resettable
 {
     private $listener;
     private $logger;
@@ -31,18 +32,14 @@ class LoggingListener implements Event\Listener, Event\Replayable, Event\Process
         $this->logger = $logger;
     }
 
-    public function completed() : bool
-    {
-        if ($this->listener instanceof Event\Process) {
-            return $this->listener->completed();
-        }
-
-        return false;
-    }
-
     public function id() : Domain\Id
     {
-        return $this->listener->id();
+        return $this->listenerId();
+    }
+
+    public function listenerId() : Listener\Id
+    {
+        return $this->listener->listenerId();
     }
 
     public function on(Event $event) : bool
@@ -64,7 +61,7 @@ class LoggingListener implements Event\Listener, Event\Replayable, Event\Process
 
     public function replay(Event\Stream $events) : void
     {
-        if (!$this->listener instanceof Event\Replayable) {
+        if (!$this->listener instanceof Event\Listener\Replayable) {
             return;
         }
 
@@ -72,6 +69,35 @@ class LoggingListener implements Event\Listener, Event\Replayable, Event\Process
             $this->listener->replay($events);
         } catch (\Throwable $exception) {
             $this->logger->debug('Listener "{listener}" has thrown "{class}" exception with "{message}" message while replaying events.', [
+                'listener' => get_class($this->listener),
+                'class' => get_class($exception),
+                'message' => $exception->getMessage(),
+                'exception' => $exception,
+            ]);
+
+            throw $exception;
+        }
+    }
+
+    public function completed() : bool
+    {
+        if ($this->listener instanceof Event\Listener\Completable) {
+            return $this->listener->completed();
+        }
+
+        return false;
+    }
+
+    public function reset() : void
+    {
+        if (!$this->listener instanceof Event\Listener\Resettable) {
+            return;
+        }
+
+        try {
+            $this->listener->reset();
+        } catch (\Throwable $exception) {
+            $this->logger->debug('Listener "{listener}" has thrown "{class}" exception with "{message}" message while resetting.', [
                 'listener' => get_class($this->listener),
                 'class' => get_class($exception),
                 'message' => $exception->getMessage(),

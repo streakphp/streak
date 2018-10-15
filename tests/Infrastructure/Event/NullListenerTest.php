@@ -15,7 +15,6 @@ namespace Streak\Infrastructure\Event;
 
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Streak\Domain;
 use Streak\Domain\Event;
 
 /**
@@ -31,7 +30,7 @@ class NullListenerTest extends TestCase
     private $listener;
 
     /**
-     * @var Domain\Id|MockObject
+     * @var Event\Listener\Id|MockObject
      */
     private $id;
 
@@ -42,8 +41,8 @@ class NullListenerTest extends TestCase
 
     protected function setUp()
     {
-        $this->listener = $this->getMockBuilder(Event\Listener::class)->getMockForAbstractClass();
-        $this->id = $this->getMockBuilder(Domain\Id::class)->getMockForAbstractClass();
+        $this->listener = $this->getMockBuilder(Event\Listener::class)->setMethods(['replay', 'reset', 'completed'])->getMockForAbstractClass();
+        $this->id = $this->getMockBuilder(Event\Listener\Id::class)->getMockForAbstractClass();
         $this->event = $this->getMockBuilder(Event::class)->getMockForAbstractClass();
     }
 
@@ -51,14 +50,14 @@ class NullListenerTest extends TestCase
     {
         $this->listener
             ->expects($this->atLeastOnce())
-            ->method('id')
+            ->method('listenerId')
             ->willReturn($this->id)
         ;
 
         $listener = NullListener::from($this->listener);
 
         $this->assertInstanceOf(NullListener::class, $listener);
-        $this->assertSame($this->id, $listener->id());
+        $this->assertSame($this->id, $listener->listenerId());
 
         $this->assertTrue($listener->on($this->event));
     }

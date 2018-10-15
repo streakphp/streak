@@ -15,8 +15,8 @@ namespace Streak\Domain\Event\Subscription\Exception;
 
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Streak\Domain\Event\Listener;
 use Streak\Domain\Event\Subscription;
-use Streak\Domain\Id;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -38,7 +38,7 @@ class SubscriptionAlreadyCompletedTest extends TestCase
     protected function setUp()
     {
         $this->subscription = $this->getMockBuilder(Subscription::class)->getMockForAbstractClass();
-        $this->subscriptionId = $this->getMockBuilder(Id::class)->setMockClassName('test_id')->getMockForAbstractClass();
+        $this->subscriptionId = $this->getMockBuilder(Listener\Id::class)->setMockClassName('test_id')->getMockForAbstractClass();
     }
 
     public function testException()

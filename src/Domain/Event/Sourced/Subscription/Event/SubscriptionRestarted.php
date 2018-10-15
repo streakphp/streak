@@ -27,14 +27,14 @@ class SubscriptionRestarted implements Subscription\Event
     private $version;
     private $timestamp;
 
-    public function __construct(Event $event, int $version, \DateTimeInterface $timestamp)
+    public function __construct(Event $originallyStartedBy, int $version, \DateTimeInterface $timestamp)
     {
-        $this->event = $event;
+        $this->event = $originallyStartedBy;
         $this->version = $version;
         $this->timestamp = $timestamp->format(self::DATE_FORMAT);
     }
 
-    public function restartFrom() : Event
+    public function originallyStartedBy() : Event
     {
         return $this->event;
     }

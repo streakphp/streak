@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Streak\Domain\Event;
 
-use Streak\Domain;
 use Streak\Domain\Event;
 use Streak\Domain\Event\Sourced\Subscription\Event\SubscriptionCompleted;
 use Streak\Domain\Event\Sourced\Subscription\Event\SubscriptionListenedToEvent;
@@ -24,9 +23,10 @@ use Streak\Infrastructure\UnitOfWork;
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-class Subscriber implements Listener
+class Subscriber implements Event\Listener
 {
-    private $uuid;
+    use Event\Listener\Identifying;
+
     private $listenerFactory;
     private $subscriptionFactory;
     private $subscriptionsRepository;
@@ -34,16 +34,11 @@ class Subscriber implements Listener
 
     public function __construct(Event\Listener\Factory $listenerFactory, Event\Subscription\Factory $subscriptionFactory, Event\Subscription\Repository $subscriptionsRepository, UnitOfWork $uow) // TODO: GET RID OF UOW FROM HERE!
     {
-        $this->uuid = Domain\Id\UUID::create();
+        $this->identifyBy(Subscriber\Id::create());
         $this->listenerFactory = $listenerFactory;
         $this->subscriptionFactory = $subscriptionFactory;
         $this->subscriptionsRepository = $subscriptionsRepository;
         $this->uow = $uow;
-    }
-
-    public function id() : Domain\Id
-    {
-        return $this->uuid;
     }
 
     public function listenTo(EventBus $bus)

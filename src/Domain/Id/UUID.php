@@ -28,7 +28,7 @@ class UUID implements Domain\Id
 
     final public function __construct(string $value)
     {
-        $value = mb_strtoupper($value);
+        $value = mb_strtolower($value);
         $value = trim($value);
 
         try {
@@ -55,7 +55,7 @@ class UUID implements Domain\Id
 
     public function equals($uuid) : bool
     {
-        if (!$uuid instanceof self) {
+        if (!$uuid instanceof static) {
             return false;
         }
 

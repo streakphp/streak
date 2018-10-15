@@ -11,7 +11,7 @@
 
 declare(strict_types=1);
 
-namespace Streak\Application\Saga;
+namespace Streak\Domain\Event\Listener;
 
 use Streak\Domain;
 

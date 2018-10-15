@@ -16,8 +16,8 @@ namespace Streak\Infrastructure\Event\LoggingListener;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
-use Streak\Application\Saga;
 use Streak\Domain\Event;
+use Streak\Domain\Event\Listener;
 use Streak\Infrastructure\Event\LoggingListener;
 
 /**
@@ -28,14 +28,14 @@ use Streak\Infrastructure\Event\LoggingListener;
 class FactoryTest extends TestCase
 {
     /**
-     * @var Saga\Factory|MockObject
+     * @var Listener\Factory|MockObject
      */
     private $factory;
 
     /**
-     * @var Saga|MockObject
+     * @var Listener|MockObject
      */
-    private $saga;
+    private $listener;
 
     /**
      * @var LoggerInterface|MockObject
@@ -43,9 +43,9 @@ class FactoryTest extends TestCase
     private $logger;
 
     /**
-     * @var Saga\Id|MockObject
+     * @var Listener\Id|MockObject
      */
-    private $sagaId;
+    private $id;
 
     /**
      * @var Event|MockObject
@@ -54,33 +54,32 @@ class FactoryTest extends TestCase
 
     protected function setUp()
     {
-        $this->factory = $this->getMockBuilder(Saga\Factory::class)->setMockClassName('SagaFactoryMock001')->getMockForAbstractClass();
-        $this->saga = $this->getMockBuilder(Saga::class)->setMockClassName('SagaMock001')->getMockForAbstractClass();
+        $this->factory = $this->getMockBuilder(Listener\Factory::class)->setMockClassName('ListenerFactoryMock001')->getMockForAbstractClass();
+        $this->listener = $this->getMockBuilder(Listener::class)->setMockClassName('ListenerMock001')->setMethods(['replay', 'reset', 'completed'])->getMockForAbstractClass();
         $this->logger = $this->getMockBuilder(LoggerInterface::class)->getMockForAbstractClass();
-        $this->sagaId = $this->getMockBuilder(Saga\Id::class)->getMockForAbstractClass();
+        $this->id = $this->getMockBuilder(Listener\Id::class)->getMockForAbstractClass();
         $this->event = $this->getMockBuilder(Event::class)->setMockClassName('EventMock001')->getMockForAbstractClass();
     }
 
     public function testFactory()
     {
         $factory = new Factory($this->factory, $this->logger);
-        $saga = new LoggingListener($this->saga, $this->logger);
+        $listener = new LoggingListener($this->listener, $this->logger);
 
         $this->factory
             ->expects($this->once())
             ->method('create')
-            ->with($this->sagaId)
-            ->willReturn($this->saga)
+            ->with($this->id)
+            ->willReturn($this->listener)
         ;
-
         $this->factory
             ->expects($this->once())
             ->method('createFor')
             ->with($this->event)
-            ->willReturn($this->saga)
+            ->willReturn($this->listener)
         ;
 
-        $this->assertEquals($saga, $factory->create($this->sagaId));
-        $this->assertEquals($saga, $factory->createFor($this->event));
+        $this->assertEquals($listener, $factory->create($this->id));
+        $this->assertEquals($listener, $factory->createFor($this->event));
     }
 }

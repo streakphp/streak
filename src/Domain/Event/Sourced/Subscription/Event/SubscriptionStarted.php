@@ -26,13 +26,13 @@ class SubscriptionStarted implements Subscription\Event
     private $startFrom;
     private $timestamp;
 
-    public function __construct(Domain\Event $startFrom, \DateTimeInterface $timestamp)
+    public function __construct(Domain\Event $startedBy, \DateTimeInterface $timestamp)
     {
-        $this->startFrom = $startFrom;
+        $this->startFrom = $startedBy;
         $this->timestamp = $timestamp->format(self::DATE_FORMAT);
     }
 
-    public function startFrom() : Domain\Event
+    public function startedBy() : Domain\Event
     {
         return $this->startFrom;
     }

@@ -19,10 +19,12 @@ use Streak\Domain\EventStore;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * TODO: move under Streak\Domain\Event\Listener
  */
 interface Subscription
 {
-    public function subscriptionId() : Domain\Id;
+    public function subscriptionId() : Listener\Id;
 
     /**
      * @param EventStore $store
@@ -44,4 +46,8 @@ interface Subscription
      * @throws Exception\SubscriptionRestartNotPossible
      */
     public function restart() : void;
+
+    public function started() : bool;
+
+    public function completed() : bool;
 }

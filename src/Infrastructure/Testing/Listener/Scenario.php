@@ -39,7 +39,7 @@ class Scenario implements Scenario\Given, Scenario\When, Scenario\Then, Applicat
     private $bus;
 
     /**
-     * @var Event\Listener|Event\Replayable|Event\Process
+     * @var Event\Listener|Event\Replayable|Event\Listener\Completable
      */
     private $listener;
 
@@ -91,7 +91,7 @@ class Scenario implements Scenario\Given, Scenario\When, Scenario\Then, Applicat
             return $this;
         }
 
-        Assert::assertEmpty($events, 'Listener is not replayable.');
+        Assert::assertEmpty($events, 'Listener is not replayable. Only first starting event is expected for such listener.');
 
         return $this;
     }
@@ -129,7 +129,7 @@ class Scenario implements Scenario\Given, Scenario\When, Scenario\Then, Applicat
 
         Assert::assertEquals($this->expectedCommands, $this->dispatchedCommands);
         if (null !== $this->expectedCompletion) {
-            Assert::assertInstanceOf(Event\Process::class, $this->listener, 'Listener is not transactional.');
+            Assert::assertInstanceOf(Event\Listener\Completable::class, $this->listener, 'Listener is not completable.');
             Assert::assertSame($this->expectedCompletion, $this->listener->completed());
         }
     }
