@@ -36,7 +36,6 @@ jobs:
           paths:
             - vendor/
 
-      - run: bin/php-cs-fixer fix --config=.php_cs.dist --diff --diff-format=udiff -v --show-progress=estimating --dry-run
       - run: xphp bin/phpunit
 
       - store_artifacts:

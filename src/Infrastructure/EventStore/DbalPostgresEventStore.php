@@ -101,7 +101,8 @@ CREATE TABLE IF NOT EXISTS events (
 );
 SQL;
         $sqls[] = 'CREATE INDEX ON events (producer_type, producer_id);';
-        $sqls[] = 'CREATE INDEX ON events (producer_type, producer_id, producer_version);';
+        $sqls[] = 'CREATE INDEX ON events (type, producer_type, producer_id);';
+        $sqls[] = 'CREATE INDEX ON events (number, type, producer_type, producer_id);';
 
         foreach ($sqls as $sql) {
             $statement = $this->connection->prepare($sql);
@@ -372,7 +373,7 @@ SQL;
 
     public function empty() : bool
     {
-        return 0 === $this->count();
+        return null === $this->first();
     }
 
     public function current() : Event
@@ -422,7 +423,7 @@ SQL;
         $statement = $this->select(
             $this->filter,
             null,
-            ['COUNT(number)'],
+            ['COUNT(*)'],
             $this->from,
             $this->to,
             $this->after,
@@ -435,7 +436,7 @@ SQL;
 
         $count = $statement->fetchColumn(0);
 
-        return $count;
+        return (int) $count;
     }
 
     private function bumpUp(?int $version) : ?int
