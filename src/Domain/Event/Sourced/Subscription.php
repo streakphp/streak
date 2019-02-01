@@ -74,7 +74,14 @@ final class Subscription implements Event\Subscription, Event\Sourced, Versionab
             throw new Exception\SubscriptionAlreadyCompleted($this);
         }
 
-        $stream = $store->stream();
+        $stream = $store->stream(); // all events
+
+        // we are not interested in events of other subscriptions
+        $stream = $stream->without(SubscriptionStarted::class, SubscriptionListenedToEvent::class, SubscriptionIgnoredEvent::class, SubscriptionCompleted::class, SubscriptionRestarted::class);
+
+        if ($this->listener instanceof Event\Filterer) {
+            $stream = $this->listener->filter($stream);
+        }
 
         if ($last instanceof SubscriptionStarted) {
             $starter = $this->startedBy;
@@ -105,9 +112,6 @@ final class Subscription implements Event\Subscription, Event\Sourced, Versionab
             // lets continue from next event after last one we have ignored
             $stream = $stream->after($last->event());
         }
-
-        // we are not interested in events of other subscriptions
-        $stream = $stream->without(SubscriptionStarted::class, SubscriptionListenedToEvent::class, SubscriptionIgnoredEvent::class, SubscriptionCompleted::class, SubscriptionRestarted::class);
 
         foreach ($stream as $event) {
             try {
@@ -173,7 +177,7 @@ final class Subscription implements Event\Subscription, Event\Sourced, Versionab
         /** @var $last Subscription\Event */
         $last = $stream->last();
         $stream = $stream->to($last);
-        $stream = $stream->without(SubscriptionIgnoredEvent::class);
+        $stream = $stream->only(SubscriptionStarted::class, SubscriptionRestarted::class, SubscriptionListenedToEvent::class); // inclusion is faster
 
         try {
             $backup = $this->listener;
