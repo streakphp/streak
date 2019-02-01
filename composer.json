@@ -28,7 +28,7 @@
   "require": {
     "php": ">=7.1",
     "ext-PDO": "^7.1",
-    "ext-igbinary": "^2.0",
+    "ext-igbinary": "^2.0|^3.0",
     "ext-redis": "^4.0",
     "doctrine/dbal": "^2.8",
     "psr/log": "~1.0",

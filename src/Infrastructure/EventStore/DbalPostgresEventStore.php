@@ -45,8 +45,8 @@ class DbalPostgresEventStore implements \Iterator, EventStore, Event\Stream, Sch
     private $statement;
 
     private $filter = [];
-    private $including = [];
-    private $excluding = [];
+    private $only = [];
+    private $without = [];
     private $from;
     private $to;
     private $after;
@@ -274,8 +274,8 @@ SQL;
     public function only(string ...$types) : Event\Stream
     {
         $stream = $this->copy();
-        $stream->including = $types;
-        $stream->excluding = [];
+        $stream->only = $types;
+        $stream->without = [];
 
         // TODO: check if type is Domain\Id
 
@@ -285,8 +285,8 @@ SQL;
     public function without(string ...$types) : Event\Stream
     {
         $stream = $this->copy();
-        $stream->excluding = $types;
-        $stream->including = [];
+        $stream->without = $types;
+        $stream->only = [];
 
         // TODO: check if type is Domain\Id
 
@@ -317,8 +317,8 @@ SQL;
             $this->to,
             $this->after,
             $this->before,
-            $this->including,
-            $this->excluding,
+            $this->only,
+            $this->without,
             1,
             null
         );
@@ -354,8 +354,8 @@ SQL;
             $this->to,
             $this->after,
             $this->before,
-            $this->including,
-            $this->excluding,
+            $this->only,
+            $this->without,
             $limit,
             $offset
         );
@@ -409,8 +409,8 @@ SQL;
             $this->to,
             $this->after,
             $this->before,
-            $this->including,
-            $this->excluding,
+            $this->only,
+            $this->without,
             $this->limit,
             null
         );
@@ -428,8 +428,8 @@ SQL;
             $this->to,
             $this->after,
             $this->before,
-            $this->including,
-            $this->excluding,
+            $this->only,
+            $this->without,
             null,
             null
         );
@@ -457,8 +457,8 @@ SQL;
         $stream->before = $this->before;
         $stream->limit = $this->limit;
         $stream->filter = $this->filter;
-        $stream->including = $this->including;
-        $stream->excluding = $this->excluding;
+        $stream->only = $this->only;
+        $stream->without = $this->without;
 
         return $stream;
     }
@@ -471,8 +471,8 @@ SQL;
         ?Event $to,
         ?Event $after,
         ?Event $before,
-        ?array $including,
-        ?array $excluding,
+        ?array $only,
+        ?array $without,
         ?int $limit,
         ?int $offset
     ) : Statement {
@@ -507,20 +507,20 @@ SQL;
             $where[] = '('.implode(' OR ', $sub).')';
         }
 
-        if ($including) {
-            /* @var $including string[] */
+        if ($only) {
+            /* @var $only string[] */
             $sub = [];
-            foreach ($including as $key => $type) {
+            foreach ($only as $key => $type) {
                 $sub[] = " (type = :include_type_$key) ";
                 $parameters["include_type_$key"] = $type;
             }
             $where[] = '('.implode(' OR ', $sub).')';
         }
 
-        if ($excluding) {
-            /* @var $excluding string[] */
+        if ($without) {
+            /* @var $without string[] */
             $sub = [];
-            foreach ($excluding as $key => $type) {
+            foreach ($without as $key => $type) {
                 $sub[] = " (type != :exclude_type_$key) ";
                 $parameters["exclude_type_$key"] = $type;
             }

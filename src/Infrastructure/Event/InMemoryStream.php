@@ -23,8 +23,8 @@ final class InMemoryStream implements \IteratorAggregate, Event\Stream
 {
     private $events = [];
 
-    private $including = [];
-    private $excluding = [];
+    private $only = [];
+    private $without = [];
     private $from;
     private $to;
     private $after;
@@ -88,8 +88,8 @@ final class InMemoryStream implements \IteratorAggregate, Event\Stream
     public function only(string ...$types) : Stream
     {
         $stream = $this->copy();
-        $stream->including = $types;
-        $stream->excluding = [];
+        $stream->only = $types;
+        $stream->without = [];
 
         // TODO: check if type is Domain\Id
 
@@ -99,8 +99,8 @@ final class InMemoryStream implements \IteratorAggregate, Event\Stream
     public function without(string ...$types) : Stream
     {
         $stream = $this->copy();
-        $stream->excluding = $types;
-        $stream->including = [];
+        $stream->without = $types;
+        $stream->only = [];
 
         // TODO: check if type is Domain\Id
 
@@ -142,8 +142,8 @@ final class InMemoryStream implements \IteratorAggregate, Event\Stream
         $stream->after = $this->after;
         $stream->before = $this->before;
         $stream->limit = $this->limit;
-        $stream->including = $this->including;
-        $stream->excluding = $this->excluding;
+        $stream->only = $this->only;
+        $stream->without = $this->without;
 
         return $stream;
     }
@@ -197,18 +197,18 @@ final class InMemoryStream implements \IteratorAggregate, Event\Stream
         for ($current = $start; $current <= $stop; ++$current) {
             $event = $this->events[$current];
 
-            if ($this->including) {
+            if ($this->only) {
                 $type = get_class($event);
 
-                if (!in_array($type, $this->including, true)) {
+                if (!in_array($type, $this->only, true)) {
                     continue;
                 }
             }
 
-            if ($this->excluding) {
+            if ($this->without) {
                 $type = get_class($event);
 
-                if (in_array($type, $this->excluding, true)) {
+                if (in_array($type, $this->without, true)) {
                     continue;
                 }
             }
