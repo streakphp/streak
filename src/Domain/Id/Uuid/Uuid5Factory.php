@@ -11,14 +11,22 @@
 
 declare(strict_types=1);
 
-namespace Streak\Domain\Event\Subscriber;
+namespace Streak\Domain\Id\Uuid;
 
-use Streak\Domain\Event\Listener;
 use Streak\Domain\Id\Uuid;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-class Id extends Uuid implements Listener\Id
+interface Uuid5Factory
 {
+    /**
+     * Generates deterministic UUID based on SHA1 of static namespace (also UUID) and name.
+     *
+     * @param Uuid   $namespace
+     * @param string $name
+     *
+     * @return Uuid
+     */
+    public function generateUuid5(Uuid $namespace, string $name) : Uuid;
 }

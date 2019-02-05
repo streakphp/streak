@@ -21,7 +21,7 @@ use Streak\Domain\Event;
 use Streak\Domain\Event\Stream;
 use Streak\Domain\EventStore;
 use Streak\Domain\Exception;
-use Streak\Domain\Id\UUID;
+use Streak\Domain\Id\Uuid;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -35,6 +35,7 @@ class DbalPostgresEventStore implements \Iterator, EventStore, Event\Stream, Sch
 
     private $connection;
     private $converter;
+    private $factory;
 
     private $current = false;
     private $key = 0;
@@ -53,10 +54,11 @@ class DbalPostgresEventStore implements \Iterator, EventStore, Event\Stream, Sch
     private $before;
     private $limit;
 
-    public function __construct(Connection $connection, Event\Converter $converter)
+    public function __construct(Connection $connection, Event\Converter $converter, Uuid\Uuid4Factory $factory)
     {
         $this->connection = $connection;
         $this->converter = $converter;
+        $this->factory = $factory;
         $this->filter = new EventStore\Filter();
     }
 
@@ -170,7 +172,7 @@ SQL;
                 throw new Exception\EventAlreadyInStore($event);
             }
 
-            $uuid = UUID::create();
+            $uuid = $this->factory->generateUuid4();
 
             $version = $this->bumpUp($version);
             $row = $this->toRow($producerId, $version, $uuid, $event);
@@ -209,7 +211,7 @@ SQL;
             $sequence = (string) $returned['number'];
             $uuid = $returned['uuid'];
             $uuid = mb_strtoupper($uuid);
-            $uuid = new UUID($uuid);
+            $uuid = new Uuid($uuid);
             $metadata = $returned['metadata'];
             $metadata = json_decode($metadata, true);
             $metadata = Event\Metadata::fromArray($metadata);
@@ -450,7 +452,7 @@ SQL;
 
     private function copy() : self
     {
-        $stream = new self($this->connection, $this->converter);
+        $stream = new self($this->connection, $this->converter, $this->factory);
         $stream->from = $this->from;
         $stream->to = $this->to;
         $stream->after = $this->after;
@@ -594,7 +596,7 @@ SQL;
         return $event;
     }
 
-    private function toRow(Domain\Id $producerId, ?int $version, UUID $uuid, $event) : array
+    private function toRow(Domain\Id $producerId, ?int $version, Uuid $uuid, $event) : array
     {
         $metadata = Event\Metadata::fromObject($event);
         $metadata::clear($event);

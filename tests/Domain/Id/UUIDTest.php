@@ -20,20 +20,20 @@ use Streak\Domain\Id\UUIDTest\ExtendedUUID2;
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  *
- * @covers \Streak\Domain\Id\UUID
+ * @covers \Streak\Domain\Id\Uuid
  */
 class UUIDTest extends TestCase
 {
     public function testObject()
     {
-        $uuid1 = UUID::create();
+        $uuid1 = new Uuid('8f7e7193-8b15-4400-81a1-db3ff0afbe4b');
 
-        $this->assertInstanceOf(UUID::class, $uuid1);
+        $this->assertInstanceOf(Uuid::class, $uuid1);
         $this->assertTrue($uuid1->equals($uuid1));
         $this->assertFalse($uuid1->equals(new \stdClass()));
 
-        $uuid2a = new UUID('0bc68acb-abd1-48ca-b8e2-5638efa5891b');
-        $uuid2b = new UUID('0bc68acb-abd1-48ca-b8e2-5638efa5891b');
+        $uuid2a = new Uuid('0bc68acb-abd1-48ca-b8e2-5638efa5891b');
+        $uuid2b = new Uuid('0bc68acb-abd1-48ca-b8e2-5638efa5891b');
 
         $this->assertSame('0bc68acb-abd1-48ca-b8e2-5638efa5891b', $uuid2a->toString());
         $this->assertSame('0bc68acb-abd1-48ca-b8e2-5638efa5891b', $uuid2b->toString());
@@ -45,8 +45,8 @@ class UUIDTest extends TestCase
         $this->assertTrue($uuid2a->equals($uuid2b));
         $this->assertTrue($uuid2b->equals($uuid2a));
 
-        $uuid3a = UUID::fromString('0bc68acb-abd1-48ca-b8e2-5638efa5891b');
-        $uuid3b = UUID::fromString('0bc68acb-abd1-48ca-b8e2-5638efa5891b');
+        $uuid3a = Uuid::fromString('0bc68acb-abd1-48ca-b8e2-5638efa5891b');
+        $uuid3b = Uuid::fromString('0bc68acb-abd1-48ca-b8e2-5638efa5891b');
 
         $this->assertFalse($uuid1->equals($uuid3a));
         $this->assertFalse($uuid3a->equals($uuid1));
@@ -54,20 +54,6 @@ class UUIDTest extends TestCase
         $this->assertFalse($uuid3b->equals($uuid1));
         $this->assertTrue($uuid3a->equals($uuid3b));
         $this->assertTrue($uuid3b->equals($uuid3a));
-    }
-
-    public function testInvalidUUID()
-    {
-        $this->expectExceptionObject(new \InvalidArgumentException());
-
-        new UUID('invalid uuid');
-    }
-
-    public function testNoNullUUID()
-    {
-        $this->expectExceptionObject(new \InvalidArgumentException());
-
-        new UUID('00000000-0000-0000-0000-000000000000');
     }
 
     public function testExtendedUUIDCreatesProperClassFromString()
@@ -79,7 +65,7 @@ class UUIDTest extends TestCase
 
     public function testExtendedUUIDsComparison()
     {
-        $uuid = UUID::fromString('0bc68acb-abd1-48ca-b8e2-5638efa5891b');
+        $uuid = Uuid::fromString('0bc68acb-abd1-48ca-b8e2-5638efa5891b');
         $uuid1 = ExtendedUUID1::fromString('0bc68acb-abd1-48ca-b8e2-5638efa5891b');
         $uuid2 = ExtendedUUID2::fromString('0bc68acb-abd1-48ca-b8e2-5638efa5891b');
 
@@ -99,12 +85,12 @@ class UUIDTest extends TestCase
 
 namespace Streak\Domain\Id\UUIDTest;
 
-use Streak\Domain\Id\UUID;
+use Streak\Domain\Id\Uuid;
 
-class ExtendedUUID1 extends UUID
+class ExtendedUUID1 extends Uuid
 {
 }
 
-class ExtendedUUID2 extends UUID
+class ExtendedUUID2 extends Uuid
 {
 }

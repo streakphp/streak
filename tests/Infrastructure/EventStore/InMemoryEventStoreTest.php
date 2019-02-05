@@ -14,11 +14,14 @@ declare(strict_types=1);
 namespace Streak\Infrastructure\EventStore;
 
 use Streak\Domain\EventStore;
+use Streak\Domain\Id\Uuid;
+use Streak\Domain\Id\Uuid\Uuid4Factory;
 use Streak\Infrastructure\EventBus\EventStoreTestCase\Event1;
 use Streak\Infrastructure\EventBus\EventStoreTestCase\Event2;
 use Streak\Infrastructure\EventBus\EventStoreTestCase\Event3;
 use Streak\Infrastructure\EventBus\EventStoreTestCase\Event4;
 use Streak\Infrastructure\EventBus\EventStoreTestCase\ProducerId1;
+use Streak\Infrastructure\Id\Uuid\TestUuid4Factory;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -30,7 +33,12 @@ class InMemoryEventStoreTest extends EventStoreTestCase
 {
     public function testClear()
     {
-        $store = new InMemoryEventStore();
+        $store = new InMemoryEventStore(new TestUuid4Factory(
+            new Uuid('bbe068fb-59ac-48d2-99ff-ff98f604f863'),
+            new Uuid('74a399bf-9007-4d3a-b0cc-a4ba0ccb6fbe'),
+            new Uuid('aa8496a4-b47b-4f55-ba00-da1d1ebffde9'),
+            new Uuid('2e8fc646-a01a-4d0a-b6e6-38bb52c063e0')
+        ));
 
         $producer11 = new ProducerId1('producer1-1');
         $producer12 = new ProducerId1('producer1-2');
@@ -53,9 +61,9 @@ class InMemoryEventStoreTest extends EventStoreTestCase
         $this->assertEquals([], iterator_to_array($store->stream()));
     }
 
-    protected function newEventStore() : EventStore
+    protected function newEventStore(Uuid4Factory $factory) : EventStore
     {
-        $store = new InMemoryEventStore();
+        $store = new InMemoryEventStore($factory);
 
         return $store;
     }

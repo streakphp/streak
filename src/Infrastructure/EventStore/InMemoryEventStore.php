@@ -24,11 +24,18 @@ use Streak\Infrastructure\Event\InMemoryStream;
  */
 class InMemoryEventStore implements EventStore
 {
+    private $factory;
+
     private $uuids = [];
     private $streams = [];
     private $all = [];
 
     private $current = 0;
+
+    public function __construct(Domain\Id\Uuid\Uuid4Factory $factory)
+    {
+        $this->factory = $factory;
+    }
 
     public function producerId(Event $event) : Domain\Id
     {
@@ -78,7 +85,7 @@ class InMemoryEventStore implements EventStore
                 throw new Exception\EventAlreadyInStore($event);
             }
 
-            $uuid = Domain\Id\UUID::create()->toString();
+            $uuid = $this->factory->generateUuid4()->toString();
 
             if (!isset($this->streams[$stream])) {
                 $this->streams[$stream] = [];

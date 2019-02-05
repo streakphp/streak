@@ -18,6 +18,9 @@ use Streak\Domain\Event\Sourced\Subscription\Event\SubscriptionCompleted;
 use Streak\Domain\Event\Sourced\Subscription\Event\SubscriptionListenedToEvent;
 use Streak\Domain\Event\Sourced\Subscription\Event\SubscriptionStarted;
 use Streak\Domain\EventBus;
+use Streak\Domain\Id\Uuid;
+use Streak\Domain\Id\Uuid\Uuid4Factory;
+use Streak\Domain\Id\Uuid\Uuid5Factory;
 use Streak\Infrastructure\UnitOfWork;
 
 /**
@@ -30,11 +33,12 @@ class Subscriber implements Event\Listener
     private $listenerFactory;
     private $subscriptionFactory;
     private $subscriptionsRepository;
+    private $uuidFactory;
     private $uow;
 
-    public function __construct(Event\Listener\Factory $listenerFactory, Event\Subscription\Factory $subscriptionFactory, Event\Subscription\Repository $subscriptionsRepository, UnitOfWork $uow) // TODO: GET RID OF UOW FROM HERE!
+    public function __construct(Event\Listener\Factory $listenerFactory, Event\Subscription\Factory $subscriptionFactory, Event\Subscription\Repository $subscriptionsRepository, Uuid4Factory $uuidFactory, UnitOfWork $uow) // TODO: GET RID OF UOW FROM HERE!
     {
-        $this->identifyBy(Subscriber\Id::create());
+        $this->identifyBy(Event\Subscriber\Id::fromUuid($uuidFactory->generateUuid4()));
         $this->listenerFactory = $listenerFactory;
         $this->subscriptionFactory = $subscriptionFactory;
         $this->subscriptionsRepository = $subscriptionsRepository;

@@ -18,7 +18,7 @@ use PHPUnit\Framework\TestCase;
 use Streak\Domain\Event;
 use Streak\Domain\EventStore;
 use Streak\Domain\Exception\ConcurrentWriteDetected;
-use Streak\Domain\Id\UUID;
+use Streak\Domain\Id\Uuid;
 use Streak\Infrastructure\UnitOfWorkTest\NonVersionableEventSourcedStub;
 use Streak\Infrastructure\UnitOfWorkTest\VersionableEventSourcedStub;
 
@@ -72,10 +72,10 @@ class EventStoreUnitOfWorkTest extends TestCase
 
     public function testObject()
     {
-        $id1 = UUID::create();
-        $id2 = UUID::create();
-        $id3 = UUID::create();
-        $id4 = UUID::create();
+        $id1 = new Uuid('94b32283-7b23-45ad-92e4-c88a3328d4c5');
+        $id2 = new Uuid('3c7ce74d-18fa-4f01-9de4-065cdfd19cd8');
+        $id3 = new Uuid('5e3abd5d-9b38-4bb7-8b49-dcb930cc3fdb');
+        $id4 = new Uuid('28064494-e81a-4cc3-8801-b425300fa659');
 
         $object1 = new VersionableEventSourcedStub($id1, 0, $this->event1);
         $object2 = new VersionableEventSourcedStub($id2, 1, $this->event2);
@@ -176,9 +176,9 @@ class EventStoreUnitOfWorkTest extends TestCase
 
     public function testError()
     {
-        $id1 = UUID::create();
-        $id2 = UUID::create();
-        $id3 = UUID::create();
+        $id1 = new Uuid('94b32283-7b23-45ad-92e4-c88a3328d4c5');
+        $id2 = new Uuid('3c7ce74d-18fa-4f01-9de4-065cdfd19cd8');
+        $id3 = new Uuid('5e3abd5d-9b38-4bb7-8b49-dcb930cc3fdb');
         $object1 = new VersionableEventSourcedStub($id1, 0, $this->event1);
         $object2 = new VersionableEventSourcedStub($id2, 0, $this->event2);
         $object3 = new VersionableEventSourcedStub($id3, 1, $this->event3);

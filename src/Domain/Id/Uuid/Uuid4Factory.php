@@ -11,14 +11,19 @@
 
 declare(strict_types=1);
 
-namespace Streak\Domain\Event\Subscriber;
+namespace Streak\Domain\Id\Uuid;
 
-use Streak\Domain\Event\Listener;
 use Streak\Domain\Id\Uuid;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-class Id extends Uuid implements Listener\Id
+interface Uuid4Factory
 {
+    /**
+     * Generates (pseudo-)random UUID.
+     *
+     * @return Uuid
+     */
+    public function generateUuid4() : Uuid;
 }

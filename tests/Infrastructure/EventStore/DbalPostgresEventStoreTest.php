@@ -18,7 +18,10 @@ use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
 use PHPUnit\Framework\MockObject\MockObject;
 use Streak\Domain\EventStore;
+use Streak\Domain\Id\Uuid;
+use Streak\Domain\Id\Uuid\Uuid4Factory;
 use Streak\Infrastructure\Event\Converter\FlatObjectConverter;
+use Streak\Infrastructure\Id\Uuid\TestUuid4Factory;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -67,7 +70,7 @@ class DbalPostgresEventStoreTest extends EventStoreTestCase
         $expected = new \RuntimeException('Only PostgreSQL database is supported by selected event store.');
         $this->expectExceptionObject($expected);
 
-        $store = new DbalPostgresEventStore($this->mysql, new FlatObjectConverter());
+        $store = new DbalPostgresEventStore($this->mysql, new FlatObjectConverter(), new TestUuid4Factory(new Uuid('bbe068fb-59ac-48d2-99ff-ff98f604f863')));
 
         $this->mysql
             ->expects($this->once())
@@ -89,7 +92,7 @@ class DbalPostgresEventStoreTest extends EventStoreTestCase
         $expected = new \RuntimeException('Only PostgreSQL database is supported by selected event store.');
         $this->expectExceptionObject($expected);
 
-        $store = new DbalPostgresEventStore($this->mysql, new FlatObjectConverter());
+        $store = new DbalPostgresEventStore($this->mysql, new FlatObjectConverter(), new TestUuid4Factory(new Uuid('bbe068fb-59ac-48d2-99ff-ff98f604f863')));
 
         $this->mysql
             ->expects($this->once())
@@ -108,16 +111,16 @@ class DbalPostgresEventStoreTest extends EventStoreTestCase
 
     public function testSchema()
     {
-        $store = new DbalPostgresEventStore($this->mysql, new FlatObjectConverter());
+        $store = new DbalPostgresEventStore($this->mysql, new FlatObjectConverter(), new TestUuid4Factory(new Uuid('bbe068fb-59ac-48d2-99ff-ff98f604f863')));
 
         $schema = $store->schema();
 
         $this->assertSame($store, $schema);
     }
 
-    protected function newEventStore() : EventStore
+    protected function newEventStore(Uuid4Factory $factory) : EventStore
     {
-        $store = new DbalPostgresEventStore(self::$postgres, new FlatObjectConverter());
+        $store = new DbalPostgresEventStore(self::$postgres, new FlatObjectConverter(), $factory);
         $store->drop();
         $store->create();
 

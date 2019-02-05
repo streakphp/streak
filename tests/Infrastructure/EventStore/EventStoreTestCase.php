@@ -19,12 +19,15 @@ use Streak\Domain\EventStore;
 use Streak\Domain\Exception\ConcurrentWriteDetected;
 use Streak\Domain\Exception\EventAlreadyInStore;
 use Streak\Domain\Exception\EventNotInStore;
+use Streak\Domain\Id\Uuid;
+use Streak\Domain\Id\Uuid\Uuid4Factory;
 use Streak\Infrastructure\EventBus\EventStoreTestCase\Event1;
 use Streak\Infrastructure\EventBus\EventStoreTestCase\Event2;
 use Streak\Infrastructure\EventBus\EventStoreTestCase\Event3;
 use Streak\Infrastructure\EventBus\EventStoreTestCase\Event4;
 use Streak\Infrastructure\EventBus\EventStoreTestCase\ProducerId1;
 use Streak\Infrastructure\EventBus\EventStoreTestCase\ProducerId2;
+use Streak\Infrastructure\Id\Uuid\TestUuid4Factory;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -36,9 +39,28 @@ abstract class EventStoreTestCase extends TestCase
      */
     private $store;
 
+    /**
+     * @var Uuid4Factory
+     */
+    private $uuid4Factory;
+
     protected function setUp()
     {
-        $this->store = $this->newEventStore();
+        $this->uuid4Factory = new TestUuid4Factory(
+            new Uuid('bbe068fb-59ac-48d2-99ff-ff98f604f863'),
+            new Uuid('74a399bf-9007-4d3a-b0cc-a4ba0ccb6fbe'),
+            new Uuid('aa8496a4-b47b-4f55-ba00-da1d1ebffde9'),
+            new Uuid('2e8fc646-a01a-4d0a-b6e6-38bb52c063e0'),
+            new Uuid('4b2f5d3b-0bb7-4404-bfc8-1e1e6b3e0868'),
+            new Uuid('034321fd-d149-4483-964f-745900878e8a'),
+            new Uuid('13b6e4b8-0693-4c87-97ce-c358337ed36b'),
+            new Uuid('27fc5b8e-3e14-4ad3-84df-1f5bd3e51324'),
+            new Uuid('e1af6861-8490-48f9-b709-843192c91d95'),
+            new Uuid('6dc702fe-c93d-46bb-b2a4-9d912ef344c2'),
+            new Uuid('6be04dd4-26fb-4a5f-9c51-234fad94c571'),
+            new Uuid('8f7e7193-8b15-4400-81a1-db3ff0afbe4b')
+        );
+        $this->store = $this->newEventStore($this->uuid4Factory);
     }
 
     public function testGettingProducerId()
@@ -365,7 +387,7 @@ abstract class EventStoreTestCase extends TestCase
         }
     }
 
-    abstract protected function newEventStore() : EventStore;
+    abstract protected function newEventStore(Uuid4Factory $factory) : EventStore;
 }
 
 namespace Streak\Infrastructure\EventBus\EventStoreTestCase;

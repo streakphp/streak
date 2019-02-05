@@ -14,11 +14,11 @@ declare(strict_types=1);
 namespace Streak\Domain\Event\Sourced\Subscription;
 
 use Streak\Domain\Event\Subscription;
-use Streak\Domain\Id\UUID;
+use Streak\Domain\Id\Uuid;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-class Id extends UUID implements Subscription\Id
+class Id extends Uuid implements Subscription\Id
 {
 }
