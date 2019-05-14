@@ -21,7 +21,7 @@ use Streak\Domain\Event\Listener;
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-class LoggingListener implements Event\Listener, Event\Listener\Replayable, Event\Listener\Completable, Listener\Resettable
+class LoggingListener implements Event\Listener, Event\Listener\Replayable, Event\Listener\Completable, Listener\Resettable, Event\Filterer
 {
     private $listener;
     private $logger;
@@ -106,5 +106,14 @@ class LoggingListener implements Event\Listener, Event\Listener\Replayable, Even
 
             throw $exception;
         }
+    }
+
+    public function filter(Event\Stream $stream) : Event\Stream
+    {
+        if (!$this->listener instanceof Event\Filterer) {
+            return $stream;
+        }
+
+        return $this->listener->filter($stream);
     }
 }
