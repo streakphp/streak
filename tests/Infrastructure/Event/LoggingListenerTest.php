@@ -32,7 +32,7 @@ class LoggingListenerTest extends TestCase
     private $listener1;
 
     /**
-     * @var Event\Listener|Event\Listener\Replayable|Event\Listener\Completable|Event\Listener\Resettable|MockObject
+     * @var Event\Listener|Event\Listener\Replayable|Event\Listener\Completable|Event\Listener\Resettable|Event\Filterer|MockObject
      */
     private $listener2;
 
@@ -54,16 +54,22 @@ class LoggingListenerTest extends TestCase
     /**
      * @var Event\Stream|MockObject
      */
-    private $stream;
+    private $stream1;
+
+    /**
+     * @var Event\Stream|MockObject
+     */
+    private $stream2;
 
     protected function setUp()
     {
         $this->listener1 = $this->getMockBuilder(Listener::class)->setMethods(['replay', 'reset', 'completed'])->setMockClassName('ListenerMock001')->getMockForAbstractClass();
-        $this->listener2 = $this->getMockBuilder([Event\Listener::class, Event\Listener\Replayable::class, Event\Listener\Completable::class, Event\Listener\Resettable::class])->setMockClassName('ListenerMock002')->getMock();
+        $this->listener2 = $this->getMockBuilder([Event\Listener::class, Event\Listener\Replayable::class, Event\Listener\Completable::class, Event\Listener\Resettable::class, Event\Filterer::class])->setMockClassName('ListenerMock002')->getMock();
         $this->logger = $this->getMockBuilder(LoggerInterface::class)->getMockForAbstractClass();
         $this->listenerId = $this->getMockBuilder(Listener\Id::class)->getMockForAbstractClass();
         $this->event = $this->getMockBuilder(Event::class)->setMockClassName('EventMock001')->getMockForAbstractClass();
-        $this->stream = $this->getMockBuilder(Event\Stream::class)->getMockForAbstractClass();
+        $this->stream1 = $this->getMockBuilder(Event\Stream::class)->setMockClassName('stream1')->getMockForAbstractClass();
+        $this->stream2 = $this->getMockBuilder(Event\Stream::class)->setMockClassName('stream2')->getMockForAbstractClass();
     }
 
     public function testObject()
@@ -86,9 +92,18 @@ class LoggingListenerTest extends TestCase
             ->expects($this->never())
             ->method('completed')
         ;
-        $listener->replay($this->stream);
+        $listener->replay($this->stream1);
         $listener->reset();
         $this->assertFalse($listener->completed());
+
+        $this->stream1
+            ->expects($this->never())
+            ->method($this->anything())
+        ;
+
+        $filtered = $listener->filter($this->stream1);
+
+        $this->assertSame($this->stream1, $filtered);
 
         $listener = new LoggingListener($this->listener2, $this->logger);
 
@@ -119,10 +134,10 @@ class LoggingListenerTest extends TestCase
         $this->listener2
             ->expects($this->once())
             ->method('replay')
-            ->with($this->stream)
+            ->with($this->stream1)
         ;
 
-        $listener->replay($this->stream);
+        $listener->replay($this->stream1);
 
         $this->listener2
             ->expects($this->atLeastOnce())
@@ -173,7 +188,7 @@ class LoggingListenerTest extends TestCase
         $this->listener2
             ->expects($this->once())
             ->method('replay')
-            ->with($this->stream)
+            ->with($this->stream1)
             ->willThrowException($exception)
         ;
 
@@ -190,7 +205,7 @@ class LoggingListenerTest extends TestCase
 
         $this->expectExceptionObject($exception);
 
-        $listener->replay($this->stream);
+        $listener->replay($this->stream1);
     }
 
     public function testExceptionWhenResettingListener()
@@ -219,5 +234,21 @@ class LoggingListenerTest extends TestCase
         $this->expectExceptionObject($exception);
 
         $listener->reset();
+    }
+
+    public function testFiltering()
+    {
+        $listener = new LoggingListener($this->listener2, $this->logger);
+
+        $this->listener2
+            ->expects($this->once())
+            ->method('filter')
+            ->with($this->stream1)
+            ->willReturn($this->stream2)
+        ;
+
+        $filtered = $listener->filter($this->stream1);
+
+        $this->assertSame($this->stream2, $filtered);
     }
 }

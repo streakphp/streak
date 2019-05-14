@@ -124,6 +124,14 @@ class Scenario implements Scenario\Given, Scenario\When, Scenario\Then, Applicat
 
     public function run() : void
     {
+        if ($this->listener instanceof Event\Filterer) {
+            $stream = new InMemoryStream($this->when);
+            $stream = $this->listener->filter($stream);
+            $stream = iterator_to_array($stream);
+
+            Assert::assertEquals([$this->when], $stream, sprintf('Listener is not listening to %s event.', get_class($this->when)));
+        }
+
         $this->expectedCommands = array_filter($this->expectedCommands);
         $this->listener->on($this->when);
 
