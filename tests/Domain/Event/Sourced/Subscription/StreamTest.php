@@ -165,7 +165,7 @@ class StreamTest extends TestCase
         $this->expectExceptionObject(new \BadMethodCallException('Method not supported.'));
 
         $stream = new Stream($this->stream);
-        $stream->only('event1', 'event2');
+        $stream->withEventsOfType('event1', 'event2');
     }
 
     public function testWithout()
@@ -175,7 +175,7 @@ class StreamTest extends TestCase
         $this->expectExceptionObject(new \BadMethodCallException('Method not supported.'));
 
         $stream = new Stream($this->stream);
-        $stream->without('event1', 'event2');
+        $stream->withoutEventsOfType('event1', 'event2');
     }
 
     public function testFirst()

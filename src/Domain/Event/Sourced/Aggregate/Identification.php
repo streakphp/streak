@@ -20,6 +20,8 @@ use Streak\Domain\Event\Sourced as EventSourced;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @TODO: rename to Identity
  */
 trait Identification // implements Producer
 {

@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Streak\Domain\Event;
 
+use Streak\Domain;
 use Streak\Domain\Event;
 
 /**
@@ -36,7 +37,11 @@ interface Stream extends \Traversable
 
     public function limit(int $limit) : self;
 
-    public function only(string ...$types) : self;
+    public function withEventsProducedBy(Domain\Id ...$ids) : self;
 
-    public function without(string ...$types) : self;
+    public function withoutEventsProducedBy(Domain\Id ...$ids) : self;
+
+    public function withEventsOfType(string ...$types) : self;
+
+    public function withoutEventsOfType(string ...$types) : self;
 }

@@ -18,6 +18,8 @@ use Streak\Domain\Entity;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @TODO: rename to Identity
  */
 trait Identification
 {

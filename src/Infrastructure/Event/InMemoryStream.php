@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Streak\Infrastructure\Event;
 
+use Streak\Domain;
 use Streak\Domain\Event;
 use Streak\Domain\Event\Stream;
 
@@ -23,8 +24,18 @@ final class InMemoryStream implements \IteratorAggregate, Event\Stream
 {
     private $events = [];
 
-    private $only = [];
-    private $without = [];
+    private $withEventsOfType = [];
+
+    /**
+     * @var Domain\Id[]
+     */
+    private $withEventsProducedBy = [];
+    private $withoutEventsOfType = [];
+
+    /**
+     * @var Domain\Id[]
+     */
+    private $withoutEventsProducedBy = [];
     private $from;
     private $to;
     private $after;
@@ -85,22 +96,40 @@ final class InMemoryStream implements \IteratorAggregate, Event\Stream
         return $stream;
     }
 
-    public function only(string ...$types) : Stream
+    public function withEventsProducedBy(Domain\Id ...$ids) : Stream
     {
         $stream = $this->copy();
-        $stream->only = $types;
-        $stream->without = [];
+        $stream->withEventsProducedBy = $ids;
+        $stream->withoutEventsProducedBy = [];
+
+        return $stream;
+    }
+
+    public function withoutEventsProducedBy(Domain\Id ...$ids) : Stream
+    {
+        $stream = $this->copy();
+        $stream->withEventsProducedBy = [];
+        $stream->withoutEventsProducedBy = $ids;
+
+        return $stream;
+    }
+
+    public function withEventsOfType(string ...$types) : Stream
+    {
+        $stream = $this->copy();
+        $stream->withEventsOfType = $types;
+        $stream->withoutEventsOfType = [];
 
         // TODO: check if type is Domain\Id
 
         return $stream;
     }
 
-    public function without(string ...$types) : Stream
+    public function withoutEventsOfType(string ...$types) : Stream
     {
         $stream = $this->copy();
-        $stream->without = $types;
-        $stream->only = [];
+        $stream->withoutEventsOfType = $types;
+        $stream->withEventsOfType = [];
 
         // TODO: check if type is Domain\Id
 
@@ -142,8 +171,10 @@ final class InMemoryStream implements \IteratorAggregate, Event\Stream
         $stream->after = $this->after;
         $stream->before = $this->before;
         $stream->limit = $this->limit;
-        $stream->only = $this->only;
-        $stream->without = $this->without;
+        $stream->withEventsOfType = $this->withEventsOfType;
+        $stream->withEventsProducedBy = $this->withEventsProducedBy;
+        $stream->withoutEventsOfType = $this->withoutEventsOfType;
+        $stream->withoutEventsProducedBy = $this->withoutEventsProducedBy;
 
         return $stream;
     }
@@ -197,18 +228,50 @@ final class InMemoryStream implements \IteratorAggregate, Event\Stream
         for ($current = $start; $current <= $stop; ++$current) {
             $event = $this->events[$current];
 
-            if ($this->only) {
+            if ($this->withEventsOfType) {
                 $type = $event->name();
 
-                if (!in_array($type, $this->only, true)) {
+                if (!in_array($type, $this->withEventsOfType, true)) {
                     continue;
                 }
             }
 
-            if ($this->without) {
+            if ($this->withoutEventsOfType) {
                 $type = $event->name();
 
-                if (in_array($type, $this->without, true)) {
+                if (in_array($type, $this->withoutEventsOfType, true)) {
+                    continue;
+                }
+            }
+
+            if ($this->withEventsProducedBy) {
+                $id = $this->producerId($event);
+
+                $found = false;
+                foreach ($this->withEventsProducedBy as $producerId) {
+                    if ($producerId->equals($id)) {
+                        $found = true;
+                        break;
+                    }
+                }
+
+                if (!$found) {
+                    continue;
+                }
+            }
+
+            if ($this->withoutEventsProducedBy) {
+                $id = $this->producerId($event);
+
+                $found = false;
+                foreach ($this->withoutEventsProducedBy as $producerId) {
+                    if ($producerId->equals($id)) {
+                        $found = true;
+                        break;
+                    }
+                }
+
+                if ($found) {
                     continue;
                 }
             }

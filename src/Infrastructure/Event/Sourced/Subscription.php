@@ -84,7 +84,7 @@ final class Subscription implements Event\Subscription, Event\Sourced, Versionab
         $stream = $store->stream(); // all events
 
         // we are not interested in events of other subscriptions
-        $stream = $stream->without(SubscriptionStarted::class, SubscriptionListenedToEvent::class, SubscriptionIgnoredEvent::class, SubscriptionCompleted::class, SubscriptionRestarted::class);
+        $stream = $stream->withoutEventsOfType(SubscriptionStarted::class, SubscriptionListenedToEvent::class, SubscriptionIgnoredEvent::class, SubscriptionCompleted::class, SubscriptionRestarted::class);
 
         if ($this->listener instanceof Event\Filterer) {
             $stream = $this->listener->filter($stream);
@@ -200,7 +200,7 @@ final class Subscription implements Event\Subscription, Event\Sourced, Versionab
         $stream = $stream->to($last); // freeze the stream, ignore any events that were stored after replaying process started
 
         // replay started, restarted or completed events
-        $substream = $stream->only(SubscriptionStarted::class, SubscriptionRestarted::class, SubscriptionCompleted::class); // inclusion is faster
+        $substream = $stream->withEventsOfType(SubscriptionStarted::class, SubscriptionRestarted::class, SubscriptionCompleted::class); // inclusion is faster
 
         $this->doReplay($substream);
 
@@ -214,7 +214,7 @@ final class Subscription implements Event\Subscription, Event\Sourced, Versionab
 
         // replaying last listened-to-event or ignored-event event
         $substream = $substream->after($substream->last());
-        $substream = $substream->only(SubscriptionListenedToEvent::class, SubscriptionIgnoredEvent::class); // inclusion is faster
+        $substream = $substream->withEventsOfType(SubscriptionListenedToEvent::class, SubscriptionIgnoredEvent::class); // inclusion is faster
         $processed = $substream->last(); // TODO: $substream = $substream->reverse()->limit(1) would return last event already as a stream
 
         if ($processed) {
@@ -222,7 +222,7 @@ final class Subscription implements Event\Subscription, Event\Sourced, Versionab
         }
 
         // replaying last listeners-state-changed event
-        $substream = $substream->only(SubscriptionListenersStateChanged::class); // inclusion is faster
+        $substream = $substream->withEventsOfType(SubscriptionListenersStateChanged::class); // inclusion is faster
         $changed = $substream->last();
 
         if ($changed) {
@@ -230,7 +230,7 @@ final class Subscription implements Event\Subscription, Event\Sourced, Versionab
         } else {
             // only if no state change was found
             if ($this->listener instanceof Event\Listener\Replayable) {
-                $this->listener->replay(new SubscriptionStream($stream->only(SubscriptionListenedToEvent::class)));
+                $this->listener->replay(new SubscriptionStream($stream->withEventsOfType(SubscriptionListenedToEvent::class)));
             }
         }
 

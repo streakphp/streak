@@ -52,7 +52,7 @@ class EventSourcedRepositoryTest extends TestCase
     private $store;
 
     /**
-     * @var UnitOfWork|MockObject
+     * @var UnitOfWork\EventStoreUnitOfWork
      */
     private $uow;
 
@@ -384,6 +384,24 @@ class EventSourcedRepositoryTest extends TestCase
         $subscription = $repository->find($this->id1);
 
         $this->assertSame($this->eventSourcedSubscription1, $subscription);
+    }
+
+    public function testCheckingForSubscriptionStillInMemory()
+    {
+        $repository = new EventSourcedRepository($this->subscriptions, $this->listeners, $this->store, $this->uow);
+        $subscription = new Event\Sourced\Subscription($this->listener1, $this->clock);
+
+        $this->uow->add($subscription);
+
+        $this->listener1
+            ->expects($this->atLeastOnce())
+            ->method('listenerId')
+            ->willReturn($this->id1)
+        ;
+
+        $has = $repository->has($subscription);
+
+        $this->assertTrue($has);
     }
 
     public function testAddingNonEventSourcedObject()

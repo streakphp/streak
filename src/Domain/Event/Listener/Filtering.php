@@ -66,6 +66,6 @@ trait Filtering
             $types[] = $parameter->getName();
         }
 
-        return $stream->only(...$types);
+        return $stream->withEventsOfType(...$types);
     }
 }

@@ -18,7 +18,7 @@ use Streak\Domain\Event\Sourced\Subscription;
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-class SubscriptionCompleted implements Subscription\Event
+final class SubscriptionCompleted implements Subscription\Event
 {
     const DATE_FORMAT = 'U.u';
 

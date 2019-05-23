@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Streak\Domain\Event\Sourced\Subscription;
 
+use Streak\Domain;
 use Streak\Domain\Event;
 use Streak\Domain\Event\Sourced\Subscription\Event\SubscriptionListenedToEvent;
 
@@ -96,12 +97,22 @@ class Stream extends \FilterIterator implements Event\Stream
         throw new \BadMethodCallException('Method not supported.');
     }
 
-    public function only(string ...$types) : Event\Stream
+    public function withEventsProducedBy(Domain\Id ...$ids) : Event\Stream
     {
         throw new \BadMethodCallException('Method not supported.');
     }
 
-    public function without(string ...$types) : Event\Stream
+    public function withoutEventsProducedBy(Domain\Id ...$ids) : Event\Stream
+    {
+        throw new \BadMethodCallException('Method not supported.');
+    }
+
+    public function withEventsOfType(string ...$types) : Event\Stream
+    {
+        throw new \BadMethodCallException('Method not supported.');
+    }
+
+    public function withoutEventsOfType(string ...$types) : Event\Stream
     {
         throw new \BadMethodCallException('Method not supported.');
     }

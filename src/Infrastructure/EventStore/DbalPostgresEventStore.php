@@ -13,9 +13,10 @@ declare(strict_types=1);
 
 namespace Streak\Infrastructure\EventStore;
 
+use Aura\SqlQuery\QueryFactory;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
-use Doctrine\DBAL\Statement;
 use Streak\Domain;
 use Streak\Domain\Event;
 use Streak\Domain\Event\Stream;
@@ -47,8 +48,18 @@ class DbalPostgresEventStore implements \Iterator, EventStore, Event\Stream, Sch
     private $statement;
 
     private $filter = [];
-    private $only = [];
-    private $without = [];
+    private $withEventsOfType = [];
+
+    /**
+     * @var Domain\Id[]
+     */
+    private $withEventsProducedBy = [];
+    private $withoutEventsOfType = [];
+
+    /**
+     * @var Domain\Id[]
+     */
+    private $withoutEventsProducedBy = [];
     private $from;
     private $to;
     private $after;
@@ -100,7 +111,7 @@ CREATE TABLE IF NOT EXISTS events (
   producer_type VARCHAR(256) NOT NULL,
   producer_id VARCHAR(256) NOT NULL,
   producer_version INT,
-  appended_at timestamp NOT NULL DEFAULT NOW(),
+  appended_at TIMESTAMP(6) WITH TIME ZONE NOT NULL DEFAULT NOW(),
   PRIMARY KEY(number),
   UNIQUE (number),
   UNIQUE (uuid),
@@ -143,32 +154,22 @@ SQL;
             return;
         }
 
-        $sql = 'INSERT INTO events (uuid, type, body, metadata, producer_type, producer_id, producer_version) ';
+        $factory = new QueryFactory('pgsql');
+        /* @var $insert \Aura\SqlQuery\Pgsql\Insert */
+        $insert = $factory->newInsert();
+        $insert->into('events');
 
-        $parameters = [];
-        $values = [];
         foreach ($events as $key => $event) {
             $row = $this->toRow($event);
 
-            $placeholders = [];
-            foreach ($row as $column => $value) {
-                $parameterName = $column.'_'.$key;
-                $parameters[$parameterName] = $value;
-                $placeholder = ':'.$parameterName;
-                $placeholders[] = $placeholder;
-            }
-
-            $values[] = '('.implode(',', $placeholders).')';
+            $insert->addRow($row);
         }
 
-        $values = implode(',', $values);
-
-        $sql = "$sql VALUES $values";
-        $sql = "$sql RETURNING number, uuid";
+        $insert->returning(['number', 'uuid', 'metadata', 'producer_version', 'appended_at']);
 
         try {
-            $statement = $this->connection->prepare($sql);
-            $statement->execute($parameters);
+            $statement = $this->connection->prepare($insert->getStatement());
+            $statement->execute($insert->getBindValues());
         } catch (UniqueConstraintViolationException $e) {
             if ($id = $this->extractIdForConcurrentWrite($e)) {
                 throw new Exception\ConcurrentWriteDetected($id); // maybe supplement version as well?
@@ -182,6 +183,7 @@ SQL;
             }
             throw $e; // @codeCoverageIgnore
         }
+
 
         while ($returned = $statement->fetch(\PDO::FETCH_ASSOC)) {
             $number = (string) $returned['number'];
@@ -245,22 +247,40 @@ SQL;
         return $stream;
     }
 
-    public function only(string ...$types) : Event\Stream
+    public function withEventsProducedBy(Domain\Id ...$ids) : Stream
     {
         $stream = $this->copy();
-        $stream->only = $types;
-        $stream->without = [];
+        $stream->withEventsProducedBy = $ids;
+        $stream->withoutEventsProducedBy = [];
+
+        return $stream;
+    }
+
+    public function withoutEventsProducedBy(Domain\Id ...$ids) : Stream
+    {
+        $stream = $this->copy();
+        $stream->withEventsProducedBy = [];
+        $stream->withoutEventsProducedBy = $ids;
+
+        return $stream;
+    }
+
+    public function withEventsOfType(string ...$types) : Event\Stream
+    {
+        $stream = $this->copy();
+        $stream->withEventsOfType = $types;
+        $stream->withoutEventsOfType = [];
 
         // TODO: check if type is Domain\Id
 
         return $stream;
     }
 
-    public function without(string ...$types) : Event\Stream
+    public function withoutEventsOfType(string ...$types) : Event\Stream
     {
         $stream = $this->copy();
-        $stream->without = $types;
-        $stream->only = [];
+        $stream->withoutEventsOfType = $types;
+        $stream->withEventsOfType = [];
 
         // TODO: check if type is Domain\Id
 
@@ -291,8 +311,10 @@ SQL;
             $this->to,
             $this->after,
             $this->before,
-            $this->only,
-            $this->without,
+            $this->withEventsOfType,
+            $this->withoutEventsOfType,
+            $this->withEventsProducedBy,
+            $this->withoutEventsProducedBy,
             1,
             null
         );
@@ -328,8 +350,10 @@ SQL;
             $this->to,
             $this->after,
             $this->before,
-            $this->only,
-            $this->without,
+            $this->withEventsOfType,
+            $this->withoutEventsOfType,
+            $this->withEventsProducedBy,
+            $this->withoutEventsProducedBy,
             $limit,
             $offset
         );
@@ -355,8 +379,10 @@ SQL;
             $this->to,
             $this->after,
             $this->before,
-            $this->only,
-            $this->without,
+            $this->withEventsOfType,
+            $this->withoutEventsOfType,
+            $this->withEventsProducedBy,
+            $this->withoutEventsProducedBy,
             1,
             null
         );
@@ -403,8 +429,10 @@ SQL;
             $this->to,
             $this->after,
             $this->before,
-            $this->only,
-            $this->without,
+            $this->withEventsOfType,
+            $this->withoutEventsOfType,
+            $this->withEventsProducedBy,
+            $this->withoutEventsProducedBy,
             $this->limit,
             null
         );
@@ -437,8 +465,10 @@ SQL;
             $this->to,
             $this->after,
             $this->before,
-            $this->only,
-            $this->without,
+            $this->withEventsOfType,
+            $this->withoutEventsOfType,
+            $this->withEventsProducedBy,
+            $this->withoutEventsProducedBy,
             null,
             null
         );
@@ -457,8 +487,10 @@ SQL;
         $stream->before = $this->before;
         $stream->limit = $this->limit;
         $stream->filter = $this->filter;
-        $stream->only = $this->only;
-        $stream->without = $this->without;
+        $stream->withEventsOfType = $this->withEventsOfType;
+        $stream->withEventsProducedBy = $this->withEventsProducedBy;
+        $stream->withoutEventsOfType = $this->withoutEventsOfType;
+        $stream->withoutEventsProducedBy = $this->withoutEventsProducedBy;
         $stream->session = $this->session;
 
         return $stream;
@@ -472,126 +504,106 @@ SQL;
         ?Event\Envelope $to,
         ?Event\Envelope $after,
         ?Event\Envelope $before,
-        ?array $only,
-        ?array $without,
+        ?array $withEventsOfType,
+        ?array $withoutEventsOfType,
+        ?array $withEventsProducedBy,
+        ?array $withoutEventsProducedBy,
         ?int $limit,
         ?int $offset
     ) : Statement {
-        $columns = implode(' , ', $columns);
+        $select = $this->connection
+            ->createQueryBuilder()
+            ->select('*')
+            ->from('events')
+            ->setFirstResult($offset)
+            ->setMaxResults($limit)
+        ;
 
-        if (!$columns) {
-            $columns = '*';
+        if ($columns) {
+            $select->select($columns);
         }
 
-        $sql = "SELECT {$columns} FROM events ";
-        $where = [];
-        $parameters = [];
+        $expr = $select->expr();
+        $where = $expr->andX();
 
         if (count($filter->producerIds()) > 0) {
-            /* @var $filter Domain\Id[] */
-            $sub = [];
+            $or = $expr->orX();
             foreach ($filter->producerIds() as $key => $id) {
-                $sub[] = " (producer_type = :producer_type_$key AND producer_id = :producer_id_$key) ";
-                $parameters["producer_type_$key"] = get_class($id);
-                $parameters["producer_id_$key"] = $id->toString();
+                $and = $expr->andX();
+                $and->add($expr->comparison('producer_type', $expr::EQ, $expr->literal(get_class($id))));
+                $and->add($expr->comparison('producer_id', $expr::EQ, $expr->literal($id->toString())));
+                $or->add($and);
             }
-            $where[] = '('.implode(' OR ', $sub).')';
+            $where->add($or);
         }
 
         if (count($filter->producerTypes()) > 0) {
-            /* @var $filter Domain\Id[] */
-            $sub = [];
+            $or = $expr->orX();
             foreach ($filter->producerTypes() as $key => $type) {
-                $sub[] = " (producer_type = :only_producer_type_$key) ";
-                $parameters["only_producer_type_$key"] = $type;
+                $or->add($expr->comparison('producer_type', $expr::EQ, $expr->literal($type)));
             }
-            $where[] = '('.implode(' OR ', $sub).')';
+            $where->add($or);
         }
 
-        if ($only) {
-            /* @var $only string[] */
-            $sub = [];
-            foreach ($only as $key => $type) {
-                $sub[] = " (type = :include_type_$key) ";
-                $parameters["include_type_$key"] = $type;
+        if ($withEventsOfType) {
+            /* @var $withEventsOfType string[] */
+            $or = $expr->orX();
+            foreach ($withEventsOfType as $key => $type) {
+                $or->add($expr->comparison('type', $expr::EQ, $expr->literal($type)));
             }
-            $where[] = '('.implode(' OR ', $sub).')';
+            $where->add($or);
         }
 
-        if ($without) {
-            /* @var $without string[] */
-            $sub = [];
-            foreach ($without as $key => $type) {
-                $sub[] = " (type != :exclude_type_$key) ";
-                $parameters["exclude_type_$key"] = $type;
+        if ($withoutEventsOfType) {
+            /* @var $withoutEventsOfType string[] */
+            $and = $expr->andX();
+            foreach ($withoutEventsOfType as $key => $type) {
+                $and->add($expr->comparison('type', $expr::NEQ, $expr->literal($type)));
             }
-            $where[] = '('.implode(' AND ', $sub).')';
+            $where->add($and);
         }
 
         if ($from) {
             if (isset($this->session[$from->uuid()->toString()])) {
                 $from = $this->session[$from->uuid()->toString()];
             }
-
-            $where[] = ' (number >= :from) ';
-            $parameters['from'] = $from->get(self::EVENT_ATTRIBUTE_NUMBER);
+            $where->add($expr->comparison('number', $expr::GTE, $expr->literal($from->get(self::EVENT_ATTRIBUTE_NUMBER))));
         }
 
         if ($to) {
             if (isset($this->session[$to->uuid()->toString()])) {
                 $to = $this->session[$to->uuid()->toString()];
             }
-
-            $where[] = ' (number <= :to) ';
-            $parameters['to'] = $to->get(self::EVENT_ATTRIBUTE_NUMBER);
+            $where->add($expr->comparison('number', $expr::LTE, $expr->literal($to->get(self::EVENT_ATTRIBUTE_NUMBER))));
         }
 
         if ($after) {
             if (isset($this->session[$after->uuid()->toString()])) {
                 $after = $this->session[$after->uuid()->toString()];
             }
-
-            $where[] = ' (number > :after) ';
-            $parameters['after'] = $after->get(self::EVENT_ATTRIBUTE_NUMBER);
+            $where->add($expr->comparison('number', $expr::GT, $expr->literal($after->get(self::EVENT_ATTRIBUTE_NUMBER))));
         }
 
         if ($before) {
             if (isset($this->session[$before->uuid()->toString()])) {
                 $before = $this->session[$before->uuid()->toString()];
             }
-
-            $where[] = ' (number < :before) ';
-            $parameters['before'] = $before->get(self::EVENT_ATTRIBUTE_NUMBER);
+            $where->add($expr->comparison('number', $expr::LT, $expr->literal($before->get(self::EVENT_ATTRIBUTE_NUMBER))));
         }
 
-        $where = implode(' AND ', $where);
-
-        if ($where) {
-            $sql = "$sql WHERE $where ";
+        if ($where->count() > 0) {
+            $select->where($where);
         }
 
         if (self::DIRECTION_FORWARD === $direction) {
-            $sql .= ' ORDER BY number ASC ';
+            $select->orderBy('number', 'ASC');
         }
 
         if (self::DIRECTION_BACKWARD === $direction) {
-            $sql .= ' ORDER BY number DESC ';
+            $select->orderBy('number', 'DESC');
         }
 
-        if ($offset) {
-            if ($offset >= 0) {
-                $sql .= ' OFFSET :offset ';
-                $parameters['offset'] = $offset;
-            }
-        }
-
-        if ($limit) {
-            $sql .= ' LIMIT :limit ';
-            $parameters['limit'] = $limit;
-        }
-
-        $statement = $this->connection->prepare($sql);
-        $statement->execute($parameters);
+        $statement = $select->execute();
 
         return $statement;
     }

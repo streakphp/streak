@@ -19,7 +19,7 @@ use Streak\Domain\Entity;
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-trait Comparison
+trait Comparison // implements Entity\Identification, Entity
 {
     abstract public function entityId() : Entity\Id;
 

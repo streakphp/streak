@@ -104,25 +104,25 @@ abstract class EventStoreTestCase extends TestCase
         $second = $this->store->stream(EventStore\Filter::nothing()->filterProducerIds($producerId11));
         $this->assertNotSame($stream, $second);
 
-        $stream = $stream->only(EventStoreTestCase\Event1::class, EventStoreTestCase\Event4::class);
+        $stream = $stream->withEventsOfType(EventStoreTestCase\Event1::class, EventStoreTestCase\Event4::class);
         $this->assertEquals([$event111, $event114], iterator_to_array($stream));
         $this->assertFalse($stream->empty());
         $this->assertEquals($event111, $stream->first());
         $this->assertEquals($event114, $stream->last());
 
-        $stream = $stream->without(EventStoreTestCase\Event4::class);
+        $stream = $stream->withoutEventsOfType(EventStoreTestCase\Event4::class);
         $this->assertEquals([$event111, $event112, $event113], iterator_to_array($stream));
         $this->assertFalse($stream->empty());
         $this->assertEquals($event111, $stream->first());
         $this->assertEquals($event113, $stream->last());
 
-        $stream = $stream->without(EventStoreTestCase\Event1::class);
+        $stream = $stream->withoutEventsOfType(EventStoreTestCase\Event1::class);
         $this->assertEquals([$event112, $event113, $event114], iterator_to_array($stream));
         $this->assertFalse($stream->empty());
         $this->assertEquals($event112, $stream->first());
         $this->assertEquals($event114, $stream->last());
 
-        $stream = $stream->without(EventStoreTestCase\Event1::class, EventStoreTestCase\Event2::class, EventStoreTestCase\Event3::class, EventStoreTestCase\Event4::class);
+        $stream = $stream->withoutEventsOfType(EventStoreTestCase\Event1::class, EventStoreTestCase\Event2::class, EventStoreTestCase\Event3::class, EventStoreTestCase\Event4::class);
         $this->assertEquals([], iterator_to_array($stream));
         $this->assertTrue($stream->empty());
         $this->assertNull($stream->first());
@@ -335,7 +335,7 @@ abstract class ValueId implements Domain\Id
 
     public function equals($id) : bool
     {
-        if (!$id instanceof self) {
+        if (!$id instanceof static) {
             return false;
         }
 

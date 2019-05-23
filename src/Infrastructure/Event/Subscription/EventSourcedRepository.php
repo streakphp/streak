@@ -87,6 +87,10 @@ class EventSourcedRepository implements Subscription\Repository
     {
         $eventSourced = $this->eventSourced($subscription);
 
+        if (true === $this->uow->has($subscription)) {
+            return true;
+        }
+
         $filter = new EventStore\Filter();
         $filter = $filter->filterProducerIds($eventSourced->producerId());
 
@@ -122,7 +126,7 @@ class EventSourcedRepository implements Subscription\Repository
         $streamFilter = $streamFilter->filterProducerTypes(...$filter->subscriptionTypes());
 
         $stream = $this->store->stream($streamFilter);
-        $stream = $stream->only(SubscriptionStarted::class, SubscriptionRestarted::class, SubscriptionCompleted::class);
+        $stream = $stream->withEventsOfType(SubscriptionStarted::class, SubscriptionRestarted::class, SubscriptionCompleted::class);
 
         $ids = [];
         foreach ($stream as $event) {

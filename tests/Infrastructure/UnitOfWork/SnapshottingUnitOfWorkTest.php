@@ -15,6 +15,7 @@ namespace Streak\Infrastructure\UnitOfWork;
 
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Streak\Domain;
 use Streak\Domain\Event;
 use Streak\Infrastructure\AggregateRoot\Snapshotter;
 use Streak\Infrastructure\UnitOfWork;
@@ -42,7 +43,7 @@ class SnapshottingUnitOfWorkTest extends TestCase
     private $producer;
 
     /**
-     * @var Event\Producer\Id|MockObject
+     * @var Domain\Id|MockObject
      */
     private $producerId;
 
@@ -81,7 +82,7 @@ class SnapshottingUnitOfWorkTest extends TestCase
         $this->uow = $this->getMockBuilder(UnitOfWork::class)->getMockForAbstractClass();
         $this->snapshotter = $this->getMockBuilder(Snapshotter::class)->getMockForAbstractClass();
         $this->producer = $this->getMockBuilder(Event\Producer::class)->setMockClassName('s__producer')->getMockForAbstractClass();
-        $this->producerId = $this->getMockBuilder(Event\Producer\Id::class)->getMockForAbstractClass();
+        $this->producerId = $this->getMockBuilder(Domain\Id::class)->getMockForAbstractClass();
         $this->aggregateRoot1 = $this->getMockBuilder(Event\Sourced\AggregateRoot::class)->setMockClassName('s__ar1')->getMockForAbstractClass();
         $this->aggregateRootId1 = $this->getMockBuilder(Event\Sourced\AggregateRoot\Id::class)->getMockForAbstractClass();
         $this->aggregateRoot2 = $this->getMockBuilder(Event\Sourced\AggregateRoot::class)->setMockClassName('s__ar2')->getMockForAbstractClass();

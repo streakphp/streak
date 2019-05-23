@@ -33,4 +33,11 @@ class FixedClock implements Clock
     {
         return $this->now;
     }
+
+    public function timeIs(\DateTimeInterface $time) : self
+    {
+        $this->now = \DateTimeImmutable::createFromFormat(self::DATE_FORMAT, $time->format(self::DATE_FORMAT));
+
+        return $this;
+    }
 }

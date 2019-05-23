@@ -24,8 +24,14 @@ class FixedClockTest extends TestCase
 {
     public function testClock()
     {
-        $clock = new FixedClock(new \DateTime('2018-09-28 19:12:32.763188 +00:00'));
-        $now = new \DateTime('2018-09-28 19:12:32.763188 +00:00');
+        $now = new \DateTime('2018-09-28 19:12:32.763188+00:00');
+        $clock = new FixedClock($now);
+
+        $this->assertEquals($now, $clock->now());
+
+        $now = new \DateTime('2018-09-28 19:54:12.563188+00:00');
+
+        $clock->timeIs($now);
 
         $this->assertEquals($now, $clock->now());
     }

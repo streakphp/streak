@@ -40,7 +40,7 @@ class FilteringTest extends TestCase
 
         $this->stream
             ->expects($this->once())
-            ->method('only')
+            ->method('withEventsOfType')
             ->with(
                 FilteringTest\SupportedEvent1::class,
                 FilteringTest\SupportedEvent2::class

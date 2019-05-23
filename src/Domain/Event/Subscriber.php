@@ -14,9 +14,6 @@ declare(strict_types=1);
 namespace Streak\Domain\Event;
 
 use Streak\Domain\Event;
-use Streak\Domain\Event\Sourced\Subscription\Event\SubscriptionCompleted;
-use Streak\Domain\Event\Sourced\Subscription\Event\SubscriptionListenedToEvent;
-use Streak\Domain\Event\Sourced\Subscription\Event\SubscriptionStarted;
 use Streak\Domain\EventBus;
 
 /**
@@ -47,19 +44,6 @@ class Subscriber implements Event\Listener
 
     public function on(Event\Envelope $event) : bool
     {
-        // TODO: move filtering subscription-events to subscriber decorator or listener factory decorator.
-        if ($event->message() instanceof SubscriptionStarted) {
-            return false;
-        }
-
-        if ($event->message() instanceof SubscriptionListenedToEvent) {
-            return false;
-        }
-
-        if ($event->message() instanceof SubscriptionCompleted) {
-            return false;
-        }
-
         try {
             $listener = $this->listenerFactory->createFor($event);
         } catch (Exception\InvalidEventGiven $e) {
