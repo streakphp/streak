@@ -15,6 +15,7 @@ namespace Streak\Domain\Event\Sourced;
 
 use Streak\Domain;
 use Streak\Domain\Event;
+use Streak\Domain\Event\Listener;
 use Streak\Domain\Event\Sourced\Subscription\Event\SubscriptionCompleted;
 use Streak\Domain\Event\Sourced\Subscription\Event\SubscriptionIgnoredEvent;
 use Streak\Domain\Event\Sourced\Subscription\Event\SubscriptionListenedToEvent;
@@ -216,6 +217,11 @@ final class Subscription implements Event\Subscription, Event\Sourced, Versionab
     public function subscriptionId() : Event\Listener\Id
     {
         return $this->listener->listenerId();
+    }
+
+    public function listener() : Listener
+    {
+        return $this->listener;
     }
 
     public function started() : bool

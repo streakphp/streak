@@ -14,6 +14,9 @@ declare(strict_types=1);
 namespace Streak\Infrastructure\Event;
 
 use Psr\Log;
+use Streak\Application\Exception;
+use Streak\Application\Query;
+use Streak\Application\QueryHandler;
 use Streak\Domain;
 use Streak\Domain\Event;
 use Streak\Domain\Event\Listener;
@@ -21,7 +24,7 @@ use Streak\Domain\Event\Listener;
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-class LoggingListener implements Event\Listener, Event\Listener\Replayable, Event\Listener\Completable, Listener\Resettable, Event\Filterer
+class LoggingListener implements Event\Listener, Event\Listener\Replayable, Event\Listener\Completable, Listener\Resettable, Event\Filterer, QueryHandler
 {
     private $listener;
     private $logger;
@@ -115,5 +118,14 @@ class LoggingListener implements Event\Listener, Event\Listener\Replayable, Even
         }
 
         return $this->listener->filter($stream);
+    }
+
+    public function handleQuery(Query $query)
+    {
+        if ($this->listener instanceof QueryHandler) {
+            return $this->listener->handleQuery($query);
+        }
+
+        throw new Exception\QueryNotSupported($query);
     }
 }

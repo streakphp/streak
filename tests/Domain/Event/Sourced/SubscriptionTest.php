@@ -177,6 +177,7 @@ class SubscriptionTest extends TestCase
 
         $subscription = new Subscription($this->listener1, $this->clock);
 
+        $this->assertSame($subscription->listener(), $this->listener1);
         $this->assertSame($this->id1, $subscription->subscriptionId());
         $this->assertSame($this->id1, $subscription->producerId());
         $this->assertNull($subscription->lastReplayed());
@@ -327,6 +328,7 @@ class SubscriptionTest extends TestCase
 
         $subscription = new Subscription($this->listener7, $this->clock);
 
+        $this->assertSame($subscription->listener(), $this->listener7);
         $this->assertSame($this->id1, $subscription->subscriptionId());
         $this->assertSame($this->id1, $subscription->producerId());
         $this->assertNull($subscription->lastReplayed());
@@ -449,6 +451,7 @@ class SubscriptionTest extends TestCase
 
         $subscription = new Subscription($this->listener8, $this->clock);
 
+        $this->assertSame($subscription->listener(), $this->listener8);
         $this->assertSame($this->id1, $subscription->subscriptionId());
         $this->assertSame($this->id1, $subscription->producerId());
         $this->assertNull($subscription->lastReplayed());
@@ -563,6 +566,7 @@ class SubscriptionTest extends TestCase
 
         $subscription = new Subscription($this->listener7, $this->clock);
 
+        $this->assertSame($subscription->listener(), $this->listener7);
         $this->assertSame($this->id1, $subscription->subscriptionId());
         $this->assertSame($this->id1, $subscription->producerId());
         $this->assertNull($subscription->lastReplayed());
@@ -676,6 +680,7 @@ class SubscriptionTest extends TestCase
 
         $subscription = new Subscription($this->listener3, $this->clock);
 
+        $this->assertSame($subscription->listener(), $this->listener3);
         $this->assertSame($this->id1, $subscription->subscriptionId());
         $this->assertSame($this->id1, $subscription->producerId());
         $this->assertNull($subscription->lastReplayed());
@@ -822,6 +827,7 @@ class SubscriptionTest extends TestCase
 
         $subscription = new Subscription($this->listener1, $this->clock);
 
+        $this->assertSame($subscription->listener(), $this->listener1);
         $this->assertSame($this->id1, $subscription->subscriptionId());
         $this->assertSame($this->id1, $subscription->producerId());
         $this->assertNull($subscription->lastReplayed());
@@ -947,6 +953,7 @@ class SubscriptionTest extends TestCase
 
         $subscription = new Subscription($this->listener2, $this->clock);
 
+        $this->assertSame($subscription->listener(), $this->listener2);
         $this->assertNull($subscription->lastReplayed());
         $this->assertNull($subscription->lastEvent());
         $this->assertEmpty($subscription->events());
@@ -1068,6 +1075,7 @@ class SubscriptionTest extends TestCase
         $now = new \DateTime('2018-09-28 19:12:32.763188 +00:00');
         $subscription = new Subscription($this->listener2, $this->clock);
 
+        $this->assertSame($subscription->listener(), $this->listener2);
         $this->assertFalse($subscription->completed());
         $this->assertNull($subscription->lastReplayed());
         $this->assertNull($subscription->lastEvent());
@@ -1116,6 +1124,7 @@ class SubscriptionTest extends TestCase
         $now = new \DateTime('2018-09-28 19:12:32.763188 +00:00');
         $subscription = new Subscription($this->listener3, $this->clock);
 
+        $this->assertSame($subscription->listener(), $this->listener3);
         $this->assertFalse($subscription->completed());
         $this->assertNull($subscription->lastReplayed());
         $this->assertNull($subscription->lastEvent());
@@ -1227,6 +1236,7 @@ class SubscriptionTest extends TestCase
 
         $subscription = new Subscription($this->listener1, $this->clock);
 
+        $this->assertSame($subscription->listener(), $this->listener1);
         $this->assertSame($this->id1, $subscription->subscriptionId());
         $this->assertSame($this->id1, $subscription->producerId());
         $this->assertNull($subscription->lastReplayed());
@@ -1245,6 +1255,7 @@ class SubscriptionTest extends TestCase
         $now = new \DateTime('2018-09-28 19:12:32.763188 +00:00');
         $subscription = new Subscription($this->listener3, $this->clock);
 
+        $this->assertSame($subscription->listener(), $this->listener3);
         $this->assertFalse($subscription->completed());
 
         $event1 = new SubscriptionStarted($this->event1, $now);
@@ -1315,6 +1326,7 @@ class SubscriptionTest extends TestCase
 
         $subscription = new Subscription($this->listener1, $this->clock);
 
+        $this->assertSame($subscription->listener(), $this->listener1);
         $this->assertSame($this->id1, $subscription->subscriptionId());
         $this->assertSame($this->id1, $subscription->producerId());
         $this->assertNull($subscription->lastReplayed());
@@ -1342,6 +1354,7 @@ class SubscriptionTest extends TestCase
     {
         $subscription = new Subscription($this->listener4, $this->clock);
 
+        $this->assertSame($subscription->listener(), $this->listener4);
         $this->assertNull($subscription->lastReplayed());
         $this->assertNull($subscription->lastEvent());
         $this->assertEmpty($subscription->events());
@@ -1465,6 +1478,7 @@ class SubscriptionTest extends TestCase
     {
         $subscription = new Subscription($this->listener5, $this->clock);
 
+        $this->assertSame($subscription->listener(), $this->listener5);
         $this->assertNull($subscription->lastReplayed());
         $this->assertNull($subscription->lastEvent());
         $this->assertEmpty($subscription->events());
@@ -1594,6 +1608,7 @@ class SubscriptionTest extends TestCase
 
         $subscription = new Subscription($this->listener1, $this->clock);
 
+        $this->assertSame($subscription->listener(), $this->listener1);
         $this->assertSame($this->id1, $subscription->subscriptionId());
         $this->assertSame($this->id1, $subscription->producerId());
         $this->assertNull($subscription->lastReplayed());
@@ -1609,6 +1624,7 @@ class SubscriptionTest extends TestCase
     {
         $subscription = new Subscription($this->listener6, $this->clock);
 
+        $this->assertSame($subscription->listener(), $this->listener6);
         $this->assertNull($subscription->lastReplayed());
         $this->assertNull($subscription->lastEvent());
         $this->assertEmpty($subscription->events());
@@ -1730,6 +1746,7 @@ class SubscriptionTest extends TestCase
     {
         $subscription = new Subscription($this->listener1, $this->clock);
 
+        $this->assertSame($subscription->listener(), $this->listener1);
         $this->assertFalse($subscription->completed());
         $this->assertNull($subscription->lastReplayed());
         $this->assertNull($subscription->lastEvent());
@@ -1831,6 +1848,7 @@ class SubscriptionTest extends TestCase
         ;
         $subscription = new Subscription($this->listener4, $this->clock);
 
+        $this->assertSame($subscription->listener(), $this->listener4);
         $this->assertSame($this->id1, $subscription->subscriptionId());
         $this->assertSame($this->id1, $subscription->producerId());
         $this->assertNull($subscription->lastReplayed());
@@ -1911,6 +1929,7 @@ class SubscriptionTest extends TestCase
         ;
         $subscription = new Subscription($this->listener4, $this->clock);
 
+        $this->assertSame($subscription->listener(), $this->listener4);
         $this->assertSame($this->id1, $subscription->subscriptionId());
         $this->assertSame($this->id1, $subscription->producerId());
         $this->assertNull($subscription->lastReplayed());
@@ -1991,6 +2010,7 @@ class SubscriptionTest extends TestCase
         ;
         $subscription = new Subscription($this->listener4, $this->clock);
 
+        $this->assertSame($subscription->listener(), $this->listener4);
         $this->assertSame($this->id1, $subscription->subscriptionId());
         $this->assertSame($this->id1, $subscription->producerId());
         $this->assertNull($subscription->lastReplayed());

@@ -16,6 +16,9 @@ namespace Streak\Infrastructure\Event;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use Streak\Application\Exception\QueryNotSupported;
+use Streak\Application\Query;
+use Streak\Application\QueryHandler;
 use Streak\Domain\Event;
 use Streak\Domain\Event\Listener;
 
@@ -32,7 +35,7 @@ class LoggingListenerTest extends TestCase
     private $listener1;
 
     /**
-     * @var Event\Listener|Event\Listener\Replayable|Event\Listener\Completable|Event\Listener\Resettable|Event\Filterer|MockObject
+     * @var Event\Listener|Event\Listener\Replayable|Event\Listener\Completable|Event\Listener\Resettable|Event\Filterer|QueryHandler|MockObject
      */
     private $listener2;
 
@@ -61,15 +64,21 @@ class LoggingListenerTest extends TestCase
      */
     private $stream2;
 
+    /**
+     * @var Query|MockObject
+     */
+    private $query;
+
     protected function setUp()
     {
         $this->listener1 = $this->getMockBuilder(Listener::class)->setMethods(['replay', 'reset', 'completed'])->setMockClassName('ListenerMock001')->getMockForAbstractClass();
-        $this->listener2 = $this->getMockBuilder([Event\Listener::class, Event\Listener\Replayable::class, Event\Listener\Completable::class, Event\Listener\Resettable::class, Event\Filterer::class])->setMockClassName('ListenerMock002')->getMock();
+        $this->listener2 = $this->getMockBuilder([Event\Listener::class, Event\Listener\Replayable::class, Event\Listener\Completable::class, Event\Listener\Resettable::class, Event\Filterer::class, QueryHandler::class])->setMockClassName('ListenerMock002')->getMock();
         $this->logger = $this->getMockBuilder(LoggerInterface::class)->getMockForAbstractClass();
         $this->listenerId = $this->getMockBuilder(Listener\Id::class)->getMockForAbstractClass();
         $this->event = $this->getMockBuilder(Event::class)->setMockClassName('EventMock001')->getMockForAbstractClass();
         $this->stream1 = $this->getMockBuilder(Event\Stream::class)->setMockClassName('stream1')->getMockForAbstractClass();
         $this->stream2 = $this->getMockBuilder(Event\Stream::class)->setMockClassName('stream2')->getMockForAbstractClass();
+        $this->query = $this->getMockBuilder(Query::class)->getMockForAbstractClass();
     }
 
     public function testObject()
@@ -250,5 +259,30 @@ class LoggingListenerTest extends TestCase
         $filtered = $listener->filter($this->stream1);
 
         $this->assertSame($this->stream2, $filtered);
+    }
+
+    public function testQueringNotSupported()
+    {
+        $this->expectExceptionObject(new QueryNotSupported($this->query));
+
+        $listener = new LoggingListener($this->listener1, $this->logger);
+
+        $listener->handleQuery($this->query);
+    }
+
+    public function testQuering()
+    {
+        $listener = new LoggingListener($this->listener2, $this->logger);
+
+        $this->listener2
+            ->expects($this->once())
+            ->method('handleQuery')
+            ->with($this->query)
+            ->willReturn('result')
+        ;
+
+        $result = $listener->handleQuery($this->query);
+
+        $this->assertSame('result', $result);
     }
 }
