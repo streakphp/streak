@@ -24,6 +24,8 @@ use Streak\Domain\EventStore;
  */
 interface Subscription
 {
+    public function listener() : Listener;
+
     public function subscriptionId() : Listener\Id;
 
     /**
