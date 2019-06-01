@@ -11,17 +11,15 @@
 
 declare(strict_types=1);
 
-namespace Streak\Application;
+namespace Streak\Application\Command;
+
+use Streak\Application;
+use Streak\Domain\AggregateRoot;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-interface CommandHandler
+interface AggregateRootCommand extends Application\Command
 {
-    /**
-     * @throws Exception\CommandNotSupported
-     *
-     * @TODO: rename to CommandHandler::handleCommand()
-     */
-    public function handle(Command $command) : void;
+    public function aggregateRootId() : AggregateRoot\Id;
 }
