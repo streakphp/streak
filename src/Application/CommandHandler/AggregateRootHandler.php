@@ -22,7 +22,7 @@ use Streak\Domain\Exception\AggregateNotFound;
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-class AggregateRootHandler
+class AggregateRootHandler implements CommandHandler
 {
     private $repository;
 
