@@ -26,7 +26,7 @@ class AggregateNotFound extends \RuntimeException
     {
         $this->aggregateId = $aggregateId;
 
-        $message = sprintf('Aggregate "%s" not found.', $this->aggregateId->toString());
+        $message = sprintf('Aggregate "%s@%s" not found.', get_class($aggregateId), $this->aggregateId->toString());
 
         parent::__construct($message, 0, $previous);
     }

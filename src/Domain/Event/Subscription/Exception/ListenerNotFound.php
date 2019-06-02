@@ -26,7 +26,7 @@ class ListenerNotFound extends \RuntimeException
     {
         $this->listenerId = $listenerId;
 
-        $message = sprintf('Aggregate "%s" not found.', $this->listenerId->toString());
+        $message = sprintf('Listener "%s@%s" not found.', get_class($this->listenerId), $this->listenerId->toString());
 
         parent::__construct($message, 0, $previous);
     }

@@ -31,13 +31,20 @@ class ListenerNotFoundTest extends TestCase
 
     public function setUp()
     {
-        $this->listenerId = $this->getMockBuilder(Event\Listener\Id::class)->getMockForAbstractClass();
+        $this->listenerId = $this->getMockBuilder(Event\Listener\Id::class)->setMockClassName('listener_id_1')->getMockForAbstractClass();
     }
 
     public function testException()
     {
+        $this->listenerId
+            ->expects($this->once())
+            ->method('toString')
+            ->willReturn('8db25a31-45ce-499f-95f7-8b8d4fffc366')
+        ;
+
         $exception = new ListenerNotFound($this->listenerId);
 
+        $this->assertSame('Listener "listener_id_1@8db25a31-45ce-499f-95f7-8b8d4fffc366" not found.', $exception->getMessage());
         $this->assertSame($this->listenerId, $exception->listenerId());
     }
 }

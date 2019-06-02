@@ -30,13 +30,20 @@ class AggregateNotFoundTest extends TestCase
 
     public function setUp()
     {
-        $this->aggregateId = $this->getMockBuilder(Domain\AggregateRoot\Id::class)->getMockForAbstractClass();
+        $this->aggregateId = $this->getMockBuilder(Domain\AggregateRoot\Id::class)->setMockClassName('aggregate_id_1')->getMockForAbstractClass();
     }
 
     public function testException()
     {
+        $this->aggregateId
+            ->expects($this->once())
+            ->method('toString')
+            ->willReturn('8db25a31-45ce-499f-95f7-8b8d4fffc366')
+        ;
+
         $exception = new AggregateNotFound($this->aggregateId);
 
+        $this->assertSame('Aggregate "aggregate_id_1@8db25a31-45ce-499f-95f7-8b8d4fffc366" not found.', $exception->getMessage());
         $this->assertSame($this->aggregateId, $exception->aggregateId());
     }
 }

@@ -853,7 +853,7 @@ class SubscriptionTest extends TestCase
         $this->stream1
             ->expects($this->atLeastOnce())
             ->method('only')
-            ->with(SubscriptionStarted::class, SubscriptionRestarted::class, SubscriptionListenedToEvent::class)
+            ->with(SubscriptionStarted::class, SubscriptionRestarted::class, SubscriptionCompleted::class, SubscriptionListenedToEvent::class)
             ->willReturnSelf()
         ;
         $this->stream1
@@ -977,7 +977,7 @@ class SubscriptionTest extends TestCase
         $this->stream1
             ->expects($this->atLeastOnce())
             ->method('only')
-            ->with(SubscriptionStarted::class, SubscriptionRestarted::class, SubscriptionListenedToEvent::class)
+            ->with(SubscriptionStarted::class, SubscriptionRestarted::class, SubscriptionCompleted::class, SubscriptionListenedToEvent::class)
             ->willReturnSelf()
         ;
         $this->isIteratorFor($this->stream1, [$event1, $event2, $event3]);
@@ -1100,7 +1100,7 @@ class SubscriptionTest extends TestCase
         $this->stream1
             ->expects($this->atLeastOnce())
             ->method('only')
-            ->with(SubscriptionStarted::class, SubscriptionRestarted::class, SubscriptionListenedToEvent::class)
+            ->with(SubscriptionStarted::class, SubscriptionRestarted::class, SubscriptionCompleted::class, SubscriptionListenedToEvent::class)
             ->willReturnSelf()
         ;
 
@@ -1119,7 +1119,7 @@ class SubscriptionTest extends TestCase
         $this->assertEmpty($subscription->events());
     }
 
-    public function testTrasnactionalListener()
+    public function testTransactionalListener()
     {
         $now = new \DateTime('2018-09-28 19:12:32.763188 +00:00');
         $subscription = new Subscription($this->listener3, $this->clock);
@@ -1148,7 +1148,7 @@ class SubscriptionTest extends TestCase
         $this->stream1
             ->expects($this->atLeastOnce())
             ->method('only')
-            ->with(SubscriptionStarted::class, SubscriptionRestarted::class, SubscriptionListenedToEvent::class)
+            ->with(SubscriptionStarted::class, SubscriptionRestarted::class, SubscriptionCompleted::class, SubscriptionListenedToEvent::class)
             ->willReturnSelf()
         ;
 
@@ -1277,7 +1277,7 @@ class SubscriptionTest extends TestCase
         $this->stream1
             ->expects($this->atLeastOnce())
             ->method('only')
-            ->with(SubscriptionStarted::class, SubscriptionRestarted::class, SubscriptionListenedToEvent::class)
+            ->with(SubscriptionStarted::class, SubscriptionRestarted::class, SubscriptionCompleted::class, SubscriptionListenedToEvent::class)
             ->willReturnSelf()
         ;
         $this->isIteratorFor($this->stream1, [$event1, $event2, $event3]);
@@ -1398,7 +1398,7 @@ class SubscriptionTest extends TestCase
         $this->stream1
             ->expects($this->atLeastOnce())
             ->method('only')
-            ->with(SubscriptionStarted::class, SubscriptionRestarted::class, SubscriptionListenedToEvent::class)
+            ->with(SubscriptionStarted::class, SubscriptionRestarted::class, SubscriptionCompleted::class, SubscriptionListenedToEvent::class)
             ->willReturnSelf()
         ;
 
@@ -1522,7 +1522,7 @@ class SubscriptionTest extends TestCase
         $this->stream1
             ->expects($this->atLeastOnce())
             ->method('only')
-            ->with(SubscriptionStarted::class, SubscriptionRestarted::class, SubscriptionListenedToEvent::class)
+            ->with(SubscriptionStarted::class, SubscriptionRestarted::class, SubscriptionCompleted::class, SubscriptionListenedToEvent::class)
             ->willReturnSelf()
         ;
 
@@ -1669,7 +1669,7 @@ class SubscriptionTest extends TestCase
         $this->stream1
             ->expects($this->atLeastOnce())
             ->method('only')
-            ->with(SubscriptionStarted::class, SubscriptionRestarted::class, SubscriptionListenedToEvent::class)
+            ->with(SubscriptionStarted::class, SubscriptionRestarted::class, SubscriptionCompleted::class, SubscriptionListenedToEvent::class)
             ->willReturnSelf()
         ;
 
@@ -1774,7 +1774,7 @@ class SubscriptionTest extends TestCase
         $this->stream1
             ->expects($this->atLeastOnce())
             ->method('only')
-            ->with(SubscriptionStarted::class, SubscriptionRestarted::class, SubscriptionListenedToEvent::class)
+            ->with(SubscriptionStarted::class, SubscriptionRestarted::class, SubscriptionCompleted::class, SubscriptionListenedToEvent::class)
             ->willReturnSelf()
         ;
 

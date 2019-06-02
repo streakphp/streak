@@ -178,7 +178,7 @@ final class Subscription implements Event\Subscription, Event\Sourced, Versionab
         /** @var $last Subscription\Event */
         $last = $stream->last();
         $stream = $stream->to($last);
-        $stream = $stream->only(SubscriptionStarted::class, SubscriptionRestarted::class, SubscriptionListenedToEvent::class); // inclusion is faster
+        $stream = $stream->only(SubscriptionStarted::class, SubscriptionRestarted::class, SubscriptionCompleted::class, SubscriptionListenedToEvent::class); // inclusion is faster
 
         try {
             $backup = $this->listener;
