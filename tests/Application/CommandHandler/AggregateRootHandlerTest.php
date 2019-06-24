@@ -19,8 +19,6 @@ use Streak\Application\Command;
 use Streak\Application\CommandHandler;
 use Streak\Application\Exception\CommandNotSupported;
 use Streak\Domain\AggregateRoot;
-use Streak\Domain\AggregateRoot\Repository;
-use Streak\Domain\Exception\AggregateNotFound;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -30,7 +28,12 @@ use Streak\Domain\Exception\AggregateNotFound;
 class AggregateRootHandlerTest extends TestCase
 {
     /**
-     * @var Repository|MockObject
+     * @var AggregateRoot\Factory|MockObject
+     */
+    private $factory;
+
+    /**
+     * @var AggregateRoot\Repository|MockObject
      */
     private $repository;
 
@@ -61,7 +64,8 @@ class AggregateRootHandlerTest extends TestCase
 
     protected function setUp()
     {
-        $this->repository = $this->getMockBuilder(Repository::class)->getMockForAbstractClass();
+        $this->factory = $this->getMockBuilder(AggregateRoot\Factory::class)->getMockForAbstractClass();
+        $this->repository = $this->getMockBuilder(AggregateRoot\Repository::class)->getMockForAbstractClass();
         $this->command = $this->getMockBuilder(Command::class)->getMockForAbstractClass();
         $this->aggregateRoot = $this->getMockBuilder(AggregateRoot::class)->getMockForAbstractClass();
         $this->aggregateRootId = $this->getMockBuilder(AggregateRoot\Id::class)->getMockForAbstractClass();
@@ -73,16 +77,14 @@ class AggregateRootHandlerTest extends TestCase
     {
         $this->expectExceptionObject(new CommandNotSupported($this->command));
 
-        $handler = new AggregateRootHandler($this->repository);
+        $handler = new AggregateRootHandler($this->factory, $this->repository);
         $handler->handle($this->command);
     }
 
-    public function testAggregateNotFound()
+    public function testCommandHandlingAggregateNotFound()
     {
-        $this->expectExceptionObject(new AggregateNotFound($this->aggregateRootId));
-
         $this->aggregateRootCommand
-            ->expects($this->once())
+            ->expects($this->atLeastOnce())
             ->method('aggregateRootId')
             ->willReturn($this->aggregateRootId)
         ;
@@ -94,7 +96,53 @@ class AggregateRootHandlerTest extends TestCase
             ->willReturn(null)
         ;
 
-        $handler = new AggregateRootHandler($this->repository);
+        $this->factory
+            ->expects($this->once())
+            ->method('create')
+            ->with($this->aggregateRootId)
+            ->willReturn($this->aggregateRootCommandHandler)
+        ;
+
+        $this->aggregateRootCommandHandler
+            ->expects($this->once())
+            ->method('handle')
+            ->with($this->aggregateRootCommand)
+        ;
+
+        $handler = new AggregateRootHandler($this->factory, $this->repository);
+        $handler->handle($this->aggregateRootCommand);
+    }
+
+    public function testNonCommandHandlingAggregateNotFound()
+    {
+        $this->expectExceptionObject(new CommandNotSupported($this->aggregateRootCommand));
+
+        $this->aggregateRootCommand
+            ->expects($this->atLeastOnce())
+            ->method('aggregateRootId')
+            ->willReturn($this->aggregateRootId)
+        ;
+
+        $this->repository
+            ->expects($this->once())
+            ->method('find')
+            ->with($this->aggregateRootId)
+            ->willReturn(null)
+        ;
+
+        $this->factory
+            ->expects($this->once())
+            ->method('create')
+            ->with($this->aggregateRootId)
+            ->willReturn($this->aggregateRoot)
+        ;
+
+        $this->aggregateRootCommandHandler
+            ->expects($this->never())
+            ->method($this->anything())
+        ;
+
+        $handler = new AggregateRootHandler($this->factory, $this->repository);
         $handler->handle($this->aggregateRootCommand);
     }
 
@@ -103,7 +151,7 @@ class AggregateRootHandlerTest extends TestCase
         $this->expectExceptionObject(new CommandNotSupported($this->aggregateRootCommand));
 
         $this->aggregateRootCommand
-            ->expects($this->once())
+            ->expects($this->atLeastOnce())
             ->method('aggregateRootId')
             ->willReturn($this->aggregateRootId)
         ;
@@ -114,14 +162,19 @@ class AggregateRootHandlerTest extends TestCase
             ->willReturn($this->aggregateRoot)
         ;
 
-        $handler = new AggregateRootHandler($this->repository);
+        $this->aggregateRootCommandHandler
+            ->expects($this->never())
+            ->method($this->anything())
+        ;
+
+        $handler = new AggregateRootHandler($this->factory, $this->repository);
         $handler->handle($this->aggregateRootCommand);
     }
 
     public function testCommandHandlingAggregateRoot()
     {
         $this->aggregateRootCommand
-            ->expects($this->once())
+            ->expects($this->atLeastOnce())
             ->method('aggregateRootId')
             ->willReturn($this->aggregateRootId)
         ;
@@ -137,7 +190,7 @@ class AggregateRootHandlerTest extends TestCase
             ->with($this->aggregateRootCommand)
         ;
 
-        $handler = new AggregateRootHandler($this->repository);
+        $handler = new AggregateRootHandler($this->factory, $this->repository);
         $handler->handle($this->aggregateRootCommand);
     }
 }
