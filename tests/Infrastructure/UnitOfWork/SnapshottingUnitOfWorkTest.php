@@ -229,11 +229,25 @@ class SnapshottingUnitOfWorkTest extends TestCase
             ->expects($this->once())
             ->method('takeSnapshot')
             ->with($this->aggregateRoot2)
-            ->willReturn($this->snapshottedAggregateRoot2)
         ;
 
         $committed = iterator_to_array($uow->commit());
 
-        $this->assertSame([$this->producer, $this->aggregateRoot1, $this->snapshottedAggregateRoot2], $committed);
+        $this->assertSame([$this->producer, $this->aggregateRoot1, $this->aggregateRoot2], $committed);
+
+        $this->uow
+            ->expects($this->exactly(3))
+            ->method('uncommitted')
+            ->willReturnOnConsecutiveCalls(
+                [],
+                [$this->aggregateRoot1],
+                [$this->aggregateRoot1, $this->aggregateRoot2],
+                [$this->aggregateRoot1]
+            )
+        ;
+
+        $this->assertEmpty($uow->uncommitted());
+        $this->assertSame([$this->aggregateRoot1], $uow->uncommitted());
+        $this->assertSame([$this->aggregateRoot1, $this->aggregateRoot2], $uow->uncommitted());
     }
 }

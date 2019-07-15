@@ -76,6 +76,19 @@ class EventStoreUnitOfWork implements UnitOfWork
         return false;
     }
 
+    /**
+     * @return Event\Producer[]
+     */
+    public function uncommitted() : array
+    {
+        $producers = [];
+        foreach ($this->producers as [$producer, $version]) {
+            $producers[] = $producer;
+        }
+
+        return $producers;
+    }
+
     public function count() : int
     {
         return count($this->producers);

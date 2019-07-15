@@ -20,7 +20,13 @@ use Streak\Domain\AggregateRoot;
  */
 interface Snapshotter
 {
-    public function restoreToSnapshot(AggregateRoot $aggregate) : AggregateRoot;
+    /**
+     * Returns $aggregate restored from snapshot or null if snapshot is not found or not supported.
+     */
+    public function restoreToSnapshot(AggregateRoot $aggregate) : ?AggregateRoot;
 
-    public function takeSnapshot(AggregateRoot $aggregate) : AggregateRoot;
+    /**
+     * Takes snapshot if $aggregate snapshotting is supported.
+     */
+    public function takeSnapshot(AggregateRoot $aggregate) : void;
 }

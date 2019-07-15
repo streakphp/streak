@@ -24,14 +24,14 @@ class SnapshottingUnitOfWork implements UnitOfWork
 {
     private $uow;
     private $snapshotter;
-    private $producers;
+    private $versions;
     private $committing = false;
 
     public function __construct(UnitOfWork $uow, Snapshotter $snapshotter)
     {
         $this->uow = $uow;
         $this->snapshotter = $snapshotter;
-        $this->producers = new \SplObjectStorage();
+        $this->versions = new \SplObjectStorage();
     }
 
     public function add(Event\Producer $producer) : void
@@ -41,7 +41,7 @@ class SnapshottingUnitOfWork implements UnitOfWork
         if ($producer instanceof Event\Sourced\AggregateRoot) {
             $id = $producer->producerId();
             $version = $producer->version();
-            $this->producers->attach($id, $version);
+            $this->versions->attach($id, $version);
         }
     }
 
@@ -49,7 +49,7 @@ class SnapshottingUnitOfWork implements UnitOfWork
     {
         if ($producer instanceof Event\Sourced\AggregateRoot) {
             $id = $producer->producerId();
-            $this->producers->offsetUnset($id);
+            $this->versions->offsetUnset($id);
         }
 
         $this->uow->remove($producer);
@@ -58,6 +58,16 @@ class SnapshottingUnitOfWork implements UnitOfWork
     public function has(Event\Producer $producer) : bool
     {
         return $this->uow->has($producer);
+    }
+
+    /**
+     * @return Event\Producer[]
+     */
+    public function uncommitted() : array
+    {
+        $uncommitted = $this->uow->uncommitted();
+
+        return $uncommitted;
     }
 
     public function count() : int
@@ -77,19 +87,19 @@ class SnapshottingUnitOfWork implements UnitOfWork
                         continue;
                     }
 
-                    $before = $this->producers->offsetGet($committed->producerId());
-                    $after = $committed->version();
+                    $versionBeforeCommit = $this->versions->offsetGet($committed->producerId());
+                    $versionAfterCommit = $committed->version();
 
-                    $this->producers->offsetUnset($committed->producerId());
+                    $this->versions->offsetUnset($committed->producerId());
 
-                    if (!$this->isReadyForSnapshot($before, $after)) {
+                    if (!$this->isReadyForSnapshot($versionBeforeCommit, $versionAfterCommit)) {
                         yield $committed;
                         continue;
                     }
 
-                    $snapshotted = $this->snapshotter->takeSnapshot($committed);
+                    $this->snapshotter->takeSnapshot($committed);
 
-                    yield $snapshotted;
+                    yield $committed;
                 }
 
                 $this->clear();
@@ -101,7 +111,7 @@ class SnapshottingUnitOfWork implements UnitOfWork
 
     public function clear() : void
     {
-        $this->producers = new \SplObjectStorage(); // clear
+        $this->versions = new \SplObjectStorage(); // clear
         $this->uow->clear();
     }
 

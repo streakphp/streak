@@ -183,7 +183,7 @@ class EventSourcedRepositoryTest extends TestCase
         $repository->find($this->aggregateRootId);
     }
 
-    public function testFindingAggregateIfNoEventsInStore()
+    public function testFindingNonExistingAggregate()
     {
         $this->uow
             ->expects($this->never())
@@ -230,7 +230,7 @@ class EventSourcedRepositoryTest extends TestCase
         $this->assertNull($aggregate);
     }
 
-    public function testFindingStaleSnapshottedAggregate()
+    public function testFindingAggregateWithStaleSnapshot()
     {
         $this->factory
             ->expects($this->once())
@@ -292,7 +292,7 @@ class EventSourcedRepositoryTest extends TestCase
         $this->assertSame($this->aggregateRoot, $aggregate);
     }
 
-    public function testFindingFreshSnapshottedAggregate()
+    public function testFindingAggregateWithFreshSnapshot()
     {
         $this->factory
             ->expects($this->once())
@@ -360,7 +360,7 @@ class EventSourcedRepositoryTest extends TestCase
         $this->assertSame($this->aggregateRoot, $aggregate);
     }
 
-    public function testFindingAggregate()
+    public function testFindingAggregateWithoutSnapshot()
     {
         $this->factory
             ->expects($this->once())
@@ -373,7 +373,7 @@ class EventSourcedRepositoryTest extends TestCase
             ->expects($this->once())
             ->method('restoreToSnapshot')
             ->with($this->aggregateRoot)
-            ->willReturn($this->aggregateRoot)
+            ->willReturn(null)
         ;
 
         $this->store

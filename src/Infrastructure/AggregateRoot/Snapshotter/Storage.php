@@ -24,7 +24,7 @@ interface Storage
     /**
      * @throws Exception\SnapshotNotFound
      */
-    public function find(AggregateRoot $aggregate);
+    public function find(AggregateRoot $aggregate) : string;
 
-    public function store(AggregateRoot $aggregate, $snapshot);
+    public function store(AggregateRoot $aggregate, string $snapshot) : void;
 }

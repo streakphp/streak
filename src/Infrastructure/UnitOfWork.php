@@ -29,6 +29,11 @@ interface UnitOfWork
 
     public function has(Event\Producer $producer) : bool;
 
+    /**
+     * @return Event\Producer[]
+     */
+    public function uncommitted() : array;
+
     public function count() : int;
 
     /**

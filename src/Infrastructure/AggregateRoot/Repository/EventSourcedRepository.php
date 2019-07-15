@@ -60,7 +60,7 @@ class EventSourcedRepository implements Domain\AggregateRoot\Repository
             throw new Exception\ObjectNotSupported($aggregate);
         }
 
-        $aggregate = $this->snapshotter->restoreToSnapshot($aggregate);
+        $aggregate = $this->snapshotter->restoreToSnapshot($aggregate) ?: $aggregate;
 
         if (!$aggregate instanceof Domain\Event\Sourced\AggregateRoot) {
             throw new Exception\ObjectNotSupported($aggregate);

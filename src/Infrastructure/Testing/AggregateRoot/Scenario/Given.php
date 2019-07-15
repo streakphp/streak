@@ -11,7 +11,7 @@
 
 declare(strict_types=1);
 
-namespace Streak\Infrastructure\Testing\Command\Scenario;
+namespace Streak\Infrastructure\Testing\AggregateRoot\Scenario;
 
 use Streak\Domain;
 
