@@ -11,13 +11,15 @@
 
 declare(strict_types=1);
 
-namespace Streak\Infrastructure\Testing\Command;
+namespace Streak\Infrastructure\Testing\AggregateRoot;
 
 use PHPUnit\Framework\Assert;
 use Streak\Application;
 use Streak\Domain;
+use Streak\Domain\AggregateRoot;
+use Streak\Infrastructure\AggregateRoot\Snapshotter;
 use Streak\Infrastructure\EventStore\InMemoryEventStore;
-use Streak\Infrastructure\Testing\Command\Scenario\Given;
+use Streak\Infrastructure\Testing\AggregateRoot\Scenario\Given;
 use Streak\Infrastructure\UnitOfWork;
 
 /**
@@ -29,14 +31,18 @@ class Scenario implements Scenario\Given, Scenario\When, Scenario\Then
 {
     private $handler;
     private $store;
+    private $factory;
+    private $snapshotter;
     private $uow;
     private $id;
     private $events = [];
 
-    public function __construct(Application\CommandHandler $handler, InMemoryEventStore $store, UnitOfWork $uow)
+    public function __construct(Application\CommandHandler $handler, InMemoryEventStore $store, AggregateRoot\Factory $factory, Snapshotter $snapshotter, UnitOfWork $uow)
     {
         $this->handler = $handler;
         $this->store = $store;
+        $this->factory = $factory;
+        $this->snapshotter = $snapshotter;
         $this->uow = $uow;
     }
 
@@ -69,6 +75,19 @@ class Scenario implements Scenario\Given, Scenario\When, Scenario\Then
         Assert::assertNotEmpty($this->events, 'No events provided for scenario.');
 
         $this->store->clear();
+
+        $uncommitted = $this->uow->uncommitted();
+
+        Assert::assertCount(1, $uncommitted, 'Only one aggregate root should be used during command execution.');
+
+        $uncommitted = array_pop($uncommitted);
+
+        Assert::assertInstanceOf(AggregateRoot::class, $uncommitted, 'Detected event producer is not an aggregate root.');
+
+        $new = $this->factory->create($this->id);
+
+        Assert::assertTrue($new->equals($uncommitted), 'Wrong aggregate root detected.');
+
         iterator_to_array($this->uow->commit());
 
         $actual = iterator_to_array($this->store->stream());
@@ -76,5 +95,11 @@ class Scenario implements Scenario\Given, Scenario\When, Scenario\Then
         Domain\Event\Metadata::clear(...$actual);
 
         Assert::assertEquals($expected, $actual, 'Expected events don\'t match produced events.');
+
+        $this->snapshotter->takeSnapshot($uncommitted);
+        $snapshot = $this->snapshotter->restoreToSnapshot($new) ?: $uncommitted;
+
+        // if no snapshot was produced we actually compare two same objects, but its okay, we dont care at this point
+        Assert::assertEquals($snapshot, $uncommitted, 'Snapshot does not reconstitute full aggregate state.');
     }
 }

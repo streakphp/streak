@@ -54,18 +54,12 @@ class SnapshottableAggregatesSnapshotterTest extends TestCase
         $this->snapshottableAggregateRoot = $this->getMockBuilder([AggregateRoot::class, AggregateRoot\Snapshottable::class])->getMock();
     }
 
-    public function testTakingSnapshot()
+    public function testTakingSnapshotOfSnapshottableAggregateRoot()
     {
         $this->storage
             ->expects($this->never())
             ->method('find')
         ;
-
-        $snapshotter = new SnapshottableAggregatesSnapshotter($this->serializer, $this->storage);
-
-        $result = $snapshotter->takeSnapshot($this->nonSnapshottableAggregateRoot);
-
-        $this->assertSame($this->nonSnapshottableAggregateRoot, $result);
 
         $this->snapshottableAggregateRoot
             ->expects($this->once())
@@ -86,9 +80,34 @@ class SnapshottableAggregatesSnapshotterTest extends TestCase
             ->with($this->snapshottableAggregateRoot, 'serialized')
         ;
 
-        $result = $snapshotter->takeSnapshot($this->snapshottableAggregateRoot);
+        $snapshotter = new SnapshottableAggregatesSnapshotter($this->serializer, $this->storage);
+        $snapshotter->takeSnapshot($this->snapshottableAggregateRoot);
+    }
 
-        $this->assertSame($this->snapshottableAggregateRoot, $result);
+    public function testTakingSnapshotOfNonSnapshottableAggregateRoot()
+    {
+        $this->storage
+            ->expects($this->never())
+            ->method('find')
+        ;
+
+        $this->snapshottableAggregateRoot
+            ->expects($this->never())
+            ->method('toMemento')
+        ;
+
+        $this->serializer
+            ->expects($this->never())
+            ->method('serialize')
+        ;
+
+        $this->storage
+            ->expects($this->never())
+            ->method('store')
+        ;
+
+        $snapshotter = new SnapshottableAggregatesSnapshotter($this->serializer, $this->storage);
+        $snapshotter->takeSnapshot($this->nonSnapshottableAggregateRoot);
     }
 
     public function testRestoringWhenSnapshotFound()
@@ -100,9 +119,7 @@ class SnapshottableAggregatesSnapshotterTest extends TestCase
 
         $snapshotter = new SnapshottableAggregatesSnapshotter($this->serializer, $this->storage);
 
-        $result = $snapshotter->restoreToSnapshot($this->nonSnapshottableAggregateRoot);
-
-        $this->assertSame($this->nonSnapshottableAggregateRoot, $result);
+        $this->assertNull($snapshotter->restoreToSnapshot($this->nonSnapshottableAggregateRoot));
 
         $this->storage
             ->expects($this->at(0))
@@ -150,8 +167,6 @@ class SnapshottableAggregatesSnapshotterTest extends TestCase
             ->method('fromMemento')
         ;
 
-        $result = $snapshotter->restoreToSnapshot($this->snapshottableAggregateRoot);
-
-        $this->assertSame($this->snapshottableAggregateRoot, $result);
+        $this->assertNull($snapshotter->restoreToSnapshot($this->snapshottableAggregateRoot));
     }
 }

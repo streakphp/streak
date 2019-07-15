@@ -21,7 +21,7 @@ use Streak\Infrastructure\Serializer;
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-class SnapshottableAggregatesSnapshotter implements Snapshotter
+final class SnapshottableAggregatesSnapshotter implements Snapshotter
 {
     private $serializer;
     private $storage;
@@ -32,16 +32,16 @@ class SnapshottableAggregatesSnapshotter implements Snapshotter
         $this->storage = $storage;
     }
 
-    public function restoreToSnapshot(AggregateRoot $aggregate) : AggregateRoot
+    public function restoreToSnapshot(AggregateRoot $aggregate) : ?AggregateRoot
     {
         if (!$aggregate instanceof AggregateRoot\Snapshottable) {
-            return $aggregate;
+            return null;
         }
 
         try {
             $serialized = $this->storage->find($aggregate);
         } catch (SnapshotNotFound $e) {
-            return $e->aggregate();
+            return null;
         }
 
         $memento = $this->serializer->unserialize($serialized);
@@ -50,17 +50,15 @@ class SnapshottableAggregatesSnapshotter implements Snapshotter
         return $aggregate;
     }
 
-    public function takeSnapshot(AggregateRoot $aggregate) : AggregateRoot
+    public function takeSnapshot(AggregateRoot $aggregate) : void
     {
         if (!$aggregate instanceof AggregateRoot\Snapshottable) {
-            return $aggregate;
+            return;
         }
 
         $memento = $aggregate->toMemento();
         $serialized = $this->serializer->serialize($memento);
 
         $this->storage->store($aggregate, $serialized);
-
-        return $aggregate;
     }
 }

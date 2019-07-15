@@ -11,14 +11,14 @@
 
 declare(strict_types=1);
 
-namespace Streak\Infrastructure\Testing\Command\Scenario;
+namespace Streak\Infrastructure\Testing\AggregateRoot\Scenario;
 
-use Streak\Domain;
+use Streak\Application;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-interface Then
+interface When
 {
-    public function then(Domain\Event ...$events) : void;
+    public function when(Application\Command $command) : Then;
 }

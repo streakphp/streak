@@ -84,6 +84,7 @@ class EventStoreUnitOfWorkTest extends TestCase
 
         $uow = new EventStoreUnitOfWork($this->store);
 
+        $this->assertEmpty($uow->uncommitted());
         $this->assertEquals(0, $uow->count());
         $this->assertFalse($uow->has($object1));
         $this->assertFalse($uow->has($object2));
@@ -92,6 +93,7 @@ class EventStoreUnitOfWorkTest extends TestCase
 
         $uow->remove($object1);
 
+        $this->assertEmpty($uow->uncommitted());
         $this->assertEquals(0, $uow->count());
         $this->assertFalse($uow->has($object1));
         $this->assertFalse($uow->has($object2));
@@ -100,6 +102,7 @@ class EventStoreUnitOfWorkTest extends TestCase
 
         $uow->add($object1);
 
+        $this->assertSame([$object1], $uow->uncommitted());
         $this->assertEquals(1, $uow->count());
         $this->assertTrue($uow->has($object1));
         $this->assertFalse($uow->has($object2));
@@ -108,6 +111,7 @@ class EventStoreUnitOfWorkTest extends TestCase
 
         $uow->add($object2);
 
+        $this->assertSame([$object1, $object2], $uow->uncommitted());
         $this->assertEquals(2, $uow->count());
         $this->assertTrue($uow->has($object1));
         $this->assertTrue($uow->has($object2));
@@ -116,6 +120,7 @@ class EventStoreUnitOfWorkTest extends TestCase
 
         $uow->remove($object2);
 
+        $this->assertSame([$object1], $uow->uncommitted());
         $this->assertEquals(1, $uow->count());
         $this->assertTrue($uow->has($object1));
         $this->assertFalse($uow->has($object2));
@@ -124,6 +129,7 @@ class EventStoreUnitOfWorkTest extends TestCase
 
         $uow->add($object3);
 
+        $this->assertSame([$object1, $object3], $uow->uncommitted());
         $this->assertEquals(2, $uow->count());
         $this->assertTrue($uow->has($object1));
         $this->assertFalse($uow->has($object2));
@@ -132,6 +138,7 @@ class EventStoreUnitOfWorkTest extends TestCase
 
         $uow->add($object4);
 
+        $this->assertSame([$object1, $object3, $object4], $uow->uncommitted());
         $this->assertEquals(3, $uow->count());
         $this->assertTrue($uow->has($object1));
         $this->assertFalse($uow->has($object2));
@@ -163,6 +170,7 @@ class EventStoreUnitOfWorkTest extends TestCase
         $commited = $uow->commit();
         $commited = iterator_to_array($commited);
 
+        $this->assertEmpty($uow->uncommitted());
         $this->assertSame([$object1, $object3, $object4], $commited);
         $this->assertTrue($object1->commited());
         $this->assertFalse($object2->commited());

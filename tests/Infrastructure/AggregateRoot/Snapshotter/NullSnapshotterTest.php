@@ -38,7 +38,8 @@ class NullSnapshotterTest extends TestCase
     {
         $snapshotter = new NullSnapshotter();
 
-        $this->assertSame($this->aggregate1, $snapshotter->restoreToSnapshot($this->aggregate1));
-        $this->assertSame($this->aggregate1, $snapshotter->takeSnapshot($this->aggregate1));
+        $this->assertNull($snapshotter->restoreToSnapshot($this->aggregate1));
+        $snapshotter->takeSnapshot($this->aggregate1);
+        $this->assertNull($snapshotter->restoreToSnapshot($this->aggregate1));
     }
 }

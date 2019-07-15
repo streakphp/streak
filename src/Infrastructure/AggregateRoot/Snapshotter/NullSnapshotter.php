@@ -17,17 +17,18 @@ use Streak\Domain\AggregateRoot;
 use Streak\Infrastructure\AggregateRoot\Snapshotter;
 
 /**
+ * Snapshotting is effectively turned off if this snapshotter is used.
+ *
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
 class NullSnapshotter implements Snapshotter
 {
-    public function restoreToSnapshot(AggregateRoot $aggregate) : AggregateRoot
+    public function restoreToSnapshot(AggregateRoot $aggregate) : ?AggregateRoot
     {
-        return $aggregate;
+        return null;
     }
 
-    public function takeSnapshot(AggregateRoot $aggregate) : AggregateRoot
+    public function takeSnapshot(AggregateRoot $aggregate) : void
     {
-        return $aggregate;
     }
 }

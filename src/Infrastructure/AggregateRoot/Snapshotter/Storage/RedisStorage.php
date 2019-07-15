@@ -22,7 +22,7 @@ use Streak\Infrastructure\Resettable;
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-class RedisStorage implements Storage, Resettable
+final class RedisStorage implements Storage, Resettable
 {
     private $redis;
 
@@ -31,18 +31,21 @@ class RedisStorage implements Storage, Resettable
         $this->redis = $client;
     }
 
-    public function find(AggregateRoot $aggregate) : ?string
+    /**
+     * @throws Exception\SnapshotNotFound
+     */
+    public function find(AggregateRoot $aggregate) : string
     {
-        $snasphot = $this->redis->get($this->key($aggregate));
+        $snapshot = $this->redis->get($this->key($aggregate));
 
-        if (false === $snasphot) {
+        if (false === $snapshot) {
             throw new SnapshotNotFound($aggregate);
         }
 
-        return $snasphot;
+        return $snapshot;
     }
 
-    public function store(AggregateRoot $aggregate, $snapshot)
+    public function store(AggregateRoot $aggregate, string $snapshot) : void
     {
         $this->redis->set($this->key($aggregate), (string) $snapshot);
     }
