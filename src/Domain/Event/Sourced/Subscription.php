@@ -117,8 +117,8 @@ final class Subscription implements Event\Subscription, Event\Sourced, Versionab
         foreach ($stream as $event) {
             try {
                 $this->applyEvent(new SubscriptionListenedToEvent($event, $this->nextExpectedVersion(), $this->clock->now()));
-            } catch (Exception\EventNotProcessed $exception) {
-                $this->applyEvent(new SubscriptionIgnoredEvent($exception->event()->event(), $this->nextExpectedVersion(), $this->clock->now()));
+            } catch (Exception\EventIgnored $exception) {
+                $this->applyEvent(new SubscriptionIgnoredEvent($exception->event(), $this->nextExpectedVersion(), $this->clock->now()));
             }
 
             if ($this->listener instanceof Event\Listener\Completable) {
@@ -245,10 +245,10 @@ final class Subscription implements Event\Subscription, Event\Sourced, Versionab
             }
         }
 
-        $processed = $this->listener->on($original);
+        $listenedTo = $this->listener->on($original);
 
-        if (false === $processed) {
-            throw new Exception\EventNotProcessed($event);
+        if (false === $listenedTo) {
+            throw new Exception\EventIgnored($original);
         }
 
         $this->starting = false;

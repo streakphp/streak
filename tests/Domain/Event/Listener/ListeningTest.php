@@ -18,6 +18,7 @@ use Streak\Domain\Event\Listener\ListeningTest\ListeningStub;
 use Streak\Domain\Event\Listener\ListeningTest\SupportedEvent1;
 use Streak\Domain\Event\Listener\ListeningTest\SupportedEvent2;
 use Streak\Domain\Event\Listener\ListeningTest\SupportedEvent3ThatCausesException;
+use Streak\Domain\Event\Listener\ListeningTest\SupportedEvent4;
 use Streak\Domain\Event\Listener\ListeningTest\UnsupportedEvent1;
 use Streak\Domain\Event\Listener\ListeningTest\UnsupportedEvent2;
 
@@ -98,6 +99,59 @@ class ListeningTest extends TestCase
             throw $actual;
         }
     }
+
+    /**
+     * @dataProvider listeningMethodReturnsNonBooleanValueDataProvider
+     */
+    public function testListeningMethodReturnsNonBooleanValue($returnedValue, \UnexpectedValueException $expectedException)
+    {
+        $this->expectExceptionObject($expectedException);
+
+        $listener = new ListeningStub();
+        $listener->on(new SupportedEvent4($returnedValue));
+    }
+
+    public function testListeningMethodReturnsTrue()
+    {
+        $listener = new ListeningStub();
+        $isEventListenedTo = $listener->on(new SupportedEvent4(true));
+
+        $this->assertTrue($isEventListenedTo);
+    }
+
+    public function testListeningMethodReturnsFalse()
+    {
+        $listener = new ListeningStub();
+        $isEventListenedTo = $listener->on(new SupportedEvent4(false));
+
+        $this->assertFalse($isEventListenedTo);
+    }
+
+    public function listeningMethodReturnsNonBooleanValueDataProvider()
+    {
+        return [
+            // integers
+            [-128, new \UnexpectedValueException('Value returned by ListeningStub::onSupportedEvent4($event) expected to be null or boolean, but integer was given.')],
+            [-1, new \UnexpectedValueException('Value returned by ListeningStub::onSupportedEvent4($event) expected to be null or boolean, but integer was given.')],
+            [0, new \UnexpectedValueException('Value returned by ListeningStub::onSupportedEvent4($event) expected to be null or boolean, but integer was given.')],
+            [128, new \UnexpectedValueException('Value returned by ListeningStub::onSupportedEvent4($event) expected to be null or boolean, but integer was given.')],
+            // floats
+            [-128.555, new \UnexpectedValueException('Value returned by ListeningStub::onSupportedEvent4($event) expected to be null or boolean, but double was given.')],
+            [-1.555, new \UnexpectedValueException('Value returned by ListeningStub::onSupportedEvent4($event) expected to be null or boolean, but double was given.')],
+            [0.0, new \UnexpectedValueException('Value returned by ListeningStub::onSupportedEvent4($event) expected to be null or boolean, but double was given.')],
+            [128.555, new \UnexpectedValueException('Value returned by ListeningStub::onSupportedEvent4($event) expected to be null or boolean, but double was given.')],
+            // arrays
+            [[], new \UnexpectedValueException('Value returned by ListeningStub::onSupportedEvent4($event) expected to be null or boolean, but array was given.')],
+            [[0, 0.0, null, []], new \UnexpectedValueException('Value returned by ListeningStub::onSupportedEvent4($event) expected to be null or boolean, but array was given.')],
+            [[1, 1.55, new \stdClass()], new \UnexpectedValueException('Value returned by ListeningStub::onSupportedEvent4($event) expected to be null or boolean, but array was given.')],
+            // objects
+            [new \stdClass(), new \UnexpectedValueException('Value returned by ListeningStub::onSupportedEvent4($event) expected to be null or boolean, but object was given.')],
+            [new SupportedEvent1(), new \UnexpectedValueException('Value returned by ListeningStub::onSupportedEvent4($event) expected to be null or boolean, but object was given.')],
+            // strings
+            ['', new \UnexpectedValueException('Value returned by ListeningStub::onSupportedEvent4($event) expected to be null or boolean, but string was given.')],
+            ['qwerty', new \UnexpectedValueException('Value returned by ListeningStub::onSupportedEvent4($event) expected to be null or boolean, but string was given.')],
+        ];
+    }
 }
 
 namespace Streak\Domain\Event\Listener\ListeningTest;
@@ -144,6 +198,16 @@ class ListeningStub
     public function onSupportedEvent3ThatCausesException(SupportedEvent3ThatCausesException $event3)
     {
         throw new \InvalidArgumentException('SupportedEvent3ThatCausesException');
+    }
+
+    public function onSupportedEvent4(SupportedEvent4 $event4)
+    {
+        return $event4->value();
+    }
+
+    public function onSupportedEvent4ButReturnValueIsNotVoidOrBoolean(SupportedEvent4 $event4) : string
+    {
+        return 'string';
     }
 
     public function listened() : array
@@ -205,6 +269,20 @@ class SupportedEvent2 implements Event
 }
 class SupportedEvent3ThatCausesException implements Event
 {
+}
+class SupportedEvent4 implements Event
+{
+    private $value;
+
+    public function __construct($value)
+    {
+        $this->value = $value;
+    }
+
+    public function value()
+    {
+        return $this->value;
+    }
 }
 class UnsupportedEvent1 implements Event
 {

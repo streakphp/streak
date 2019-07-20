@@ -13,25 +13,25 @@ declare(strict_types=1);
 
 namespace Streak\Domain\Event\Subscription\Exception;
 
-use Streak\Domain\Event\Sourced\Subscription\Event;
+use Streak\Domain\Event;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-class EventNotProcessed extends \RuntimeException
+class EventIgnored extends \RuntimeException
 {
     private $event;
 
-    public function __construct(Event\SubscriptionListenedToEvent $event)
+    public function __construct(Event $event)
     {
         $this->event = $event;
 
-        $message = sprintf('Event "%s" was not processed.', get_class($event->event()));
+        $message = sprintf('Event "%s" was ignored.', get_class($event));
 
         parent::__construct($message);
     }
 
-    public function event() : Event\SubscriptionListenedToEvent
+    public function event() : Event
     {
         return $this->event;
     }

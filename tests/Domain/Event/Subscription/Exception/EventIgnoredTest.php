@@ -16,31 +16,29 @@ namespace Streak\Domain\Event\Subscription\Exception;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Streak\Domain\Event;
-use Streak\Domain\Event\Sourced\Subscription\Event\SubscriptionListenedToEvent;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  *
- * @covers \Streak\Domain\Event\Subscription\Exception\EventNotProcessed
+ * @covers \Streak\Domain\Event\Subscription\Exception\EventIgnored
  */
-class EventNotProcessedTest extends TestCase
+class EventIgnoredTest extends TestCase
 {
     /**
-     * @var SubscriptionListenedToEvent|MockObject
+     * @var Event|MockObject
      */
     private $event;
 
     protected function setUp()
     {
         $this->event = $this->getMockBuilder(Event::class)->setMockClassName('event1')->getMockForAbstractClass();
-        $this->event = new SubscriptionListenedToEvent($this->event, 1, new \DateTime());
     }
 
     public function testException()
     {
-        $exception = new EventNotProcessed($this->event);
+        $exception = new EventIgnored($this->event);
 
-        $this->assertSame('Event "event1" was not processed.', $exception->getMessage());
+        $this->assertSame('Event "event1" was ignored.', $exception->getMessage());
         $this->assertSame($this->event, $exception->event());
     }
 }
