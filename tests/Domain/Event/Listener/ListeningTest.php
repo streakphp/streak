@@ -190,6 +190,11 @@ class ListeningStub
         $this->listenerMethodWithNullableEventActivated = true;
     }
 
+    public function onSupportedEvent1ButReturnValueIsNotVoidOrBoolean(SupportedEvent1 $event1) : string
+    {
+        return 'string';
+    }
+
     public function onObjectWhichIsNotSubclassOfEvent(\stdClass $event)
     {
         $this->listenerMethodWithNullableEventActivated = true;
@@ -203,11 +208,6 @@ class ListeningStub
     public function onSupportedEvent4(SupportedEvent4 $event4)
     {
         return $event4->value();
-    }
-
-    public function onSupportedEvent4ButReturnValueIsNotVoidOrBoolean(SupportedEvent4 $event4) : string
-    {
-        return 'string';
     }
 
     public function listened() : array
