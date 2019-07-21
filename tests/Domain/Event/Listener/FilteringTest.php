@@ -53,9 +53,9 @@ class FilteringTest extends TestCase
         $this->assertSame($this->stream, $stream);
     }
 
-    public function testFilteringWithAnError()
+    public function testFilteringWithEventThaIsNotFinal()
     {
-        $this->expectExceptionObject(new \InvalidArgumentException('Event class must be final in order to be used for stream filtering.'));
+        $this->expectExceptionObject(new \InvalidArgumentException('Event class "Streak\Domain\Event\Listener\FilteringTest\NotSupportedEvent1" must be final in order to be used for stream filtering.'));
 
         $filterer = new FilteringTest\ListeningStub2();
         $filterer->filter($this->stream);
