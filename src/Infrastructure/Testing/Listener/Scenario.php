@@ -17,7 +17,6 @@ use PHPUnit\Framework\Assert;
 use Streak\Application;
 use Streak\Domain;
 use Streak\Domain\Event;
-use Streak\Infrastructure\CommandBus\SynchronousCommandBus;
 use Streak\Infrastructure\Event\InMemoryStream;
 use Streak\Infrastructure\Testing\Listener\Scenario\Then;
 
@@ -29,19 +28,9 @@ use Streak\Infrastructure\Testing\Listener\Scenario\Then;
 class Scenario implements Scenario\Given, Scenario\When, Scenario\Then, Application\CommandHandler
 {
     /**
-     * @var Application\Command[]
-     */
-    private $dispatchedCommands = [];
-
-    /**
      * @var Application\CommandBus
      */
     private $bus;
-
-    /**
-     * @var Event\Listener|Event\Replayable|Event\Listener\Completable
-     */
-    private $listener;
 
     /**
      * @var Event\Listener\Factory
@@ -49,14 +38,19 @@ class Scenario implements Scenario\Given, Scenario\When, Scenario\Then, Applicat
     private $factory;
 
     /**
+     * @var Event[]
+     */
+    private $given = [];
+
+    /**
      * @var Event
      */
     private $when;
 
     /**
-     * @var \Throwable[]
+     * @var Application\Command[]
      */
-    private $expectedErrors = [];
+    private $actualCommands = [];
 
     /**
      * @var Application\Command[]
@@ -64,44 +58,26 @@ class Scenario implements Scenario\Given, Scenario\When, Scenario\Then, Applicat
     private $expectedCommands = [];
 
     /**
-     * @var bool
+     * @var \Throwable[]
      */
-    private $expectedCompletion;
+    private $expectedErrors = [];
 
-    public function __construct(SynchronousCommandBus $bus, Event\Listener\Factory $factory)
+    public function __construct(Application\CommandBus $bus, Event\Listener\Factory $factory)
     {
         $this->bus = $bus;
-        $this->factory = $factory;
         $this->bus->register($this);
+        $this->factory = $factory;
     }
 
     public function given(Domain\Event ...$events) : Scenario\When
     {
-        $first = array_shift($events);
-
-        if (null === $first) {
-            return $this;
-        }
-
-        $this->listener = $this->factory->createFor($first);
-
-        if ($this->listener instanceof Event\Replayable) {
-            $this->listener->replay(new InMemoryStream($first, ...$events));
-
-            return $this;
-        }
-
-        Assert::assertEmpty($events, 'Listener is not replayable. Only first starting event is expected for such listener.');
+        $this->given = $events;
 
         return $this;
     }
 
     public function when(Domain\Event $event) : Scenario\Then
     {
-        if (null === $this->listener) {
-            $this->listener = $this->factory->createFor($event);
-        }
-
         $this->when = $event;
 
         return $this;
@@ -109,42 +85,51 @@ class Scenario implements Scenario\Given, Scenario\When, Scenario\Then, Applicat
 
     public function then(Application\Command $command = null, \Throwable $error = null) : Then
     {
-        $this->expectedErrors[] = $error;
         $this->expectedCommands[] = $command;
+        $this->expectedErrors[] = $error;
 
         return $this;
     }
 
-    public function completed(bool $completed) : Then
+    public function assert(callable $constraint = null) : void
     {
-        $this->expectedCompletion = $completed;
+        $first = array_shift($this->given);
 
-        return $this;
-    }
+        if (null !== $first) {
+            $listener = $this->factory->createFor($first);
 
-    public function run() : void
-    {
-        if ($this->listener instanceof Event\Filterer) {
+            if ($listener instanceof Event\Replayable) {
+                $listener->replay(new InMemoryStream($first, ...$this->given));
+            }
+        } else {
+            $listener = $this->factory->createFor($this->when);
+        }
+
+        if ($listener instanceof Event\Filterer) {
             $stream = new InMemoryStream($this->when);
-            $stream = $this->listener->filter($stream);
+            $stream = $listener->filter($stream);
             $stream = iterator_to_array($stream);
 
             Assert::assertEquals([$this->when], $stream, sprintf('Listener is not listening to %s event.', get_class($this->when)));
         }
 
-        $this->expectedCommands = array_filter($this->expectedCommands);
-        $this->listener->on($this->when);
+        Assert::assertNotEmpty($this->expectedCommands, 'At least one then() clause is required.');
 
-        Assert::assertEquals($this->expectedCommands, $this->dispatchedCommands);
-        if (null !== $this->expectedCompletion) {
-            Assert::assertInstanceOf(Event\Listener\Completable::class, $this->listener, 'Listener is not completable.');
-            Assert::assertSame($this->expectedCompletion, $this->listener->completed());
+        $this->expectedCommands = array_filter($this->expectedCommands); // cleanup
+        $listener->on($this->when);
+
+        Assert::assertEquals($this->expectedCommands, $this->actualCommands, 'Expected commands do not match actual commands dispatched by the listener.');
+
+        if (null === $constraint) {
+            $constraint = function (Event\Listener $listener) {};
         }
+
+        $constraint($listener);
     }
 
     public function handle(Application\Command $command) : void
     {
-        $this->dispatchedCommands[] = $command;
+        $this->actualCommands[] = $command;
 
         $error = array_shift($this->expectedErrors);
         if (null !== $error) {

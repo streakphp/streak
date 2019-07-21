@@ -22,7 +22,5 @@ interface Then
 {
     public function then(Application\Command $command = null, \Throwable $error = null) : Then;
 
-    public function completed(bool $completed) : Then;
-
-    public function run() : void;
+    public function assert(callable $constraint = null) : void;
 }

@@ -26,36 +26,21 @@ use Streak\Infrastructure\Testing\Listener;
  */
 abstract class TestCase extends \PHPUnit\Framework\TestCase
 {
-    private $bus;
-    private $scenarioExecuted;
-
-    public function setUp()
-    {
-        $this->bus = new SynchronousCommandBus();
-        $this->scenarioExecuted = false;
-    }
-
-    public function getCommandBus() : SynchronousCommandBus
-    {
-        return $this->bus;
-    }
-
     public function given(Domain\Event ...$events) : Scenario\When
     {
-        if (true === $this->scenarioExecuted) {
-            $message = 'Scenario already executed.';
-            throw new \BadMethodCallException($message);
-        }
+        $bus = new SynchronousCommandBus();
+        $factory = $this->createFactory($bus);
 
-        $this->scenarioExecuted = true;
-
-        return $this->createScenario()->given(...$events);
+        return $this
+            ->createScenario($bus, $factory)
+            ->given(...$events)
+        ;
     }
 
     abstract public function createFactory(Application\CommandBus $bus) : Event\Listener\Factory;
 
-    private function createScenario() : Listener\Scenario
+    private function createScenario(Application\CommandBus $bus, Event\Listener\Factory $factory) : Listener\Scenario
     {
-        return new Listener\Scenario($this->getCommandBus(), $this->createFactory($this->getCommandBus()));
+        return new Listener\Scenario($bus, $factory);
     }
 }
