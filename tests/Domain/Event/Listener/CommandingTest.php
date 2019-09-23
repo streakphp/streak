@@ -44,8 +44,8 @@ class CommandingTest extends TestCase
             ->expects($this->exactly(2))
             ->method('dispatch')
             ->withConsecutive(
-                new Command1(),
-                new Command3()
+                [new Command1()],
+                [new Command3()]
             )
         ;
         $commander = new CommandingStub($this->bus);
