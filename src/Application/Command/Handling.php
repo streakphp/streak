@@ -21,7 +21,7 @@ use Streak\Application\Exception\CommandNotSupported;
  */
 trait Handling
 {
-    public function handle(Command $command)
+    public function handle(Command $command) : void
     {
         $reflection = new \ReflectionObject($this);
 
@@ -36,9 +36,16 @@ trait Handling
                 continue;
             }
 
-            // ...and its name must start with "handle"
+            // ...and its name must start with "handle"...
             if ('handle' !== \mb_substr($method->getName(), 0, 6)) {
                 continue;
+            }
+
+            // .. and if it has return type it must be void...
+            if ($method->hasReturnType()) {
+                if ('void' !== $method->getReturnType()->getName()) {
+                    continue;
+                }
             }
 
             // ...and have exactly one parameter...
@@ -68,7 +75,9 @@ trait Handling
                 }
             }
 
-            return $method->invoke($this, $command);
+            $method->invoke($this, $command);
+
+            return;
         }
 
         throw new CommandNotSupported($command);
