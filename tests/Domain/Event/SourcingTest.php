@@ -358,6 +358,10 @@ class EventSourcedAggregateRootStub implements Event\Consumer
     private function applyNonEvent(\stdClass $parameter)
     {
     }
+
+    private function applySomethingElse($parameters)
+    {
+    }
 }
 
 class EventStubForTestingPublicHandlingMethod implements Event

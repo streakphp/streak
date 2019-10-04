@@ -147,6 +147,11 @@ trait Sourcing // implements Event\Consumer, Event\Producer, Domain\Identifiable
             $parameter = $method->getParameters()[0];
             $parameter = $parameter->getClass();
 
+            // ..and its has class...
+            if (null === $parameter) {
+                continue;
+            }
+
             // ..and its an event...
             if (false === $parameter->isSubclassOf(Event::class)) {
                 continue;
