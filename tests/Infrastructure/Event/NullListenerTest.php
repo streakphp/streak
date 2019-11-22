@@ -16,6 +16,7 @@ namespace Streak\Infrastructure\Event;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Streak\Domain\Event;
+use Streak\Domain\Id\UUID;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -44,6 +45,7 @@ class NullListenerTest extends TestCase
         $this->listener = $this->getMockBuilder(Event\Listener::class)->setMethods(['replay', 'reset', 'completed'])->getMockForAbstractClass();
         $this->id = $this->getMockBuilder(Event\Listener\Id::class)->getMockForAbstractClass();
         $this->event = $this->getMockBuilder(Event::class)->getMockForAbstractClass();
+        $this->event = Event\Envelope::new($this->event, UUID::random());
     }
 
     public function testObject()

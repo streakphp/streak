@@ -18,7 +18,7 @@ use Streak\Domain\Event;
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-interface Replayable // Rename to Event\Listener\Replayable
+interface Replayable // TODO: Rename to Event\Listener\Replayable
 {
     public function replay(Event\Stream $events) : void;
 }

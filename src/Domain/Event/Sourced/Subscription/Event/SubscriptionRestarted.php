@@ -24,24 +24,17 @@ class SubscriptionRestarted implements Subscription\Event
     const DATE_FORMAT = 'U.u';
 
     private $event;
-    private $version;
     private $timestamp;
 
-    public function __construct(Event $originallyStartedBy, int $version, \DateTimeInterface $timestamp)
+    public function __construct(Event\Envelope $originallyStartedBy, \DateTimeInterface $timestamp)
     {
         $this->event = $originallyStartedBy;
-        $this->version = $version;
         $this->timestamp = $timestamp->format(self::DATE_FORMAT);
     }
 
-    public function originallyStartedBy() : Event
+    public function originallyStartedBy() : Event\Envelope
     {
         return $this->event;
-    }
-
-    public function subscriptionVersion() : int
-    {
-        return $this->version;
     }
 
     public function timestamp() : \DateTimeImmutable

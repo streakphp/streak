@@ -53,7 +53,7 @@ class CompositeFactory implements Event\Listener\Factory
     /**
      * @throws InvalidEventGiven
      */
-    public function createFor(Event $event) : Event\Listener
+    public function createFor(Event\Envelope $event) : Event\Listener
     {
         throw new \BadMethodCallException();
     }

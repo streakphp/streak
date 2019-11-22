@@ -15,6 +15,7 @@ namespace Streak\Infrastructure\EventBus;
 
 use PHPUnit\Framework\TestCase;
 use Streak\Domain\Event;
+use Streak\Domain\Id\UUID;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -60,8 +61,11 @@ class InMemoryEventBusTest extends TestCase
         $this->listener3 = $this->getMockBuilder(Event\Listener::class)->setMockClassName('listener3')->getMockForAbstractClass();
 
         $this->event1 = $this->getMockBuilder(Event::class)->setMockClassName('event1')->getMockForAbstractClass();
+        $this->event1 = Event\Envelope::new($this->event1, UUID::random());
         $this->event2 = $this->getMockBuilder(Event::class)->setMockClassName('event2')->getMockForAbstractClass();
+        $this->event2 = Event\Envelope::new($this->event2, UUID::random());
         $this->event3 = $this->getMockBuilder(Event::class)->setMockClassName('event3')->getMockForAbstractClass();
+        $this->event3 = Event\Envelope::new($this->event3, UUID::random());
     }
 
     public function testBus()

@@ -33,9 +33,8 @@ class SubscriptionListenersStateChangedTest extends TestCase
 
     public function testObject()
     {
-        $event = new SubscriptionListenersStateChanged($this->state, 1, $now = new \DateTimeImmutable());
+        $event = new SubscriptionListenersStateChanged($this->state, $now = new \DateTimeImmutable());
 
-        $this->assertSame(1, $event->subscriptionVersion());
         $this->assertEquals($now, $event->timestamp());
         $this->assertNotSame($event->state(), $event->state());
         $this->assertTrue($event->state()->equals($this->state));

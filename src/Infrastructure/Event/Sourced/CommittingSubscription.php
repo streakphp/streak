@@ -67,7 +67,7 @@ class CommittingSubscription implements Subscription, Subscription\Decorator
         }
     }
 
-    public function startFor(Event $event) : void
+    public function startFor(Event\Envelope $event) : void
     {
         try {
             $this->uow->add($this->subscription);

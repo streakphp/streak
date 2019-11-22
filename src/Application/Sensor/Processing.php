@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Streak\Application\Sensor;
 
 use Streak\Domain\Event;
+use Streak\Domain\Id;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -24,13 +25,15 @@ trait Processing
     private $events = [];
     private $last;
 
-    final public function last() : ?Event
+    abstract public function producerId() : Id;
+
+    final public function last() : ?Event\Envelope
     {
         return $this->last;
     }
 
     /**
-     * @return Event[]
+     * @return Event\Envelope[]
      */
     final public function events() : array
     {
@@ -145,6 +148,6 @@ trait Processing
 
     final private function addEvent(Event $event) : void
     {
-        $this->pending[] = $event;
+        $this->pending[] = Event\Envelope::new($event, $this->producerId());
     }
 }

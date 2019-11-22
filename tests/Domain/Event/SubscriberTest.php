@@ -21,6 +21,7 @@ use Streak\Domain\Event\Sourced\Subscription\Event\SubscriptionListenedToEvent;
 use Streak\Domain\Event\Sourced\Subscription\Event\SubscriptionStarted;
 use Streak\Domain\EventBus;
 use Streak\Domain\EventStore;
+use Streak\Domain\Id;
 use Streak\Domain\Id\UUID;
 
 /**
@@ -84,8 +85,11 @@ class SubscriberTest extends TestCase
         $this->subscriptionsRepository = $this->getMockBuilder(Event\Subscription\Repository::class)->getMockForAbstractClass();
         $this->listener1 = $this->getMockBuilder(Event\Listener::class)->getMockForAbstractClass();
         $this->subscription1 = $this->getMockBuilder(Event\Subscription::class)->getMockForAbstractClass();
-        $this->event1 = $this->getMockBuilder(Event::class)->getMockForAbstractClass();
         $this->producer1 = $this->getMockBuilder(Event\Producer::class)->getMockForAbstractClass();
+
+        $id1 = $this->getMockBuilder(Id::class)->getMockForAbstractClass();
+        $this->event1 = $this->getMockBuilder(Event::class)->getMockForAbstractClass();
+        $this->event1 = Event\Envelope::new($this->event1, $id1);
     }
 
     public function testSubscriber()
@@ -195,15 +199,21 @@ class SubscriberTest extends TestCase
             ->method('create')
         ;
 
-        $processed = $subscriber->on(new SubscriptionStarted($this->event1, new \DateTime()));
+        $event1 = new SubscriptionStarted($this->event1, new \DateTime());
+        $event1 = Event\Envelope::new($event1, UUID::random(), 1);
+        $processed = $subscriber->on($event1);
 
         $this->assertFalse($processed);
 
-        $processed = $subscriber->on(new SubscriptionListenedToEvent($this->event1, 232344, new \DateTime()));
+        $event2 = new SubscriptionListenedToEvent($this->event1, new \DateTime());
+        $event2 = Event\Envelope::new($event2, UUID::random(), 2);
+        $processed = $subscriber->on($event2);
 
         $this->assertFalse($processed);
 
-        $processed = $subscriber->on(new SubscriptionCompleted(453534, new \DateTime()));
+        $event3 = new SubscriptionCompleted(new \DateTime());
+        $event3 = Event\Envelope::new($event3, UUID::random(), 3);
+        $processed = $subscriber->on($event3);
 
         $this->assertFalse($processed);
     }

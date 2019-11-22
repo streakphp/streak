@@ -126,24 +126,29 @@ class EventSourcedRepository implements Subscription\Repository
 
         $ids = [];
         foreach ($stream as $event) {
-            $id = $this->store->producerId($event);
-
-            if ($event instanceof SubscriptionStarted) {
-                $ids[] = $id;
+            if ($event->message() instanceof SubscriptionStarted) {
+                $ids[] = $event->producerId();
             }
 
             if (true === $filter->areCompletedSubscriptionsIgnored()) {
-                if ($event instanceof SubscriptionCompleted) {
-                    if (false !== ($key = array_search($id, $ids))) { // TODO: make it look nicer
-                        unset($ids[$key]);
+                if ($event->message() instanceof SubscriptionCompleted) {
+                    foreach ($ids as $key => $id) {
+                        if ($event->producerId()->equals($id)) {
+                            unset($ids[$key]);
+                            break;
+                        }
                     }
                 }
             }
 
-            if ($event instanceof SubscriptionRestarted) {
-                if (false === ($key = array_search($id, $ids))) { // TODO: make it look nicer
-                    $ids[] = $id;
+            if ($event->message() instanceof SubscriptionRestarted) {
+                foreach ($ids as $key => $id) {
+                    if ($event->producerId()->equals($id)) {
+                        unset($ids[$key]);
+                        break;
+                    }
                 }
+                $ids[] = $event->producerId();
             }
         }
 

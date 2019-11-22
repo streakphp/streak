@@ -20,5 +20,5 @@ use Streak\Domain\Event;
  */
 interface Consumer extends Event\Replayable
 {
-    public function lastReplayed() : ?Event; // TODO: remove (use last() instead?)
+    public function lastReplayed() : ?Event\Envelope; // TODO: remove (use last() instead?)
 }

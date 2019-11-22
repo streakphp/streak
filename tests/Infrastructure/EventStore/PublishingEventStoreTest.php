@@ -86,8 +86,11 @@ class PublishingEventStoreTest extends TestCase
         $this->id = $this->getMockBuilder(Domain\Id::class)->getMockForAbstractClass();
 
         $this->event1 = $this->getMockBuilder(Event::class)->setMockClassName('event1')->getMockForAbstractClass();
+        $this->event1 = Event\Envelope::new($this->event1, $this->id, 1);
         $this->event2 = $this->getMockBuilder(Event::class)->setMockClassName('event2')->getMockForAbstractClass();
+        $this->event2 = Event\Envelope::new($this->event2, $this->id, 2);
         $this->event3 = $this->getMockBuilder(Event::class)->setMockClassName('event3')->getMockForAbstractClass();
+        $this->event3 = Event\Envelope::new($this->event3, $this->id, 3);
 
         $this->stream1 = $this->getMockBuilder(Event\Stream::class)->getMockForAbstractClass();
         $this->stream2 = $this->getMockBuilder(Event\Stream::class)->getMockForAbstractClass();
@@ -102,9 +105,9 @@ class PublishingEventStoreTest extends TestCase
             ->expects($this->exactly(3))
             ->method('add')
             ->withConsecutive(
-                [$this->id, null, $this->event2],
-                [$this->id, 1, $this->event2],
-                [$this->id, 2, $this->event2, $this->event3]
+                [$this->event2],
+                [$this->event2],
+                [$this->event2, $this->event3]
             )
         ;
 
@@ -118,9 +121,9 @@ class PublishingEventStoreTest extends TestCase
             )
         ;
 
-        $store->add($this->id, null, $this->event2);
-        $store->add($this->id, 1, $this->event2);
-        $store->add($this->id, 2, $this->event2, $this->event3);
+        $store->add($this->event2);
+        $store->add($this->event2);
+        $store->add($this->event2, $this->event3);
     }
 
     public function testStoringNoEvents()
@@ -138,24 +141,8 @@ class PublishingEventStoreTest extends TestCase
         ;
 
         $events = [];
-        $store->add($this->id, null, ...$events);
-        $store->add($this->id, 0, ...$events);
-    }
-
-    public function testProducerId()
-    {
-        $store = new PublishingEventStore($this->store, $this->bus);
-
-        $this->store
-            ->expects($this->once())
-            ->method('producerId')
-            ->with($this->event1)
-            ->willReturn($this->id)
-        ;
-
-        $id = $store->producerId($this->event1);
-
-        $this->assertSame($id, $this->id);
+        $store->add(...$events);
+        $store->add(...$events);
     }
 
     public function testSchemalessEventStore()

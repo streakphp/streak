@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Streak\Domain\Exception;
 
-use Streak\Domain;
 use Streak\Domain\Event;
 
 /**
@@ -24,7 +23,7 @@ class EventAndConsumerMismatch extends \LogicException
     private $consumer;
     private $event;
 
-    public function __construct(Event\Consumer $consumer, Domain\Event $event, \Throwable $previous = null)
+    public function __construct(Event\Consumer $consumer, Event\Envelope $event, \Throwable $previous = null)
     {
         $this->consumer = $consumer;
         $this->event = $event;
@@ -37,7 +36,7 @@ class EventAndConsumerMismatch extends \LogicException
         return $this->consumer;
     }
 
-    public function event() : Event
+    public function event() : Event\Envelope
     {
         return $this->event;
     }

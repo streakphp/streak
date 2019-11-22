@@ -21,6 +21,7 @@ use Streak\Application\Query;
 use Streak\Application\QueryHandler;
 use Streak\Domain\Event;
 use Streak\Domain\Event\Listener;
+use Streak\Domain\Id\UUID;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -76,6 +77,7 @@ class LoggingListenerTest extends TestCase
         $this->logger = $this->getMockBuilder(LoggerInterface::class)->getMockForAbstractClass();
         $this->listenerId = $this->getMockBuilder(Listener\Id::class)->getMockForAbstractClass();
         $this->event = $this->getMockBuilder(Event::class)->setMockClassName('EventMock001')->getMockForAbstractClass();
+        $this->event = Event\Envelope::new($this->event, UUID::random());
         $this->stream1 = $this->getMockBuilder(Event\Stream::class)->setMockClassName('stream1')->getMockForAbstractClass();
         $this->stream2 = $this->getMockBuilder(Event\Stream::class)->setMockClassName('stream2')->getMockForAbstractClass();
         $this->query = $this->getMockBuilder(Query::class)->getMockForAbstractClass();

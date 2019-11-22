@@ -13,10 +13,10 @@ declare(strict_types=1);
 
 namespace Streak\Infrastructure\EventStore;
 
-use Streak\Domain;
 use Streak\Domain\Event;
 use Streak\Domain\EventStore;
 use Streak\Domain\Exception;
+use Streak\Domain\Id;
 use Streak\Infrastructure\Event\InMemoryStream;
 
 /**
@@ -24,94 +24,52 @@ use Streak\Infrastructure\Event\InMemoryStream;
  */
 class InMemoryEventStore implements EventStore
 {
-    private $uuids = [];
     private $streams = [];
     private $all = [];
-
-    private $current = 0;
-
-    public function producerId(Event $event) : Domain\Id
-    {
-        $metadata = Event\Metadata::fromObject($event);
-
-        if ($metadata->empty()) {
-            throw new Exception\EventNotInStore($event);
-        }
-
-        $producerType = $metadata->get('producer_type');
-        $producerId = $metadata->get('producer_id');
-
-        $reflection = new \ReflectionClass($producerType);
-
-        if (!$reflection->implementsInterface(Domain\Id::class)) {
-            throw new \InvalidArgumentException(); // TODO: domain exception here
-        }
-
-        $method = $reflection->getMethod('fromString');
-
-        return $method->invoke(null, $producerId);
-    }
 
     /**
      * @throws Exception\ConcurrentWriteDetected
      * @throws Exception\EventAlreadyInStore
      */
-    public function add(Domain\Id $producerId, ?int $version, Event ...$events) : void
+    public function add(Event\Envelope ...$events) : void
     {
         if (0 === count($events)) {
             return;
         }
 
-        $type = get_class($producerId);
-        $id = $producerId->toString();
-        $stream = $type.$id;
-
-        $transaction = [
-            'uuids' => [],
-            'all' => [],
-            'stream' => [],
+        $backup = [
+            'all' => $this->all,
+            'streams' => $this->streams,
         ];
         foreach ($events as $event) {
-            $metadata = Event\Metadata::fromObject($event);
+            $producerId = $event->producerId();
+            $streamName = $this->streamName($producerId);
 
-            if (!$metadata->empty()) {
-                throw new Exception\EventAlreadyInStore($event);
-            }
-
-            $uuid = Domain\Id\UUID::create()->toString();
-
-            if (!isset($this->streams[$stream])) {
-                $this->streams[$stream] = [];
-            }
-
-            if (null === $version) { // no versioning
-                $version = count($this->streams[$stream]);
-            } else {
-                ++$version;
-                if (isset($this->streams[$stream][$version])) {
-                    throw new Exception\ConcurrentWriteDetected($producerId);
+            foreach ($this->all as $stored) {
+                if ($stored->equals($event)) {
+                    throw new Exception\EventAlreadyInStore($event);
                 }
             }
 
-            $metadata->set('uuid', $uuid);
-            $metadata->set('producer_type', get_class($producerId));
-            $metadata->set('producer_id', $producerId->toString());
+            if (!isset($this->streams[$streamName])) {
+                $this->streams[$streamName] = [];
+            }
 
-            $transaction['uuids'][] = $uuid;
-            $transaction['stream'][$version] = $event;
-            $transaction['all'][] = $event;
-            $transaction['metadata'][] = [$event, $metadata];
-        }
+            $version = $event->version();
+            if (null !== $version) {
+                if (isset($this->streams[$streamName][$version])) {
+                    // rollback
+                    $this->all = $backup['all'];
+                    $this->streams = $backup['streams'];
+                    throw new Exception\ConcurrentWriteDetected($producerId);
+                }
+            } else {
+                $version = count($this->streams[$streamName]);
+                $version = $version + 1;
+            }
 
-        $this->uuids = array_merge($this->uuids, $transaction['uuids']);
-        $this->streams[$stream] = $this->streams[$stream] + $transaction['stream'];
-        $this->all = array_merge($this->all, $transaction['all']);
-
-        foreach ($transaction['metadata'] as $pair) {
-            $event = $pair[0];
-            $metadata = $pair[1];
-            /* @var $metadata Event\Metadata */
-            $metadata->toObject($event);
+            $this->streams[$streamName][$version] = $event;
+            $this->all[] = $event;
         }
     }
 
@@ -125,26 +83,26 @@ class InMemoryEventStore implements EventStore
             return new InMemoryStream(...$this->all);
         }
 
-        $keys = [];
+        $streamNames = [];
         foreach ($filter->producerIds() as $producerId) {
-            $producerId = get_class($producerId).$producerId->toString();
+            $streamName = $this->streamName($producerId);
 
-            if (array_key_exists($producerId, $this->streams)) {
-                $keys[] = $producerId;
+            if (array_key_exists($streamName, $this->streams)) {
+                $streamNames[] = $streamName;
             }
         }
 
         foreach ($filter->producerTypes() as $producerType) {
             foreach ($this->streams as $type => $stream) {
                 if (0 === mb_strpos($type, $producerType)) {
-                    $keys[] = $type;
+                    $streamNames[] = $type;
                 }
             }
         }
 
         $streams = [];
-        foreach ($keys as $key) {
-            $streams = array_merge($streams, $this->streams[$key]);
+        foreach ($streamNames as $streamName) {
+            $streams = array_merge($streams, $this->streams[$streamName]);
         }
 
         $events = [];
@@ -161,5 +119,14 @@ class InMemoryEventStore implements EventStore
     {
         $this->streams = [];
         $this->all = [];
+    }
+
+    private function streamName(Id $producerId) : string
+    {
+        $type = get_class($producerId);
+        $id = $producerId->toString();
+        $name = $type.$id;
+
+        return $name;
     }
 }

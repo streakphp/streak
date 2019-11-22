@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace Streak\Domain\Event;
 
-use Streak\Domain;
+use Streak\Domain\Event;
 use Streak\Domain\Event\Subscription\Exception;
 use Streak\Domain\EventStore;
 
@@ -29,14 +29,14 @@ interface Subscription
     public function subscriptionId() : Listener\Id;
 
     /**
-     * @return iterable|Domain\Event[]
+     * @return iterable|Event\Envelope[]
      *
      * @throws Exception\SubscriptionAlreadyCompleted
      * @throws Exception\SubscriptionNotStartedYet
      */
     public function subscribeTo(EventStore $store, ?int $limit = null) : iterable;
 
-    public function startFor(Domain\Event $event) : void;
+    public function startFor(Event\Envelope $event) : void;
 
     /**
      * @throws Exception\SubscriptionNotStartedYet

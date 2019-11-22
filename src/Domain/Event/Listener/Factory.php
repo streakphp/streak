@@ -31,5 +31,5 @@ interface Factory
     /**
      * @throws InvalidEventGiven
      */
-    public function createFor(Event $event) : Event\Listener;
+    public function createFor(Event\Envelope $event) : Event\Listener;
 }

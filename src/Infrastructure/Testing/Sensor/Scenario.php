@@ -40,6 +40,9 @@ class Scenario implements Scenario\Given, Scenario\Then
 
     public function then(Event ...$expected) : void
     {
-        Assert::assertEquals($expected, $this->sensor->events(), 'Expected events don\'t match produced events.');
+        $actual = array_map(function (Event\Envelope $event) {
+            return $event->message();
+        }, $this->sensor->events());
+        Assert::assertEquals($expected, $actual, 'Expected events don\'t match produced events.');
     }
 }

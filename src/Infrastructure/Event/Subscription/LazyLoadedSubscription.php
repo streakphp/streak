@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace Streak\Infrastructure\Event\Subscription;
 
-use Streak\Domain;
+use Streak\Domain\Event;
 use Streak\Domain\Event\Listener;
 use Streak\Domain\Event\Subscription;
 use Streak\Domain\EventStore;
@@ -48,7 +48,7 @@ class LazyLoadedSubscription implements Subscription, Subscription\Decorator
         yield from $this->subscription()->subscribeTo($store, $limit);
     }
 
-    public function startFor(Domain\Event $event) : void
+    public function startFor(Event\Envelope $event) : void
     {
         $this->subscription()->startFor($event);
     }

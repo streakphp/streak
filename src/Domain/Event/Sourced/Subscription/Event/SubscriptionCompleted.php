@@ -22,18 +22,11 @@ class SubscriptionCompleted implements Subscription\Event
 {
     const DATE_FORMAT = 'U.u';
 
-    private $version;
     private $timestamp;
 
-    public function __construct(int $version, \DateTimeInterface $timestamp)
+    public function __construct(\DateTimeInterface $timestamp)
     {
-        $this->version = $version;
         $this->timestamp = $timestamp->format(self::DATE_FORMAT);
-    }
-
-    public function subscriptionVersion() : int
-    {
-        return $this->version;
     }
 
     public function timestamp() : \DateTimeImmutable

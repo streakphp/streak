@@ -40,7 +40,7 @@ class Factory implements Listener\Factory
         return $saga;
     }
 
-    public function createFor(Event $event) : Listener
+    public function createFor(Event\Envelope $event) : Listener
     {
         $listener = $this->factory->createFor($event);
         $listener = new LoggingListener($listener, $this->logger);

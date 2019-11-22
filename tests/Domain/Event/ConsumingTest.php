@@ -14,8 +14,9 @@ declare(strict_types=1);
 namespace Streak\Domain\Event;
 
 use PHPUnit\Framework\TestCase;
-use Streak\Domain;
-use Streak\Domain\Event\ConsumingTest\ConsumerStub;
+use Streak\Domain\Event;
+use Streak\Domain\Id;
+use Streak\Event\ConsumingTest\ConsumerStub;
 use Streak\Infrastructure\Event\InMemoryStream;
 
 /**
@@ -32,10 +33,16 @@ class ConsumingTest extends TestCase
         $this->assertEmpty($consumer->consumed());
         $this->assertNull($consumer->lastReplayed());
 
-        $event1 = $this->getMockBuilder(Domain\Event::class)->getMockForAbstractClass();
-        $event2 = $this->getMockBuilder(Domain\Event::class)->getMockForAbstractClass();
-        $event3 = $this->getMockBuilder(Domain\Event::class)->getMockForAbstractClass();
-        $event4 = $this->getMockBuilder(Domain\Event::class)->getMockForAbstractClass();
+        $producer1 = $this->getMockBuilder(Id::class)->getMockForAbstractClass();
+
+        $event1 = $this->getMockBuilder(Event::class)->getMockForAbstractClass();
+        $event1 = Event\Envelope::new($event1, $producer1);
+        $event2 = $this->getMockBuilder(Event::class)->getMockForAbstractClass();
+        $event2 = Event\Envelope::new($event2, $producer1);
+        $event3 = $this->getMockBuilder(Event::class)->getMockForAbstractClass();
+        $event3 = Event\Envelope::new($event3, $producer1);
+        $event4 = $this->getMockBuilder(Event::class)->getMockForAbstractClass();
+        $event4 = Event\Envelope::new($event4, $producer1);
 
         $events = [$event1, $event2, $event3, $event4];
 
@@ -46,9 +53,8 @@ class ConsumingTest extends TestCase
     }
 }
 
-namespace Streak\Domain\Event\ConsumingTest;
+namespace Streak\Event\ConsumingTest;
 
-use Streak\Domain;
 use Streak\Domain\Event;
 
 class ConsumerStub
@@ -57,7 +63,7 @@ class ConsumerStub
 
     private $consumed = [];
 
-    public function on(Domain\Event $event) : bool
+    public function on(Event\Envelope $event) : bool
     {
         $this->consumed[] = $event;
 
@@ -65,7 +71,7 @@ class ConsumerStub
     }
 
     /**
-     * @return Domain\Event[]
+     * @return Event[]
      */
     public function consumed() : array
     {

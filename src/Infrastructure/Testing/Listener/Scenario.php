@@ -78,6 +78,9 @@ class Scenario implements Scenario\Given, Scenario\When, Scenario\Then, Applicat
     public function given(Domain\Event ...$events) : Scenario\When
     {
         $this->given = $events;
+        $this->given = array_map(function (Domain\Event $event) {
+            return Event\Envelope::new($event, Domain\Id\UUID::random());
+        }, $this->given);
 
         return $this;
     }
@@ -85,6 +88,7 @@ class Scenario implements Scenario\Given, Scenario\When, Scenario\Then, Applicat
     public function when(Domain\Event $event) : Scenario\Then
     {
         $this->when = $event;
+        $this->when = Event\Envelope::new($this->when, Domain\Id\UUID::random());
 
         return $this;
     }

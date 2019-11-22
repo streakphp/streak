@@ -17,6 +17,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Streak\Domain\Event;
 use Streak\Domain\Event\Sourced\Subscription\Event\SubscriptionListenedToEvent;
+use Streak\Domain\Id\UUID;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -55,14 +56,23 @@ class StreamTest extends TestCase
         $this->stream = $this->getMockBuilder([Event\Stream::class, \IteratorAggregate::class])->getMock();
 
         $this->event1 = $this->getMockBuilder(Event::class)->getMockForAbstractClass();
+        $this->event1 = Event\Envelope::new($this->event1, UUID::random());
         $this->event2 = $this->getMockBuilder(Event::class)->getMockForAbstractClass();
+        $this->event2 = Event\Envelope::new($this->event2, UUID::random());
         $this->event3 = $this->getMockBuilder(Event::class)->getMockForAbstractClass();
+        $this->event3 = Event\Envelope::new($this->event3, UUID::random());
         $this->event4 = $this->getMockBuilder(Event::class)->getMockForAbstractClass();
+        $this->event4 = Event\Envelope::new($this->event4, UUID::random());
     }
 
     public function testStream()
     {
-        $this->isIteratorFor($this->stream, [$this->event1, new SubscriptionListenedToEvent($this->event2, 1, new \DateTimeImmutable()), $this->event3, new SubscriptionListenedToEvent($this->event4, 100, new \DateTimeImmutable())]);
+        $event2 = new SubscriptionListenedToEvent($this->event2, new \DateTimeImmutable());
+        $event2 = Event\Envelope::new($event2, UUID::random());
+        $event4 = new SubscriptionListenedToEvent($this->event4, new \DateTimeImmutable());
+        $event4 = Event\Envelope::new($event4, UUID::random());
+
+        $this->isIteratorFor($this->stream, [$this->event1, $event2, $this->event3, $event4]);
 
         $stream = new Stream($this->stream);
 

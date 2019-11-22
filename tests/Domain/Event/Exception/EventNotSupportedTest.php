@@ -13,9 +13,10 @@ declare(strict_types=1);
 
 namespace Streak\Domain\Event\Exception;
 
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Streak\Domain\Sensor\Event;
+use Streak\Domain;
+use Streak\Domain\Event;
+use Streak\Domain\Id\UUID;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -25,20 +26,22 @@ use Streak\Domain\Sensor\Event;
 class EventNotSupportedTest extends TestCase
 {
     /**
-     * @var Event|MockObject
+     * @var Event\Envelope
      */
     private $event;
 
     protected function setUp()
     {
-        $this->event = $this->getMockBuilder(Event::class)->getMockForAbstractClass();
+        $producerId = $this->getMockBuilder(Domain\Id::class)->getMockForAbstractClass();
+        $event = $this->getMockBuilder(Event::class)->getMockForAbstractClass();
+        $this->event = new Event\Envelope(UUID::random(), 'event', $event, $producerId, null);
     }
 
     public function testException()
     {
         $exception = new EventNotSupported($this->event);
 
-        $this->assertSame('Event not supported.', $exception->getMessage());
+        $this->assertSame('Event "event" not supported.', $exception->getMessage());
         $this->assertSame($this->event, $exception->event());
     }
 }

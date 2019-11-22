@@ -58,12 +58,13 @@ class InMemoryStreamTest extends TestCase
     protected function setUp()
     {
         $this->event1 = $this->getMockBuilder(Event::class)->setMockClassName('event1')->getMockForAbstractClass();
+        $this->event1 = Event\Envelope::new($this->event1, Id\UUID::random(), 1);
         $this->event2 = $this->getMockBuilder(Event::class)->setMockClassName('event2')->getMockForAbstractClass();
+        $this->event2 = Event\Envelope::new($this->event2, Id\UUID::random(), 1);
         $this->event3 = $this->getMockBuilder(Event::class)->setMockClassName('event3')->getMockForAbstractClass();
+        $this->event3 = Event\Envelope::new($this->event3, Id\UUID::random(), 1);
         $this->event4 = $this->getMockBuilder(Event::class)->setMockClassName('event4')->getMockForAbstractClass();
-
-        $this->id1 = $this->getMockBuilder(Id::class)->setMockClassName('id1')->getMockForAbstractClass();
-        $this->id2 = $this->getMockBuilder(Id::class)->setMockClassName('id2')->getMockForAbstractClass();
+        $this->event4 = Event\Envelope::new($this->event4, Id\UUID::random(), 1);
     }
 
     public function testStream()

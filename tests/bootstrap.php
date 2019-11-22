@@ -11,14 +11,10 @@
 
 declare(strict_types=1);
 
-namespace Streak\Domain\Event\Sourced\Subscription;
+use SebastianBergmann\Comparator;
+use Streak\Infrastructure\Event;
 
-use Streak\Domain;
+require_once __DIR__.'/../vendor/autoload.php';
 
-/**
- * @author Alan Gabriel Bem <alan.bem@gmail.com>
- */
-interface Event extends Domain\Event
-{
-    public function timestamp() : \DateTimeImmutable;
-}
+$factory = Comparator\Factory::getInstance();
+$factory->register(new Event\Envelope\Comparator());

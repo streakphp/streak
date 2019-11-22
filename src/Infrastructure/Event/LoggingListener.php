@@ -45,7 +45,7 @@ class LoggingListener implements Event\Listener, Event\Listener\Replayable, Even
         return $this->listener->listenerId();
     }
 
-    public function on(Event $event) : bool
+    public function on(Event\Envelope $event) : bool
     {
         try {
             return $this->listener->on($event);
@@ -54,7 +54,7 @@ class LoggingListener implements Event\Listener, Event\Listener\Replayable, Even
                 'listener' => get_class($this->listener),
                 'class' => get_class($exception),
                 'message' => $exception->getMessage(),
-                'event' => get_class($event),
+                'event' => get_class($event->message()),
                 'exception' => $exception,
             ]);
 
