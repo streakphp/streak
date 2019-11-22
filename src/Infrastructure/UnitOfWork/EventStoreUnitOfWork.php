@@ -29,35 +29,31 @@ class EventStoreUnitOfWork implements UnitOfWork
     private $store;
 
     /**
-     * @var array[]
+     * @var Event\Producer[]
      */
-    private $producers = [];
+    private $uncommited = [];
 
     private $committing = false;
 
     public function __construct(Domain\EventStore $store)
     {
         $this->store = $store;
-        $this->producers = [];
+        $this->uncommited = [];
     }
 
     public function add(Event\Producer $producer) : void
     {
         if (!$this->has($producer)) {
-            $version = null;
-            if ($producer instanceof Domain\Versionable) {
-                $version = $producer->version();
-            }
-            $this->producers[] = [$producer, $version];
+            $this->uncommited[] = $producer;
         }
     }
 
     public function remove(Event\Producer $producer) : void
     {
-        foreach ($this->producers as $key => [$current]) {
+        foreach ($this->uncommited as $key => $current) {
             /* @var $current Event\Producer */
             if ($current->producerId()->equals($producer->producerId())) {
-                unset($this->producers[$key]);
+                unset($this->uncommited[$key]);
 
                 return;
             }
@@ -66,7 +62,7 @@ class EventStoreUnitOfWork implements UnitOfWork
 
     public function has(Event\Producer $producer) : bool
     {
-        foreach ($this->producers as $key => [$current]) {
+        foreach ($this->uncommited as $current) {
             /* @var $current Event\Producer */
             if ($current->producerId()->equals($producer->producerId())) {
                 return true;
@@ -81,17 +77,12 @@ class EventStoreUnitOfWork implements UnitOfWork
      */
     public function uncommitted() : array
     {
-        $producers = [];
-        foreach ($this->producers as [$producer, $version]) {
-            $producers[] = $producer;
-        }
-
-        return $producers;
+        return array_values($this->uncommited);
     }
 
     public function count() : int
     {
-        return count($this->producers);
+        return count($this->uncommited);
     }
 
     public function commit() : \Generator
@@ -101,12 +92,11 @@ class EventStoreUnitOfWork implements UnitOfWork
 
             try {
                 /** @var $producer Event\Producer */
-                while ([$producer, $version] = array_shift($this->producers)) {
+                while ($producer = array_shift($this->uncommited)) {
                     try {
-                        $producerId = $producer->producerId();
                         $events = $producer->events();
 
-                        $this->store->add($producerId, $version, ...$events);
+                        $this->store->add(...$events);
 
                         if ($producer instanceof Domain\Versionable) {
                             $producer->commit();
@@ -118,7 +108,7 @@ class EventStoreUnitOfWork implements UnitOfWork
                         throw $e;
                     } catch (\Exception $e) {
                         // something unexpected occurred, so lets leave uow in state from just before it happened - we may like to retry it later...
-                        array_unshift($this->producers, [$producer, $version]);
+                        array_unshift($this->uncommited, $producer);
                         throw $e;
                     }
                 }
@@ -132,6 +122,6 @@ class EventStoreUnitOfWork implements UnitOfWork
 
     public function clear() : void
     {
-        $this->producers = [];
+        $this->uncommited = [];
     }
 }

@@ -259,6 +259,11 @@ class EventSourcedAggregateRootStub implements Event\Consumer
         $this->id = $id;
     }
 
+    public function producerId() : Domain\Id
+    {
+        return $this->id;
+    }
+
     public function applyEventStubForTestingPublicHandlingMethodApplied(EventStubForTestingPublicHandlingMethod $event)
     {
         $this->eventStubForTestingPublicHandlingMethodApplied = true;
@@ -421,7 +426,7 @@ class EventSourcedNonConsumer
         $this->id = $id;
     }
 
-    public function id() : Domain\Id
+    public function producerId() : Domain\Id
     {
         return $this->id;
     }

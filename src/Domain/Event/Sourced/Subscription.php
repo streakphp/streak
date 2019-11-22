@@ -57,7 +57,7 @@ final class Subscription implements Event\Subscription, Event\Sourced, Versionab
      *
      * @param EventStore $store
      *
-     * @return iterable|Event[]
+     * @return iterable|Event\Envelope[]
      *
      * @throws Exception\SubscriptionAlreadyCompleted
      * @throws Exception\SubscriptionNotStartedYet
@@ -71,7 +71,7 @@ final class Subscription implements Event\Subscription, Event\Sourced, Versionab
 
         $last = $this->lastEvent();
 
-        if ($last instanceof SubscriptionCompleted) {
+        if ($last->message() instanceof SubscriptionCompleted) {
             throw new Exception\SubscriptionAlreadyCompleted($this);
         }
 
@@ -84,7 +84,7 @@ final class Subscription implements Event\Subscription, Event\Sourced, Versionab
             $stream = $this->listener->filter($stream);
         }
 
-        if ($last instanceof SubscriptionStarted) {
+        if ($last->message() instanceof SubscriptionStarted) {
             $starter = $this->startedBy;
 
             if ($this->listener instanceof Event\Picker) {
@@ -94,7 +94,7 @@ final class Subscription implements Event\Subscription, Event\Sourced, Versionab
             $stream = $stream->from($starter);
         }
 
-        if ($last instanceof SubscriptionRestarted) {
+        if ($last->message() instanceof SubscriptionRestarted) {
             $starter = $this->startedBy;
 
             if ($this->listener instanceof Event\Picker) {
@@ -104,26 +104,26 @@ final class Subscription implements Event\Subscription, Event\Sourced, Versionab
             $stream = $stream->from($starter);
         }
 
-        if ($last instanceof SubscriptionListenedToEvent) {
+        if ($last->message() instanceof SubscriptionListenedToEvent) {
             // lets continue from next event after last one we have listened to
-            $stream = $stream->after($last->event());
+            $stream = $stream->after($last->message()->event());
         }
 
-        if ($last instanceof SubscriptionIgnoredEvent) {
+        if ($last->message() instanceof SubscriptionIgnoredEvent) {
             // lets continue from next event after last one we have ignored
-            $stream = $stream->after($last->event());
+            $stream = $stream->after($last->message()->event());
         }
 
         foreach ($stream as $event) {
             try {
-                $this->applyEvent(new SubscriptionListenedToEvent($event, $this->nextExpectedVersion(), $this->clock->now()));
+                $this->apply(new SubscriptionListenedToEvent($event, $this->nextExpectedVersion(), $this->clock->now()));
             } catch (Exception\EventIgnored $exception) {
-                $this->applyEvent(new SubscriptionIgnoredEvent($exception->event(), $this->nextExpectedVersion(), $this->clock->now()));
+                $this->apply(new SubscriptionIgnoredEvent($exception->event(), $this->nextExpectedVersion(), $this->clock->now()));
             }
 
             if ($this->listener instanceof Event\Listener\Completable) {
                 if ($this->listener->completed()) {
-                    $this->applyEvent(new SubscriptionCompleted($this->nextExpectedVersion(), $this->clock->now()));
+                    $this->apply(new SubscriptionCompleted($this->nextExpectedVersion(), $this->clock->now()));
                     yield $event;
                     break;
                 }
@@ -154,38 +154,37 @@ final class Subscription implements Event\Subscription, Event\Sourced, Versionab
             return;
         }
 
-        $this->applyEvent(new SubscriptionRestarted($this->startedBy, $this->nextExpectedVersion(), $this->clock->now()));
+        $this->apply(new SubscriptionRestarted($this->startedBy, $this->nextExpectedVersion(), $this->clock->now()));
     }
 
     /**
      * @see applySubscriptionStarted
      *
-     * @param Event $event
+     * @param Event\Envelope $event
      *
      * @throws \Throwable
      */
-    public function startFor(Domain\Event $event) : void
+    public function startFor(Event\Envelope $event) : void
     {
         if (true === $this->started()) {
             throw new Exception\SubscriptionAlreadyStarted($this);
         }
 
-        $this->applyEvent(new SubscriptionStarted($event, $this->clock->now()));
+        $this->apply(new SubscriptionStarted($event, $this->clock->now()));
     }
 
     public function replay(Event\Stream $stream) : void
     {
-        /** @var $last Subscription\Event */
         $last = $stream->last();
         $stream = $stream->to($last);
-        $stream = $stream->only(SubscriptionStarted::class, SubscriptionRestarted::class, SubscriptionCompleted::class, SubscriptionListenedToEvent::class); // inclusion is faster
+        $stream = $stream->only(SubscriptionStarted::class, SubscriptionRestarted::class, SubscriptionCompleted::class, SubscriptionListenedToEvent::class); // inclusion is more performant
 
         try {
             $backup = $this->listener;
             $this->listener = NullListener::from($this->listener);
             $this->doReplay($stream);
             $this->lastEvent = $last;
-            $this->version = $last->subscriptionVersion();
+            $this->version = $last->message()->subscriptionVersion();
         } finally {
             $this->listener = $backup;
         }
@@ -234,9 +233,30 @@ final class Subscription implements Event\Subscription, Event\Sourced, Versionab
         return null !== $this->completedBy;
     }
 
-    private function applySubscriptionListenedToEvent(SubscriptionListenedToEvent $event)
+    private function doApplyEvent(Event\Envelope $event) : void
     {
-        $original = $event->event();
+        if ($event->message() instanceof SubscriptionListenedToEvent) {
+            $this->applySubscriptionListenedToEvent($event);
+        }
+        if ($event->message() instanceof SubscriptionIgnoredEvent) {
+            $this->applySubscriptionIgnoredEvent();
+        }
+        if ($event->message() instanceof SubscriptionCompleted) {
+            $this->applySubscriptionCompleted();
+        }
+        if ($event->message() instanceof SubscriptionStarted) {
+            $this->applySubscriptionStarted($event);
+        }
+        if ($event->message() instanceof SubscriptionRestarted) {
+            $this->applySubscriptionRestarted($event);
+        }
+
+        throw new Event\Exception\NoEventApplyingMethodFound($this, $event);
+    }
+
+    private function applySubscriptionListenedToEvent(Event\Envelope $event)
+    {
+        $original = $event->message()->event();
 
         if (true === $this->starting) {
             // we are (re)starting subscription, lets reset listener if possible
@@ -245,7 +265,7 @@ final class Subscription implements Event\Subscription, Event\Sourced, Versionab
             }
         }
 
-        $listenedTo = $this->listener->on($original);
+        $listenedTo = $this->listener->on($event);
 
         if (false === $listenedTo) {
             throw new Exception\EventIgnored($original);
@@ -254,25 +274,25 @@ final class Subscription implements Event\Subscription, Event\Sourced, Versionab
         $this->starting = false;
     }
 
-    private function applySubscriptionIgnoredEvent(SubscriptionIgnoredEvent $event)
+    private function applySubscriptionIgnoredEvent()
     {
         $this->starting = false;
     }
 
-    private function applySubscriptionCompleted(SubscriptionCompleted $event)
+    private function applySubscriptionCompleted()
     {
         $this->completedBy = $this->lastEvent;
     }
 
-    private function applySubscriptionStarted(SubscriptionStarted $event)
+    private function applySubscriptionStarted(Event\Envelope $event)
     {
-        $this->startedBy = $event->startedBy();
+        $this->startedBy = $event->message()->startedBy();
         $this->starting = true;
     }
 
-    private function applySubscriptionRestarted(SubscriptionRestarted $event)
+    private function applySubscriptionRestarted(Event\Envelope $event)
     {
-        $this->startedBy = $event->originallyStartedBy();
+        $this->startedBy = $event->message()->originallyStartedBy();
         $this->completedBy = null;
         $this->starting = true;
     }

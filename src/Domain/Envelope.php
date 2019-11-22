@@ -11,20 +11,27 @@
 
 declare(strict_types=1);
 
-namespace Streak\Domain\Event;
+namespace Streak\Domain;
 
-use Streak\Domain\Event;
-use Streak\Domain\Identifiable;
+use Streak\Domain\Id\UUID;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-interface Listener extends Identifiable
+interface Envelope
 {
-    public function listenerId() : Listener\Id;
+    public function uuid() : UUID;
+
+    public function name() : string;
+
+    public function message();
 
     /**
-     * @return bool whether event was processed/is supported
+     * @param string $name
+     *
+     * @return int|float|string|null
      */
-    public function on(Event\Envelope $event) : bool;
+    public function get($name);
+
+    public function metadata() : array;
 }

@@ -13,18 +13,21 @@ declare(strict_types=1);
 
 namespace Streak\Domain\Event;
 
+use Streak\Domain;
 use Streak\Domain\Event;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-trait Sourcing // implements Event\Consumer, Event\Producer, Domain\Identifiable, Domain\Versionable
+trait Sourcing //implements Event\Consumer, Event\Producer, Domain\Identifiable, Domain\Versionable
 {
     private $events = [];
     private $lastEvent;
     private $replaying = false;
     private $lastReplayed;
     private $version = 0;
+
+    abstract public function producerId() : Domain\Id;
 
     /**
      * @throws \Throwable
@@ -46,12 +49,12 @@ trait Sourcing // implements Event\Consumer, Event\Producer, Domain\Identifiable
         }
     }
 
-    final public function lastReplayed() : ?Event
+    final public function lastReplayed() : ?Event\Envelope
     {
         return $this->lastReplayed;
     }
 
-    final public function lastEvent() : ?Event
+    final public function lastEvent() : ?Event\Envelope
     {
         return $this->lastEvent;
     }
@@ -62,7 +65,7 @@ trait Sourcing // implements Event\Consumer, Event\Producer, Domain\Identifiable
     }
 
     /**
-     * @return Event[]
+     * @return Event\Envelope[]
      */
     final public function events() : array
     {
@@ -75,13 +78,30 @@ trait Sourcing // implements Event\Consumer, Event\Producer, Domain\Identifiable
         $this->events = [];
     }
 
+    final private function apply(Event $event) : void
+    {
+        $event = new Event\Envelope(
+            Domain\Id\UUID::random(),
+            get_class($event),
+            $event,
+            $this->producerId(),
+            $this->version() + 1
+        );
+
+        $this->applyEvent($event);
+    }
+
     /**
      * @throws \Throwable
      */
-    final private function applyEvent(Event $event) : void
+    final private function applyEvent(Event\Envelope $event) : void
     {
         if (!$this instanceof Event\Consumer) {
             throw new Exception\SourcingObjectWithEventFailed($this, $event);
+        }
+
+        if (!$this->id()->equals($event->producerId())) {
+            throw new Domain\Exception\EventAndConsumerMismatch($this, $event);
         }
 
         try { // TODO: simplify?
@@ -91,7 +111,7 @@ trait Sourcing // implements Event\Consumer, Event\Producer, Domain\Identifiable
 
             $this->lastEvent = $event;
             if ($this->replaying) {
-                ++$this->version;
+                $this->version = $event->version();
                 $this->lastReplayed = $event;
             } else {
                 $this->events[] = $event;
@@ -118,7 +138,7 @@ trait Sourcing // implements Event\Consumer, Event\Producer, Domain\Identifiable
      * @throws Event\Exception\TooManyEventApplyingMethodsFound
      * @throws \Throwable
      */
-    private function doApplyEvent(Event $event) : void
+    private function doApplyEvent(Event\Envelope $event) : void
     {
         $reflection = new \ReflectionObject($this);
 

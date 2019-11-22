@@ -13,14 +13,14 @@ declare(strict_types=1);
 
 namespace Streak\Domain\Event\Listener;
 
-use Streak\Domain;
+use Streak\Domain\Event;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
 trait Listening
 {
-    public function on(Domain\Event $event) : bool
+    public function on(Event\Envelope $event) : bool
     {
         $reflection = new \ReflectionObject($this);
 
@@ -60,12 +60,12 @@ trait Listening
 
             // ..and it is an event...
             $parameter = $parameter->getClass();
-            if (false === $parameter->isSubclassOf(Domain\Event::class)) {
+            if (false === $parameter->isSubclassOf(Event::class)) {
                 continue;
             }
 
             // .. and $event is type or subtype of $parameter
-            $target = new \ReflectionClass($event);
+            $target = new \ReflectionClass($event->message());
             while ($parameter->getName() !== $target->getName()) {
                 $target = $target->getParentClass();
 
@@ -75,9 +75,9 @@ trait Listening
             }
 
             try {
-                $this->preEvent($event);
-                $listenedTo = $method->invoke($this, $event);
-                $this->postEvent($event);
+                $this->preEvent($event->message());
+                $listenedTo = $method->invoke($this, $event->message());
+                $this->postEvent($event->message());
             } catch (\Throwable $exception) {
                 $this->onException($exception);
 
@@ -101,14 +101,14 @@ trait Listening
     /**
      * @codeCoverageIgnore
      */
-    private function preEvent(Domain\Event $event) : void
+    private function preEvent(Event $event) : void
     {
     }
 
     /**
      * @codeCoverageIgnore
      */
-    private function postEvent(Domain\Event $event) : void
+    private function postEvent(Event $event) : void
     {
     }
 

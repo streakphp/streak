@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Streak\Domain\Event\Listener;
 
 use PHPUnit\Framework\TestCase;
+use Streak\Domain\Event;
 use Streak\Domain\Event\Listener\ListeningTest\ListeningStub;
 use Streak\Domain\Event\Listener\ListeningTest\SupportedEvent1;
 use Streak\Domain\Event\Listener\ListeningTest\SupportedEvent2;
@@ -21,6 +22,7 @@ use Streak\Domain\Event\Listener\ListeningTest\SupportedEvent3ThatCausesExceptio
 use Streak\Domain\Event\Listener\ListeningTest\SupportedEvent4;
 use Streak\Domain\Event\Listener\ListeningTest\UnsupportedEvent1;
 use Streak\Domain\Event\Listener\ListeningTest\UnsupportedEvent2;
+use Streak\Domain\Id;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -31,12 +33,13 @@ class ListeningTest extends TestCase
 {
     public function testReplayingEmptyStream()
     {
+        $producerId1 = $this->getMockBuilder(Id::class)->getMockForAbstractClass();
         $listener = new ListeningStub();
-        $event1 = new SupportedEvent1();
-        $event2 = new UnsupportedEvent1();
-        $event3 = new SupportedEvent2();
-        $event4 = new UnsupportedEvent2();
-        $event5 = new SupportedEvent3ThatCausesException();
+        $event1 = Event\Envelope::new(new SupportedEvent1(), $producerId1);
+        $event2 = Event\Envelope::new(new UnsupportedEvent1(), $producerId1);
+        $event3 = Event\Envelope::new(new SupportedEvent2(), $producerId1);
+        $event4 = Event\Envelope::new(new UnsupportedEvent2(), $producerId1);
+        $event5 = Event\Envelope::new(new SupportedEvent3ThatCausesException(), $producerId1);
 
         $this->assertEmpty($listener->preEvents());
         $this->assertEmpty($listener->listened());
@@ -47,36 +50,36 @@ class ListeningTest extends TestCase
         $this->assertFalse($listener->listenerMethodWithParameterThatIsNotSubclassOfEventActivated());
 
         $this->assertTrue($listener->on($event1));
-        $this->assertEquals([$event1], $listener->preEvents());
-        $this->assertEquals([$event1], $listener->listened());
-        $this->assertEquals([$event1], $listener->postEvents());
+        $this->assertEquals([$event1->message()], $listener->preEvents());
+        $this->assertEquals([$event1->message()], $listener->listened());
+        $this->assertEquals([$event1->message()], $listener->postEvents());
         $this->assertEmpty($listener->exceptions());
         $this->assertFalse($listener->listenerMethodMoreThanOneParameterInMethodActivated());
         $this->assertFalse($listener->listenerMethodWithNullableEventActivated());
         $this->assertFalse($listener->listenerMethodWithParameterThatIsNotSubclassOfEventActivated());
 
         $this->assertFalse($listener->on($event2));
-        $this->assertEquals([$event1], $listener->preEvents());
-        $this->assertEquals([$event1], $listener->listened());
-        $this->assertEquals([$event1], $listener->postEvents());
+        $this->assertEquals([$event1->message()], $listener->preEvents());
+        $this->assertEquals([$event1->message()], $listener->listened());
+        $this->assertEquals([$event1->message()], $listener->postEvents());
         $this->assertEmpty($listener->exceptions());
         $this->assertFalse($listener->listenerMethodMoreThanOneParameterInMethodActivated());
         $this->assertFalse($listener->listenerMethodWithNullableEventActivated());
         $this->assertFalse($listener->listenerMethodWithParameterThatIsNotSubclassOfEventActivated());
 
         $this->assertTrue($listener->on($event3));
-        $this->assertEquals([$event1, $event3], $listener->preEvents());
-        $this->assertEquals([$event1, $event3], $listener->listened());
-        $this->assertEquals([$event1, $event3], $listener->postEvents());
+        $this->assertEquals([$event1->message(), $event3->message()], $listener->preEvents());
+        $this->assertEquals([$event1->message(), $event3->message()], $listener->listened());
+        $this->assertEquals([$event1->message(), $event3->message()], $listener->postEvents());
         $this->assertEmpty($listener->exceptions());
         $this->assertFalse($listener->listenerMethodMoreThanOneParameterInMethodActivated());
         $this->assertFalse($listener->listenerMethodWithNullableEventActivated());
         $this->assertFalse($listener->listenerMethodWithParameterThatIsNotSubclassOfEventActivated());
 
         $this->assertFalse($listener->on($event4));
-        $this->assertEquals([$event1, $event3], $listener->preEvents());
-        $this->assertEquals([$event1, $event3], $listener->listened());
-        $this->assertEquals([$event1, $event3], $listener->postEvents());
+        $this->assertEquals([$event1->message(), $event3->message()], $listener->preEvents());
+        $this->assertEquals([$event1->message(), $event3->message()], $listener->listened());
+        $this->assertEquals([$event1->message(), $event3->message()], $listener->postEvents());
         $this->assertEmpty($listener->exceptions());
         $this->assertFalse($listener->listenerMethodMoreThanOneParameterInMethodActivated());
         $this->assertFalse($listener->listenerMethodWithNullableEventActivated());
@@ -88,9 +91,9 @@ class ListeningTest extends TestCase
         try {
             $listener->on($event5);
         } catch (\Throwable $actual) {
-            $this->assertEquals([$event1, $event3, $event5], $listener->preEvents());
-            $this->assertEquals([$event1, $event3], $listener->listened());
-            $this->assertEquals([$event1, $event3], $listener->postEvents());
+            $this->assertEquals([$event1->message(), $event3->message(), $event5->message()], $listener->preEvents());
+            $this->assertEquals([$event1->message(), $event3->message()], $listener->listened());
+            $this->assertEquals([$event1->message(), $event3->message()], $listener->postEvents());
             $this->assertEquals([$actual], $listener->exceptions());
             $this->assertFalse($listener->listenerMethodMoreThanOneParameterInMethodActivated());
             $this->assertFalse($listener->listenerMethodWithNullableEventActivated());
@@ -108,13 +111,13 @@ class ListeningTest extends TestCase
         $this->expectExceptionObject($expectedException);
 
         $listener = new ListeningStub();
-        $listener->on(new SupportedEvent4($returnedValue));
+        $listener->on(Event\Envelope::new(new SupportedEvent4($returnedValue), $this->getMockBuilder(Id::class)->getMockForAbstractClass()));
     }
 
     public function testListeningMethodReturnsTrue()
     {
         $listener = new ListeningStub();
-        $isEventListenedTo = $listener->on(new SupportedEvent4(true));
+        $isEventListenedTo = $listener->on(Event\Envelope::new(new SupportedEvent4(true), $this->getMockBuilder(Id::class)->getMockForAbstractClass()));
 
         $this->assertTrue($isEventListenedTo);
     }
@@ -122,7 +125,7 @@ class ListeningTest extends TestCase
     public function testListeningMethodReturnsFalse()
     {
         $listener = new ListeningStub();
-        $isEventListenedTo = $listener->on(new SupportedEvent4(false));
+        $isEventListenedTo = $listener->on(Event\Envelope::new(new SupportedEvent4(false), $this->getMockBuilder(Id::class)->getMockForAbstractClass()));
 
         $this->assertFalse($isEventListenedTo);
     }

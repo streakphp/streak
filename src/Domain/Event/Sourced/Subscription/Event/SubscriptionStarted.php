@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace Streak\Domain\Event\Sourced\Subscription\Event;
 
-use Streak\Domain;
+use Streak\Domain\Event;
 use Streak\Domain\Event\Sourced\Subscription;
 
 /**
@@ -26,13 +26,13 @@ class SubscriptionStarted implements Subscription\Event
     private $startFrom;
     private $timestamp;
 
-    public function __construct(Domain\Event $startedBy, \DateTimeInterface $timestamp)
+    public function __construct(Event\Envelope $startedBy, \DateTimeInterface $timestamp)
     {
         $this->startFrom = $startedBy;
         $this->timestamp = $timestamp->format(self::DATE_FORMAT);
     }
 
-    public function startedBy() : Domain\Event
+    public function startedBy() : Event\Envelope
     {
         return $this->startFrom;
     }

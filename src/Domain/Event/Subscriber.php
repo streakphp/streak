@@ -34,7 +34,7 @@ class Subscriber implements Event\Listener
 
     public function __construct(Event\Listener\Factory $listenerFactory, Event\Subscription\Factory $subscriptionFactory, Event\Subscription\Repository $subscriptionsRepository, UnitOfWork $uow) // TODO: GET RID OF UOW FROM HERE!
     {
-        $this->identifyBy(Subscriber\Id::create());
+        $this->identifyBy(Subscriber\Id::random());
         $this->listenerFactory = $listenerFactory;
         $this->subscriptionFactory = $subscriptionFactory;
         $this->subscriptionsRepository = $subscriptionsRepository;
@@ -46,18 +46,18 @@ class Subscriber implements Event\Listener
         $bus->add($this);
     }
 
-    public function on(Event $event) : bool
+    public function on(Event\Envelope $event) : bool
     {
         // TODO: move filtering subscription-events to subscriber decorator or listener factory decorator.
-        if ($event instanceof SubscriptionStarted) {
+        if ($event->message() instanceof SubscriptionStarted) {
             return false;
         }
 
-        if ($event instanceof SubscriptionListenedToEvent) {
+        if ($event->message() instanceof SubscriptionListenedToEvent) {
             return false;
         }
 
-        if ($event instanceof SubscriptionCompleted) {
+        if ($event->message() instanceof SubscriptionCompleted) {
             return false;
         }
 

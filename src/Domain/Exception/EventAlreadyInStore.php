@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace Streak\Domain\Exception;
 
-use Streak\Domain;
+use Streak\Domain\Event;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -22,7 +22,7 @@ class EventAlreadyInStore extends \InvalidArgumentException
 {
     private $event;
 
-    public function __construct(Domain\Event $event, \Throwable $previous = null)
+    public function __construct(Event\Envelope $event, \Throwable $previous = null)
     {
         $this->event = $event;
 
@@ -31,7 +31,7 @@ class EventAlreadyInStore extends \InvalidArgumentException
         parent::__construct($message, 0, $previous);
     }
 
-    public function event() : Domain\Event
+    public function event() : Event\Envelope
     {
         return $this->event;
     }

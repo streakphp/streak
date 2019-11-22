@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace Streak\Domain\Event\Sourced\Subscription\Event;
 
-use Streak\Domain;
+use Streak\Domain\Event;
 use Streak\Domain\Event\Sourced\Subscription;
 
 /**
@@ -27,14 +27,14 @@ class SubscriptionListenedToEvent implements Subscription\Event
     private $version;
     private $timestamp;
 
-    public function __construct(Domain\Event $event, int $version, \DateTimeInterface $timestamp)
+    public function __construct(Event\Envelope $event, int $version, \DateTimeInterface $timestamp)
     {
         $this->event = $event;
         $this->version = $version;
         $this->timestamp = $timestamp->format(self::DATE_FORMAT);
     }
 
-    public function event() : Domain\Event
+    public function event() : Event\Envelope
     {
         return $this->event;
     }

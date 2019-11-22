@@ -30,14 +30,15 @@ class TooManyEventApplyingMethodsFoundTest extends TestCase
     private $consumer;
 
     /**
-     * @var Domain\Event|\PHPUnit_Framework_MockObject_MockObject
+     * @var Domain\Event\Envelope|\PHPUnit_Framework_MockObject_MockObject
      */
     private $event;
 
     public function setUp()
     {
         $this->consumer = $this->getMockBuilder(Event\Consumer::class)->getMockForAbstractClass();
-        $this->event = $this->getMockBuilder(Domain\Event::class)->getMockForAbstractClass();
+        $event = $this->getMockBuilder(Domain\Event::class)->getMockForAbstractClass();
+        $this->event = Event\Envelope::new($event, Domain\Id\UUID::random());
     }
 
     public function testException()

@@ -28,6 +28,8 @@ use Streak\Domain\Id\UUID;
  */
 class DbalPostgresEventStore implements \Iterator, EventStore, Event\Stream, Schemable, Schema
 {
+    private const EVENT_ATTRIBUTE_NUMBER = '__event_store_number__';
+
     private const POSTGRES_PLATFORM_NAME = 'postgresql';
 
     private const DIRECTION_FORWARD = 'forward';
@@ -130,29 +132,7 @@ SQL;
         return $this;
     }
 
-    public function producerId(Event $event) : Domain\Id
-    {
-        $metadata = Event\Metadata::fromObject($event);
-
-        if ($metadata->empty()) {
-            throw new Exception\EventNotInStore($event);
-        }
-
-        $producerType = $metadata->get('producer_type');
-        $producerId = $metadata->get('producer_id');
-
-        $reflection = new \ReflectionClass($producerType);
-
-        if (!$reflection->implementsInterface(Domain\Id::class)) {
-            throw new \InvalidArgumentException(); // TODO: domain exception here
-        }
-
-        $method = $reflection->getMethod('fromString');
-
-        return $method->invoke(null, $producerId);
-    }
-
-    public function add(Domain\Id $producerId, ?int $version, Event ...$events) : void
+    public function add(Event\Envelope ...$events) : void
     {
         if (0 === count($events)) {
             return;
@@ -162,20 +142,12 @@ SQL;
 
         $parameters = [];
         $values = [];
-        $transaction = new \SplObjectStorage();
         foreach ($events as $key => $event) {
-            $metadata = Event\Metadata::fromObject($event);
-
-            if (!$metadata->empty()) {
+            if (null !== $event->get(self::EVENT_ATTRIBUTE_NUMBER)) {
                 throw new Exception\EventAlreadyInStore($event);
             }
 
-            $uuid = UUID::create();
-
-            $version = $this->bumpUp($version);
-            $row = $this->toRow($producerId, $version, $uuid, $event);
-
-            // TODO: if version set, maybe throw Exception\EventAlreadyStored exception here?
+            $row = $this->toRow($event);
 
             $placeholders = [];
             foreach ($row as $column => $value) {
@@ -186,13 +158,12 @@ SQL;
             }
 
             $values[] = '('.implode(',', $placeholders).')';
-            $transaction[$uuid] = $event;
         }
 
         $values = implode(',', $values);
 
         $sql = "$sql VALUES $values";
-        $sql = "$sql RETURNING number, uuid, metadata, producer_version";
+        $sql = "$sql RETURNING number, uuid";
 
         try {
             $statement = $this->connection->prepare($sql);
@@ -200,32 +171,26 @@ SQL;
         } catch (UniqueConstraintViolationException $e) {
             // check for constraint names only, as message may be localised
             if (false !== mb_strpos($e->getMessage(), '"events_producer_type_producer_id_producer_version_key"')) {
-                throw new Exception\ConcurrentWriteDetected($producerId);
+//                throw new Exception\ConcurrentWriteDetected($producerId);
+                throw new Exception\ConcurrentWriteDetected(null);
             }
             throw $e;
         }
 
         while ($returned = $statement->fetch(\PDO::FETCH_ASSOC)) {
-            $sequence = (string) $returned['number'];
-            $uuid = $returned['uuid'];
-            $uuid = mb_strtoupper($uuid);
-            $uuid = new UUID($uuid);
-            $metadata = $returned['metadata'];
-            $metadata = json_decode($metadata, true);
-            $metadata = Event\Metadata::fromArray($metadata);
+            $number = (string) $returned['number'];
+            $uuid = new UUID($returned['uuid']);
 
-            foreach ($transaction as $current) {
-                $event = $transaction->getInfo();
-                if ($uuid->equals($current)) {
-                    $metadata->set('sequence', $sequence);
-                    $metadata->toObject($event);
-                    continue 2;
+            foreach ($events as &$event) {
+                if ($event->uuid()->equals($uuid)) {
+                    $event = $event->set(self::EVENT_ATTRIBUTE_NUMBER, $number);
+                    continue;
                 }
             }
         }
     }
 
-    public function from(Event $event) : Event\Stream
+    public function from(Event\Envelope $event) : Event\Stream
     {
         $stream = $this->copy();
         $stream->from = $event;
@@ -234,7 +199,7 @@ SQL;
         return $stream;
     }
 
-    public function to(Event $event) : Event\Stream
+    public function to(Event\Envelope $event) : Event\Stream
     {
         $stream = $this->copy();
         $stream->to = $event;
@@ -243,7 +208,7 @@ SQL;
         return $stream;
     }
 
-    public function after(Event $event) : Event\Stream
+    public function after(Event\Envelope $event) : Event\Stream
     {
         $stream = $this->copy();
         $stream->from = null;
@@ -252,7 +217,7 @@ SQL;
         return $stream;
     }
 
-    public function before(Event $event) : Event\Stream
+    public function before(Event\Envelope $event) : Event\Stream
     {
         $stream = $this->copy();
         $stream->to = null;
@@ -307,7 +272,7 @@ SQL;
         return $stream;
     }
 
-    public function first() : ?Event
+    public function first() : ?Event\Envelope
     {
         $statement = $this->select(
             $this->filter,
@@ -334,7 +299,7 @@ SQL;
         return $event;
     }
 
-    public function last() : ?Event
+    public function last() : ?Event\Envelope
     {
         $direction = self::DIRECTION_BACKWARD;
         $limit = 1;
@@ -376,7 +341,7 @@ SQL;
         return null === $this->first();
     }
 
-    public function current() : Event
+    public function current() : Event\Envelope
     {
         $event = $this->fromRow($this->current);
 
@@ -416,6 +381,19 @@ SQL;
         );
         $this->current = $this->statement->fetch(\PDO::FETCH_ASSOC);
         $this->key = 0;
+    }
+
+    public function producerId($class, $id) : Domain\Id
+    {
+        $reflection = new \ReflectionClass($class);
+
+        if (!$reflection->implementsInterface(Domain\Id::class)) {
+            throw new \InvalidArgumentException(); // TODO: domain exception here
+        }
+
+        $method = $reflection->getMethod('fromString');
+
+        return $method->invoke(null, $id);
     }
 
     private function count() : int
@@ -467,10 +445,10 @@ SQL;
         EventStore\Filter $filter,
         ?string $direction,
         ?array $columns,
-        ?Event $from,
-        ?Event $to,
-        ?Event $after,
-        ?Event $before,
+        ?Event\Envelope $from,
+        ?Event\Envelope $to,
+        ?Event\Envelope $after,
+        ?Event\Envelope $before,
         ?array $only,
         ?array $without,
         ?int $limit,
@@ -529,22 +507,22 @@ SQL;
 
         if ($from) {
             $where[] = ' (number >= :from) ';
-            $parameters['from'] = Event\Metadata::fromObject($from)->get('sequence');
+            $parameters['from'] = $from->get(self::EVENT_ATTRIBUTE_NUMBER);
         }
 
         if ($to) {
             $where[] = ' (number <= :to) ';
-            $parameters['to'] = Event\Metadata::fromObject($to)->get('sequence');
+            $parameters['to'] = $to->get(self::EVENT_ATTRIBUTE_NUMBER);
         }
 
         if ($after) {
             $where[] = ' (number > :after) ';
-            $parameters['after'] = Event\Metadata::fromObject($after)->get('sequence');
+            $parameters['after'] = $after->get(self::EVENT_ATTRIBUTE_NUMBER);
         }
 
         if ($before) {
             $where[] = ' (number < :before) ';
-            $parameters['before'] = Event\Metadata::fromObject($before)->get('sequence');
+            $parameters['before'] = $before->get(self::EVENT_ATTRIBUTE_NUMBER);
         }
 
         $where = implode(' AND ', $where);
@@ -577,40 +555,47 @@ SQL;
         return $statement;
     }
 
-    private function fromRow($row) : Event
+    private function fromRow(array $row) : Event\Envelope
     {
-        // TODO: use identity map
-        $event = $row['body'];
-        $event = json_decode($event, true);
-        $event = $this->converter->arrayToEvent($event);
+        $uuid = new UUID($row['uuid']);
+
+        $body = $row['body'];
+        $body = json_decode($body, true);
+        $body = $this->converter->arrayToEvent($body);
+
+        $producerId = $this->producerId($row['producer_type'], $row['producer_id']);
+
+        $event = new Event\Envelope(
+            $uuid,
+            $row['type'],
+            $body,
+            $producerId,
+            $row['producer_version']
+        );
 
         $metadata = $row['metadata'];
         $metadata = json_decode($metadata, true);
-        $metadata = Event\Metadata::fromArray($metadata);
-        $metadata->set('sequence', (string) $row['number']);
+        $metadata[self::EVENT_ATTRIBUTE_NUMBER] = $row['number'];
 
-        $metadata->toObject($event);
+        foreach ($metadata as $name => $value) {
+            $event = $event->set($name, $value);
+        }
 
         return $event;
     }
 
-    private function toRow(Domain\Id $producerId, ?int $version, UUID $uuid, $event) : array
+    private function toRow(Event\Envelope $event) : array
     {
-        $metadata = Event\Metadata::fromObject($event);
-        $metadata::clear($event);
-        $metadata->set('producer_type', get_class($producerId));
-        $metadata->set('producer_id', $producerId->toString());
-
         $row = [
-            'uuid' => $uuid->toString(),
-            'type' => get_class($event),
-            'body' => json_encode($this->converter->eventToArray($event)),
-            'metadata' => json_encode($metadata->toArray()),
-            'producer_type' => get_class($producerId),
-            'producer_id' => $producerId->toString(),
-            'producer_version' => $version,
+            'uuid' => $event->uuid()->toString(),
+            'type' => $event->name(),
+            'body' => json_encode($this->converter->eventToArray($event->message())),
+            'metadata' => json_encode($event->metadata()),
+            'producer_type' => get_class($event->producerId()),
+            'producer_id' => $event->producerId()->toString(),
+            'producer_version' => $event->version(),
         ];
 
-        return $row; // put metadata back
+        return $row;
     }
 }

@@ -23,7 +23,7 @@ trait Consuming // implements Event\Replayable
     private $replaying = false;
     private $lastReplayed;
 
-    abstract public function on(Event $event) : bool;
+    abstract public function on(Event\Envelope $event) : bool;
 
     final public function replay(Event\Stream $events) : void
     {
@@ -33,7 +33,7 @@ trait Consuming // implements Event\Replayable
         }
     }
 
-    final public function lastReplayed() : ?Event
+    final public function lastReplayed() : ?Event\Envelope
     {
         return $this->lastReplayed;
     }
