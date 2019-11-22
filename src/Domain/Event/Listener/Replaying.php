@@ -36,7 +36,7 @@ trait Replaying
         }
     }
 
-    abstract public function on(Event $event) : bool;
+    abstract public function on(Event\Envelope $event) : bool;
 
     abstract protected function disableSideEffects() : void;
 

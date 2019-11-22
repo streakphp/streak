@@ -59,6 +59,7 @@ class FactoryTest extends TestCase
         $this->logger = $this->getMockBuilder(LoggerInterface::class)->getMockForAbstractClass();
         $this->id = $this->getMockBuilder(Listener\Id::class)->getMockForAbstractClass();
         $this->event = $this->getMockBuilder(Event::class)->setMockClassName('EventMock001')->getMockForAbstractClass();
+        $this->event = Event\Envelope::new($this->event, $this->id, 1);
     }
 
     public function testFactory()

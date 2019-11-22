@@ -19,6 +19,7 @@ use Streak\Domain\Event;
 use Streak\Domain\Event\Listener;
 use Streak\Domain\Event\Listener\Factory;
 use Streak\Domain\Exception\InvalidIdGiven;
+use Streak\Domain\Id\UUID;
 use Streak\Infrastructure\Event\Listener\CompositeFactory;
 
 /**
@@ -69,6 +70,7 @@ class CompositeFactoryTest extends TestCase
         $this->listener1 = $this->getMockBuilder(Listener::class)->setMethods(['replay', 'reset', 'completed'])->getMockForAbstractClass();
 
         $this->event1 = $this->getMockBuilder(Event::class)->getMockForAbstractClass();
+        $this->event1 = Event\Envelope::new($this->event1, UUID::random(), 1);
     }
 
     public function testEmptyComposite()

@@ -19,6 +19,7 @@ use Streak\Domain\Event;
 use Streak\Domain\Event\Listener\ReplayingTest\ReplayingStub;
 use Streak\Domain\Event\Listener\ReplayingTest\SupportedEvent1;
 use Streak\Domain\Event\Listener\ReplayingTest\SupportedEvent2;
+use Streak\Domain\Id\UUID;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -40,7 +41,9 @@ class ReplayingTest extends TestCase
     public function testReplaying()
     {
         $event1 = new SupportedEvent1();
+        $event1 = Event\Envelope::new($event1, UUID::random());
         $event2 = new SupportedEvent2();
+        $event2 = Event\Envelope::new($event2, UUID::random());
 
         $this->stream
             ->expects($this->atLeastOnce())
@@ -143,7 +146,7 @@ class ReplayingStub
         return $this->listened;
     }
 
-    protected function on(Event $event) : bool
+    protected function on(Event\Envelope $event) : bool
     {
         $this->listened[] = $event;
 

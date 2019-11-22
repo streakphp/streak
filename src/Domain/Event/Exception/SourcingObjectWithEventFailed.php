@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace Streak\Domain\Event\Exception;
 
-use Streak\Domain;
+use Streak\Domain\Event;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -26,11 +26,11 @@ class SourcingObjectWithEventFailed extends \BadMethodCallException
     private $subject;
 
     /**
-     * @var Domain\Event
+     * @var Event\Envelope
      */
     private $event;
 
-    public function __construct($object, Domain\Event $event, \Throwable $previous = null)
+    public function __construct($object, Event\Envelope $event, \Throwable $previous = null)
     {
         if (false === \is_object($object)) {
             $message = sprintf('Object expected, but got "%s"', \gettype($object));
@@ -41,7 +41,7 @@ class SourcingObjectWithEventFailed extends \BadMethodCallException
         $this->subject = $object;
         $this->event = $event;
 
-        $message = sprintf('Sourcing "%s" object with "%s" event failed.', \get_class($object), \get_class($event));
+        $message = sprintf('Sourcing "%s" object with "%s" event failed.', \get_class($object), $event->name());
 
         parent::__construct($message, 0, $previous);
     }
@@ -51,7 +51,7 @@ class SourcingObjectWithEventFailed extends \BadMethodCallException
         return $this->subject;
     }
 
-    public function event() : Domain\Event
+    public function event() : Event\Envelope
     {
         return $this->event;
     }

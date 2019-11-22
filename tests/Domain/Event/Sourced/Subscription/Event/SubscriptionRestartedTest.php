@@ -15,6 +15,7 @@ namespace Streak\Domain\Event\Sourced\Subscription\Event;
 
 use PHPUnit\Framework\TestCase;
 use Streak\Domain\Event;
+use Streak\Domain\Id\UUID;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -28,14 +29,14 @@ class SubscriptionRestartedTest extends TestCase
     protected function setUp()
     {
         $this->event = $this->getMockBuilder(Event::class)->getMockForAbstractClass();
+        $this->event = Event\Envelope::new($this->event, UUID::random());
     }
 
     public function testObject()
     {
-        $event = new SubscriptionRestarted($this->event, 1, $now = new \DateTimeImmutable());
+        $event = new SubscriptionRestarted($this->event, $now = new \DateTimeImmutable());
 
         $this->assertSame($this->event, $event->originallyStartedBy());
-        $this->assertSame(1, $event->subscriptionVersion());
         $this->assertEquals($now, $event->timestamp());
     }
 }

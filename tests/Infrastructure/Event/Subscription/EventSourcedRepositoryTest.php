@@ -24,6 +24,7 @@ use Streak\Domain\Event\Sourced\Subscription\Event\SubscriptionRestarted;
 use Streak\Domain\Event\Sourced\Subscription\Event\SubscriptionStarted;
 use Streak\Domain\EventStore;
 use Streak\Domain\Exception;
+use Streak\Domain\Id\UUID;
 use Streak\Infrastructure\EventStore\InMemoryEventStore;
 use Streak\Infrastructure\FixedClock;
 use Streak\Infrastructure\UnitOfWork;
@@ -166,9 +167,13 @@ class EventSourcedRepositoryTest extends TestCase
         };
 
         $this->event1 = $this->getMockBuilder(Event::class)->setMockClassName('event1')->getMockForAbstractClass();
+        $this->event1 = Event\Envelope::new($this->event1, UUID::random());
         $this->event2 = $this->getMockBuilder(Event::class)->setMockClassName('event2')->getMockForAbstractClass();
+        $this->event2 = Event\Envelope::new($this->event2, UUID::random());
         $this->event3 = $this->getMockBuilder(Event::class)->setMockClassName('event3')->getMockForAbstractClass();
+        $this->event3 = Event\Envelope::new($this->event3, UUID::random());
         $this->event4 = $this->getMockBuilder(Event::class)->setMockClassName('event4')->getMockForAbstractClass();
+        $this->event4 = Event\Envelope::new($this->event4, UUID::random());
 
         $this->clock = new FixedClock(new \DateTime('2018-09-28 19:12:32.763188 +00:00'));
     }
@@ -242,9 +247,11 @@ class EventSourcedRepositoryTest extends TestCase
         $now = new \DateTime('2018-09-28 19:12:32.763188 +00:00');
 
         $event1 = new SubscriptionStarted($this->event1, $now);
-        $event2 = new SubscriptionListenedToEvent($this->event1, 2, $now);
+        $event1 = Event\Envelope::new($event1, $this->id1, 1);
+        $event2 = new SubscriptionListenedToEvent($this->event1, $now);
+        $event2 = Event\Envelope::new($event2, $this->id1, 2);
 
-        $this->store->add($this->id1, 0, ...[$event1, $event2]);
+        $this->store->add($event1, $event2);
 
         $this->eventSourcedSubscription1
             ->expects($this->once())
@@ -279,10 +286,13 @@ class EventSourcedRepositoryTest extends TestCase
         $now = new \DateTime('2018-09-28 19:12:32.763188 +00:00');
 
         $event1 = new SubscriptionStarted($this->event1, $now);
-        $event2 = new SubscriptionListenedToEvent($this->event1, 2, $now);
-        $event3 = new SubscriptionListenedToEvent($this->event2, 3, $now);
+        $event1 = Event\Envelope::new($event1, $this->id1, 1);
+        $event2 = new SubscriptionListenedToEvent($this->event1, $now);
+        $event2 = Event\Envelope::new($event2, $this->id1, 2);
+        $event3 = new SubscriptionListenedToEvent($this->event2, $now);
+        $event3 = Event\Envelope::new($event3, $this->id1, 3);
 
-        $this->store->add($this->id1, 0, ...[$event1, $event2, $event3]);
+        $this->store->add($event1, $event2, $event3);
 
         $this->listeners
             ->expects($this->once())
@@ -326,13 +336,19 @@ class EventSourcedRepositoryTest extends TestCase
         $now = new \DateTime('2018-09-28 19:12:32.763188 +00:00');
 
         $event1 = new SubscriptionStarted($this->event1, $now);
-        $event2 = new SubscriptionListenedToEvent($this->event1, 2, $now);
-        $event3 = new SubscriptionListenedToEvent($this->event2, 3, $now);
-        $event4 = new SubscriptionRestarted($this->event1, 4, $now);
-        $event5 = new SubscriptionListenedToEvent($this->event1, 5, $now);
-        $event6 = new SubscriptionListenedToEvent($this->event3, 6, $now);
+        $event1 = Event\Envelope::new($event1, $this->id1, 1);
+        $event2 = new SubscriptionListenedToEvent($this->event1, $now);
+        $event2 = Event\Envelope::new($event2, $this->id1, 2);
+        $event3 = new SubscriptionListenedToEvent($this->event2, $now);
+        $event3 = Event\Envelope::new($event3, $this->id1, 3);
+        $event4 = new SubscriptionRestarted($this->event1, $now);
+        $event4 = Event\Envelope::new($event4, $this->id1, 4);
+        $event5 = new SubscriptionListenedToEvent($this->event1, $now);
+        $event5 = Event\Envelope::new($event5, $this->id1, 5);
+        $event6 = new SubscriptionListenedToEvent($this->event3, $now);
+        $event6 = Event\Envelope::new($event6, $this->id1, 6);
 
-        $this->store->add($this->id1, 0, ...[$event1, $event2, $event3, $event4, $event5, $event6]);
+        $this->store->add($event1, $event2, $event3, $event4, $event5, $event6);
 
         $this->listeners
             ->expects($this->once())
@@ -420,11 +436,12 @@ class EventSourcedRepositoryTest extends TestCase
         $this->assertEquals([], iterator_to_array($subscriptions));
     }
 
-    public function testRepositoryLazyLoading()
+    public function testFindingSubscriptions()
     {
         $repository = new EventSourcedRepository($this->subscriptions, $this->listeners, $this->store, $this->uow);
         $subscription1 = new LazyLoadedSubscription($this->id1, $repository);
         $subscription3 = new LazyLoadedSubscription($this->id3, $repository);
+        $subscription4 = new LazyLoadedSubscription($this->id4, $repository);
 
         $now = new \DateTime('2018-09-28 19:12:32.763188 +00:00');
 
@@ -438,22 +455,34 @@ class EventSourcedRepositoryTest extends TestCase
         ;
 
         $event11 = new SubscriptionStarted($this->event1, $now);
+        $event11 = Event\Envelope::new($event11, $this->id1, 1);
         $event21 = new SubscriptionStarted($this->event2, $now);
-        $event12 = new SubscriptionCompleted(2, $now);
+        $event21 = Event\Envelope::new($event21, $this->id2, 1);
+        $event12 = new SubscriptionCompleted($now);
+        $event12 = Event\Envelope::new($event12, $this->id1, 2);
         $event31 = new SubscriptionStarted($this->event3, $now);
-        $event22 = new SubscriptionCompleted(2, $now);
-        $event13 = new SubscriptionRestarted($this->event4, 3, $now);
+        $event31 = Event\Envelope::new($event31, $this->id3, 1);
+        $event22 = new SubscriptionCompleted($now);
+        $event22 = Event\Envelope::new($event22, $this->id2, 2);
+        $event13 = new SubscriptionRestarted($this->event4, $now);
+        $event13 = Event\Envelope::new($event13, $this->id1, 3);
+        $event41 = new SubscriptionStarted($this->event1, $now);
+        $event41 = Event\Envelope::new($event41, $this->id4, 1);
+        $event42 = new SubscriptionRestarted($this->event2, $now);
+        $event42 = Event\Envelope::new($event42, $this->id4, 2);
 
-        $this->store->add($this->id1, 0, $event11);
-        $this->store->add($this->id2, 0, $event21);
-        $this->store->add($this->id1, 1, $event12);
-        $this->store->add($this->id3, 1, $event31);
-        $this->store->add($this->id2, 1, $event22);
-        $this->store->add($this->id1, 2, $event13);
+        $this->store->add($event11);
+        $this->store->add($event21);
+        $this->store->add($event12);
+        $this->store->add($event31);
+        $this->store->add($event22);
+        $this->store->add($event13);
+        $this->store->add($event41);
+        $this->store->add($event42);
 
         $subscriptions = $repository->all();
         $subscriptions = iterator_to_array($subscriptions);
 
-        $this->assertEquals([$subscription3, $subscription1], $subscriptions);
+        $this->assertEquals([$subscription3, $subscription1, $subscription4], $subscriptions);
     }
 }

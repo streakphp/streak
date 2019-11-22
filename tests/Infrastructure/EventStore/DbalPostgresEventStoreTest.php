@@ -18,6 +18,7 @@ use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
 use PHPUnit\Framework\MockObject\MockObject;
+use Streak\Domain\Event;
 use Streak\Domain\EventStore;
 use Streak\Domain\Exception\ConcurrentWriteDetected;
 use Streak\Infrastructure\Event\Converter\FlatObjectConverter;
@@ -128,21 +129,25 @@ class DbalPostgresEventStoreTest extends EventStoreTestCase
      */
     public function testConcurrentWriting2()
     {
+        $producerId1 = new EventStoreTestCase\ProducerId1('producer1');
         $event1 = new EventStoreTestCase\Event1();
+        $event1 = Event\Envelope::new($event1, $producerId1, 1);
         $event2 = new EventStoreTestCase\Event2();
+        $event2 = Event\Envelope::new($event2, $producerId1, 2);
         $event3 = new EventStoreTestCase\Event3();
+        $event3 = Event\Envelope::new($event3, $producerId1, 1);
         $event4 = new EventStoreTestCase\Event4();
-        $producer = new EventStoreTestCase\ProducerId1('producer1');
+        $event4 = Event\Envelope::new($event4, $producerId1, 2);
 
         $store1 = new DbalPostgresEventStore(self::$connection2, new FlatObjectConverter());
-        $store1->add($producer, 0, $event1, $event2);
+        $store1->add($event1, $event2);
 
         $store2 = new DbalPostgresEventStore(self::$connection1, new FlatObjectConverter());
 
-        $this->expectExceptionObject(new ConcurrentWriteDetected($producer));
+        $this->expectExceptionObject(new ConcurrentWriteDetected($producerId1));
 
         try {
-            $store2->add($producer, 0, $event3, $event4);
+            $store2->add($event3, $event4);
         } catch (ConcurrentWriteDetected $e) {
             // test that no events were added
             $this->assertEquals([$event1, $event2], iterator_to_array($store2->stream()));
@@ -158,9 +163,11 @@ class DbalPostgresEventStoreTest extends EventStoreTestCase
      */
     public function testWritingWhenNoTableInDatabase()
     {
+        $producerId1 = new EventStoreTestCase\ProducerId1('producer1');
         $event1 = new EventStoreTestCase\Event1();
+        $event1 = Event\Envelope::new($event1, $producerId1, 1);
         $event2 = new EventStoreTestCase\Event2();
-        $producer = new EventStoreTestCase\ProducerId1('producer1');
+        $event2 = Event\Envelope::new($event2, $producerId1, 2);
 
         $store1 = new DbalPostgresEventStore(self::$connection2, new FlatObjectConverter());
         $store1->drop();
@@ -168,7 +175,7 @@ class DbalPostgresEventStoreTest extends EventStoreTestCase
         $this->expectException(DBALException::class);
 
         $store2 = new DbalPostgresEventStore(self::$connection1, new FlatObjectConverter());
-        $store2->add($producer, 0, $event1, $event2);
+        $store2->add($event1, $event2);
     }
 
     public function testSchema()

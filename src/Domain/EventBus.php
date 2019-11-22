@@ -22,5 +22,5 @@ interface EventBus
 
     public function remove(Event\Listener $listener) : void;
 
-    public function publish(Event ...$events);
+    public function publish(Event\Envelope ...$events);
 }

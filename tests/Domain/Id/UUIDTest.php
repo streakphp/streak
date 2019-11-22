@@ -26,7 +26,7 @@ class UUIDTest extends TestCase
 {
     public function testObject()
     {
-        $uuid1 = UUID::create();
+        $uuid1 = UUID::random();
 
         $this->assertInstanceOf(UUID::class, $uuid1);
         $this->assertTrue($uuid1->equals($uuid1));

@@ -17,6 +17,7 @@ use PHPUnit\Framework\Assert;
 use Streak\Application;
 use Streak\Domain;
 use Streak\Domain\AggregateRoot;
+use Streak\Domain\Event;
 use Streak\Infrastructure\AggregateRoot\Snapshotter;
 use Streak\Infrastructure\EventStore\InMemoryEventStore;
 use Streak\Infrastructure\Testing\AggregateRoot\Scenario\Given;
@@ -55,8 +56,12 @@ class Scenario implements Scenario\Given, Scenario\When, Scenario\Then
 
     public function given(Domain\Event ...$events) : Scenario\When
     {
+        $version = 0;
+        foreach ($events as $key => $event) {
+            $events[$key] = Event\Envelope::new($event, $this->id, ++$version);
+        }
         $this->events = $events;
-        $this->store->add($this->id, null, ...$events);
+        $this->store->add(...$events);
 
         return $this;
     }
@@ -93,6 +98,11 @@ class Scenario implements Scenario\Given, Scenario\When, Scenario\Then
         $actual = iterator_to_array($this->store->stream());
 
         Domain\Event\Metadata::clear(...$actual);
+
+        // unpack events from envelopes
+        $actual = array_map(function (Event\Envelope $envelope) {
+            return $envelope->message();
+        }, $actual);
 
         Assert::assertEquals($expected, $actual, 'Expected events don\'t match produced events.');
 

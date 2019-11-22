@@ -16,6 +16,7 @@ namespace Streak\Domain\Exception;
 use PHPUnit\Framework\TestCase;
 use Streak\Domain;
 use Streak\Domain\Event;
+use Streak\Domain\Id\UUID;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -38,6 +39,7 @@ class EventAndConsumerMismatchTest extends TestCase
     {
         $this->consumer = $this->getMockBuilder(Event\Consumer::class)->getMockForAbstractClass();
         $this->event = $this->getMockBuilder(Domain\Event::class)->getMockForAbstractClass();
+        $this->event = Event\Envelope::new($this->event, UUID::random());
     }
 
     public function testException()

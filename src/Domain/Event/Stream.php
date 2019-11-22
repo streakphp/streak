@@ -20,19 +20,19 @@ use Streak\Domain\Event;
  */
 interface Stream extends \Traversable
 {
-    public function first() : ?Event;
+    public function first() : ?Event\Envelope;
 
-    public function last() : ?Event;
+    public function last() : ?Event\Envelope;
 
     public function empty() : bool;
 
-    public function from(Event $event) : self;
+    public function from(Event\Envelope $event) : self;
 
-    public function to(Event $event) : self;
+    public function to(Event\Envelope $event) : self;
 
-    public function after(Event $event) : self;
+    public function after(Event\Envelope $event) : self;
 
-    public function before(Event $event) : self;
+    public function before(Event\Envelope $event) : self;
 
     public function limit(int $limit) : self;
 

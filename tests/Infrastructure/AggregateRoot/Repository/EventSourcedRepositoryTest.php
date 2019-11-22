@@ -100,9 +100,13 @@ class EventSourcedRepositoryTest extends TestCase
         $this->aggregateRootId = $this->getMockBuilder(Event\Sourced\AggregateRoot\Id::class)->getMockForAbstractClass();
 
         $this->event1 = $this->getMockBuilder(Domain\Event::class)->getMockForAbstractClass();
+        $this->event1 = Event\Envelope::new($this->event1, $this->aggregateRootId, 1);
         $this->event2 = $this->getMockBuilder(Domain\Event::class)->getMockForAbstractClass();
+        $this->event2 = Event\Envelope::new($this->event2, $this->aggregateRootId, 2);
         $this->event3 = $this->getMockBuilder(Domain\Event::class)->getMockForAbstractClass();
+        $this->event3 = Event\Envelope::new($this->event3, $this->aggregateRootId, 3);
         $this->event4 = $this->getMockBuilder(Domain\Event::class)->getMockForAbstractClass();
+        $this->event4 = Event\Envelope::new($this->event4, $this->aggregateRootId, 4);
         $this->stream = $this->getMockBuilder(Event\Stream::class)->getMockForAbstractClass();
     }
 

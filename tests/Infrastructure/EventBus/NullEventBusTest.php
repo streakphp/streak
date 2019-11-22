@@ -15,6 +15,7 @@ namespace Streak\Infrastructure\EventBus;
 
 use PHPUnit\Framework\TestCase;
 use Streak\Domain\Event;
+use Streak\Domain\Id\UUID;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -66,6 +67,12 @@ class NullEventBusTest extends TestCase
 
     public function testBus()
     {
+        $id1 = UUID::random();
+
+        $event1 = Event\Envelope::new($this->event1, $id1);
+        $event2 = Event\Envelope::new($this->event2, $id1);
+        $event3 = Event\Envelope::new($this->event3, $id1);
+
         $bus = new NullEventBus();
 
         $bus->add($this->listener1);
@@ -86,14 +93,14 @@ class NullEventBusTest extends TestCase
             ->method('on')
         ;
 
-        $bus->publish($this->event1);
+        $bus->publish($event1);
 
         $bus->add($this->listener2);
 
-        $bus->publish($this->event2);
+        $bus->publish($event2);
 
         $bus->remove($this->listener1);
 
-        $bus->publish($this->event3);
+        $bus->publish($event3);
     }
 }

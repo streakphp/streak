@@ -21,5 +21,5 @@ use Streak\Domain\EventStore;
  */
 interface Picker
 {
-    public function pick(EventStore $store) : Event;
+    public function pick(EventStore $store) : Event\Envelope;
 }

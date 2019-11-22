@@ -24,24 +24,17 @@ class SubscriptionIgnoredEvent implements Subscription\Event
     const DATE_FORMAT = 'U.u';
 
     private $event;
-    private $version;
     private $timestamp;
 
-    public function __construct(Event $event, int $version, \DateTimeInterface $timestamp)
+    public function __construct(Event\Envelope $event, \DateTimeInterface $timestamp)
     {
         $this->event = $event;
-        $this->version = $version;
         $this->timestamp = $timestamp->format(self::DATE_FORMAT);
     }
 
-    public function event() : Event
+    public function event() : Event\Envelope
     {
         return $this->event;
-    }
-
-    public function subscriptionVersion() : int
-    {
-        return $this->version;
     }
 
     public function timestamp() : \DateTimeImmutable

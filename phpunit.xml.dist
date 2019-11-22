@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<phpunit bootstrap="vendor/autoload.php" colors="true">
+<phpunit bootstrap="tests/bootstrap.php" colors="true">
     <testsuites>
         <testsuite name="Streak Test Suite">
             <directory>tests</directory>
@@ -30,4 +30,6 @@
         <env name="PHPUNIT_REDIS_PORT" value="6379" />
         <env name="PHPUNIT_REDIS_DATABASE" value="0" />
     </php>
+
+
 </phpunit>

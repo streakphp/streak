@@ -25,24 +25,17 @@ class SubscriptionListenersStateChanged implements Subscription\Event
     private const DATE_FORMAT = 'U.u';
 
     private $state;
-    private $version;
     private $timestamp;
 
-    public function __construct(State $state, int $version, \DateTimeInterface $timestamp)
+    public function __construct(State $state, \DateTimeInterface $timestamp)
     {
         $this->state = $state->toArray();
-        $this->version = $version;
         $this->timestamp = $timestamp->format(self::DATE_FORMAT);
     }
 
     public function state() : State
     {
         return InMemoryState::fromArray($this->state);
-    }
-
-    public function subscriptionVersion() : int
-    {
-        return $this->version;
     }
 
     public function timestamp() : \DateTimeImmutable

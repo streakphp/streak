@@ -46,7 +46,7 @@ class UUID implements Domain\Id
         $this->value = $value;
     }
 
-    public static function create()
+    public static function random()
     {
         $uuid = \Ramsey\Uuid\Uuid::uuid4()->toString();
 

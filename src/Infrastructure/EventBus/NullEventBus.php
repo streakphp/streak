@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Streak\Infrastructure\EventBus;
 
-use Streak\Domain;
 use Streak\Domain\Event;
 use Streak\Domain\EventBus;
 
@@ -32,7 +31,7 @@ class NullEventBus implements EventBus
     {
     }
 
-    public function publish(Domain\Event ...$messages)
+    public function publish(Event\Envelope ...$messages)
     {
     }
 }
