@@ -11,11 +11,11 @@
 
 declare(strict_types=1);
 
-namespace Streak\Infrastructure\Event\Sourced\CommittingSubscription;
+namespace Streak\Infrastructure\Event\Subscription\CommittingSubscription;
 
 use Streak\Domain\Event;
 use Streak\Domain\Event\Subscription;
-use Streak\Infrastructure\Event\Sourced as EventSourced;
+use Streak\Infrastructure\Event\Subscription\CommittingSubscription;
 use Streak\Infrastructure\UnitOfWork;
 
 /**
@@ -26,7 +26,7 @@ class Factory implements Subscription\Factory
     private $factory;
     private $uow;
 
-    public function __construct(EventSourced\Subscription\Factory $factory, UnitOfWork $uow)
+    public function __construct(Subscription\Factory $factory, UnitOfWork $uow)
     {
         $this->factory = $factory;
         $this->uow = $uow;
@@ -35,7 +35,7 @@ class Factory implements Subscription\Factory
     public function create(Event\Listener $listener) : Event\Subscription
     {
         $subscription = $this->factory->create($listener);
-        $subscription = new EventSourced\CommittingSubscription($subscription, $this->uow);
+        $subscription = new CommittingSubscription($subscription, $this->uow);
 
         return $subscription;
     }

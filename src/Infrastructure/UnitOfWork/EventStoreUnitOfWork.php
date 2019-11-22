@@ -20,6 +20,8 @@ use Streak\Infrastructure\UnitOfWork;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @TODO: rename to EventSourcedUnitOfWork
  */
 class EventStoreUnitOfWork implements UnitOfWork
 {
@@ -41,15 +43,23 @@ class EventStoreUnitOfWork implements UnitOfWork
         $this->uncommited = [];
     }
 
-    public function add(Event\Producer $producer) : void
+    public function add($producer) : void
     {
+        if (!$producer instanceof Event\Producer) {
+            throw new Exception\ObjectNotSupported($producer);
+        }
+
         if (!$this->has($producer)) {
             $this->uncommited[] = $producer;
         }
     }
 
-    public function remove(Event\Producer $producer) : void
+    public function remove($producer) : void
     {
+        if (!$producer instanceof Event\Producer) {
+            return;
+        }
+
         foreach ($this->uncommited as $key => $current) {
             /* @var $current Event\Producer */
             if ($current->producerId()->equals($producer->producerId())) {
@@ -60,8 +70,12 @@ class EventStoreUnitOfWork implements UnitOfWork
         }
     }
 
-    public function has(Event\Producer $producer) : bool
+    public function has($producer) : bool
     {
+        if (!$producer instanceof Event\Producer) {
+            return false;
+        }
+
         foreach ($this->uncommited as $current) {
             /* @var $current Event\Producer */
             if ($current->producerId()->equals($producer->producerId())) {
@@ -85,6 +99,10 @@ class EventStoreUnitOfWork implements UnitOfWork
         return count($this->uncommited);
     }
 
+    /**
+     * @throws ConcurrentWriteDetected
+     * @throws \Exception
+     */
     public function commit() : \Generator
     {
         if (false === $this->committing) {

@@ -28,7 +28,7 @@ use Streak\Domain\Id\UUID;
  */
 class DbalPostgresEventStore implements \Iterator, EventStore, Event\Stream, Schemable, Schema
 {
-    private const METADATA_SEQUENCE_NUMBER = 'number';
+    private const EVENT_METADATA_NUMBER = 'number';
 
     private const POSTGRES_PLATFORM_NAME = 'postgresql';
 
@@ -126,10 +126,17 @@ SQL;
     public function drop() : void
     {
         $this->checkPlatform();
+        $this->connection->beginTransaction();
 
-        $sql = 'DROP TABLE IF EXISTS events';
-        $statement = $this->connection->prepare($sql);
-        $statement->execute();
+        $sqls[] = 'DROP TABLE IF EXISTS events';
+        $sqls[] = 'DROP TABLE IF EXISTS subscriptions';
+
+        foreach ($sqls as $sql) {
+            $statement = $this->connection->prepare($sql);
+            $statement->execute();
+        }
+
+        $this->connection->commit();
     }
 
     public function schema() : ?Schema
@@ -137,10 +144,10 @@ SQL;
         return $this;
     }
 
-    public function add(Event\Envelope ...$events) : void
+    public function add(Event\Envelope ...$events) : array
     {
         if (0 === count($events)) {
-            return;
+            return [];
         }
 
         $sql = 'INSERT INTO events (uuid, type, body, metadata, producer_type, producer_id, producer_version) ';
@@ -189,7 +196,7 @@ SQL;
 
             foreach ($events as &$event) {
                 if ($event->uuid()->equals($uuid)) {
-                    $event = $event->set(self::METADATA_SEQUENCE_NUMBER, $number);
+                    $event = $event->set(self::EVENT_METADATA_NUMBER, $number);
 
                     $this->session[$event->uuid()->toString()] = $event;
 
@@ -197,6 +204,8 @@ SQL;
                 }
             }
         }
+
+        return $events;
     }
 
     public function from(Event\Envelope $event) : Event\Stream
@@ -534,7 +543,7 @@ SQL;
             }
 
             $where[] = ' (number >= :from) ';
-            $parameters['from'] = $from->get(self::METADATA_SEQUENCE_NUMBER);
+            $parameters['from'] = $from->get(self::EVENT_METADATA_NUMBER);
         }
 
         if ($to) {
@@ -543,7 +552,7 @@ SQL;
             }
 
             $where[] = ' (number <= :to) ';
-            $parameters['to'] = $to->get(self::METADATA_SEQUENCE_NUMBER);
+            $parameters['to'] = $to->get(self::EVENT_METADATA_NUMBER);
         }
 
         if ($after) {
@@ -552,7 +561,7 @@ SQL;
             }
 
             $where[] = ' (number > :after) ';
-            $parameters['after'] = $after->get(self::METADATA_SEQUENCE_NUMBER);
+            $parameters['after'] = $after->get(self::EVENT_METADATA_NUMBER);
         }
 
         if ($before) {
@@ -561,7 +570,7 @@ SQL;
             }
 
             $where[] = ' (number < :before) ';
-            $parameters['before'] = $before->get(self::METADATA_SEQUENCE_NUMBER);
+            $parameters['before'] = $before->get(self::EVENT_METADATA_NUMBER);
         }
 
         $where = implode(' AND ', $where);
@@ -616,7 +625,7 @@ SQL;
 
         $metadata = $row['metadata'];
         $metadata = json_decode($metadata, true);
-        $metadata[self::METADATA_SEQUENCE_NUMBER] = $row['number'];
+        $metadata[self::EVENT_METADATA_NUMBER] = $row['number'];
 
         foreach ($metadata as $name => $value) {
             $event = $event->set($name, $value);

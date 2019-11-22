@@ -19,6 +19,7 @@ use Streak\Domain\Event;
 use Streak\Domain\EventStore;
 use Streak\Domain\Exception\ConcurrentWriteDetected;
 use Streak\Domain\Id\UUID;
+use Streak\Infrastructure\UnitOfWork\Exception\ObjectNotSupported;
 use Streak\Infrastructure\UnitOfWorkTest\NonVersionableEventSourcedStub;
 use Streak\Infrastructure\UnitOfWorkTest\VersionableEventSourcedStub;
 
@@ -282,7 +283,7 @@ class EventStoreUnitOfWorkTest extends TestCase
         $uow->add($object3);
 
         try {
-            $commited = iterator_to_array($uow->commit());
+            iterator_to_array($uow->commit());
         } catch (ConcurrentWriteDetected $exception4) {
             $this->assertSame(0, $uow->count());
             $this->assertFalse($uow->has($object1));
@@ -291,6 +292,20 @@ class EventStoreUnitOfWorkTest extends TestCase
         } finally {
             $this->assertTrue(isset($exception4));
         }
+    }
+
+    public function testWrongObject()
+    {
+        $object = new \stdClass();
+
+        $this->expectExceptionObject(new ObjectNotSupported($object));
+
+        $uow = new EventStoreUnitOfWork($this->store);
+
+        $this->assertFalse($uow->has($object));
+
+        $uow->remove($object);
+        $uow->add($object);
     }
 }
 

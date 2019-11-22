@@ -21,6 +21,9 @@ use Streak\Domain\Event\Stream;
  */
 final class InMemoryStream implements \IteratorAggregate, Event\Stream
 {
+    /**
+     * @var Event\Envelope[]
+     */
     private $events = [];
 
     private $only = [];
@@ -148,6 +151,17 @@ final class InMemoryStream implements \IteratorAggregate, Event\Stream
         return $stream;
     }
 
+    private function search(Event\Envelope $event) : ?int
+    {
+        foreach ($this->events as $key => $stored) {
+            if ($stored->uuid()->equals($event->uuid())) {
+                return $key;
+            }
+        }
+
+        return null;
+    }
+
     /**
      * @return Event[]
      */
@@ -160,17 +174,17 @@ final class InMemoryStream implements \IteratorAggregate, Event\Stream
         $start = 0;
 
         if ($this->from) {
-            $index = array_search($this->from, $this->events, true);
+            $index = $this->search($this->from);
 
-            if (false !== $index) {
+            if (null !== $index) {
                 $start = $index;
             }
         }
 
         if ($this->after) {
-            $index = array_search($this->after, $this->events, true);
+            $index = $this->search($this->after);
 
-            if (false !== $index) {
+            if (null !== $index) {
                 $start = $index + 1;
             }
         }
@@ -178,17 +192,17 @@ final class InMemoryStream implements \IteratorAggregate, Event\Stream
         $stop = count($this->events) - 1;
 
         if ($this->to) {
-            $index = array_search($this->to, $this->events, true);
+            $index = $this->search($this->to);
 
-            if (false !== $index) {
+            if (null !== $index) {
                 $stop = $index;
             }
         }
 
         if ($this->before) {
-            $index = array_search($this->before, $this->events, true);
+            $index = $this->search($this->before);
 
-            if (false !== $index) {
+            if (null !== $index) {
                 $stop = $index - 1;
             }
         }

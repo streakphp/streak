@@ -43,7 +43,7 @@ class SnapshottingUnitOfWork implements UnitOfWork
         $this->interval = $interval;
     }
 
-    public function add(Event\Producer $producer) : void
+    public function add($producer) : void
     {
         $this->uow->add($producer);
 
@@ -54,7 +54,7 @@ class SnapshottingUnitOfWork implements UnitOfWork
         }
     }
 
-    public function remove(Event\Producer $producer) : void
+    public function remove($producer) : void
     {
         if ($producer instanceof Event\Sourced\AggregateRoot) {
             $id = $producer->producerId();
@@ -64,7 +64,7 @@ class SnapshottingUnitOfWork implements UnitOfWork
         $this->uow->remove($producer);
     }
 
-    public function has(Event\Producer $producer) : bool
+    public function has($producer) : bool
     {
         return $this->uow->has($producer);
     }

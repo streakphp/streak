@@ -56,7 +56,7 @@ final class Subscription implements Event\Subscription, Event\Sourced, Versionab
     }
 
     /**
-     * @return iterable|Event[]
+     * @return iterable|Event\Envelope[]
      *
      * @throws Exception\SubscriptionAlreadyCompleted
      * @throws Exception\SubscriptionNotStartedYet

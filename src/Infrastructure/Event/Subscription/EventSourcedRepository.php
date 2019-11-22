@@ -62,10 +62,10 @@ class EventSourcedRepository implements Subscription\Repository
         $listener = $this->listeners->create($id);
         $subscription = $this->subscriptions->create($listener);
 
-        $eventSourced = $this->eventSourced($subscription);
+        $unwrapped = $this->unwrap($subscription);
 
         $filter = new EventStore\Filter();
-        $filter = $filter->filterProducerIds($eventSourced->producerId());
+        $filter = $filter->filterProducerIds($unwrapped->producerId());
 
         $stream = $this->store->stream($filter);
 
@@ -73,9 +73,9 @@ class EventSourcedRepository implements Subscription\Repository
             return null;
         }
 
-        $eventSourced->replay($stream);
+        $unwrapped->replay($stream);
 
-        $this->uow->add($eventSourced);
+        $this->uow->add($unwrapped);
 
         return $subscription;
     }
@@ -85,10 +85,10 @@ class EventSourcedRepository implements Subscription\Repository
      */
     public function has(Event\Subscription $subscription) : bool
     {
-        $eventSourced = $this->eventSourced($subscription);
+        $unwrapped = $this->unwrap($subscription);
 
         $filter = new EventStore\Filter();
-        $filter = $filter->filterProducerIds($eventSourced->producerId());
+        $filter = $filter->filterProducerIds($unwrapped->producerId());
 
         $stream = $this->store->stream($filter);
 
@@ -104,9 +104,9 @@ class EventSourcedRepository implements Subscription\Repository
      */
     public function add(Event\Subscription $subscription) : void
     {
-        $eventSourced = $this->eventSourced($subscription);
+        $unwrapped = $this->unwrap($subscription);
 
-        $this->uow->add($eventSourced);
+        $this->uow->add($unwrapped);
     }
 
     /**
@@ -162,7 +162,7 @@ class EventSourcedRepository implements Subscription\Repository
      *
      * @return Event\Sourced|Subscription
      */
-    private function eventSourced(Event\Subscription $subscription) : Event\Sourced
+    private function unwrap(Event\Subscription $subscription) : Event\Sourced
     {
         $exception = new Exception\ObjectNotSupported($subscription);
 
