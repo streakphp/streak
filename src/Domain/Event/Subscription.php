@@ -49,6 +49,8 @@ interface Subscription
      */
     public function restart() : void;
 
+    public function starting() : bool;
+
     public function started() : bool;
 
     public function completed() : bool;
