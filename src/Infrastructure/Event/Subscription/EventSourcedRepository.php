@@ -23,6 +23,7 @@ use Streak\Domain\Event\Subscription\Repository\Filter;
 use Streak\Domain\EventStore;
 use Streak\Domain\Exception;
 use Streak\Infrastructure;
+use Streak\Infrastructure\Event\Sourced\LazyLoadedSubscription;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -62,7 +63,7 @@ class EventSourcedRepository implements Subscription\Repository
         $listener = $this->listeners->create($id);
         $subscription = $this->subscriptions->create($listener);
 
-        if (!$subscription instanceof Domain\Event\Sourced\Subscription) {
+        if (!$subscription instanceof Event\Sourced) {
             throw new Exception\ObjectNotSupported($subscription);
         }
 
@@ -93,7 +94,7 @@ class EventSourcedRepository implements Subscription\Repository
      */
     public function has(Event\Subscription $subscription) : bool
     {
-        if (!$subscription instanceof Domain\Event\Sourced\Subscription) {
+        if (!$subscription instanceof Event\Sourced) {
             throw new Exception\ObjectNotSupported($subscription);
         }
 
@@ -114,7 +115,7 @@ class EventSourcedRepository implements Subscription\Repository
      */
     public function add(Event\Subscription $subscription) : void
     {
-        if (!$subscription instanceof Domain\Event\Sourced\Subscription) {
+        if (!$subscription instanceof Event\Sourced) {
             throw new Exception\ObjectNotSupported($subscription);
         }
 
@@ -160,7 +161,7 @@ class EventSourcedRepository implements Subscription\Repository
         }
 
         foreach ($ids as $id) {
-            yield $this->find($id);
+            yield new LazyLoadedSubscription($id, $this);
         }
     }
 }
