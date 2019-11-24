@@ -25,6 +25,7 @@ use Streak\Domain\Event\Sourced\Subscription\Stream as SubscriptionStream;
 use Streak\Domain\Event\Subscription\Exception;
 use Streak\Domain\EventStore;
 use Streak\Domain\Versionable;
+use Streak\Infrastructure\Event\InMemoryStream;
 use Streak\Infrastructure\Event\NullListener;
 
 /**
@@ -69,9 +70,7 @@ final class Subscription implements Event\Subscription, Event\Sourced, Versionab
             throw new Exception\SubscriptionNotStartedYet($this);
         }
 
-        $last = $this->lastEvent();
-
-        if ($last instanceof SubscriptionCompleted) {
+        if (true === $this->completed()) {
             throw new Exception\SubscriptionAlreadyCompleted($this);
         }
 
@@ -84,33 +83,20 @@ final class Subscription implements Event\Subscription, Event\Sourced, Versionab
             $stream = $this->listener->filter($stream);
         }
 
-        if ($last instanceof SubscriptionStarted) {
+        if (true === $this->starting()) {
+            // lets start listening from event that initiated subscription...
             $starter = $this->startedBy;
 
             if ($this->listener instanceof Event\Picker) {
+                // ...or pick one
                 $starter = $this->listener->pick($store);
             }
 
             $stream = $stream->from($starter);
-        }
+        } else {
+            $last = $this->lastEvent();
 
-        if ($last instanceof SubscriptionRestarted) {
-            $starter = $this->startedBy;
-
-            if ($this->listener instanceof Event\Picker) {
-                $starter = $this->listener->pick($store);
-            }
-
-            $stream = $stream->from($starter);
-        }
-
-        if ($last instanceof SubscriptionListenedToEvent) {
-            // lets continue from next event after last one we have listened to
-            $stream = $stream->after($last->event());
-        }
-
-        if ($last instanceof SubscriptionIgnoredEvent) {
-            // lets continue from next event after last one we have ignored
+            // lets continue from event after last one we have listened to
             $stream = $stream->after($last->event());
         }
 
@@ -177,22 +163,38 @@ final class Subscription implements Event\Subscription, Event\Sourced, Versionab
     {
         /** @var $last Subscription\Event */
         $last = $stream->last();
-        $stream = $stream->to($last);
-        $stream = $stream->only(SubscriptionStarted::class, SubscriptionRestarted::class, SubscriptionCompleted::class, SubscriptionListenedToEvent::class); // inclusion is faster
+        $stream = $stream->to($last); // freeze, ignore any events that were stored after replaying process started
 
         try {
+            $copy = $stream->only(SubscriptionStarted::class, SubscriptionRestarted::class, SubscriptionCompleted::class); // inclusion is faster
+
             $backup = $this->listener;
             $this->listener = NullListener::from($this->listener);
-            $this->doReplay($stream);
-            $this->lastEvent = $last;
-            $this->version = $last->subscriptionVersion();
+
+            $this->doReplay($copy);
+
+            $left = $copy->last();
+            $copy = $copy->after($left);
+            $copy = $copy->only(SubscriptionListenedToEvent::class, SubscriptionIgnoredEvent::class); // inclusion is faster
+            $left = $copy->last();
+
+            if (null !== $left) {
+                $copy = new InMemoryStream($left);
+                $this->doReplay($copy);
+            }
         } finally {
             $this->listener = $backup;
         }
 
+        $this->lastReplayed = $last;
+        $this->lastEvent = $last;
+        $this->version = $last->subscriptionVersion();
+
         if ($this->listener instanceof Event\Listener\Replayable) {
-            $unpacked = new SubscriptionStream($stream);
-            $this->listener->replay($unpacked);
+            $stream = $stream->only(SubscriptionListenedToEvent::class); // inclusion is faster
+            $stream = new SubscriptionStream($stream);
+
+            $this->listener->replay($stream);
         }
     }
 
@@ -229,6 +231,11 @@ final class Subscription implements Event\Subscription, Event\Sourced, Versionab
         return null !== $this->startedBy;
     }
 
+    public function starting() : bool
+    {
+        return $this->starting;
+    }
+
     public function completed() : bool
     {
         return null !== $this->completedBy;
@@ -262,6 +269,7 @@ final class Subscription implements Event\Subscription, Event\Sourced, Versionab
     private function applySubscriptionCompleted(SubscriptionCompleted $event)
     {
         $this->completedBy = $this->lastEvent;
+        $this->starting = false;
     }
 
     private function applySubscriptionStarted(SubscriptionStarted $event)
