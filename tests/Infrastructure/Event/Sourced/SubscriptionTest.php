@@ -11,7 +11,7 @@
 
 declare(strict_types=1);
 
-namespace Streak\Domain\Event\Sourced;
+namespace Streak\Infrastructure\Event\Sourced;
 
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -29,7 +29,7 @@ use Streak\Infrastructure\FixedClock;
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  *
- * @covers \Streak\Domain\Event\Sourced\Subscription
+ * @covers \Streak\Infrastructure\Event\Sourced\Subscription
  */
 class SubscriptionTest extends TestCase
 {

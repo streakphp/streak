@@ -11,7 +11,7 @@
 
 declare(strict_types=1);
 
-namespace Streak\Domain\Event\Sourced;
+namespace Streak\Infrastructure\Event\Sourced;
 
 use Streak\Domain;
 use Streak\Domain\Event;
@@ -30,8 +30,6 @@ use Streak\Infrastructure\Event\NullListener;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
- *
- * TODO: move under Application?
  */
 final class Subscription implements Event\Subscription, Event\Sourced, Versionable
 {

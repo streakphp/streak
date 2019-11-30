@@ -22,7 +22,6 @@ use Streak\Domain\Event\Sourced\Subscription\Event\SubscriptionStarted;
 use Streak\Domain\EventBus;
 use Streak\Domain\EventStore;
 use Streak\Domain\Id\UUID;
-use Streak\Infrastructure\UnitOfWork;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -76,11 +75,6 @@ class SubscriberTest extends TestCase
      */
     private $producer1;
 
-    /**
-     * @var UnitOfWork|MockObject
-     */
-    private $uow;
-
     protected function setUp()
     {
         $this->store = $this->getMockBuilder(EventStore::class)->getMockForAbstractClass();
@@ -92,29 +86,23 @@ class SubscriberTest extends TestCase
         $this->subscription1 = $this->getMockBuilder(Event\Subscription::class)->getMockForAbstractClass();
         $this->event1 = $this->getMockBuilder(Event::class)->getMockForAbstractClass();
         $this->producer1 = $this->getMockBuilder(Event\Producer::class)->getMockForAbstractClass();
-        $this->uow = $this->getMockBuilder(UnitOfWork::class)->getMockForAbstractClass();
     }
 
     public function testSubscriber()
     {
-        $subscriber = new Subscriber($this->listenerFactory, $this->subscriptionFactory, $this->subscriptionsRepository, $this->uow);
+        $subscriber = new Subscriber($this->listenerFactory, $this->subscriptionFactory, $this->subscriptionsRepository);
         $this->assertInstanceOf(UUID::class, $subscriber->id());
     }
 
     public function testSubscriberForEventThatSpawnsNoListener()
     {
-        $subscriber = new Subscriber($this->listenerFactory, $this->subscriptionFactory, $this->subscriptionsRepository, $this->uow);
+        $subscriber = new Subscriber($this->listenerFactory, $this->subscriptionFactory, $this->subscriptionsRepository);
 
         $this->listenerFactory
             ->expects($this->once())
             ->method('createFor')
             ->with($this->event1)
             ->willThrowException(new Exception\InvalidEventGiven($this->event1))
-        ;
-
-        $this->uow
-            ->expects($this->never())
-            ->method('commit')
         ;
 
         $processed = $subscriber->on($this->event1);
@@ -124,7 +112,7 @@ class SubscriberTest extends TestCase
 
     public function testSubscriberForNewListener()
     {
-        $subscriber = new Subscriber($this->listenerFactory, $this->subscriptionFactory, $this->subscriptionsRepository, $this->uow);
+        $subscriber = new Subscriber($this->listenerFactory, $this->subscriptionFactory, $this->subscriptionsRepository);
 
         $this->listenerFactory
             ->expects($this->once())
@@ -153,13 +141,6 @@ class SubscriberTest extends TestCase
             ->with($this->subscription1)
         ;
 
-        $this->uow
-            ->expects($this->once())
-            ->method('commit')
-            ->with()
-            ->willReturn($this->committed($this->producer1))
-        ;
-
         $processed = $subscriber->on($this->event1);
 
         $this->assertTrue($processed);
@@ -167,7 +148,7 @@ class SubscriberTest extends TestCase
 
     public function testSubscriberForExistingListener()
     {
-        $subscriber = new Subscriber($this->listenerFactory, $this->subscriptionFactory, $this->subscriptionsRepository, $this->uow);
+        $subscriber = new Subscriber($this->listenerFactory, $this->subscriptionFactory, $this->subscriptionsRepository);
 
         $this->listenerFactory
             ->expects($this->once())
@@ -195,11 +176,6 @@ class SubscriberTest extends TestCase
             ->method('add')
         ;
 
-        $this->uow
-            ->expects($this->never())
-            ->method('commit')
-        ;
-
         $processed = $subscriber->on($this->event1);
 
         $this->assertTrue($processed);
@@ -207,7 +183,7 @@ class SubscriberTest extends TestCase
 
     public function testSubscriberForSubscriptionsEvents()
     {
-        $subscriber = new Subscriber($this->listenerFactory, $this->subscriptionFactory, $this->subscriptionsRepository, $this->uow);
+        $subscriber = new Subscriber($this->listenerFactory, $this->subscriptionFactory, $this->subscriptionsRepository);
 
         $this->listenerFactory
             ->expects($this->never())
@@ -217,11 +193,6 @@ class SubscriberTest extends TestCase
         $this->subscriptionFactory
             ->expects($this->never())
             ->method('create')
-        ;
-
-        $this->uow
-            ->expects($this->never())
-            ->method('commit')
         ;
 
         $processed = $subscriber->on(new SubscriptionStarted($this->event1, new \DateTime()));
@@ -239,7 +210,7 @@ class SubscriberTest extends TestCase
 
     public function testListening()
     {
-        $subscriber = new Subscriber($this->listenerFactory, $this->subscriptionFactory, $this->subscriptionsRepository, $this->uow);
+        $subscriber = new Subscriber($this->listenerFactory, $this->subscriptionFactory, $this->subscriptionsRepository);
 
         $this->bus
             ->expects($this->once())

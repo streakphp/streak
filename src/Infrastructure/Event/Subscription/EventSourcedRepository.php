@@ -23,7 +23,6 @@ use Streak\Domain\Event\Subscription\Repository\Filter;
 use Streak\Domain\EventStore;
 use Streak\Domain\Exception;
 use Streak\Infrastructure;
-use Streak\Infrastructure\Event\Sourced\LazyLoadedSubscription;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
