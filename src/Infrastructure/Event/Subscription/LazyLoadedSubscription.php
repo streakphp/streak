@@ -11,7 +11,7 @@
 
 declare(strict_types=1);
 
-namespace Streak\Infrastructure\Event\Sourced;
+namespace Streak\Infrastructure\Event\Subscription;
 
 use Streak\Domain;
 use Streak\Domain\Event\Listener;

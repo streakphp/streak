@@ -11,7 +11,7 @@
 
 declare(strict_types=1);
 
-namespace Streak\Infrastructure\Event\Sourced;
+namespace Streak\Infrastructure\Event\Subscription;
 
 use PHPUnit\Framework\TestCase;
 use Streak\Domain\Event;
@@ -22,7 +22,7 @@ use Streak\Domain\EventStore;
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  *
- * @covers \Streak\Infrastructure\Event\Sourced\LazyLoadedSubscription
+ * @covers \Streak\Infrastructure\Event\Subscription\LazyLoadedSubscription
  */
 class LazyLoadedSubscriptionTest extends TestCase
 {

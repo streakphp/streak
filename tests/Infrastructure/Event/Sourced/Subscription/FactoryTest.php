@@ -11,7 +11,7 @@
 
 declare(strict_types=1);
 
-namespace Streak\Domain\Event\Sourced\Subscription;
+namespace Streak\Infrastructure\Event\Sourced\Subscription;
 
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -21,7 +21,7 @@ use Streak\Domain\Event;
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  *
- * @covers \Streak\Domain\Event\Sourced\Subscription\Factory
+ * @covers \Streak\Infrastructure\Event\Sourced\Subscription\Factory
  */
 class FactoryTest extends TestCase
 {
@@ -47,6 +47,6 @@ class FactoryTest extends TestCase
 
         $subscription = $factory->create($this->listener);
 
-        $this->assertEquals(new Event\Sourced\Subscription($this->listener, $this->clock), $subscription);
+        $this->assertEquals(new \Streak\Infrastructure\Event\Sourced\Subscription($this->listener, $this->clock), $subscription);
     }
 }

@@ -18,10 +18,11 @@ use Streak\Domain\Event\Sourced\Subscription\Event\SubscriptionCompleted;
 use Streak\Domain\Event\Sourced\Subscription\Event\SubscriptionListenedToEvent;
 use Streak\Domain\Event\Sourced\Subscription\Event\SubscriptionStarted;
 use Streak\Domain\EventBus;
-use Streak\Infrastructure\UnitOfWork;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * TODO: move under `Infrastructure`
  */
 class Subscriber implements Event\Listener
 {
@@ -30,15 +31,13 @@ class Subscriber implements Event\Listener
     private $listenerFactory;
     private $subscriptionFactory;
     private $subscriptionsRepository;
-    private $uow;
 
-    public function __construct(Event\Listener\Factory $listenerFactory, Event\Subscription\Factory $subscriptionFactory, Event\Subscription\Repository $subscriptionsRepository, UnitOfWork $uow) // TODO: GET RID OF UOW FROM HERE!
+    public function __construct(Event\Listener\Factory $listenerFactory, Event\Subscription\Factory $subscriptionFactory, Event\Subscription\Repository $subscriptionsRepository)
     {
         $this->identifyBy(Subscriber\Id::create());
         $this->listenerFactory = $listenerFactory;
         $this->subscriptionFactory = $subscriptionFactory;
         $this->subscriptionsRepository = $subscriptionsRepository;
-        $this->uow = $uow;
     }
 
     public function listenTo(EventBus $bus)
@@ -76,8 +75,6 @@ class Subscriber implements Event\Listener
         $this->subscriptionsRepository->add($subscription);
 
         $subscription->startFor($event);
-
-        iterator_to_array($this->uow->commit()); // TODO: remove
 
         return true;
     }
