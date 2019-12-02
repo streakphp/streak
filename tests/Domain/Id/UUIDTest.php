@@ -58,7 +58,7 @@ class UUIDTest extends TestCase
 
     public function testInvalidUUID()
     {
-        $this->expectExceptionObject(new \InvalidArgumentException());
+        $this->expectExceptionObject(new \InvalidArgumentException('Given value "invalid uuid" is not an uuid.'));
 
         new UUID('invalid uuid');
     }
