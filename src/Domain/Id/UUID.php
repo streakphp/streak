@@ -34,7 +34,7 @@ class UUID implements Domain\Id
         try {
             $uuid = \Ramsey\Uuid\Uuid::fromString($value);
         } catch (\Throwable $e) {
-            throw new \InvalidArgumentException('', 0, $e);
+            throw new \InvalidArgumentException(sprintf('Given value "%s" is not an uuid.', $value), 0, $e);
         }
 
         $null = \Ramsey\Uuid\Uuid::fromString('00000000-0000-0000-0000-000000000000');
