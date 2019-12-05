@@ -18,6 +18,7 @@ use Streak\Application;
 use Streak\Domain;
 use Streak\Domain\Event;
 use Streak\Infrastructure\Event\InMemoryStream;
+use Streak\Infrastructure\Event\Sourced\Subscription\InMemoryState;
 use Streak\Infrastructure\Testing\Listener\Scenario\Then;
 
 /**
@@ -46,6 +47,11 @@ class Scenario implements Scenario\Given, Scenario\When, Scenario\Then, Applicat
      * @var Event
      */
     private $when;
+
+    /**
+     * @var bool
+     */
+    private $replaying = false;
 
     /**
      * @var Application\Command[]
@@ -98,11 +104,35 @@ class Scenario implements Scenario\Given, Scenario\When, Scenario\Then, Applicat
         if (null !== $first) {
             $listener = $this->factory->createFor($first);
 
-            if ($listener instanceof Event\Replayable) {
-                $listener->replay(new InMemoryStream($first, ...$this->given));
+            $this->given = array_merge([$first], $this->given);
+
+            $previousState = null;
+            if ($listener instanceof Event\Listener\Stateful) {
+                $this->replaying = true;
+                foreach ($this->given as $event) {
+                    $listener->on($event);
+
+                    $currentState = $listener->toState(InMemoryState::empty());
+                    $currentState = InMemoryState::fromState($currentState);
+
+                    if ($currentState->equals($previousState)) {
+                        // state not changed
+                        continue;
+                    }
+                    $previousState = $currentState;
+                    $previousListener = $listener;
+
+                    $listener = $this->factory->create($previousListener->listenerId());
+                    $listener->fromState($currentState);
+
+                    Assert::assertEquals($previousListener, $listener, sprintf('Listener "%s" that listened to %s" and generated incomplete state. Please review your Listener\Stateful::toState() and Listener\Stateful::fromState() methods.', get_class($listener), get_class($event)));
+                }
+                $this->replaying = false;
             }
+            $new = $this->factory->createFor($first);
         } else {
             $listener = $this->factory->createFor($this->when);
+            $new = $this->factory->createFor($this->when);
         }
 
         if ($listener instanceof Event\Filterer) {
@@ -118,6 +148,10 @@ class Scenario implements Scenario\Given, Scenario\When, Scenario\Then, Applicat
         $this->expectedCommands = array_filter($this->expectedCommands); // cleanup
         $listener->on($this->when);
 
+        if (!$listener instanceof Event\Listener\Stateful) {
+            Assert::assertEquals($listener, $new, sprintf('State introduced when listener "%s" listened to "%s" event, but listener is not implementing "%s" interface.', get_class($listener), get_class($this->when), Event\Listener\Stateful::class));
+        }
+
         Assert::assertEquals($this->expectedCommands, $this->actualCommands, 'Expected commands do not match actual commands dispatched by the listener.');
 
         if (null === $constraint) {
@@ -129,6 +163,10 @@ class Scenario implements Scenario\Given, Scenario\When, Scenario\Then, Applicat
 
     public function handle(Application\Command $command) : void
     {
+        if (true === $this->replaying) {
+            return;
+        }
+
         $this->actualCommands[] = $command;
 
         $error = array_shift($this->expectedErrors);

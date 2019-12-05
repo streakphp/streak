@@ -328,11 +328,11 @@ class EventSourcedRepositoryTest extends TestCase
         $this->eventSourcedSubscription
             ->expects($this->once())
             ->method('replay')
-            ->with($this->callback(function (Event\Stream $stream) use ($event4, $event5, $event6) {
+            ->with($this->callback(function (Event\Stream $stream) use ($event1, $event2, $event3, $event4, $event5, $event6) {
                 $stream = iterator_to_array($stream);
 
                 // streaming from SubscriptionRestarted event
-                return $this->equalTo([$event4, $event5, $event6])->evaluate($stream);
+                return $this->equalTo([$event1, $event2, $event3, $event4, $event5, $event6])->evaluate($stream);
             }))
         ;
 

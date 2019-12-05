@@ -20,10 +20,12 @@ use Streak\Domain\Event\Listener;
 use Streak\Domain\Event\Sourced\Subscription\Event\SubscriptionCompleted;
 use Streak\Domain\Event\Sourced\Subscription\Event\SubscriptionIgnoredEvent;
 use Streak\Domain\Event\Sourced\Subscription\Event\SubscriptionListenedToEvent;
+use Streak\Domain\Event\Sourced\Subscription\Event\SubscriptionListenersStateChanged;
 use Streak\Domain\Event\Sourced\Subscription\Event\SubscriptionRestarted;
 use Streak\Domain\Event\Sourced\Subscription\Event\SubscriptionStarted;
 use Streak\Domain\EventStore;
 use Streak\Infrastructure\Event\InMemoryStream;
+use Streak\Infrastructure\Event\Sourced\Subscription\InMemoryState;
 use Streak\Infrastructure\FixedClock;
 
 /**
@@ -72,6 +74,11 @@ class SubscriptionTest extends TestCase
      * @var Listener|Event\Filterer|MockObject
      */
     private $listener8;
+
+    /**
+     * @var Listener|Listener\Stateful|MockObject
+     */
+    private $listener9;
 
     /**
      * @var Listener\Id|MockObject
@@ -129,6 +136,21 @@ class SubscriptionTest extends TestCase
     private $event5;
 
     /**
+     * @var Listener\State
+     */
+    private $state1;
+
+    /**
+     * @var Listener\State
+     */
+    private $state2;
+
+    /**
+     * @var Listener\State
+     */
+    private $state3;
+
+    /**
      * @var FixedClock
      */
     private $clock;
@@ -143,6 +165,7 @@ class SubscriptionTest extends TestCase
         $this->listener6 = $this->getMockBuilder([Listener::class, Listener\Completable::class, Listener\Resettable::class])->getMock();
         $this->listener7 = $this->getMockBuilder([Listener::class, Listener\Resettable::class, Event\Picker::class])->getMock();
         $this->listener8 = $this->getMockBuilder([Listener::class, Event\Filterer::class])->getMock();
+        $this->listener9 = $this->getMockBuilder([Listener::class, Listener\Replayable::class, Listener\Stateful::class])->getMock();
 
         $this->id1 = $this->getMockBuilder(Listener\Id::class)->getMockForAbstractClass();
         $this->id2 = $this->getMockBuilder(Listener\Id::class)->getMockForAbstractClass();
@@ -158,6 +181,10 @@ class SubscriptionTest extends TestCase
         $this->event3 = $this->getMockBuilder(Event::class)->setMockClassName('event3')->getMockForAbstractClass();
         $this->event4 = $this->getMockBuilder(Event::class)->setMockClassName('event4')->getMockForAbstractClass();
         $this->event5 = $this->getMockBuilder(Event::class)->setMockClassName('event5')->getMockForAbstractClass();
+
+        $this->state1 = InMemoryState::fromArray(['number' => 1]);
+        $this->state2 = InMemoryState::fromArray(['number' => 2]);
+        $this->state3 = InMemoryState::fromArray(['number' => 3]);
 
         $this->clock = new FixedClock(new \DateTime('2018-09-28 19:12:32.763188 +00:00'));
     }
@@ -765,6 +792,210 @@ class SubscriptionTest extends TestCase
         $this->assertSame(6, $subscription->version());
     }
 
+    public function testReplayingStatefulListenerWithExistingState()
+    {
+        $now = new \DateTime('2018-09-28 19:12:32.763188 +00:00');
+
+        $subscription = new Subscription($this->listener9, $this->clock);
+
+        $this->assertSame($subscription->listener(), $this->listener9);
+        $this->assertNull($subscription->lastReplayed());
+        $this->assertNull($subscription->lastEvent());
+        $this->assertEmpty($subscription->events());
+        $this->assertSame(0, $subscription->version());
+
+        $event0 = new SubscriptionStarted($this->event1, $now);
+        $event1 = new SubscriptionListenedToEvent($this->event1, 2, $now);
+        $event2 = new SubscriptionListenersStateChanged($this->state1, 3, $now);
+        $event3 = new SubscriptionListenedToEvent($this->event2, 4, $now);
+
+        $this->stream1 = new InMemoryStream($event0, $event1, $event2, $event3);
+        $this->listener9
+            ->expects($this->never())
+            ->method('replay')
+        ;
+        $this->listener9
+            ->expects($this->exactly(3))
+            ->method('fromState')
+            ->withConsecutive(
+                [$this->callback(function (Listener\State $state) { return $state->equals($this->state1); })],
+                [$this->callback(function (Listener\State $state) { return $state->equals($this->state2); })],
+                [$this->callback(function (Listener\State $state) { return $state->equals($this->state3); })]
+            )
+        ;
+
+        $subscription->replay($this->stream1);
+
+        $this->assertSame($event3, $subscription->lastReplayed());
+        $this->assertSame(4, $subscription->version());
+        $this->assertEquals($event3, $subscription->lastEvent());
+        $this->assertEmpty($subscription->events());
+
+        $this->stream2 = new InMemoryStream($this->event3, $this->event4);
+        $this->stream3 = new InMemoryStream($this->event5);
+
+        $this->store
+            ->expects($this->exactly(2))
+            ->method('stream')
+            ->willReturnOnConsecutiveCalls(
+                $this->stream2,
+                $this->stream3
+            )
+        ;
+
+        $this->listener9
+            ->expects($this->exactly(3))
+            ->method('on')
+            ->withConsecutive(
+                [$this->event3], // first subscribeTo() call
+                [$this->event4], // first subscribeTo() call
+                [$this->event5]  // second subscribeTo() call
+            )
+            ->willReturnOnConsecutiveCalls(
+                false,
+                true,
+                true
+            )
+        ;
+        $this->listener9
+            ->expects($this->any())
+            ->method('toState')
+            ->with(InMemoryState::empty())
+            ->willReturnOnConsecutiveCalls(
+                $this->state1, // state not changed for $this->event3
+                $this->state2, // state changed for $this->event4
+                $this->state3  // state changed for $this->event5
+            )
+        ;
+
+        $events = $subscription->subscribeTo($this->store);
+        $events = iterator_to_array($events);
+
+        $this->assertEquals([$this->event3, $this->event4], $events);
+        $this->assertEquals([new SubscriptionIgnoredEvent($this->event3, 5, $now), new SubscriptionListenedToEvent($this->event4, 6, $now), new SubscriptionListenersStateChanged($this->state2, 7, $now)], $subscription->events());
+        $this->assertSame(4, $subscription->version());
+
+        $subscription->commit();
+
+        $this->assertEquals([], $subscription->events());
+        $this->assertSame(7, $subscription->version());
+
+        $events = $subscription->subscribeTo($this->store);
+        $events = iterator_to_array($events);
+
+        $this->assertEquals([$this->event5], $events);
+        $this->assertEquals([new SubscriptionListenedToEvent($this->event5, 8, $now), new SubscriptionListenersStateChanged($this->state3, 9, $now)], $subscription->events());
+        $this->assertSame(7, $subscription->version());
+
+        $subscription->commit();
+
+        $this->assertEquals([], $subscription->events());
+        $this->assertSame(9, $subscription->version());
+    }
+
+    public function testReplayingStatefulListenerWithoutExistingState()
+    {
+        $now = new \DateTime('2018-09-28 19:12:32.763188 +00:00');
+
+        $subscription = new Subscription($this->listener9, $this->clock);
+
+        $this->assertSame($subscription->listener(), $this->listener9);
+        $this->assertNull($subscription->lastReplayed());
+        $this->assertNull($subscription->lastEvent());
+        $this->assertEmpty($subscription->events());
+        $this->assertSame(0, $subscription->version());
+
+        $event0 = new SubscriptionStarted($this->event1, $now);
+        $event1 = new SubscriptionListenedToEvent($this->event1, 2, $now);
+        $event2 = new SubscriptionListenedToEvent($this->event2, 3, $now);
+
+        $this->stream1 = new InMemoryStream($event0, $event1, $event2);
+        $this->listener9
+            ->expects($this->once())
+            ->method('replay')
+            ->with($this->callback(function ($stream) {
+                $stream = iterator_to_array($stream);
+
+                return $this->equalTo([$this->event1, $this->event2])->evaluate($stream);
+            }));
+
+        $subscription->replay($this->stream1);
+
+        $this->assertSame($event2, $subscription->lastReplayed());
+        $this->assertSame(3, $subscription->version());
+        $this->assertEquals($event2, $subscription->lastEvent());
+        $this->assertEmpty($subscription->events());
+
+        $this->stream2 = new InMemoryStream($this->event3, $this->event4);
+        $this->stream3 = new InMemoryStream($this->event5);
+
+        $this->store
+            ->expects($this->exactly(2))
+            ->method('stream')
+            ->willReturnOnConsecutiveCalls(
+                $this->stream2,
+                $this->stream3
+            )
+        ;
+        $this->listener9
+            ->expects($this->exactly(3))
+            ->method('fromState')
+            ->withConsecutive(
+                [$this->callback(function (Listener\State $state) { return $state->equals($this->state1); })],
+                [$this->callback(function (Listener\State $state) { return $state->equals($this->state2); })],
+                [$this->callback(function (Listener\State $state) { return $state->equals($this->state3); })]
+            )
+        ;
+        $this->listener9
+            ->expects($this->exactly(3))
+            ->method('on')
+            ->withConsecutive(
+                [$this->event3],
+                [$this->event4],
+                [$this->event5]
+            )
+            ->willReturnOnConsecutiveCalls(
+                false,
+                true,
+                true
+            )
+        ;
+        $this->listener9
+            ->expects($this->any())
+            ->method('toState')
+            ->with(InMemoryState::empty())
+            ->willReturnOnConsecutiveCalls(
+                $this->state1, // state not changed for $this->event3
+                $this->state2, // state changed for $this->event4
+                $this->state3  // state changed for $this->event5
+            )
+        ;
+
+        $events = $subscription->subscribeTo($this->store);
+        $events = iterator_to_array($events);
+
+        $this->assertEquals([$this->event3, $this->event4], $events);
+        $this->assertEquals([new SubscriptionIgnoredEvent($this->event3, 4, $now), new SubscriptionListenersStateChanged($this->state1, 5, $now), new SubscriptionListenedToEvent($this->event4, 6, $now), new SubscriptionListenersStateChanged($this->state2, 7, $now)], $subscription->events());
+        $this->assertSame(3, $subscription->version());
+
+        $subscription->commit();
+
+        $this->assertEquals([], $subscription->events());
+        $this->assertSame(7, $subscription->version());
+
+        $events = $subscription->subscribeTo($this->store);
+        $events = iterator_to_array($events);
+
+        $this->assertEquals([$this->event5], $events);
+        $this->assertEquals([new SubscriptionListenedToEvent($this->event5, 8, $now), new SubscriptionListenersStateChanged($this->state3, 9, $now)], $subscription->events());
+        $this->assertSame(7, $subscription->version());
+
+        $subscription->commit();
+
+        $this->assertEquals([], $subscription->events());
+        $this->assertSame(9, $subscription->version());
+    }
+
     public function testReplayableListener()
     {
         $now = new \DateTime('2018-09-28 19:12:32.763188 +00:00');
@@ -913,6 +1144,7 @@ class SubscriptionTest extends TestCase
 
         $subscription->replay($this->stream1);
 
+        $this->assertTrue($subscription->completed());
         $this->assertSame($event2, $subscription->lastReplayed());
         $this->assertSame($event2, $subscription->lastEvent());
         $this->assertEmpty($subscription->events());
@@ -949,6 +1181,7 @@ class SubscriptionTest extends TestCase
 
         $subscription->replay($this->stream1);
 
+        $this->assertTrue($subscription->completed());
         $this->assertSame($event5, $subscription->lastReplayed());
         $this->assertSame($event5, $subscription->lastEvent());
         $this->assertEmpty($subscription->events());
@@ -1279,6 +1512,17 @@ class SubscriptionTest extends TestCase
         $this->listener6
             ->expects($this->once())
             ->method('reset')
+        ;
+
+        $this->listener6
+            ->expects($this->exactly(4))
+            ->method('on')
+            ->withConsecutive(
+                [$this->event2],
+                [$this->event3],
+                [$this->event4],
+                [$this->event5]
+            )
         ;
 
         $events = $subscription->subscribeTo($this->store);

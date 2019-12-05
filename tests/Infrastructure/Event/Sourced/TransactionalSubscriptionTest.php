@@ -1063,6 +1063,7 @@ class TransactionalSubscriptionTest extends TestCase
         $this->assertSame($event2, $subscription->lastReplayed());
         $this->assertEmpty($subscription->events());
         $this->assertSame(3, $subscription->version());
+        $this->assertTrue($subscription->completed());
 
         $this->store
             ->expects($this->never())
@@ -1109,6 +1110,7 @@ class TransactionalSubscriptionTest extends TestCase
         $this->assertSame($event5, $subscription->lastReplayed());
         $this->assertEmpty($subscription->events());
         $this->assertSame(6, $subscription->version());
+        $this->assertTrue($subscription->completed());
 
         $this->store
             ->expects($this->never())
@@ -1470,6 +1472,17 @@ class TransactionalSubscriptionTest extends TestCase
         $this->listener6
             ->expects($this->once())
             ->method('reset')
+        ;
+
+        $this->listener6
+            ->expects($this->exactly(4))
+            ->method('on')
+            ->withConsecutive(
+                [$this->event2],
+                [$this->event3],
+                [$this->event4],
+                [$this->event5]
+            )
         ;
 
         $events = $subscription->subscribeTo($this->store);
