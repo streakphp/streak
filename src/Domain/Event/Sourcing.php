@@ -91,7 +91,7 @@ trait Sourcing // implements Event\Consumer, Event\Producer, Domain\Identifiable
 
             $this->lastEvent = $event;
             if ($this->replaying) {
-                ++$this->version;
+                ++$this->version; // TODO: source version from event envelope
                 $this->lastReplayed = $event;
             } else {
                 $this->events[] = $event;

@@ -75,12 +75,6 @@ class EventSourcedRepository implements Subscription\Repository
             return null;
         }
 
-        $reset = $stream->only(SubscriptionRestarted::class)->last();
-
-        if (null !== $reset) {
-            $stream = $stream->from($reset);
-        }
-
         $subscription->replay($stream);
 
         $this->uow->add($subscription);
