@@ -7,6 +7,7 @@ jobs:
         environment:
           COMPOSER_NO_INTERACTION: 1
           COMPOSER_ALLOW_SUPERUSER: 1
+          COMPOSER_CACHE_DIR: ~/cache/composer
           PHPUNIT_POSTGRES_HOSTNAME: localhost
           PHPUNIT_POSTGRES_PORT: 5432
           PHPUNIT_POSTGRES_DATABASE: phpunit
@@ -28,13 +29,13 @@ jobs:
       - run: composer self-update
       - restore_cache:
           keys:
-            - composer-v1-{{ checksum "composer.json" }}
-            - composer-v1-
+            - composer-6d7f-{{ checksum "composer.json" }}
+            - composer-6d7f-
       - run: composer install -n --prefer-dist
       - save_cache:
-          key: composer-v1-{{ checksum "composer.json" }}
+          key: composer-6d7f-{{ checksum "composer.json" }}
           paths:
-            - vendor/
+            - ~/cache/composer
 
       - run: xphp bin/phpunit
 
