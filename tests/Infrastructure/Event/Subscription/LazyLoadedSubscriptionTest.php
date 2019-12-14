@@ -141,11 +141,11 @@ class LazyLoadedSubscriptionTest extends TestCase
         $this->subscription
             ->expects($this->once())
             ->method('subscribeTo')
-            ->with($this->store)
+            ->with($this->store, 94857623)
             ->willReturn([$this->event2, $this->event3])
         ;
 
-        $result = $subscription->subscribeTo($this->store);
+        $result = $subscription->subscribeTo($this->store, 94857623);
         $result = iterator_to_array($result);
 
         $this->assertSame([$this->event2, $this->event3], $result);

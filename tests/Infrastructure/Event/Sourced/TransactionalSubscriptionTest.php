@@ -270,7 +270,7 @@ class TransactionalSubscriptionTest extends TestCase
             ->method('completed')
         ;
 
-        $events = $subscription->subscribeTo($this->store);
+        $events = $subscription->subscribeTo($this->store, 2);
         $events = iterator_to_array($events);
 
         $this->assertEquals([$this->event1, $this->event2], $events);
@@ -288,7 +288,7 @@ class TransactionalSubscriptionTest extends TestCase
         $this->assertTrue($subscription->started());
         $this->assertFalse($subscription->completed());
 
-        $events = $subscription->subscribeTo($this->store);
+        $events = $subscription->subscribeTo($this->store, 2);
         $events = iterator_to_array($events);
 
         $this->assertEquals([$this->event3, $this->event4], $events);
@@ -306,7 +306,7 @@ class TransactionalSubscriptionTest extends TestCase
         $this->assertTrue($subscription->started());
         $this->assertFalse($subscription->completed());
 
-        $events = $subscription->subscribeTo($this->store);
+        $events = $subscription->subscribeTo($this->store, 1);
         $events = iterator_to_array($events);
 
         $this->assertEquals([$this->event5], $events);
@@ -406,7 +406,7 @@ class TransactionalSubscriptionTest extends TestCase
             ->willReturn(true)
         ;
 
-        $events = $subscription->subscribeTo($this->store); // picker should pick $this->event2
+        $events = $subscription->subscribeTo($this->store, 2); // picker should pick $this->event2
         $events = iterator_to_array($events);
 
         $this->assertEquals([$this->event2, $this->event3], $events);
@@ -437,7 +437,7 @@ class TransactionalSubscriptionTest extends TestCase
         $this->assertTrue($subscription->started());
         $this->assertFalse($subscription->completed());
 
-        $events = $subscription->subscribeTo($this->store); // after restart picker should pick $this->event1
+        $events = $subscription->subscribeTo($this->store, 4); // after restart picker should pick $this->event1
         $events = iterator_to_array($events);
 
         $this->assertEquals([$this->event1, $this->event2, $this->event3, $this->event4], $events);
@@ -526,7 +526,7 @@ class TransactionalSubscriptionTest extends TestCase
             ->willReturn(true)
         ;
 
-        $events = $subscription->subscribeTo($this->store);
+        $events = $subscription->subscribeTo($this->store, 2);
         $events = iterator_to_array($events);
 
         $this->assertEquals([$this->event2, $this->event3], $events);
@@ -538,7 +538,7 @@ class TransactionalSubscriptionTest extends TestCase
         $this->assertEquals([], $subscription->events());
         $this->assertSame(3, $subscription->version());
 
-        $events = $subscription->subscribeTo($this->store);
+        $events = $subscription->subscribeTo($this->store, 2);
         $events = iterator_to_array($events);
 
         $this->assertEquals([$this->event4, $this->event5], $events);
@@ -645,7 +645,7 @@ class TransactionalSubscriptionTest extends TestCase
             )
         ;
 
-        $events = $subscription->subscribeTo($this->store);
+        $events = $subscription->subscribeTo($this->store, 2);
         $events = iterator_to_array($events);
 
         $this->assertEquals([$this->event1, $this->event2], $events);
@@ -657,7 +657,7 @@ class TransactionalSubscriptionTest extends TestCase
         $this->assertEquals([], $subscription->events());
         $this->assertSame(3, $subscription->version());
 
-        $events = $subscription->subscribeTo($this->store);
+        $events = $subscription->subscribeTo($this->store, 2);
         $events = iterator_to_array($events);
 
         $this->assertEquals([$this->event3, $this->event4], $events);
@@ -669,7 +669,7 @@ class TransactionalSubscriptionTest extends TestCase
         $this->assertEquals([], $subscription->events());
         $this->assertSame(5, $subscription->version());
 
-        $events = $subscription->subscribeTo($this->store);
+        $events = $subscription->subscribeTo($this->store, PHP_INT_MAX); // subscription will stop listening to #events right after it being completed, even if $limit was not exhausted.
         $events = iterator_to_array($events);
 
         $this->assertEquals([$this->event5], $events);
@@ -757,7 +757,7 @@ class TransactionalSubscriptionTest extends TestCase
             )
         ;
 
-        $events = $subscription->subscribeTo($this->store);
+        $events = $subscription->subscribeTo($this->store, 2);
         $events = iterator_to_array($events);
 
         $this->assertEquals([$this->event3, $this->event4], $events);
@@ -769,7 +769,7 @@ class TransactionalSubscriptionTest extends TestCase
         $this->assertEquals([], $subscription->events());
         $this->assertSame(5, $subscription->version());
 
-        $events = $subscription->subscribeTo($this->store);
+        $events = $subscription->subscribeTo($this->store, 1);
         $events = iterator_to_array($events);
 
         $this->assertEquals([$this->event5], $events);
@@ -851,7 +851,7 @@ class TransactionalSubscriptionTest extends TestCase
             )
         ;
 
-        $events = $subscription->subscribeTo($this->store);
+        $events = $subscription->subscribeTo($this->store, 2);
         $events = iterator_to_array($events);
 
         $this->assertEquals([$this->event3, $this->event4], $events);
@@ -863,7 +863,7 @@ class TransactionalSubscriptionTest extends TestCase
         $this->assertEquals([], $subscription->events());
         $this->assertSame(5, $subscription->version());
 
-        $events = $subscription->subscribeTo($this->store);
+        $events = $subscription->subscribeTo($this->store, 1);
         $events = iterator_to_array($events);
 
         $this->assertEquals([$this->event5], $events);
@@ -982,7 +982,7 @@ class TransactionalSubscriptionTest extends TestCase
             )
         ;
 
-        $events = $subscription->subscribeTo($this->store);
+        $events = $subscription->subscribeTo($this->store, 2);
         $events = iterator_to_array($events);
 
         $this->assertEquals([$this->event1, $this->event2], $events);
@@ -1072,7 +1072,7 @@ class TransactionalSubscriptionTest extends TestCase
 
         $this->expectExceptionObject(new Event\Subscription\Exception\SubscriptionAlreadyCompleted($subscription));
 
-        $events = $subscription->subscribeTo($this->store);
+        $events = $subscription->subscribeTo($this->store, 1);
 
         iterator_to_array($events);
     }
@@ -1119,7 +1119,7 @@ class TransactionalSubscriptionTest extends TestCase
 
         $this->expectExceptionObject(new Event\Subscription\Exception\SubscriptionAlreadyCompleted($subscription));
 
-        $events = $subscription->subscribeTo($this->store);
+        $events = $subscription->subscribeTo($this->store, 1);
 
         iterator_to_array($events);
     }
@@ -1163,7 +1163,7 @@ class TransactionalSubscriptionTest extends TestCase
 
         $this->expectExceptionObject(new Event\Subscription\Exception\SubscriptionNotStartedYet($subscription));
 
-        $events = $subscription->subscribeTo($this->store);
+        $events = $subscription->subscribeTo($this->store, 1);
 
         iterator_to_array($events);
     }
@@ -1250,7 +1250,7 @@ class TransactionalSubscriptionTest extends TestCase
             )
         ;
 
-        $events = $subscription->subscribeTo($this->store);
+        $events = $subscription->subscribeTo($this->store, 4);
         $events = iterator_to_array($events);
 
         $this->assertSame([$this->event1, $this->event3, $this->event4, $this->event5], $events);
@@ -1347,7 +1347,7 @@ class TransactionalSubscriptionTest extends TestCase
             ->method('reset')
         ;
 
-        $events = $subscription->subscribeTo($this->store);
+        $events = $subscription->subscribeTo($this->store, 4);
         $events = iterator_to_array($events);
 
         $this->assertSame([$this->event2, $this->event3, $this->event4, $this->event5], $events);
@@ -1485,7 +1485,7 @@ class TransactionalSubscriptionTest extends TestCase
             )
         ;
 
-        $events = $subscription->subscribeTo($this->store);
+        $events = $subscription->subscribeTo($this->store, 4);
         $events = iterator_to_array($events);
 
         $this->assertSame([$this->event2, $this->event3, $this->event4, $this->event5], $events);
@@ -1663,7 +1663,7 @@ class TransactionalSubscriptionTest extends TestCase
             ->method('reset')
         ;
 
-        $events = $subscription->subscribeTo($this->store);
+        $events = $subscription->subscribeTo($this->store, 1);
         $events = iterator_to_array($events);
 
         $this->assertEquals([$this->event1], $events);
@@ -1741,7 +1741,7 @@ class TransactionalSubscriptionTest extends TestCase
             ->method('reset')
         ;
 
-        $events = $subscription->subscribeTo($this->store);
+        $events = $subscription->subscribeTo($this->store, 1);
         $events = iterator_to_array($events);
 
         $this->assertEquals([$this->event1], $events);
@@ -1807,5 +1807,573 @@ class TransactionalSubscriptionTest extends TestCase
         $this->assertNull($subscription->lastReplayed());
         $this->assertSame(1, $subscription->version());
         $this->assertEquals([], $subscription->events());
+    }
+
+    public function testNonPositiveLimitGivenWhileSubscribingToTheEventStoreBeforeStarting()
+    {
+        $subscription = new Subscription($this->listener1, $this->clock);
+        $subscription = new TransactionalSubscription($subscription, $this->uow);
+
+        $this->uow
+            ->expects($this->never())
+            ->method('commit')
+        ;
+        $this->uow
+            ->expects($this->once())
+            ->method('add')
+            ->with($subscription)
+        ;
+
+        $this->store
+            ->expects($this->never())
+            ->method('stream')
+        ;
+
+        $this->listener1
+            ->expects($this->never())
+            ->method('on')
+        ;
+        $this->listener3
+            ->expects($this->never())
+            ->method('completed')
+        ;
+
+        $this->expectExceptionObject(new \InvalidArgumentException('$limit must be a positive integer, but 0 was given.'));
+
+        $events = $subscription->subscribeTo($this->store, 0);
+        $events->rewind();
+    }
+
+    public function testNonPositiveLimitGivenWhileSubscribingToTheEventStoreAfterStarting()
+    {
+        $subscription = new Subscription($this->listener1, $this->clock);
+        $subscription = new TransactionalSubscription($subscription, $this->uow);
+
+        $this->uow
+            ->expects($this->once())
+            ->method('commit')
+        ;
+        $this->uow
+            ->expects($this->exactly(2))
+            ->method('add')
+            ->with($subscription)
+        ;
+
+        $subscription->startFor($this->event1);
+        $subscription->commit();
+
+        $this->store
+            ->expects($this->never())
+            ->method('stream')
+        ;
+
+        $this->listener1
+            ->expects($this->never())
+            ->method('on')
+        ;
+        $this->listener3
+            ->expects($this->never())
+            ->method('completed')
+        ;
+
+        $this->expectExceptionObject(new \InvalidArgumentException('$limit must be a positive integer, but -1 was given.'));
+
+        $events = $subscription->subscribeTo($this->store, -1);
+        $events->rewind();
+    }
+
+    public function testContinuousListeningWithNumberOfEventsBeingExactlyImposedLimit()
+    {
+        $now = new \DateTime('2018-09-28 19:12:32.763188 +00:00');
+
+        $this->listener1
+            ->expects($this->atLeastOnce())
+            ->method('listenerId')
+            ->willReturn($this->id1)
+        ;
+        $this->listener1
+            ->expects($this->never())
+            ->method('replay')
+        ;
+
+        $subscription = new Subscription($this->listener1, $this->clock);
+        $subscription = new TransactionalSubscription($subscription, $this->uow);
+
+        $this->uow
+            ->expects($this->exactly(7))
+            ->method('commit')
+        ;
+        $this->uow
+            ->expects($this->exactly(8))
+            ->method('add')
+            ->with($subscription)
+        ;
+
+        $this->assertSame($subscription->listener(), $this->listener1);
+        $this->assertSame($this->id1, $subscription->subscriptionId());
+        $this->assertSame($this->id1, $subscription->producerId());
+        $this->assertNull($subscription->lastReplayed());
+        $this->assertEmpty($subscription->events());
+        $this->assertSame(0, $subscription->version());
+
+        $subscription->startFor($this->event1);
+
+        $this->assertSame($this->id1, $subscription->subscriptionId());
+        $this->assertSame($this->id1, $subscription->producerId());
+        $this->assertNull($subscription->lastReplayed());
+        $this->assertSame(0, $subscription->version());
+        $this->assertEquals([new SubscriptionStarted($this->event1, $now)], $subscription->events());
+
+        $subscription->commit();
+
+        $this->assertSame($this->id1, $subscription->subscriptionId());
+        $this->assertSame($this->id1, $subscription->producerId());
+        $this->assertNull($subscription->lastReplayed());
+        $this->assertSame(1, $subscription->version());
+        $this->assertEquals([], $subscription->events());
+
+        $this->stream1 = new InMemoryStream($this->event1, $this->event2);
+        $this->stream2 = new InMemoryStream($this->event3, $this->event4);
+        $this->stream3 = new InMemoryStream($this->event5);
+
+        $this->store
+            ->expects($this->exactly(3))
+            ->method('stream')
+            ->willReturnOnConsecutiveCalls(
+                $this->stream1,
+                $this->stream2,
+                $this->stream3
+            )
+        ;
+
+        $this->listener1
+            ->expects($this->exactly(5))
+            ->method('on')
+            ->withConsecutive(
+                [$this->event1],
+                [$this->event2],
+                [$this->event3],
+                [$this->event4],
+                [$this->event5]
+            )
+            ->willReturnOnConsecutiveCalls(
+                true,
+                false,
+                false,
+                true,
+                true
+            )
+        ;
+        $this->listener3
+            ->expects($this->never())
+            ->method('completed')
+        ;
+
+        $events = $subscription->subscribeTo($this->store, 5);
+        $events = iterator_to_array($events);
+
+        $this->assertEquals([$this->event1, $this->event2, $this->event3, $this->event4, $this->event5], $events);
+        $this->assertEquals([new SubscriptionListenedToEvent($this->event1, 2, $now), new SubscriptionIgnoredEvent($this->event2, 3, $now), new SubscriptionIgnoredEvent($this->event3, 4, $now), new SubscriptionListenedToEvent($this->event4, 5, $now), new SubscriptionListenedToEvent($this->event5, 6, $now)], $subscription->events());
+        $this->assertSame(1, $subscription->version());
+
+        $subscription->commit();
+
+        $this->assertEquals([], $subscription->events());
+        $this->assertSame(6, $subscription->version());
+    }
+
+    public function testContinuousListeningWithNumberOfEventsBeingMoreThanImposedLimit1()
+    {
+        $now = new \DateTime('2018-09-28 19:12:32.763188 +00:00');
+
+        $this->listener1
+            ->expects($this->atLeastOnce())
+            ->method('listenerId')
+            ->willReturn($this->id1)
+        ;
+        $this->listener1
+            ->expects($this->never())
+            ->method('replay')
+        ;
+
+        $subscription = new Subscription($this->listener1, $this->clock);
+        $subscription = new TransactionalSubscription($subscription, $this->uow);
+
+        $this->uow
+            ->expects($this->exactly(6))
+            ->method('commit')
+        ;
+        $this->uow
+            ->expects($this->exactly(7))
+            ->method('add')
+            ->with($subscription)
+        ;
+
+        $this->assertSame($subscription->listener(), $this->listener1);
+        $this->assertSame($this->id1, $subscription->subscriptionId());
+        $this->assertSame($this->id1, $subscription->producerId());
+        $this->assertNull($subscription->lastReplayed());
+        $this->assertEmpty($subscription->events());
+        $this->assertSame(0, $subscription->version());
+
+        $subscription->startFor($this->event1);
+
+        $this->assertSame($this->id1, $subscription->subscriptionId());
+        $this->assertSame($this->id1, $subscription->producerId());
+        $this->assertNull($subscription->lastReplayed());
+        $this->assertSame(0, $subscription->version());
+        $this->assertEquals([new SubscriptionStarted($this->event1, $now)], $subscription->events());
+
+        $subscription->commit();
+
+        $this->assertSame($this->id1, $subscription->subscriptionId());
+        $this->assertSame($this->id1, $subscription->producerId());
+        $this->assertNull($subscription->lastReplayed());
+        $this->assertSame(1, $subscription->version());
+        $this->assertEquals([], $subscription->events());
+
+        $this->stream1 = new InMemoryStream($this->event1, $this->event2);
+        $this->stream2 = new InMemoryStream($this->event3, $this->event4, $this->event5);
+
+        $this->store
+            ->expects($this->exactly(2))
+            ->method('stream')
+            ->willReturnOnConsecutiveCalls(
+                $this->stream1,
+                $this->stream2
+            )
+        ;
+
+        $this->listener1
+            ->expects($this->exactly(4))
+            ->method('on')
+            ->withConsecutive(
+                [$this->event1],
+                [$this->event2],
+                [$this->event3],
+                [$this->event4]
+            )
+            ->willReturnOnConsecutiveCalls(
+                true,
+                false,
+                false,
+                true
+            )
+        ;
+        $this->listener3
+            ->expects($this->never())
+            ->method('completed')
+        ;
+
+        $events = $subscription->subscribeTo($this->store, 4);
+        $events = iterator_to_array($events);
+
+        $this->assertEquals([$this->event1, $this->event2, $this->event3, $this->event4], $events);
+        $this->assertEquals([new SubscriptionListenedToEvent($this->event1, 2, $now), new SubscriptionIgnoredEvent($this->event2, 3, $now), new SubscriptionIgnoredEvent($this->event3, 4, $now), new SubscriptionListenedToEvent($this->event4, 5, $now)], $subscription->events());
+        $this->assertSame(1, $subscription->version());
+
+        $subscription->commit();
+
+        $this->assertEquals([], $subscription->events());
+        $this->assertSame(5, $subscription->version());
+    }
+
+    public function testContinuousListeningWithNumberOfEventsBeingMoreThanImposedLimit2()
+    {
+        $now = new \DateTime('2018-09-28 19:12:32.763188 +00:00');
+
+        $this->listener1
+            ->expects($this->atLeastOnce())
+            ->method('listenerId')
+            ->willReturn($this->id1)
+        ;
+        $this->listener1
+            ->expects($this->never())
+            ->method('replay')
+        ;
+
+        $subscription = new Subscription($this->listener1, $this->clock);
+        $subscription = new TransactionalSubscription($subscription, $this->uow);
+
+        $this->uow
+            ->expects($this->exactly(6))
+            ->method('commit')
+        ;
+        $this->uow
+            ->expects($this->exactly(7))
+            ->method('add')
+            ->with($subscription)
+        ;
+
+        $this->assertSame($subscription->listener(), $this->listener1);
+        $this->assertSame($this->id1, $subscription->subscriptionId());
+        $this->assertSame($this->id1, $subscription->producerId());
+        $this->assertNull($subscription->lastReplayed());
+        $this->assertEmpty($subscription->events());
+        $this->assertSame(0, $subscription->version());
+
+        $subscription->startFor($this->event1);
+
+        $this->assertSame($this->id1, $subscription->subscriptionId());
+        $this->assertSame($this->id1, $subscription->producerId());
+        $this->assertNull($subscription->lastReplayed());
+        $this->assertSame(0, $subscription->version());
+        $this->assertEquals([new SubscriptionStarted($this->event1, $now)], $subscription->events());
+
+        $subscription->commit();
+
+        $this->assertSame($this->id1, $subscription->subscriptionId());
+        $this->assertSame($this->id1, $subscription->producerId());
+        $this->assertNull($subscription->lastReplayed());
+        $this->assertSame(1, $subscription->version());
+        $this->assertEquals([], $subscription->events());
+
+        $this->stream1 = new InMemoryStream($this->event1, $this->event2);
+        $this->stream2 = new InMemoryStream($this->event3, $this->event4);
+
+        $this->store
+            ->expects($this->exactly(2))
+            ->method('stream')
+            ->willReturnOnConsecutiveCalls(
+                $this->stream1,
+                $this->stream2
+            )
+        ;
+
+        $this->listener1
+            ->expects($this->exactly(4))
+            ->method('on')
+            ->withConsecutive(
+                [$this->event1],
+                [$this->event2],
+                [$this->event3],
+                [$this->event4]
+            )
+            ->willReturnOnConsecutiveCalls(
+                true,
+                false,
+                false,
+                true
+            )
+        ;
+        $this->listener3
+            ->expects($this->never())
+            ->method('completed')
+        ;
+
+        $events = $subscription->subscribeTo($this->store, 4);
+        $events = iterator_to_array($events);
+
+        $this->assertEquals([$this->event1, $this->event2, $this->event3, $this->event4], $events);
+        $this->assertEquals([new SubscriptionListenedToEvent($this->event1, 2, $now), new SubscriptionIgnoredEvent($this->event2, 3, $now), new SubscriptionIgnoredEvent($this->event3, 4, $now), new SubscriptionListenedToEvent($this->event4, 5, $now)], $subscription->events());
+        $this->assertSame(1, $subscription->version());
+
+        $subscription->commit();
+
+        $this->assertEquals([], $subscription->events());
+        $this->assertSame(5, $subscription->version());
+    }
+
+    public function testContinuousListeningWithNumberOfEventsBeingLessThanImposedLimit1()
+    {
+        $now = new \DateTime('2018-09-28 19:12:32.763188 +00:00');
+
+        $this->listener1
+            ->expects($this->atLeastOnce())
+            ->method('listenerId')
+            ->willReturn($this->id1)
+        ;
+        $this->listener1
+            ->expects($this->never())
+            ->method('replay')
+        ;
+
+        $subscription = new Subscription($this->listener1, $this->clock);
+        $subscription = new TransactionalSubscription($subscription, $this->uow);
+
+        $this->uow
+            ->expects($this->exactly(7))
+            ->method('commit')
+        ;
+        $this->uow
+            ->expects($this->exactly(8))
+            ->method('add')
+            ->with($subscription)
+        ;
+
+        $this->assertSame($subscription->listener(), $this->listener1);
+        $this->assertSame($this->id1, $subscription->subscriptionId());
+        $this->assertSame($this->id1, $subscription->producerId());
+        $this->assertNull($subscription->lastReplayed());
+        $this->assertEmpty($subscription->events());
+        $this->assertSame(0, $subscription->version());
+
+        $subscription->startFor($this->event1);
+
+        $this->assertSame($this->id1, $subscription->subscriptionId());
+        $this->assertSame($this->id1, $subscription->producerId());
+        $this->assertNull($subscription->lastReplayed());
+        $this->assertSame(0, $subscription->version());
+        $this->assertEquals([new SubscriptionStarted($this->event1, $now)], $subscription->events());
+
+        $subscription->commit();
+
+        $this->assertSame($this->id1, $subscription->subscriptionId());
+        $this->assertSame($this->id1, $subscription->producerId());
+        $this->assertNull($subscription->lastReplayed());
+        $this->assertSame(1, $subscription->version());
+        $this->assertEquals([], $subscription->events());
+
+        $this->stream1 = new InMemoryStream($this->event1, $this->event2);
+        $this->stream2 = new InMemoryStream($this->event3, $this->event4, $this->event5);
+        $this->stream3 = new InMemoryStream();
+
+        $this->store
+            ->expects($this->exactly(3))
+            ->method('stream')
+            ->willReturnOnConsecutiveCalls(
+                $this->stream1,
+                $this->stream2,
+                $this->stream3
+            )
+        ;
+
+        $this->listener1
+            ->expects($this->exactly(5))
+            ->method('on')
+            ->withConsecutive(
+                [$this->event1],
+                [$this->event2],
+                [$this->event3],
+                [$this->event4],
+                [$this->event5]
+            )
+            ->willReturnOnConsecutiveCalls(
+                true,
+                false,
+                false,
+                true,
+                true
+            )
+        ;
+        $this->listener3
+            ->expects($this->never())
+            ->method('completed')
+        ;
+
+        $events = $subscription->subscribeTo($this->store, 6);
+        $events = iterator_to_array($events);
+
+        $this->assertEquals([$this->event1, $this->event2, $this->event3, $this->event4, $this->event5], $events);
+        $this->assertEquals([new SubscriptionListenedToEvent($this->event1, 2, $now), new SubscriptionIgnoredEvent($this->event2, 3, $now), new SubscriptionIgnoredEvent($this->event3, 4, $now), new SubscriptionListenedToEvent($this->event4, 5, $now), new SubscriptionListenedToEvent($this->event5, 6, $now)], $subscription->events());
+        $this->assertSame(1, $subscription->version());
+
+        $subscription->commit();
+
+        $this->assertEquals([], $subscription->events());
+        $this->assertSame(6, $subscription->version());
+    }
+
+    public function testCompletingListenerWhileContinuousListening()
+    {
+        $now = new \DateTime('2018-09-28 19:12:32.763188 +00:00');
+
+        $this->listener3
+            ->expects($this->atLeastOnce())
+            ->method('listenerId')
+            ->willReturn($this->id1)
+        ;
+
+        $subscription = new Subscription($this->listener3, $this->clock);
+        $subscription = new TransactionalSubscription($subscription, $this->uow);
+
+        $this->uow
+            ->expects($this->exactly(7))
+            ->method('commit')
+        ;
+        $this->uow
+            ->expects($this->exactly(8))
+            ->method('add')
+            ->with($subscription)
+        ;
+
+        $this->assertSame($subscription->listener(), $this->listener3);
+        $this->assertSame($this->id1, $subscription->subscriptionId());
+        $this->assertSame($this->id1, $subscription->producerId());
+        $this->assertNull($subscription->lastReplayed());
+        $this->assertEmpty($subscription->events());
+        $this->assertSame(0, $subscription->version());
+
+        $subscription->startFor($this->event1);
+
+        $this->assertSame($this->id1, $subscription->subscriptionId());
+        $this->assertSame($this->id1, $subscription->producerId());
+        $this->assertNull($subscription->lastReplayed());
+        $this->assertSame(0, $subscription->version());
+        $this->assertEquals([new SubscriptionStarted($this->event1, $now)], $subscription->events());
+
+        $subscription->commit();
+
+        $this->assertSame($this->id1, $subscription->subscriptionId());
+        $this->assertSame($this->id1, $subscription->producerId());
+        $this->assertNull($subscription->lastReplayed());
+        $this->assertSame(1, $subscription->version());
+        $this->assertEquals([], $subscription->events());
+
+        $this->stream1 = new InMemoryStream($this->event1, $this->event2);
+        $this->stream2 = new InMemoryStream($this->event3, $this->event4);
+        $this->stream3 = new InMemoryStream($this->event5);
+
+        $this->store
+            ->expects($this->exactly(3))
+            ->method('stream')
+            ->willReturnOnConsecutiveCalls(
+                $this->stream1,
+                $this->stream2,
+                $this->stream3
+            )
+        ;
+
+        $this->listener3
+            ->expects($this->exactly(5))
+            ->method('on')
+            ->withConsecutive(
+                [$this->event1],
+                [$this->event2],
+                [$this->event3],
+                [$this->event4],
+                [$this->event5]
+            )
+            ->willReturnOnConsecutiveCalls(
+                true,
+                false,
+                false,
+                true,
+                true
+            )
+        ;
+        $this->listener3
+            ->expects($this->exactly(5))
+            ->method('completed')
+            ->willReturnOnConsecutiveCalls(
+                false,
+                false,
+                false,
+                false,
+                true
+            )
+        ;
+
+        $events = $subscription->subscribeTo($this->store, 6);
+        $events = iterator_to_array($events);
+
+        $this->assertEquals([$this->event1, $this->event2, $this->event3, $this->event4, $this->event5], $events);
+        $this->assertEquals([new SubscriptionListenedToEvent($this->event1, 2, $now), new SubscriptionIgnoredEvent($this->event2, 3, $now), new SubscriptionIgnoredEvent($this->event3, 4, $now), new SubscriptionListenedToEvent($this->event4, 5, $now), new SubscriptionListenedToEvent($this->event5, 6, $now), new SubscriptionCompleted(7, $now)], $subscription->events());
+        $this->assertSame(1, $subscription->version());
+
+        $subscription->commit();
+
+        $this->assertEquals([], $subscription->events());
+        $this->assertSame(7, $subscription->version());
     }
 }
