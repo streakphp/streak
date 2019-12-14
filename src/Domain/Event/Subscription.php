@@ -36,7 +36,7 @@ interface Subscription
      * @throws Exception\SubscriptionAlreadyCompleted
      * @throws Exception\SubscriptionNotStartedYet
      */
-    public function subscribeTo(EventStore $store) : iterable;
+    public function subscribeTo(EventStore $store, int $limit) : iterable;
 
     /**
      * @param Domain\Event $event

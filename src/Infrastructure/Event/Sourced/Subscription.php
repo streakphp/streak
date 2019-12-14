@@ -55,6 +55,7 @@ final class Subscription implements Event\Subscription, Event\Sourced, Versionab
 
     /**
      * @param EventStore $store
+     * @param int        $limit
      *
      * @return iterable|Event[]
      *
@@ -62,8 +63,12 @@ final class Subscription implements Event\Subscription, Event\Sourced, Versionab
      * @throws Exception\SubscriptionNotStartedYet
      * @throws \Throwable
      */
-    public function subscribeTo(EventStore $store) : iterable
+    public function subscribeTo(EventStore $store, int $limit) : iterable
     {
+        if ($limit < 1) {
+            throw new \InvalidArgumentException(sprintf('$limit must be a positive integer, but %d was given.', $limit));
+        }
+
         if (false === $this->started()) {
             throw new Exception\SubscriptionNotStartedYet($this);
         }
@@ -82,11 +87,11 @@ final class Subscription implements Event\Subscription, Event\Sourced, Versionab
         }
 
         if (true === $this->starting()) {
-            // lets start listening from event that initiated subscription...
+            // as we have just started (or restarted) this subscription let's begin listening from event that initiated subscription...
             $starter = $this->startedBy;
 
             if ($this->listener instanceof Event\Picker) {
-                // ...or pick one
+                // ...or from one that listener picked for us
                 $starter = $this->listener->pick($store);
             }
 
@@ -96,14 +101,43 @@ final class Subscription implements Event\Subscription, Event\Sourced, Versionab
             $stream = $stream->after($this->lastProcessedEvent);
         }
 
+//        $stream = $stream->limit($limit); // TODO: optimize DbalPostgresEventStore::limit() implementation and enable it here
+
+        $listened = 0;
         foreach ($stream as $event) {
             $this->listenToEvent($event);
 
             yield $event;
 
+            $listened = $listened + 1;
+
             if ($this->completed()) {
+                return;
+            }
+
+            if ($listened === $limit) { // we have exhausted limit of events to listen to
                 break;
             }
+        }
+
+        // in the meantime of listening of $stream of events above new events might have been added to the event store - let's listen
+        // to them too, until the $limit is exhausted.
+
+        if (0 === $listened) { // if there were no events to listen right now, my bet is, there will be none next time too
+            return;
+        }
+
+        $limit = $limit - $listened;
+
+        if (0 === $limit) {
+            return; // $limit exhausted
+        }
+
+        // not using "yield from" consciously as, in case of this method, every generator deeper into recursion yields
+        // same keys. This behaviour, although correct, can screw up results in conjunction with iterator_to_array()
+        // or any other function that uses keys yielded by generator.
+        foreach ($this->subscribeTo($store, $limit) as $event) {
+            yield $event;
         }
     }
 
