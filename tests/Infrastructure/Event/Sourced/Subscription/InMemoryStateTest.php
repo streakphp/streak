@@ -114,7 +114,7 @@ class InMemoryStateTest extends TestCase
         $this->assertSame(['attribute-1' => 'value-1'], $state1c->toArray());
         $this->assertSame('value-1', $state1c->get('attribute-1'));
 
-        $state1d = $state1c->set('attribute-2', 'value-2');
+        $state1d = $state1c->set('attribute-2', ['attribute-1' => 'value-1', 'attribute-2' => 'value-2']);
 
         $this->assertFalse($state1d->equals($this->stub)); // although states are both of different types they contain same data.
 
@@ -124,9 +124,9 @@ class InMemoryStateTest extends TestCase
         $this->assertSame(['attribute-1' => 'value-1'], $state1c->toArray());
         $this->assertTrue($state1d->has('attribute-1'));
         $this->assertTrue($state1d->has('attribute-2'));
-        $this->assertSame(['attribute-1' => 'value-1', 'attribute-2' => 'value-2'], $state1d->toArray());
+        $this->assertSame(['attribute-1' => 'value-1', 'attribute-2' => ['attribute-1' => 'value-1', 'attribute-2' => 'value-2']], $state1d->toArray());
         $this->assertSame('value-1', $state1d->get('attribute-1'));
-        $this->assertSame('value-2', $state1d->get('attribute-2'));
+        $this->assertSame(['attribute-1' => 'value-1', 'attribute-2' => 'value-2'], $state1d->get('attribute-2'));
 
         $state1e = $state1d->set('attribute-2', 'value-3');
 
@@ -135,13 +135,13 @@ class InMemoryStateTest extends TestCase
         $this->assertNotSame($state1c, $state1d);
         $this->assertFalse($state1e->equals($state1d));
 
-        $state3a = InMemoryState::fromArray(['attribute-1' => 'value-1', 'attribute-2' => 'value-2']);
+        $state3a = InMemoryState::fromArray(['attribute-2' => ['attribute-2' => 'value-2', 'attribute-1' => 'value-1'], 'attribute-1' => 'value-1']); // notice reverted order of keys
 
         $this->assertTrue($state3a->has('attribute-1'));
         $this->assertTrue($state3a->has('attribute-2'));
-        $this->assertSame(['attribute-1' => 'value-1', 'attribute-2' => 'value-2'], $state3a->toArray());
+        $this->assertSame(['attribute-1' => 'value-1', 'attribute-2' => ['attribute-1' => 'value-1', 'attribute-2' => 'value-2']], $state3a->toArray());
         $this->assertSame('value-1', $state3a->get('attribute-1'));
-        $this->assertSame('value-2', $state3a->get('attribute-2'));
+        $this->assertSame(['attribute-1' => 'value-1', 'attribute-2' => 'value-2'], $state3a->get('attribute-2'));
 
         $this->assertTrue($state3a->equals($state1d));
         $this->assertTrue($state1d->equals($state3a));
