@@ -61,6 +61,8 @@ class InMemoryState implements State
         $state->state = $this->state;
         $state->state[$name] = $value;
 
+        self::ksort($state->state);
+
         return $state;
     }
 
@@ -108,5 +110,21 @@ class InMemoryState implements State
             }
             throw new \UnexpectedValueException(sprintf('Values passed to state object can only be nulls & scalar values or recursive arrays of nulls & scalar values. Value of type "%s" given under key "%s".', gettype($value), $key));
         });
+    }
+
+    /**
+     * Sorts $array by its keys recursively.
+     *
+     * @param array $array
+     */
+    private static function ksort(array &$array) : void
+    {
+        foreach ($array as &$value) {
+            if (true === is_array($value)) {
+                self::ksort($value);
+            }
+        }
+
+        ksort($array);
     }
 }
