@@ -43,7 +43,7 @@ class LazyLoadedSubscription implements Subscription
         return $this->subscription()->listener();
     }
 
-    public function subscribeTo(EventStore $store, int $limit) : iterable
+    public function subscribeTo(EventStore $store, ?int $limit = null) : iterable
     {
         yield from $this->subscription()->subscribeTo($store, $limit);
     }

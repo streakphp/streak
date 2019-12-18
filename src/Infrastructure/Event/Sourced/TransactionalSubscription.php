@@ -45,7 +45,7 @@ class TransactionalSubscription implements Subscription, Event\Sourced, Versiona
         return $this->subscription->listener();
     }
 
-    public function subscribeTo(EventStore $store, int $limit) : iterable
+    public function subscribeTo(EventStore $store, ?int $limit = null) : iterable
     {
         try {
             $this->uow->add($this);
