@@ -270,7 +270,7 @@ class TransactionalSubscriptionTest extends TestCase
             ->method('completed')
         ;
 
-        $events = $subscription->subscribeTo($this->store, 2);
+        $events = $subscription->subscribeTo($this->store);
         $events = iterator_to_array($events);
 
         $this->assertEquals([$this->event1, $this->event2], $events);
@@ -288,7 +288,7 @@ class TransactionalSubscriptionTest extends TestCase
         $this->assertTrue($subscription->started());
         $this->assertFalse($subscription->completed());
 
-        $events = $subscription->subscribeTo($this->store, 2);
+        $events = $subscription->subscribeTo($this->store);
         $events = iterator_to_array($events);
 
         $this->assertEquals([$this->event3, $this->event4], $events);
@@ -306,7 +306,7 @@ class TransactionalSubscriptionTest extends TestCase
         $this->assertTrue($subscription->started());
         $this->assertFalse($subscription->completed());
 
-        $events = $subscription->subscribeTo($this->store, 1);
+        $events = $subscription->subscribeTo($this->store);
         $events = iterator_to_array($events);
 
         $this->assertEquals([$this->event5], $events);
@@ -406,7 +406,7 @@ class TransactionalSubscriptionTest extends TestCase
             ->willReturn(true)
         ;
 
-        $events = $subscription->subscribeTo($this->store, 2); // picker should pick $this->event2
+        $events = $subscription->subscribeTo($this->store); // picker should pick $this->event2
         $events = iterator_to_array($events);
 
         $this->assertEquals([$this->event2, $this->event3], $events);
@@ -437,7 +437,7 @@ class TransactionalSubscriptionTest extends TestCase
         $this->assertTrue($subscription->started());
         $this->assertFalse($subscription->completed());
 
-        $events = $subscription->subscribeTo($this->store, 4); // after restart picker should pick $this->event1
+        $events = $subscription->subscribeTo($this->store); // after restart picker should pick $this->event1
         $events = iterator_to_array($events);
 
         $this->assertEquals([$this->event1, $this->event2, $this->event3, $this->event4], $events);
@@ -526,7 +526,7 @@ class TransactionalSubscriptionTest extends TestCase
             ->willReturn(true)
         ;
 
-        $events = $subscription->subscribeTo($this->store, 2);
+        $events = $subscription->subscribeTo($this->store);
         $events = iterator_to_array($events);
 
         $this->assertEquals([$this->event2, $this->event3], $events);
@@ -538,7 +538,7 @@ class TransactionalSubscriptionTest extends TestCase
         $this->assertEquals([], $subscription->events());
         $this->assertSame(3, $subscription->version());
 
-        $events = $subscription->subscribeTo($this->store, 2);
+        $events = $subscription->subscribeTo($this->store);
         $events = iterator_to_array($events);
 
         $this->assertEquals([$this->event4, $this->event5], $events);
@@ -645,7 +645,7 @@ class TransactionalSubscriptionTest extends TestCase
             )
         ;
 
-        $events = $subscription->subscribeTo($this->store, 2);
+        $events = $subscription->subscribeTo($this->store);
         $events = iterator_to_array($events);
 
         $this->assertEquals([$this->event1, $this->event2], $events);
@@ -657,7 +657,7 @@ class TransactionalSubscriptionTest extends TestCase
         $this->assertEquals([], $subscription->events());
         $this->assertSame(3, $subscription->version());
 
-        $events = $subscription->subscribeTo($this->store, 2);
+        $events = $subscription->subscribeTo($this->store);
         $events = iterator_to_array($events);
 
         $this->assertEquals([$this->event3, $this->event4], $events);
@@ -757,7 +757,7 @@ class TransactionalSubscriptionTest extends TestCase
             )
         ;
 
-        $events = $subscription->subscribeTo($this->store, 2);
+        $events = $subscription->subscribeTo($this->store);
         $events = iterator_to_array($events);
 
         $this->assertEquals([$this->event3, $this->event4], $events);
@@ -769,7 +769,7 @@ class TransactionalSubscriptionTest extends TestCase
         $this->assertEquals([], $subscription->events());
         $this->assertSame(5, $subscription->version());
 
-        $events = $subscription->subscribeTo($this->store, 1);
+        $events = $subscription->subscribeTo($this->store);
         $events = iterator_to_array($events);
 
         $this->assertEquals([$this->event5], $events);
@@ -851,7 +851,7 @@ class TransactionalSubscriptionTest extends TestCase
             )
         ;
 
-        $events = $subscription->subscribeTo($this->store, 2);
+        $events = $subscription->subscribeTo($this->store);
         $events = iterator_to_array($events);
 
         $this->assertEquals([$this->event3, $this->event4], $events);
@@ -863,7 +863,7 @@ class TransactionalSubscriptionTest extends TestCase
         $this->assertEquals([], $subscription->events());
         $this->assertSame(5, $subscription->version());
 
-        $events = $subscription->subscribeTo($this->store, 1);
+        $events = $subscription->subscribeTo($this->store);
         $events = iterator_to_array($events);
 
         $this->assertEquals([$this->event5], $events);
@@ -982,7 +982,7 @@ class TransactionalSubscriptionTest extends TestCase
             )
         ;
 
-        $events = $subscription->subscribeTo($this->store, 2);
+        $events = $subscription->subscribeTo($this->store);
         $events = iterator_to_array($events);
 
         $this->assertEquals([$this->event1, $this->event2], $events);
@@ -1072,7 +1072,7 @@ class TransactionalSubscriptionTest extends TestCase
 
         $this->expectExceptionObject(new Event\Subscription\Exception\SubscriptionAlreadyCompleted($subscription));
 
-        $events = $subscription->subscribeTo($this->store, 1);
+        $events = $subscription->subscribeTo($this->store);
 
         iterator_to_array($events);
     }
@@ -1119,7 +1119,7 @@ class TransactionalSubscriptionTest extends TestCase
 
         $this->expectExceptionObject(new Event\Subscription\Exception\SubscriptionAlreadyCompleted($subscription));
 
-        $events = $subscription->subscribeTo($this->store, 1);
+        $events = $subscription->subscribeTo($this->store);
 
         iterator_to_array($events);
     }
@@ -1163,7 +1163,7 @@ class TransactionalSubscriptionTest extends TestCase
 
         $this->expectExceptionObject(new Event\Subscription\Exception\SubscriptionNotStartedYet($subscription));
 
-        $events = $subscription->subscribeTo($this->store, 1);
+        $events = $subscription->subscribeTo($this->store);
 
         iterator_to_array($events);
     }
@@ -1250,7 +1250,7 @@ class TransactionalSubscriptionTest extends TestCase
             )
         ;
 
-        $events = $subscription->subscribeTo($this->store, 4);
+        $events = $subscription->subscribeTo($this->store);
         $events = iterator_to_array($events);
 
         $this->assertSame([$this->event1, $this->event3, $this->event4, $this->event5], $events);
@@ -1347,7 +1347,7 @@ class TransactionalSubscriptionTest extends TestCase
             ->method('reset')
         ;
 
-        $events = $subscription->subscribeTo($this->store, 4);
+        $events = $subscription->subscribeTo($this->store);
         $events = iterator_to_array($events);
 
         $this->assertSame([$this->event2, $this->event3, $this->event4, $this->event5], $events);
@@ -1485,7 +1485,7 @@ class TransactionalSubscriptionTest extends TestCase
             )
         ;
 
-        $events = $subscription->subscribeTo($this->store, 4);
+        $events = $subscription->subscribeTo($this->store);
         $events = iterator_to_array($events);
 
         $this->assertSame([$this->event2, $this->event3, $this->event4, $this->event5], $events);
@@ -1663,7 +1663,7 @@ class TransactionalSubscriptionTest extends TestCase
             ->method('reset')
         ;
 
-        $events = $subscription->subscribeTo($this->store, 1);
+        $events = $subscription->subscribeTo($this->store);
         $events = iterator_to_array($events);
 
         $this->assertEquals([$this->event1], $events);
@@ -1741,7 +1741,7 @@ class TransactionalSubscriptionTest extends TestCase
             ->method('reset')
         ;
 
-        $events = $subscription->subscribeTo($this->store, 1);
+        $events = $subscription->subscribeTo($this->store);
         $events = iterator_to_array($events);
 
         $this->assertEquals([$this->event1], $events);

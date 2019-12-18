@@ -268,7 +268,7 @@ class SubscriptionTest extends TestCase
             ->method('completed')
         ;
 
-        $events = $subscription->subscribeTo($this->store, 2);
+        $events = $subscription->subscribeTo($this->store);
         $events = iterator_to_array($events);
 
         $this->assertEquals([$this->event1, $this->event2], $events);
@@ -280,7 +280,7 @@ class SubscriptionTest extends TestCase
         $this->assertEquals([], $subscription->events());
         $this->assertSame(3, $subscription->version());
 
-        $events = $subscription->subscribeTo($this->store, 2);
+        $events = $subscription->subscribeTo($this->store);
         $events = iterator_to_array($events);
 
         $this->assertEquals([$this->event3, $this->event4], $events);
@@ -292,7 +292,7 @@ class SubscriptionTest extends TestCase
         $this->assertEquals([], $subscription->events());
         $this->assertSame(5, $subscription->version());
 
-        $events = $subscription->subscribeTo($this->store, 1);
+        $events = $subscription->subscribeTo($this->store);
         $events = iterator_to_array($events);
 
         $this->assertEquals([$this->event5], $events);
@@ -371,7 +371,7 @@ class SubscriptionTest extends TestCase
             ->willReturn(true)
         ;
 
-        $events = $subscription->subscribeTo($this->store, 2); // picker should pick $this->event2
+        $events = $subscription->subscribeTo($this->store); // picker should pick $this->event2
         $events = iterator_to_array($events);
 
         $this->assertEquals([$this->event2, $this->event3], $events);
@@ -393,7 +393,7 @@ class SubscriptionTest extends TestCase
         $this->assertEquals([], $subscription->events());
         $this->assertSame(4, $subscription->version());
 
-        $events = $subscription->subscribeTo($this->store, 4); // after restart picker should pick $this->event1
+        $events = $subscription->subscribeTo($this->store); // after restart picker should pick $this->event1
         $events = iterator_to_array($events);
 
         $this->assertEquals([$this->event1, $this->event2, $this->event3, $this->event4], $events);
@@ -468,7 +468,7 @@ class SubscriptionTest extends TestCase
             ->willReturn(true)
         ;
 
-        $events = $subscription->subscribeTo($this->store, 2);
+        $events = $subscription->subscribeTo($this->store);
         $events = iterator_to_array($events);
 
         $this->assertEquals([$this->event2, $this->event3], $events);
@@ -480,7 +480,7 @@ class SubscriptionTest extends TestCase
         $this->assertEquals([], $subscription->events());
         $this->assertSame(3, $subscription->version());
 
-        $events = $subscription->subscribeTo($this->store, 2);
+        $events = $subscription->subscribeTo($this->store);
         $events = iterator_to_array($events);
 
         $this->assertEquals([$this->event4, $this->event5], $events);
@@ -579,7 +579,7 @@ class SubscriptionTest extends TestCase
             )
         ;
 
-        $events = $subscription->subscribeTo($this->store, 2);
+        $events = $subscription->subscribeTo($this->store);
         $events = iterator_to_array($events);
 
         $this->assertEquals([$this->event1, $this->event2], $events);
@@ -591,7 +591,7 @@ class SubscriptionTest extends TestCase
         $this->assertEquals([], $subscription->events());
         $this->assertSame(3, $subscription->version());
 
-        $events = $subscription->subscribeTo($this->store, 2);
+        $events = $subscription->subscribeTo($this->store);
         $events = iterator_to_array($events);
 
         $this->assertEquals([$this->event3, $this->event4], $events);
@@ -682,7 +682,7 @@ class SubscriptionTest extends TestCase
             )
         ;
 
-        $events = $subscription->subscribeTo($this->store, 2);
+        $events = $subscription->subscribeTo($this->store);
         $events = iterator_to_array($events);
 
         $this->assertEquals([$this->event3, $this->event4], $events);
@@ -694,7 +694,7 @@ class SubscriptionTest extends TestCase
         $this->assertEquals([], $subscription->events());
         $this->assertSame(5, $subscription->version());
 
-        $events = $subscription->subscribeTo($this->store, 1);
+        $events = $subscription->subscribeTo($this->store);
         $events = iterator_to_array($events);
 
         $this->assertEquals([$this->event5], $events);
@@ -767,7 +767,7 @@ class SubscriptionTest extends TestCase
             )
         ;
 
-        $events = $subscription->subscribeTo($this->store, 2);
+        $events = $subscription->subscribeTo($this->store);
         $events = iterator_to_array($events);
 
         $this->assertEquals([$this->event3, $this->event4], $events);
@@ -779,7 +779,7 @@ class SubscriptionTest extends TestCase
         $this->assertEquals([], $subscription->events());
         $this->assertSame(5, $subscription->version());
 
-        $events = $subscription->subscribeTo($this->store, 1);
+        $events = $subscription->subscribeTo($this->store);
         $events = iterator_to_array($events);
 
         $this->assertEquals([$this->event5], $events);
@@ -868,7 +868,7 @@ class SubscriptionTest extends TestCase
             )
         ;
 
-        $events = $subscription->subscribeTo($this->store, 2);
+        $events = $subscription->subscribeTo($this->store);
         $events = iterator_to_array($events);
 
         $this->assertEquals([$this->event3, $this->event4], $events);
@@ -880,7 +880,7 @@ class SubscriptionTest extends TestCase
         $this->assertEquals([], $subscription->events());
         $this->assertSame(7, $subscription->version());
 
-        $events = $subscription->subscribeTo($this->store, 1);
+        $events = $subscription->subscribeTo($this->store);
         $events = iterator_to_array($events);
 
         $this->assertEquals([$this->event5], $events);
@@ -971,7 +971,7 @@ class SubscriptionTest extends TestCase
             )
         ;
 
-        $events = $subscription->subscribeTo($this->store, 2);
+        $events = $subscription->subscribeTo($this->store);
         $events = iterator_to_array($events);
 
         $this->assertEquals([$this->event3, $this->event4], $events);
@@ -983,7 +983,7 @@ class SubscriptionTest extends TestCase
         $this->assertEquals([], $subscription->events());
         $this->assertSame(7, $subscription->version());
 
-        $events = $subscription->subscribeTo($this->store, 1);
+        $events = $subscription->subscribeTo($this->store);
         $events = iterator_to_array($events);
 
         $this->assertEquals([$this->event5], $events);
@@ -1085,7 +1085,7 @@ class SubscriptionTest extends TestCase
             )
         ;
 
-        $events = $subscription->subscribeTo($this->store, 2);
+        $events = $subscription->subscribeTo($this->store);
         $events = iterator_to_array($events);
 
         $this->assertEquals([$this->event1, $this->event2], $events);
@@ -1157,7 +1157,7 @@ class SubscriptionTest extends TestCase
 
         $this->expectExceptionObject(new Event\Subscription\Exception\SubscriptionAlreadyCompleted($subscription));
 
-        $events = $subscription->subscribeTo($this->store, 1);
+        $events = $subscription->subscribeTo($this->store);
 
         iterator_to_array($events);
     }
@@ -1194,7 +1194,7 @@ class SubscriptionTest extends TestCase
 
         $this->expectExceptionObject(new Event\Subscription\Exception\SubscriptionAlreadyCompleted($subscription));
 
-        $events = $subscription->subscribeTo($this->store, 1);
+        $events = $subscription->subscribeTo($this->store);
 
         iterator_to_array($events);
     }
@@ -1228,7 +1228,7 @@ class SubscriptionTest extends TestCase
 
         $this->expectExceptionObject(new Event\Subscription\Exception\SubscriptionNotStartedYet($subscription));
 
-        $events = $subscription->subscribeTo($this->store, 1);
+        $events = $subscription->subscribeTo($this->store);
 
         iterator_to_array($events);
     }
@@ -1309,7 +1309,7 @@ class SubscriptionTest extends TestCase
             )
         ;
 
-        $events = $subscription->subscribeTo($this->store, 4);
+        $events = $subscription->subscribeTo($this->store);
         $events = iterator_to_array($events);
 
         $this->assertSame([$this->event1, $this->event3, $this->event4, $this->event5], $events);
@@ -1402,7 +1402,7 @@ class SubscriptionTest extends TestCase
             ->method('reset')
         ;
 
-        $events = $subscription->subscribeTo($this->store, 4);
+        $events = $subscription->subscribeTo($this->store);
         $events = iterator_to_array($events);
 
         $this->assertSame([$this->event2, $this->event3, $this->event4, $this->event5], $events);
@@ -1525,7 +1525,7 @@ class SubscriptionTest extends TestCase
             )
         ;
 
-        $events = $subscription->subscribeTo($this->store, 4);
+        $events = $subscription->subscribeTo($this->store);
         $events = iterator_to_array($events);
 
         $this->assertSame([$this->event2, $this->event3, $this->event4, $this->event5], $events);
@@ -1677,7 +1677,7 @@ class SubscriptionTest extends TestCase
             ->method('reset')
         ;
 
-        $events = $subscription->subscribeTo($this->store, 1);
+        $events = $subscription->subscribeTo($this->store);
         $events = iterator_to_array($events);
 
         $this->assertEquals([$this->event1], $events);
@@ -1747,7 +1747,7 @@ class SubscriptionTest extends TestCase
             ->method('reset')
         ;
 
-        $events = $subscription->subscribeTo($this->store, 1);
+        $events = $subscription->subscribeTo($this->store);
         $events = iterator_to_array($events);
 
         $this->assertEquals([$this->event1], $events);

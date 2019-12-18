@@ -30,13 +30,14 @@ interface Subscription
 
     /**
      * @param EventStore $store
+     * @param int|null   $limit
      *
      * @return iterable|Domain\Event[]
      *
      * @throws Exception\SubscriptionAlreadyCompleted
      * @throws Exception\SubscriptionNotStartedYet
      */
-    public function subscribeTo(EventStore $store, int $limit) : iterable;
+    public function subscribeTo(EventStore $store, ?int $limit = null) : iterable;
 
     /**
      * @param Domain\Event $event

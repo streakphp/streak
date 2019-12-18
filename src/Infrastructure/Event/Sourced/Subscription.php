@@ -38,6 +38,8 @@ final class Subscription implements Event\Subscription, Event\Sourced, Versionab
         Event\Sourcing::replay as private doReplay;
     }
 
+    private const LIMIT_TO_INITIAL_STREAM = 0;
+
     private $listener;
     private $lastState;
     private $clock;
@@ -55,7 +57,7 @@ final class Subscription implements Event\Subscription, Event\Sourced, Versionab
 
     /**
      * @param EventStore $store
-     * @param int        $limit
+     * @param int|null   $limit
      *
      * @return iterable|Event[]
      *
@@ -63,9 +65,11 @@ final class Subscription implements Event\Subscription, Event\Sourced, Versionab
      * @throws Exception\SubscriptionNotStartedYet
      * @throws \Throwable
      */
-    public function subscribeTo(EventStore $store, int $limit) : iterable
+    public function subscribeTo(EventStore $store, ?int $limit = null) : iterable
     {
-        if ($limit < 1) {
+        if (null === $limit) {
+            $limit = self::LIMIT_TO_INITIAL_STREAM; // if no $limit was given, we listen to initial stream only
+        } elseif ($limit < 1) {
             throw new \InvalidArgumentException(sprintf('$limit must be a positive integer, but %d was given.', $limit));
         }
 
@@ -101,7 +105,9 @@ final class Subscription implements Event\Subscription, Event\Sourced, Versionab
             $stream = $stream->after($this->lastProcessedEvent);
         }
 
-//        $stream = $stream->limit($limit); // TODO: optimize DbalPostgresEventStore::limit() implementation and enable it here
+//        if ($limit) {
+//            $stream = $stream->limit($limit); // TODO: optimize DbalPostgresEventStore::limit() implementation and enable it here
+//        }
 
         $listened = 0;
         foreach ($stream as $event) {
@@ -115,9 +121,13 @@ final class Subscription implements Event\Subscription, Event\Sourced, Versionab
                 return;
             }
 
-            if ($listened === $limit) { // we have exhausted limit of events to listen to
+            if ($listened === $limit) { // we have exhausted $limit - if given - of events to listen to
                 break;
             }
+        }
+
+        if (self::LIMIT_TO_INITIAL_STREAM === $limit) { // we have listened to initial stream and we stop now as instructed
+            return;
         }
 
         // in the meantime of listening of $stream of events above new events might have been added to the event store - let's listen
