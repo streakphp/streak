@@ -87,8 +87,11 @@ class TransactionalPersistenceCommandHandlerTest extends TestCase
         $this->aggregateRoot1 = $this->getMockBuilder(Event\Sourced\AggregateRoot::class)->getMockForAbstractClass();
         $this->aggregateRoot2 = $this->getMockBuilder(Event\Sourced\AggregateRoot::class)->getMockForAbstractClass();
 
-        $this->aggregateRootId1 = $this->getMockBuilder(Domain\AggregateRoot\Id::class)->getMockForAbstractClass();
-        $this->aggregateRootId2 = $this->getMockBuilder(Domain\AggregateRoot\Id::class)->getMockForAbstractClass();
+        $this->aggregateRootId1 = new Infrastructure\CommandHandler\TransactionalPersistenceCommandHandlerTest\ProducerId('6448c6b7-bd5d-4a04-97a9-c1ad99008c04');
+        $this->aggregateRootId2 = new Infrastructure\CommandHandler\TransactionalPersistenceCommandHandlerTest\ProducerId('9535ad9e-58c9-4bb6-82cf-843ae04f8f48');
+
+        $this->aggregateRoot1->expects($this->any())->method('producerId')->willReturn($this->aggregateRootId1);
+        $this->aggregateRoot2->expects($this->any())->method('producerId')->willReturn($this->aggregateRootId2);
 
         $this->producer1 = $this->getMockBuilder(Event\Producer::class)->getMockForAbstractClass();
         $this->producer2 = $this->getMockBuilder(Event\Producer::class)->getMockForAbstractClass();
@@ -117,10 +120,55 @@ class TransactionalPersistenceCommandHandlerTest extends TestCase
         $handler->handle($this->command);
     }
 
+    public function testException()
+    {
+        $exception = new \Exception();
+        $this->expectExceptionObject($exception);
+
+        $handler = new TransactionalPersistenceCommandHandler($this->handler, $this->uow);
+
+        $this->handler
+            ->expects($this->once())
+            ->method('handle')
+            ->with($this->command)
+            ->willThrowException($exception);
+
+        $this->uow
+            ->expects($this->never())
+            ->method('commit')
+        ;
+
+        $this->uow
+            ->expects($this->exactly(2))
+            ->method('uncommitted')
+            ->willReturnOnConsecutiveCalls(
+                [$this->aggregateRoot1],
+                [$this->aggregateRoot1, $this->aggregateRoot2]
+            )
+        ;
+
+        $this->uow
+            ->expects($this->once())
+            ->method('remove')
+            ->with($this->aggregateRoot2)
+        ;
+
+        $handler->handle($this->command);
+    }
+
     public function committed(Event\Producer ...$producers) : \Generator
     {
         foreach ($producers as $producer) {
             yield $producer;
         }
     }
+}
+
+namespace Streak\Infrastructure\CommandHandler\TransactionalPersistenceCommandHandlerTest;
+
+use Streak\Domain\AggregateRoot;
+use Streak\Domain\Id\UUID;
+
+class ProducerId extends UUID implements AggregateRoot\Id
+{
 }

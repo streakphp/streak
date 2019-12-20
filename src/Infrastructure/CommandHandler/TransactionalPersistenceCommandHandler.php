@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Streak\Infrastructure\CommandHandler;
 
 use Streak\Application;
+use Streak\Domain\Event\Producer;
 use Streak\Infrastructure;
 
 /**
@@ -39,8 +40,42 @@ class TransactionalPersistenceCommandHandler implements Application\CommandHandl
 
     public function handle(Application\Command $command) : void
     {
-        $this->handler->handle($command);
+        $producersInTransactionBeforeCommand = $this->uow->uncommitted();
+        try {
+            $this->handler->handle($command);
+            iterator_to_array($this->uow->commit());
+        } catch (\Throwable $e) {
+            $producersInTransactionAfterCommand = $this->uow->uncommitted();
+            $producersAddedToTransactionWithinCommand = $this->findProducersAddedWhileHandlingCommand($producersInTransactionBeforeCommand, $producersInTransactionAfterCommand);
 
-        iterator_to_array($this->uow->commit());
+            foreach ($producersAddedToTransactionWithinCommand as $producer) {
+                $this->uow->remove($producer);
+            }
+
+            throw $e;
+        }
+    }
+
+    /**
+     * Basically finds producers that are present in $producersInTransactionBeforeCommand, but not in $producersInTransactionAfterCommand.
+     *
+     * @param Producer[] $producersInTransactionBeforeCommand
+     * @param Producer[] $producersInTransactionAfterCommand
+     *
+     * @return Producer[]
+     */
+    private function findProducersAddedWhileHandlingCommand(array $producersInTransactionBeforeCommand, array $producersInTransactionAfterCommand) : array
+    {
+        $producersAddedToTransactionWithinCommand = [];
+        foreach ($producersInTransactionAfterCommand as $producerFromAfterCommandHandled) {
+            foreach ($producersInTransactionBeforeCommand as $producerFromBeforeCommandHandled) {
+                if ($producerFromAfterCommandHandled->producerId()->equals($producerFromBeforeCommandHandled->producerId())) {
+                    continue 2; // next producer
+                }
+            }
+            $producersAddedToTransactionWithinCommand[] = $producerFromAfterCommandHandled;
+        }
+
+        return $producersAddedToTransactionWithinCommand;
     }
 }
