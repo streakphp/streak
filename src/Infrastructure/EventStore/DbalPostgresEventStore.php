@@ -325,7 +325,7 @@ SQL;
 
         $row = $statement->fetch(\PDO::FETCH_ASSOC);
 
-        if (!$row) {
+        if (false === $row) {
             return null;
         }
 
@@ -362,7 +362,7 @@ SQL;
 
         $row = $statement->fetch(\PDO::FETCH_ASSOC);
 
-        if (!$row) {
+        if (false === $row) {
             return null;
         }
 
@@ -373,7 +373,27 @@ SQL;
 
     public function empty() : bool
     {
-        return null === $this->first();
+        $statement = $this->select(
+            $this->filter,
+            null, // we don't need ORDER BY here
+            [],
+            $this->from,
+            $this->to,
+            $this->after,
+            $this->before,
+            $this->only,
+            $this->without,
+            1,
+            null
+        );
+
+        $row = $statement->fetch(\PDO::FETCH_ASSOC);
+
+        if (false === $row) {
+            return true;
+        }
+
+        return false;
     }
 
     public function current() : Event
