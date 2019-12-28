@@ -23,9 +23,9 @@ use Streak\Infrastructure;
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  *
- * @covers \Streak\Infrastructure\CommandHandler\TransactionalPersistenceCommandHandler
+ * @covers \Streak\Infrastructure\CommandHandler\CommittingCommandHandler
  */
-class TransactionalPersistenceCommandHandlerTest extends TestCase
+class CommittingCommandHandlerTest extends TestCase
 {
     /**
      * @var Application\Command|MockObject
@@ -96,7 +96,7 @@ class TransactionalPersistenceCommandHandlerTest extends TestCase
 
     public function testHandlingCommand()
     {
-        $handler = new TransactionalPersistenceCommandHandler($this->handler, $this->uow);
+        $handler = new CommittingCommandHandler($this->handler, $this->uow);
 
         $this->handler
             ->expects($this->once())

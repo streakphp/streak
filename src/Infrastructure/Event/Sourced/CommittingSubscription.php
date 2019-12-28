@@ -13,18 +13,16 @@ declare(strict_types=1);
 
 namespace Streak\Infrastructure\Event\Sourced;
 
-use Streak\Domain;
 use Streak\Domain\Event;
 use Streak\Domain\Event\Subscription;
 use Streak\Domain\EventStore;
-use Streak\Domain\Versionable;
 use Streak\Infrastructure\Event\Sourced as EventSourced;
 use Streak\Infrastructure\UnitOfWork;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-class TransactionalSubscription implements Subscription, Event\Sourced, Versionable
+class CommittingSubscription implements Subscription, Subscription\Decorator
 {
     private $subscription;
     private $uow;
@@ -33,6 +31,11 @@ class TransactionalSubscription implements Subscription, Event\Sourced, Versiona
     {
         $this->subscription = $subscription;
         $this->uow = $uow;
+    }
+
+    public function subscription() : Subscription
+    {
+        return $this->subscription;
     }
 
     public function subscriptionId() : Event\Listener\Id
@@ -48,15 +51,15 @@ class TransactionalSubscription implements Subscription, Event\Sourced, Versiona
     public function subscribeTo(EventStore $store, ?int $limit = null) : iterable
     {
         try {
-            $this->uow->add($this);
+            $this->uow->add($this->subscription);
             foreach ($this->subscription->subscribeTo($store, $limit) as $event) {
                 iterator_to_array($this->uow->commit());
-                $this->uow->add($this);
+                $this->uow->add($this->subscription);
 
                 yield $event;
             }
             iterator_to_array($this->uow->commit());
-            $this->uow->add($this);
+            $this->uow->add($this->subscription);
         } catch (\Throwable $exception) {
             $this->uow->clear();
 
@@ -67,7 +70,7 @@ class TransactionalSubscription implements Subscription, Event\Sourced, Versiona
     public function startFor(Event $event) : void
     {
         try {
-            $this->uow->add($this);
+            $this->uow->add($this->subscription);
             $this->subscription->startFor($event);
             iterator_to_array($this->uow->commit());
         } catch (\Throwable $exception) {
@@ -80,7 +83,7 @@ class TransactionalSubscription implements Subscription, Event\Sourced, Versiona
     public function restart() : void
     {
         try {
-            $this->uow->add($this);
+            $this->uow->add($this->subscription);
             $this->subscription->restart();
             iterator_to_array($this->uow->commit());
         } catch (\Throwable $exception) {
@@ -103,44 +106,5 @@ class TransactionalSubscription implements Subscription, Event\Sourced, Versiona
     public function completed() : bool
     {
         return $this->subscription->completed();
-    }
-
-    public function equals($object) : bool
-    {
-        if ($object instanceof self) {
-            $object = $object->subscription;
-        }
-
-        return $this->subscription->equals($object);
-    }
-
-    public function lastReplayed() : ?Event
-    {
-        return $this->subscription->lastReplayed();
-    }
-
-    public function producerId() : Domain\Id
-    {
-        return $this->subscription->producerId();
-    }
-
-    public function events() : array
-    {
-        return $this->subscription->events();
-    }
-
-    public function replay(Event\Stream $stream) : void
-    {
-        $this->subscription->replay($stream);
-    }
-
-    public function version() : int
-    {
-        return $this->subscription->version();
-    }
-
-    public function commit() : void
-    {
-        $this->subscription->commit();
     }
 }

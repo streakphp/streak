@@ -14,11 +14,6 @@ declare(strict_types=1);
 namespace Streak\Infrastructure\EventStore;
 
 use Streak\Domain\EventStore;
-use Streak\Infrastructure\EventBus\EventStoreTestCase\Event1;
-use Streak\Infrastructure\EventBus\EventStoreTestCase\Event2;
-use Streak\Infrastructure\EventBus\EventStoreTestCase\Event3;
-use Streak\Infrastructure\EventBus\EventStoreTestCase\Event4;
-use Streak\Infrastructure\EventBus\EventStoreTestCase\ProducerId1;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -32,13 +27,13 @@ class InMemoryEventStoreTest extends EventStoreTestCase
     {
         $store = new InMemoryEventStore();
 
-        $producer11 = new ProducerId1('producer1-1');
-        $producer12 = new ProducerId1('producer1-2');
+        $producer11 = new EventStoreTestCase\ProducerId1('producer1-1');
+        $producer12 = new EventStoreTestCase\ProducerId1('producer1-2');
 
-        $event1 = new Event1();
-        $event2 = new Event2();
-        $event3 = new Event3();
-        $event4 = new Event4();
+        $event1 = new EventStoreTestCase\Event1();
+        $event2 = new EventStoreTestCase\Event2();
+        $event3 = new EventStoreTestCase\Event3();
+        $event4 = new EventStoreTestCase\Event4();
 
         $this->assertEquals([], iterator_to_array($store->stream()));
 
