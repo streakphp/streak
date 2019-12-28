@@ -11,7 +11,7 @@
 
 declare(strict_types=1);
 
-namespace Streak\Infrastructure\Event\Sourced\TransactionalSubscription;
+namespace Streak\Infrastructure\Event\Sourced\CommittingSubscription;
 
 use Streak\Domain\Event;
 use Streak\Domain\Event\Subscription;
@@ -35,7 +35,7 @@ class Factory implements Subscription\Factory
     public function create(Event\Listener $listener) : Event\Subscription
     {
         $subscription = $this->factory->create($listener);
-        $subscription = new EventSourced\TransactionalSubscription($subscription, $this->uow);
+        $subscription = new EventSourced\CommittingSubscription($subscription, $this->uow);
 
         return $subscription;
     }

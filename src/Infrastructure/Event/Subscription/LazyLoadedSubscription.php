@@ -21,7 +21,7 @@ use Streak\Domain\EventStore;
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-class LazyLoadedSubscription implements Subscription
+class LazyLoadedSubscription implements Subscription, Subscription\Decorator
 {
     private $id;
     private $subscription;

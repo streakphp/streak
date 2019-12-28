@@ -62,12 +62,10 @@ class EventSourcedRepository implements Subscription\Repository
         $listener = $this->listeners->create($id);
         $subscription = $this->subscriptions->create($listener);
 
-        if (!$subscription instanceof Event\Sourced) {
-            throw new Exception\ObjectNotSupported($subscription);
-        }
+        $eventSourced = $this->eventSourced($subscription);
 
         $filter = new EventStore\Filter();
-        $filter = $filter->filterProducerIds($subscription->producerId());
+        $filter = $filter->filterProducerIds($eventSourced->producerId());
 
         $stream = $this->store->stream($filter);
 
@@ -75,9 +73,9 @@ class EventSourcedRepository implements Subscription\Repository
             return null;
         }
 
-        $subscription->replay($stream);
+        $eventSourced->replay($stream);
 
-        $this->uow->add($subscription);
+        $this->uow->add($eventSourced);
 
         return $subscription;
     }
@@ -87,12 +85,10 @@ class EventSourcedRepository implements Subscription\Repository
      */
     public function has(Event\Subscription $subscription) : bool
     {
-        if (!$subscription instanceof Event\Sourced) {
-            throw new Exception\ObjectNotSupported($subscription);
-        }
+        $eventSourced = $this->eventSourced($subscription);
 
         $filter = new EventStore\Filter();
-        $filter = $filter->filterProducerIds($subscription->producerId());
+        $filter = $filter->filterProducerIds($eventSourced->producerId());
 
         $stream = $this->store->stream($filter);
 
@@ -108,11 +104,9 @@ class EventSourcedRepository implements Subscription\Repository
      */
     public function add(Event\Subscription $subscription) : void
     {
-        if (!$subscription instanceof Event\Sourced) {
-            throw new Exception\ObjectNotSupported($subscription);
-        }
+        $eventSourced = $this->eventSourced($subscription);
 
-        $this->uow->add($subscription);
+        $this->uow->add($eventSourced);
     }
 
     /**
@@ -156,5 +150,29 @@ class EventSourcedRepository implements Subscription\Repository
         foreach ($ids as $id) {
             yield new LazyLoadedSubscription($id, $this);
         }
+    }
+
+    /**
+     * @param Subscription $subscription
+     *
+     * @return Event\Sourced|Subscription
+     */
+    private function eventSourced(Event\Subscription $subscription) : Event\Sourced
+    {
+        $exception = new Exception\ObjectNotSupported($subscription);
+
+        if ($subscription instanceof Event\Sourced) {
+            return $subscription;
+        }
+
+        while ($subscription instanceof Subscription\Decorator) {
+            $subscription = $subscription->subscription();
+
+            if ($subscription instanceof Event\Sourced) {
+                return $subscription;
+            }
+        }
+
+        throw $exception;
     }
 }

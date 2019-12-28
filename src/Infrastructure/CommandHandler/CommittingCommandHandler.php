@@ -19,7 +19,7 @@ use Streak\Infrastructure;
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-class TransactionalPersistenceCommandHandler implements Application\CommandHandler
+class CommittingCommandHandler implements Application\CommandHandler
 {
     /**
      * @var Application\CommandHandler

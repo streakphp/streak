@@ -11,20 +11,20 @@
 
 declare(strict_types=1);
 
-namespace Streak\Infrastructure\Event\Sourced\TransactionSubscription;
+namespace Streak\Infrastructure\Event\Sourced\CommittingSubscription;
 
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Streak\Domain\Clock;
 use Streak\Domain\Event;
+use Streak\Infrastructure\Event\Sourced\CommittingSubscription;
 use Streak\Infrastructure\Event\Sourced\Subscription;
-use Streak\Infrastructure\Event\Sourced\TransactionalSubscription;
 use Streak\Infrastructure\UnitOfWork;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  *
- * @covers \Streak\Infrastructure\Event\Sourced\TransactionalSubscription\Factory
+ * @covers \Streak\Infrastructure\Event\Sourced\CommittingSubscription\Factory
  */
 class FactoryTest extends TestCase
 {
@@ -53,11 +53,11 @@ class FactoryTest extends TestCase
     public function testObject()
     {
         $factory = new Subscription\Factory($this->clock);
-        $factory = new TransactionalSubscription\Factory($factory, $this->uow);
+        $factory = new CommittingSubscription\Factory($factory, $this->uow);
 
         $actual = $factory->create($this->listener);
 
-        $expected = new TransactionalSubscription(new Subscription($this->listener, $this->clock), $this->uow);
+        $expected = new CommittingSubscription(new Subscription($this->listener, $this->clock), $this->uow);
 
         $this->assertEquals($expected, $actual);
     }
