@@ -21,7 +21,13 @@ use Streak\Domain\Event;
  */
 trait Sourcing //implements Event\Consumer, Event\Producer, Domain\Identifiable, Domain\Versionable
 {
+    /**
+     * @var Event\Envelope[]
+     */
     private $events = [];
+    /**
+     * @var Event\Envelope
+     */
     private $lastEvent;
     private $replaying = false;
     private $lastReplayed;
@@ -78,6 +84,11 @@ trait Sourcing //implements Event\Consumer, Event\Producer, Domain\Identifiable,
         $this->events = [];
     }
 
+    /**
+     * @throws Event\Exception\NoEventApplyingMethodFound
+     * @throws Event\Exception\TooManyEventApplyingMethodsFound
+     * @throws \Throwable
+     */
     final private function apply(Event $event) : void
     {
         $event = new Event\Envelope(
@@ -92,6 +103,8 @@ trait Sourcing //implements Event\Consumer, Event\Producer, Domain\Identifiable,
     }
 
     /**
+     * @throws Event\Exception\NoEventApplyingMethodFound
+     * @throws Event\Exception\TooManyEventApplyingMethodsFound
      * @throws \Throwable
      */
     final private function applyEvent(Event\Envelope $event) : void
@@ -100,32 +113,33 @@ trait Sourcing //implements Event\Consumer, Event\Producer, Domain\Identifiable,
             throw new Exception\SourcingObjectWithEventFailed($this, $event);
         }
 
-        if (!$this->id()->equals($event->producerId())) {
+        if (!$this->producerId()->equals($event->producerId())) {
             throw new Domain\Exception\EventAndConsumerMismatch($this, $event);
         }
 
-        try { // TODO: simplify?
-            $version = $this->version;
-            $lastReplayed = $this->lastReplayed;
-            $last = $this->lastEvent;
+        try {
+            $version = $this->version; // backup
+            $last = $this->lastEvent; // backup
+            $lastReplayed = $this->lastReplayed; // backup
 
-            $this->lastEvent = $event;
             if ($this->replaying) {
+                $this->lastEvent = $event;
                 $this->version = $event->version();
                 $this->lastReplayed = $event;
             } else {
+                $this->lastEvent = $event;
                 $this->events[] = $event;
             }
-            $this->lastEvent = $event;
 
             $this->doApplyEvent($event);
         } catch (\Throwable $e) {
-            $this->lastEvent = $last;
-
+            // rollback changes
             if ($this->replaying) {
+                $this->lastEvent = $last;
                 $this->version = $version;
                 $this->lastReplayed = $lastReplayed;
             } else {
+                $this->lastEvent = $last;
                 array_pop($this->events);
             }
 

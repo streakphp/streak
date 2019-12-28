@@ -237,18 +237,23 @@ final class Subscription implements Event\Subscription, Event\Sourced, Versionab
     {
         if ($event->message() instanceof SubscriptionListenedToEvent) {
             $this->applySubscriptionListenedToEvent($event);
+            return;
         }
         if ($event->message() instanceof SubscriptionIgnoredEvent) {
             $this->applySubscriptionIgnoredEvent();
+            return;
         }
         if ($event->message() instanceof SubscriptionCompleted) {
             $this->applySubscriptionCompleted();
+            return;
         }
         if ($event->message() instanceof SubscriptionStarted) {
             $this->applySubscriptionStarted($event);
+            return;
         }
         if ($event->message() instanceof SubscriptionRestarted) {
             $this->applySubscriptionRestarted($event);
+            return;
         }
 
         throw new Event\Exception\NoEventApplyingMethodFound($this, $event);
