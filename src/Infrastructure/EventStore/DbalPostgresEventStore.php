@@ -29,7 +29,7 @@ use Streak\Domain\Id\UUID;
  */
 class DbalPostgresEventStore implements \Iterator, EventStore, Event\Stream, Schemable, Schema
 {
-    private const EVENT_ATTRIBUTE_NUMBER = '__event_store_number__';
+    public const EVENT_ATTRIBUTE_NUMBER = '__event_store_number__';
 
     private const POSTGRES_PLATFORM_NAME = 'postgresql';
 
@@ -183,7 +183,6 @@ SQL;
             }
             throw $e; // @codeCoverageIgnore
         }
-
 
         while ($returned = $statement->fetch(\PDO::FETCH_ASSOC)) {
             $number = (string) $returned['number'];

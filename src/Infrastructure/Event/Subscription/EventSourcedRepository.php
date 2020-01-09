@@ -87,7 +87,7 @@ class EventSourcedRepository implements Subscription\Repository
     {
         $eventSourced = $this->eventSourced($subscription);
 
-        if (true === $this->uow->has($subscription)) {
+        if (true === $this->uow->has($eventSourced)) {
             return true;
         }
 

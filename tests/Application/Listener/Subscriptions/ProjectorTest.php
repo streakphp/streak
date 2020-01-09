@@ -26,6 +26,8 @@ use Streak\Domain\Event\Sourced\Subscription\Event\SubscriptionIgnoredEvent;
 use Streak\Domain\Event\Sourced\Subscription\Event\SubscriptionListenedToEvent;
 use Streak\Domain\Event\Sourced\Subscription\Event\SubscriptionRestarted;
 use Streak\Domain\Event\Sourced\Subscription\Event\SubscriptionStarted;
+use Streak\Domain\Id\UUID;
+use Streak\Infrastructure\EventStore\DbalPostgresEventStore;
 use Streak\Infrastructure\EventStore\InMemoryEventStore;
 use Streak\Infrastructure\FixedClock;
 
@@ -96,6 +98,7 @@ class ProjectorTest extends TestCase
     {
         $this->clock = new FixedClock(new \DateTimeImmutable('2018-01-01T00:00:00+00:00'));
         $this->event = $this->getMockBuilder(Event::class)->getMockForAbstractClass();
+        $this->event = Event\Envelope::new($this->event, UUID::random());
         $this->connection = $this->getMockBuilder(Connection::class)->disableOriginalConstructor()->getMock();
         $this->stream = $this->getMockBuilder(Event\Stream::class)->getMockForAbstractClass();
         $this->statement = $this->getMockBuilder(Statement::class)->disableOriginalConstructor()->getMock();
@@ -143,12 +146,7 @@ class ProjectorTest extends TestCase
         $this->clock->timeIs(new \DateTime('2018-01-01T00:00:01+00:00'));
 
         $event = new SubscriptionStarted($this->event, new \DateTime('2018-02-01T00:00:00+00:00'));
-        Metadata::fromArray([
-            'producer_type' => 'Streak\Application\Listener\Subscriptions\ProjectorTest\Id',
-            'producer_id' => '3f79b9cb-d7d5-4782-9de2-52dd3f6ee706',
-            'sequence' => '100',
-            'uuid' => self::UUIDS[100],
-        ])->toObject($event);
+        $event = (new Event\Envelope(new UUID(self::UUIDS[100]), 'name', $event, $id))->set(DbalPostgresEventStore::EVENT_ATTRIBUTE_NUMBER, 100);
 
         $projector->on($event);
 

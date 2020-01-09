@@ -25,6 +25,7 @@ use Streak\Domain\Event\Sourced\Subscription\Event\SubscriptionStarted;
 use Streak\Domain\EventStore;
 use Streak\Domain\Exception;
 use Streak\Domain\Id\UUID;
+use Streak\Infrastructure\Event\Sourced\Subscription;
 use Streak\Infrastructure\EventStore\InMemoryEventStore;
 use Streak\Infrastructure\FixedClock;
 use Streak\Infrastructure\UnitOfWork;
@@ -389,7 +390,7 @@ class EventSourcedRepositoryTest extends TestCase
     public function testCheckingForSubscriptionStillInMemory()
     {
         $repository = new EventSourcedRepository($this->subscriptions, $this->listeners, $this->store, $this->uow);
-        $subscription = new Event\Sourced\Subscription($this->listener1, $this->clock);
+        $subscription = new Subscription($this->listener1, $this->clock);
 
         $this->uow->add($subscription);
 
