@@ -30,8 +30,6 @@ class Factory implements Subscription\Factory
     }
 
     /**
-     * @param Event\Listener $listener
-     *
      * @return \Streak\Infrastructure\Event\Sourced\Subscription
      */
     public function create(Event\Listener $listener) : Event\Subscription

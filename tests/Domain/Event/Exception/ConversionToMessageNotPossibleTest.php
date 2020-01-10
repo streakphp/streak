@@ -19,7 +19,7 @@ use PHPUnit\Framework\TestCase;
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  *
  * @covers \Streak\Domain\Event\Exception\ConversionNotPossible
- * @covers \Streak\Domain\Event\Exception\ConversionToEventNotPossible
+ * @covers \Streak\Domain\Event\Exception\ConversionToObjectNotPossible
  */
 class ConversionToMessageNotPossibleTest extends TestCase
 {
@@ -28,7 +28,7 @@ class ConversionToMessageNotPossibleTest extends TestCase
         $array = ['test' => 'array'];
         $previous = new \Exception();
 
-        $exception = new ConversionToEventNotPossible($array, $previous);
+        $exception = new ConversionToObjectNotPossible($array, $previous);
 
         $this->assertSame($array, $exception->array());
         $this->assertSame('Conversion not possible.', $exception->getMessage());

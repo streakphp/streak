@@ -22,8 +22,6 @@ interface State extends ValueObject
 {
     /**
      * @param string $name must be non empty string
-     *
-     * @return bool
      */
     public function has(string $name) : bool;
 
@@ -36,9 +34,6 @@ interface State extends ValueObject
      */
     public function get(string $name);
 
-    /**
-     * @return array
-     */
     public function toArray() : array;
 
     /**

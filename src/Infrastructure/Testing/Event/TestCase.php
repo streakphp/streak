@@ -29,8 +29,8 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
      */
     public function testConverting(Event $message)
     {
-        $array = $this->createConverter()->eventToArray($message);
-        $object = $this->createConverter()->arrayToEvent(get_class($message), $array);
+        $array = $this->createConverter()->objectToArray($message);
+        $object = $this->createConverter()->arrayToObject(get_class($message), $array);
 
         $this->assertEquals($message, $object);
     }

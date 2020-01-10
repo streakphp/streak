@@ -13,20 +13,22 @@ declare(strict_types=1);
 
 namespace Streak\Domain\Event;
 
-use Streak\Domain;
-
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
 interface Converter
 {
     /**
+     * @param object $object
+     *
      * @throws Exception\ConversionToArrayNotPossible
      */
-    public function eventToArray(Domain\Event $event) : array;
+    public function objectToArray($object) : array;
 
     /**
-     * @throws Exception\ConversionToEventNotPossible
+     * @return object
+     *
+     * @throws Exception\ConversionToObjectNotPossible
      */
-    public function arrayToEvent(array $data) : Domain\Event;
+    public function arrayToObject(array $data);
 }

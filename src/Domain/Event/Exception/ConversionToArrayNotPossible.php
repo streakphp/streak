@@ -13,24 +13,26 @@ declare(strict_types=1);
 
 namespace Streak\Domain\Event\Exception;
 
-use Streak\Domain\Event;
-
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
 class ConversionToArrayNotPossible extends ConversionNotPossible
 {
-    private $event;
+    /** @var object */
+    private $object;
 
-    public function __construct(Event $event, \Throwable $previous = null)
+    public function __construct($object, \Throwable $previous = null)
     {
-        $this->event = $event;
+        $this->object = $object;
 
         parent::__construct($previous);
     }
 
-    public function event() : Event
+    /**
+     * @return object
+     */
+    public function object()
     {
-        return $this->event;
+        return $this->object;
     }
 }

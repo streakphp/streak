@@ -56,9 +56,6 @@ final class Subscription implements Event\Subscription, Event\Sourced, Versionab
     }
 
     /**
-     * @param EventStore $store
-     * @param int|null   $limit
-     *
      * @return iterable|Event[]
      *
      * @throws Exception\SubscriptionAlreadyCompleted

@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Streak\Infrastructure\Event\Converter;
 
+use InvalidArgumentException;
 use Streak\Domain\Event;
 use Streak\Domain\Event\Converter;
 use Streak\Domain\Event\Exception;
@@ -20,33 +21,41 @@ use Streak\Domain\Event\Exception;
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-class FlatObjectConverter implements Converter
+class NestedObjectConverter implements Converter
 {
     /**
+     * @param $object
+     *
      * @throws Exception\ConversionToArrayNotPossible
      */
-    public function eventToArray(Event $event) : array
+    public function objectToArray($object) : array
     {
+        if (false === is_object($object)) {
+            throw new InvalidArgumentException('Argument must be an object!');
+        }
+
         try {
-            $class = get_class($event);
-            $array = $this->toArray($event);
+            $class = get_class($object);
+            $array = $this->toArray($object);
             $array = [$class => $array];
 
             return $array;
         } catch (\Exception $exception) {
-            throw new Exception\ConversionToArrayNotPossible($event, $exception);
+            throw new Exception\ConversionToArrayNotPossible($object, $exception);
         }
     }
 
     /**
-     * @throws Exception\ConversionToEventNotPossible
+     * @return Event
+     *
+     * @throws Exception\ConversionToObjectNotPossible
      */
-    public function arrayToEvent(array $data) : Event
+    public function arrayToObject(array $data)
     {
         try {
             return $this->toObject($data);
         } catch (\Exception $exception) {
-            throw new Exception\ConversionToEventNotPossible($data, $exception);
+            throw new Exception\ConversionToObjectNotPossible($data, $exception);
         }
     }
 
@@ -80,11 +89,8 @@ class FlatObjectConverter implements Converter
         if (is_array($object)) {
             foreach ($object as &$value) {
                 if (is_object($value)) {
-                    if ($value instanceof Event) {
-                        $value = $this->eventToArray($value);
-                        continue;
-                    }
-                    throw new \InvalidArgumentException();
+                    $value = $this->objectToArray($value);
+                    continue;
                 }
                 if (is_scalar($value)) {
                     continue;
@@ -92,14 +98,19 @@ class FlatObjectConverter implements Converter
                 if (is_null($value)) {
                     continue;
                 }
-                $value = $this->toArray($value);
+                if (is_array($value)) {
+                    $value = $this->toArray($value);
+                    continue;
+                }
+
+                throw new Exception\NotSupportedType($value);
             }
         }
 
         return $object;
     }
 
-    private function toObject(array $array) : Event
+    private function toObject(array $array)
     {
         $class = array_keys($array)[0];
         $array = $array[$class];
@@ -107,17 +118,8 @@ class FlatObjectConverter implements Converter
         $reflection = new \ReflectionClass($class);
         $event = $reflection->newInstanceWithoutConstructor();
 
-        if (!$event instanceof Event) {
-            throw new \InvalidArgumentException();
-        }
-
         $reflection = new \ReflectionObject($event);
         foreach ($array as $name => $value) {
-            if ('__streak_metadata' === $name) {
-                $event->__streak_metadata = $value;
-                continue;
-            }
-
             $current = $reflection;
 
             while (false === $current->hasProperty($name)) {
@@ -168,6 +170,6 @@ class FlatObjectConverter implements Converter
             return $value;
         }
 
-        return $this->arrayToEvent($value);
+        return $this->arrayToObject($value);
     }
 }

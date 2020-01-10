@@ -21,8 +21,7 @@ class ObjectNotSupported extends \RuntimeException
     private $object;
 
     /**
-     * @param object          $object
-     * @param \Throwable|null $previous
+     * @param object $object
      */
     public function __construct($object, \Throwable $previous = null)
     {

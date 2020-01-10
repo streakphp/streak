@@ -31,7 +31,7 @@ class ConversionToArrayNotPossibleTest extends TestCase
 
         $exception = new ConversionToArrayNotPossible($message, $previous);
 
-        $this->assertSame($message, $exception->event());
+        $this->assertSame($message, $exception->object());
         $this->assertSame('Conversion not possible.', $exception->getMessage());
         $this->assertSame($previous, $exception->getPrevious());
     }

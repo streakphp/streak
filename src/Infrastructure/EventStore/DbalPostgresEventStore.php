@@ -602,7 +602,7 @@ SQL;
         // TODO: use identity map
         $event = $row['body'];
         $event = json_decode($event, true);
-        $event = $this->converter->arrayToEvent($event);
+        $event = $this->converter->arrayToObject($event);
 
         $metadata = $row['metadata'];
         $metadata = json_decode($metadata, true);
@@ -624,7 +624,7 @@ SQL;
         $row = [
             'uuid' => $uuid->toString(),
             'type' => get_class($event),
-            'body' => json_encode($this->converter->eventToArray($event)),
+            'body' => json_encode($this->converter->objectToArray($event)),
             'metadata' => json_encode($metadata->toArray()),
             'producer_type' => get_class($producerId),
             'producer_id' => $producerId->toString(),
