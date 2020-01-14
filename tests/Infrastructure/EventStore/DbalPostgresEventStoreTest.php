@@ -20,7 +20,7 @@ use Doctrine\DBAL\Platforms\MySqlPlatform;
 use PHPUnit\Framework\MockObject\MockObject;
 use Streak\Domain\EventStore;
 use Streak\Domain\Exception\ConcurrentWriteDetected;
-use Streak\Infrastructure\Event\Converter\FlatObjectConverter;
+use Streak\Infrastructure\Event\Converter\NestedObjectConverter;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -82,7 +82,7 @@ class DbalPostgresEventStoreTest extends EventStoreTestCase
         $expected = new \RuntimeException('Only PostgreSQL database is supported by selected event store.');
         $this->expectExceptionObject($expected);
 
-        $store = new DbalPostgresEventStore($this->mysql, new FlatObjectConverter());
+        $store = new DbalPostgresEventStore($this->mysql, new NestedObjectConverter());
 
         $this->mysql
             ->expects($this->once())
@@ -104,7 +104,7 @@ class DbalPostgresEventStoreTest extends EventStoreTestCase
         $expected = new \RuntimeException('Only PostgreSQL database is supported by selected event store.');
         $this->expectExceptionObject($expected);
 
-        $store = new DbalPostgresEventStore($this->mysql, new FlatObjectConverter());
+        $store = new DbalPostgresEventStore($this->mysql, new NestedObjectConverter());
 
         $this->mysql
             ->expects($this->once())
@@ -134,10 +134,10 @@ class DbalPostgresEventStoreTest extends EventStoreTestCase
         $event4 = new EventStoreTestCase\Event4();
         $producer = new EventStoreTestCase\ProducerId1('producer1');
 
-        $store1 = new DbalPostgresEventStore(self::$connection2, new FlatObjectConverter());
+        $store1 = new DbalPostgresEventStore(self::$connection2, new NestedObjectConverter());
         $store1->add($producer, 0, $event1, $event2);
 
-        $store2 = new DbalPostgresEventStore(self::$connection1, new FlatObjectConverter());
+        $store2 = new DbalPostgresEventStore(self::$connection1, new NestedObjectConverter());
 
         $this->expectExceptionObject(new ConcurrentWriteDetected($producer));
 
@@ -162,18 +162,18 @@ class DbalPostgresEventStoreTest extends EventStoreTestCase
         $event2 = new EventStoreTestCase\Event2();
         $producer = new EventStoreTestCase\ProducerId1('producer1');
 
-        $store1 = new DbalPostgresEventStore(self::$connection2, new FlatObjectConverter());
+        $store1 = new DbalPostgresEventStore(self::$connection2, new NestedObjectConverter());
         $store1->drop();
 
         $this->expectException(DBALException::class);
 
-        $store2 = new DbalPostgresEventStore(self::$connection1, new FlatObjectConverter());
+        $store2 = new DbalPostgresEventStore(self::$connection1, new NestedObjectConverter());
         $store2->add($producer, 0, $event1, $event2);
     }
 
     public function testSchema()
     {
-        $store = new DbalPostgresEventStore($this->mysql, new FlatObjectConverter());
+        $store = new DbalPostgresEventStore($this->mysql, new NestedObjectConverter());
 
         $schema = $store->schema();
 
@@ -182,7 +182,7 @@ class DbalPostgresEventStoreTest extends EventStoreTestCase
 
     protected function newEventStore() : EventStore
     {
-        $store = new DbalPostgresEventStore(self::$connection1, new FlatObjectConverter());
+        $store = new DbalPostgresEventStore(self::$connection1, new NestedObjectConverter());
         $store->drop();
         $store->create();
 

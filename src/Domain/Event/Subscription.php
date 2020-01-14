@@ -29,9 +29,6 @@ interface Subscription
     public function subscriptionId() : Listener\Id;
 
     /**
-     * @param EventStore $store
-     * @param int|null   $limit
-     *
      * @return iterable|Domain\Event[]
      *
      * @throws Exception\SubscriptionAlreadyCompleted
@@ -39,9 +36,6 @@ interface Subscription
      */
     public function subscribeTo(EventStore $store, ?int $limit = null) : iterable;
 
-    /**
-     * @param Domain\Event $event
-     */
     public function startFor(Domain\Event $event) : void;
 
     /**

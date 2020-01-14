@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Streak\Infrastructure\Event\Converter;
 
-use Streak\Domain\Event;
 use Streak\Domain\Event\Converter;
 use Streak\Domain\Event\Exception;
 
@@ -40,37 +39,37 @@ class CompositeConverter implements Converter
     /**
      * @throws Exception\ConversionToArrayNotPossible
      */
-    public function eventToArray(Event $event) : array
+    public function objectToArray($object) : array
     {
         foreach ($this->converters as $converter) {
             try {
-                return $converter->eventToArray($event);
+                return $converter->objectToArray($object);
             } catch (Exception\ConversionToArrayNotPossible $exception) {
                 continue;
             } catch (\Exception $exception) {
-                throw new Exception\ConversionToArrayNotPossible($event, $exception);
+                throw new Exception\ConversionToArrayNotPossible($object, $exception);
             }
         }
 
-        throw new Exception\ConversionToArrayNotPossible($event);
+        throw new Exception\ConversionToArrayNotPossible($object);
     }
 
     /**
-     * @throws Exception\ConversionToEventNotPossible
+     * @throws Exception\ConversionToObjectNotPossible
      */
-    public function arrayToEvent(array $data) : Event
+    public function arrayToObject(array $data)
     {
         $previous = null;
         foreach ($this->converters as $converter) {
             try {
-                return $converter->arrayToEvent($data);
-            } catch (Exception\ConversionToEventNotPossible $exception) {
+                return $converter->arrayToObject($data);
+            } catch (Exception\ConversionToObjectNotPossible $exception) {
                 continue;
             } catch (\Exception $exception) {
-                throw new Exception\ConversionToEventNotPossible($data, $exception);
+                throw new Exception\ConversionToObjectNotPossible($data, $exception);
             }
         }
 
-        throw new Exception\ConversionToEventNotPossible($data);
+        throw new Exception\ConversionToObjectNotPossible($data);
     }
 }

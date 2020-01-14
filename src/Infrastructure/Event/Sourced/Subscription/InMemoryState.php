@@ -114,8 +114,6 @@ class InMemoryState implements State
 
     /**
      * Sorts $array by its keys recursively.
-     *
-     * @param array $array
      */
     private static function ksort(array &$array) : void
     {

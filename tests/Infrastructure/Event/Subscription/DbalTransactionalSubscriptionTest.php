@@ -20,7 +20,7 @@ use PHPUnit\Framework\TestCase;
 use Streak\Domain\Event\Listener;
 use Streak\Domain\Event\Subscription;
 use Streak\Domain\EventStore;
-use Streak\Infrastructure\Event\Converter\FlatObjectConverter;
+use Streak\Infrastructure\Event\Converter\NestedObjectConverter;
 use Streak\Infrastructure\Event\Subscription\DbalTransactionalSubscriptionTest\Event1;
 use Streak\Infrastructure\Event\Subscription\DbalTransactionalSubscriptionTest\Event2;
 use Streak\Infrastructure\Event\Subscription\DbalTransactionalSubscriptionTest\Event3;
@@ -122,11 +122,11 @@ class DbalTransactionalSubscriptionTest extends TestCase
         self::$connection2->close();
         self::$connection2->connect();
 
-        $this->store1 = new DbalPostgresEventStore(self::$connection1, new FlatObjectConverter());
+        $this->store1 = new DbalPostgresEventStore(self::$connection1, new NestedObjectConverter());
         $this->store1->drop();
         $this->store1->create();
 
-        $this->store2 = new DbalPostgresEventStore(self::$connection2, new FlatObjectConverter());
+        $this->store2 = new DbalPostgresEventStore(self::$connection2, new NestedObjectConverter());
     }
 
     public function testObject()

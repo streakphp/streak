@@ -58,21 +58,21 @@ class CompositeConverterTest extends TestCase
 
         $this->converter1
             ->expects($this->once())
-            ->method('eventToArray')
+            ->method('objectToArray')
             ->with($this->message)
             ->willThrowException(new Event\Exception\ConversionToArrayNotPossible($this->message))
         ;
 
         $this->converter2
             ->expects($this->once())
-            ->method('eventToArray')
+            ->method('objectToArray')
             ->with($this->message)
             ->willReturn($data)
         ;
 
         $this->converter3
             ->expects($this->never())
-            ->method('eventToArray')
+            ->method('objectToArray')
         ;
 
         $composite = new CompositeConverter();
@@ -80,7 +80,7 @@ class CompositeConverterTest extends TestCase
         $composite->addConverter($this->converter2);
         $composite->addConverter($this->converter3);
 
-        $result = $composite->eventToArray($this->message);
+        $result = $composite->objectToArray($this->message);
 
         $this->assertSame($data, $result);
     }
@@ -92,21 +92,21 @@ class CompositeConverterTest extends TestCase
 
         $this->converter1
             ->expects($this->once())
-            ->method('eventToArray')
+            ->method('objectToArray')
             ->with($this->message)
             ->willThrowException(new Event\Exception\ConversionToArrayNotPossible($this->message))
         ;
 
         $this->converter2
             ->expects($this->once())
-            ->method('eventToArray')
+            ->method('objectToArray')
             ->with($this->message)
             ->willThrowException($unexpectedException)
         ;
 
         $this->converter3
             ->expects($this->never())
-            ->method('eventToArray')
+            ->method('objectToArray')
         ;
 
         $composite = new CompositeConverter();
@@ -115,7 +115,7 @@ class CompositeConverterTest extends TestCase
         $composite->addConverter($this->converter3);
 
         $this->expectExceptionObject($expectedException);
-        $composite->eventToArray($this->message);
+        $composite->objectToArray($this->message);
     }
 
     public function testUnsuccessfulConvertingToArray()
@@ -124,21 +124,21 @@ class CompositeConverterTest extends TestCase
 
         $this->converter1
             ->expects($this->once())
-            ->method('eventToArray')
+            ->method('objectToArray')
             ->with($this->message)
             ->willThrowException(new Event\Exception\ConversionToArrayNotPossible($this->message))
         ;
 
         $this->converter2
             ->expects($this->once())
-            ->method('eventToArray')
+            ->method('objectToArray')
             ->with($this->message)
             ->willThrowException(new Event\Exception\ConversionToArrayNotPossible($this->message))
         ;
 
         $this->converter3
             ->expects($this->once())
-            ->method('eventToArray')
+            ->method('objectToArray')
             ->with($this->message)
             ->willThrowException(new Event\Exception\ConversionToArrayNotPossible($this->message))
         ;
@@ -149,7 +149,7 @@ class CompositeConverterTest extends TestCase
         $composite->addConverter($this->converter3);
 
         $this->expectExceptionObject($expectedException);
-        $composite->eventToArray($this->message);
+        $composite->objectToArray($this->message);
     }
 
     public function testConvertingToMessage()
@@ -159,21 +159,21 @@ class CompositeConverterTest extends TestCase
 
         $this->converter1
             ->expects($this->once())
-            ->method('arrayToEvent')
+            ->method('arrayToObject')
             ->with($data)
-            ->willThrowException(new Event\Exception\ConversionToEventNotPossible($data))
+            ->willThrowException(new Event\Exception\ConversionToObjectNotPossible($data))
         ;
 
         $this->converter2
             ->expects($this->once())
-            ->method('arrayToEvent')
+            ->method('arrayToObject')
             ->with($data)
             ->willReturn($this->message)
         ;
 
         $this->converter3
             ->expects($this->never())
-            ->method('arrayToEvent')
+            ->method('arrayToObject')
         ;
 
         $composite = new CompositeConverter();
@@ -181,7 +181,7 @@ class CompositeConverterTest extends TestCase
         $composite->addConverter($this->converter2);
         $composite->addConverter($this->converter3);
 
-        $result = $composite->arrayToEvent($data);
+        $result = $composite->arrayToObject($data);
 
         $this->assertSame($this->message, $result);
     }
@@ -192,25 +192,25 @@ class CompositeConverterTest extends TestCase
         $data = ['test' => 'data'];
 
         $unexpectedException = new \InvalidArgumentException('Unexpected Exception.');
-        $expectedException = new Event\Exception\ConversionToEventNotPossible($data, $unexpectedException);
+        $expectedException = new Event\Exception\ConversionToObjectNotPossible($data, $unexpectedException);
 
         $this->converter1
             ->expects($this->once())
-            ->method('arrayToEvent')
+            ->method('arrayToObject')
             ->with($data)
-            ->willThrowException(new Event\Exception\ConversionToEventNotPossible($data))
+            ->willThrowException(new Event\Exception\ConversionToObjectNotPossible($data))
         ;
 
         $this->converter2
             ->expects($this->once())
-            ->method('arrayToEvent')
+            ->method('arrayToObject')
             ->with($data)
             ->willThrowException($unexpectedException)
         ;
 
         $this->converter3
             ->expects($this->never())
-            ->method('arrayToEvent')
+            ->method('arrayToObject')
         ;
 
         $composite = new CompositeConverter();
@@ -219,7 +219,7 @@ class CompositeConverterTest extends TestCase
         $composite->addConverter($this->converter3);
 
         $this->expectExceptionObject($expectedException);
-        $composite->arrayToEvent($data);
+        $composite->arrayToObject($data);
     }
 
     public function testUnsuccessfulConvertingToMessage()
@@ -227,27 +227,27 @@ class CompositeConverterTest extends TestCase
         $class = 'class';
         $data = ['test' => 'data'];
 
-        $expectedException = new Event\Exception\ConversionToEventNotPossible($data);
+        $expectedException = new Event\Exception\ConversionToObjectNotPossible($data);
 
         $this->converter1
             ->expects($this->once())
-            ->method('arrayToEvent')
+            ->method('arrayToObject')
             ->with($data)
-            ->willThrowException(new Event\Exception\ConversionToEventNotPossible($data))
+            ->willThrowException(new Event\Exception\ConversionToObjectNotPossible($data))
         ;
 
         $this->converter2
             ->expects($this->once())
-            ->method('arrayToEvent')
+            ->method('arrayToObject')
             ->with($data)
-            ->willThrowException(new Event\Exception\ConversionToEventNotPossible($data))
+            ->willThrowException(new Event\Exception\ConversionToObjectNotPossible($data))
         ;
 
         $this->converter3
             ->expects($this->once())
-            ->method('arrayToEvent')
+            ->method('arrayToObject')
             ->with($data)
-            ->willThrowException(new Event\Exception\ConversionToEventNotPossible($data))
+            ->willThrowException(new Event\Exception\ConversionToObjectNotPossible($data))
         ;
 
         $composite = new CompositeConverter();
@@ -257,6 +257,6 @@ class CompositeConverterTest extends TestCase
 
         $this->expectExceptionObject($expectedException);
 
-        $composite->arrayToEvent($data);
+        $composite->arrayToObject($data);
     }
 }

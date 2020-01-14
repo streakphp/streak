@@ -16,7 +16,7 @@ namespace Streak\Domain\Event\Exception;
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-class ConversionToEventNotPossible extends ConversionNotPossible
+class ConversionToObjectNotPossible extends ConversionNotPossible
 {
     private $array;
 
