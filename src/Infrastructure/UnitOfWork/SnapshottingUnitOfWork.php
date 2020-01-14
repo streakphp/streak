@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Streak\Infrastructure\UnitOfWork;
 
+use InvalidArgumentException;
 use Streak\Domain\Event;
 use Streak\Infrastructure\AggregateRoot\Snapshotter;
 use Streak\Infrastructure\UnitOfWork;
@@ -27,11 +28,19 @@ class SnapshottingUnitOfWork implements UnitOfWork
     private $versions;
     private $committing = false;
 
-    public function __construct(UnitOfWork $uow, Snapshotter $snapshotter)
+    /** @var int */
+    private $interval = 1;
+
+    public function __construct(UnitOfWork $uow, Snapshotter $snapshotter, int $interval = 1)
     {
+        if ($interval < 1) {
+            throw new InvalidArgumentException('Interval must be positive!');
+        }
+
         $this->uow = $uow;
         $this->snapshotter = $snapshotter;
         $this->versions = new \SplObjectStorage();
+        $this->interval = $interval;
     }
 
     public function add(Event\Producer $producer) : void
@@ -117,12 +126,10 @@ class SnapshottingUnitOfWork implements UnitOfWork
 
     private function isReadyForSnapshot(int $before, int $after) : bool
     {
-        if ($before === $after) {
-            return false;
+        if ((int) ($before / $this->interval) !== (int) ($after / $this->interval)) {
+            return true;
         }
 
-        // TODO: snapshot every n-th version.
-
-        return true;
+        return false;
     }
 }

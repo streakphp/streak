@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Streak\Infrastructure\UnitOfWork;
 
+use InvalidArgumentException;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Streak\Domain\Event;
@@ -96,14 +97,12 @@ class SnapshottingUnitOfWorkTest extends TestCase
 
         $this->producer
             ->expects($this->never()) // we do not handle this type of object
-            ->method('producerId')
-        ;
+            ->method('producerId');
 
         $this->aggregateRoot1
             ->expects($this->atLeastOnce())
             ->method('producerId')
-            ->willReturn($this->aggregateRootId1)
-        ;
+            ->willReturn($this->aggregateRootId1);
 
         $this->aggregateRoot1
             ->expects($this->exactly(3))
@@ -112,14 +111,12 @@ class SnapshottingUnitOfWorkTest extends TestCase
                 30,
                 30,
                 30
-            )
-        ;
+            );
 
         $this->aggregateRoot2
             ->expects($this->atLeastOnce())
             ->method('producerId')
-            ->willReturn($this->aggregateRootId2)
-        ;
+            ->willReturn($this->aggregateRootId2);
 
         $this->aggregateRoot2
             ->expects($this->exactly(2))
@@ -127,8 +124,7 @@ class SnapshottingUnitOfWorkTest extends TestCase
             ->willReturnOnConsecutiveCalls(
                 40,
                 50
-            )
-        ;
+            );
 
         $this->uow
             ->expects($this->exactly(8))
@@ -145,8 +141,7 @@ class SnapshottingUnitOfWorkTest extends TestCase
                 true,
                 false,
                 false
-            )
-        ;
+            );
 
         $this->uow
             ->expects($this->exactly(4))
@@ -156,8 +151,7 @@ class SnapshottingUnitOfWorkTest extends TestCase
                 1,
                 2,
                 0
-            )
-        ;
+            );
 
         $this->uow
             ->expects($this->atLeastOnce())
@@ -168,8 +162,7 @@ class SnapshottingUnitOfWorkTest extends TestCase
                 [$this->producer],
                 [$this->aggregateRoot1],
                 [$this->aggregateRoot2]
-            )
-        ;
+            );
 
         $this->uow
             ->expects($this->atLeastOnce())
@@ -177,13 +170,11 @@ class SnapshottingUnitOfWorkTest extends TestCase
             ->withConsecutive(
                 [$this->producer],
                 [$this->aggregateRoot1]
-            )
-        ;
+            );
 
         $this->uow
             ->expects($this->atLeastOnce())
-            ->method('clear')
-        ;
+            ->method('clear');
 
         $this->assertFalse($uow->has($this->producer));
         $this->assertFalse($uow->has($this->aggregateRoot1));
@@ -222,14 +213,12 @@ class SnapshottingUnitOfWorkTest extends TestCase
                 yield $this->producer;
                 yield $this->aggregateRoot1;
                 yield $this->aggregateRoot2;
-            })
-        ;
+            });
 
         $this->snapshotter
             ->expects($this->once())
             ->method('takeSnapshot')
-            ->with($this->aggregateRoot2)
-        ;
+            ->with($this->aggregateRoot2);
 
         $committed = iterator_to_array($uow->commit());
 
@@ -243,11 +232,85 @@ class SnapshottingUnitOfWorkTest extends TestCase
                 [$this->aggregateRoot1],
                 [$this->aggregateRoot1, $this->aggregateRoot2],
                 [$this->aggregateRoot1]
-            )
-        ;
+            );
 
         $this->assertEmpty($uow->uncommitted());
         $this->assertSame([$this->aggregateRoot1], $uow->uncommitted());
         $this->assertSame([$this->aggregateRoot1, $this->aggregateRoot2], $uow->uncommitted());
+    }
+
+    /**
+     * @dataProvider commitIntervalProvider
+     */
+    public function testCommitInterval(int $beforeVersion, int $afterVersion, int $snapshotInterval, bool $snapshotTaken) : void
+    {
+        $this->uow
+            ->expects($this->once())
+            ->method('commit')
+            ->with()
+            ->willReturnCallback(function () {
+                yield $this->aggregateRoot1;
+            });
+
+        /** @var Snapshotter|MockObject $snapshotter */
+        $snapshotter = $this->getMockBuilder(Snapshotter::class)->getMock();
+        $this->aggregateRoot1
+            ->expects($this->exactly(2))
+            ->method('version')
+            ->willReturnOnConsecutiveCalls(
+                $beforeVersion,
+                $afterVersion
+            );
+
+        $this->aggregateRoot1
+            ->expects($this->atLeastOnce())
+            ->method('producerId')
+            ->willReturn($this->aggregateRootId1);
+
+        if ($snapshotTaken) {
+            $snapshotter->expects($this->once())->method('takeSnapshot');
+        } else {
+            $snapshotter->expects($this->never())->method('takeSnapshot');
+        }
+
+        $uow = new SnapshottingUnitOfWork($this->uow, $snapshotter, $snapshotInterval);
+
+        $uow->add($this->aggregateRoot1);
+        iterator_to_array($uow->commit());
+    }
+
+    public function commitIntervalProvider() : array
+    {
+        return [
+            [1, 2, 3, false],
+            [1, 2, 2, true],
+            [1, 2, 3, false],
+            [1, 2, 1, true],
+            [1, 10, 5, true],
+            [10, 16, 5, true],
+            [16, 24, 5, true],
+            [100, 200, 50, true],
+            [200, 300, 101, true],
+            [100, 200, 201, false],
+            [131, 133, 2, true],
+            [1033, 1043, 8, true],
+        ];
+    }
+
+    /**
+     * @dataProvider wrongIntervalProvider
+     */
+    public function testItDoesNotCreateWithWrongInterval(int $interval) : void
+    {
+        self::expectException(InvalidArgumentException::class);
+        new SnapshottingUnitOfWork($this->uow, $this->snapshotter, 0);
+    }
+
+    public function wrongIntervalProvider()
+    {
+        return [
+            [0],
+            [-1],
+        ];
     }
 }
