@@ -16,7 +16,7 @@ jobs:
           PHPUNIT_REDIS_HOSTNAME: localhost
           PHPUNIT_REDIS_PORT: 6379
           PHPUNIT_REDIS_DATABASE: 0
-      - image: postgres:9.4-alpine
+      - image: postgres:9.5-alpine
         environment:
           POSTGRES_USER: phpunit
           POSTGRES_PASSWORD: phpunit
