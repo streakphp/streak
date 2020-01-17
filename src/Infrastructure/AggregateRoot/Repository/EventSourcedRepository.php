@@ -66,6 +66,8 @@ class EventSourcedRepository implements Domain\AggregateRoot\Repository
             throw new Exception\ObjectNotSupported($aggregate);
         }
 
+        $snapshot = 0 !== $aggregate->version(); // was snapshot taken?
+
         $filter = new Domain\EventStore\Filter();
         $filter = $filter->filterProducerIds($id);
 
@@ -75,21 +77,19 @@ class EventSourcedRepository implements Domain\AggregateRoot\Repository
             $stream = $stream->after($aggregate->lastEvent());
         }
 
-        if ($stream->empty()) {
-            // aggregate from snapshot is fresh
-            if ($aggregate->version() > 0) {
-                $this->uow->add($aggregate);
+        $aggregate->replay($stream);
 
-                return $aggregate;
-            }
-
-            // aggregate does not exist
-            if (0 === $aggregate->version()) {
-                return null;
-            }
+        // aggregate does not exist
+        if (0 === $aggregate->version()) {
+            return null;
         }
 
-        $aggregate->replay($stream);
+        // no snapshot although events are found.
+        // it can occur after snapshot storage was reset and, in that case, we don't want to wait for
+        // next snapshotting window.
+        if (false === $snapshot) {
+            $this->snapshotter->takeSnapshot($aggregate);
+        }
 
         $this->uow->add($aggregate);
 

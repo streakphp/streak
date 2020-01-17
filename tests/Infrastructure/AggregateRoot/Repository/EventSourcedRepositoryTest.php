@@ -204,6 +204,11 @@ class EventSourcedRepositoryTest extends TestCase
             ->willReturn($this->aggregateRoot)
         ;
 
+        $this->snapshotter
+            ->expects($this->never())
+            ->method('takeSnapshot')
+        ;
+
         $this->store
             ->expects($this->once())
             ->method('stream')
@@ -214,13 +219,8 @@ class EventSourcedRepositoryTest extends TestCase
         $this->aggregateRoot
             ->expects($this->atLeastOnce())
             ->method('version')
+            ->with()
             ->willReturn(0)
-        ;
-
-        $this->stream
-            ->expects($this->once())
-            ->method('empty')
-            ->willReturn(true)
         ;
 
         $repository = new EventSourcedRepository($this->factory, $this->store, $this->snapshotter, $this->uow);
@@ -246,11 +246,23 @@ class EventSourcedRepositoryTest extends TestCase
             ->willReturn($this->aggregateRoot)
         ;
 
+        $this->snapshotter
+            ->expects($this->never())
+            ->method('takeSnapshot')
+        ;
+
         $this->aggregateRoot
             ->expects($this->atLeastOnce())
             ->method('lastEvent')
             ->with()
             ->willReturn($this->event1)
+        ;
+
+        $this->aggregateRoot
+            ->expects($this->atLeastOnce())
+            ->method('version')
+            ->with()
+            ->willReturnOnConsecutiveCalls(10, 12)
         ;
 
         $this->store
@@ -265,12 +277,6 @@ class EventSourcedRepositoryTest extends TestCase
             ->method('after')
             ->with($this->event1)
             ->willReturnSelf()
-        ;
-
-        $this->stream
-            ->expects($this->once())
-            ->method('empty')
-            ->willReturn(false)
         ;
 
         $this->aggregateRoot
@@ -308,11 +314,23 @@ class EventSourcedRepositoryTest extends TestCase
             ->willReturn($this->aggregateRoot)
         ;
 
+        $this->snapshotter
+            ->expects($this->never())
+            ->method('takeSnapshot')
+        ;
+
         $this->aggregateRoot
             ->expects($this->atLeastOnce())
             ->method('lastEvent')
             ->with()
             ->willReturn($this->event1)
+        ;
+
+        $this->aggregateRoot
+            ->expects($this->atLeastOnce())
+            ->method('version')
+            ->with()
+            ->willReturnOnConsecutiveCalls(10, 10)
         ;
 
         $this->store
@@ -329,12 +347,6 @@ class EventSourcedRepositoryTest extends TestCase
             ->willReturnSelf()
         ;
 
-        $this->stream
-            ->expects($this->once())
-            ->method('empty')
-            ->willReturn(true)
-        ;
-
         $this->aggregateRoot
             ->expects($this->atLeastOnce())
             ->method('version')
@@ -342,7 +354,7 @@ class EventSourcedRepositoryTest extends TestCase
         ;
 
         $this->aggregateRoot
-            ->expects($this->never())
+            ->expects($this->once())
             ->method('replay')
             ->with($this->stream)
         ;
@@ -376,6 +388,12 @@ class EventSourcedRepositoryTest extends TestCase
             ->willReturn(null)
         ;
 
+        $this->snapshotter
+            ->expects($this->once())
+            ->method('takeSnapshot')
+            ->with($this->aggregateRoot)
+        ;
+
         $this->store
             ->expects($this->once())
             ->method('stream')
@@ -383,10 +401,14 @@ class EventSourcedRepositoryTest extends TestCase
             ->willReturn($this->stream)
         ;
 
-        $this->stream
-            ->expects($this->once())
-            ->method('empty')
-            ->willReturn(false)
+        $this->aggregateRoot
+            ->expects($this->atLeastOnce())
+            ->method('version')
+            ->with()
+            ->willReturnOnConsecutiveCalls(
+                0,
+                12
+            )
         ;
 
         $this->aggregateRoot
