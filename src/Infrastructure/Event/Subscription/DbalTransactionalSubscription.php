@@ -102,4 +102,9 @@ class DbalTransactionalSubscription implements Subscription, Subscription\Decora
     {
         return $this->subscription->completed();
     }
+
+    public function lastProcessedEvent() : ?Event\Envelope
+    {
+        return $this->subscription->lastProcessedEvent();
+    }
 }

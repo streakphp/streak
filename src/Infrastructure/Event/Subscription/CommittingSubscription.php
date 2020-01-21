@@ -106,4 +106,9 @@ class CommittingSubscription implements Subscription, Subscription\Decorator
     {
         return $this->subscription->completed();
     }
+
+    public function lastProcessedEvent() : ?Event\Envelope
+    {
+        return $this->subscription->lastProcessedEvent();
+    }
 }
