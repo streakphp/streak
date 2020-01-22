@@ -197,6 +197,11 @@ class Subscription implements Event\Subscription
         return true === $this->completed;
     }
 
+    public function lastProcessedEvent() : ?Event\Envelope
+    {
+        return $this->lastProcessedEvent;
+    }
+
     private function listenToEvent(Event\Envelope $event) : void
     {
         if (true === $this->starting()) {

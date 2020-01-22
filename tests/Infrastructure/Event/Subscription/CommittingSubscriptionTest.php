@@ -2451,4 +2451,22 @@ class CommittingSubscriptionTest extends TestCase
         $this->assertEquals([], $decorated->events());
         $this->assertSame(7, $decorated->version());
     }
+
+    public function testItReturnsLastProcessedEvent() : void
+    {
+        /** @var Subscription|MockObject $decorated */
+        $decorated = $this->getMockBuilder(Event\Subscription::class)->getMock();
+        $decorated->expects($this->at(0))->method('lastProcessedEvent')->willReturn(null);
+
+        /** @var Event|MockObject $event */
+        $event = $this->getMockBuilder(Event::class)->getMock();
+
+        $envelope = new Event\Envelope(new UUID('861bbfe1-81f0-43fa-aadd-c9f1c972c4e1'), 'test', $event, new UUID('8b962401-3f83-47d1-9442-cea4a5f3ede5'));
+        $decorated->expects($this->at(1))->method('lastProcessedEvent')->willReturn($envelope);
+
+        $subscription = new CommittingSubscription($decorated, $this->uow);
+        self::assertNull($subscription->lastProcessedEvent());
+
+        self::assertSame($envelope, $subscription->lastProcessedEvent());
+    }
 }
