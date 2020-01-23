@@ -64,6 +64,9 @@ class DAORepository implements Subscription\Repository
 
     public function all(?Subscription\Repository\Filter $filter = null) : iterable
     {
+        if (null === $filter) {
+            $filter = Subscription\Repository\Filter::nothing();
+        }
         $types = $filter->subscriptionTypes();
         $completed = $filter->areCompletedSubscriptionsIgnored() ? false : null;
 
