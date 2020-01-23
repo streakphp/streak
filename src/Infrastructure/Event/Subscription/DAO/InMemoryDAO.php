@@ -32,6 +32,8 @@ class InMemoryDAO implements DAO
         foreach ($this->subscriptions as $key => $stored) {
             if ($stored->subscriptionId()->equals($subscription->subscriptionId())) {
                 $this->subscriptions[$key] = $subscription;
+
+                return;
             }
         }
 

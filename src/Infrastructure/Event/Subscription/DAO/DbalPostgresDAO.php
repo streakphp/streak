@@ -61,7 +61,7 @@ class DbalPostgresDAO implements DAO
         try {
             $this->doSave($subscription);
         } catch (TableNotFoundException $e) {
-            $this->createTable();
+            $this->create();
 
             $this->doSave($subscription);
         }
@@ -118,14 +118,18 @@ class DbalPostgresDAO implements DAO
         $property = $reflection->getProperty('startedBy');
         $property->setAccessible(true);
         $row['started_by'] = $property->getValue($subscription);
-        $row['started_by'] = $this->converter->objectToArray($row['started_by']);
-        $row['started_by'] = json_encode($row['started_by']);
+        if (null !== $row['started_by']) {
+            $row['started_by'] = $this->converter->objectToArray($row['started_by']);
+            $row['started_by'] = json_encode($row['started_by']);
+        }
         $property->setAccessible(false);
 
         $property = $reflection->getProperty('startedAt');
         $property->setAccessible(true);
         $row['started_at'] = $property->getValue($subscription);
-        $row['started_at'] = $this->toTimestamp($row['started_at']);
+        if (null !== $row['started_at']) {
+            $row['started_at'] = $this->toTimestamp($row['started_at']);
+        }
         $property->setAccessible(false);
 
         $property = $reflection->getProperty('lastProcessedEvent');
@@ -154,14 +158,33 @@ class DbalPostgresDAO implements DAO
         return $row;
     }
 
-    public function reset()
+    public function create()
     {
-        $this->connection->beginTransaction();
+        $sql = <<<SQL
+CREATE TABLE IF NOT EXISTS subscriptions
+(
+  id SERIAL PRIMARY KEY,
+  subscription_type VARCHAR(255) NOT NULL,
+  subscription_id VARCHAR(52) NOT NULL,
+  state JSONB DEFAULT NULL,
+  started_by JSONB DEFAULT NULL,
+  started_at TIMESTAMP(6) WITH TIME ZONE DEFAULT NULL, -- microsecond precision
+  last_processed_event JSONB DEFAULT NULL,
+  last_event_processed_at TIMESTAMP(6) WITH TIME ZONE DEFAULT NULL, -- microsecond precision
+  completed BOOLEAN NOT NULL DEFAULT FALSE,
+  UNIQUE(subscription_type, subscription_id)
+);
+SQL;
+        $statement = $this->connection->prepare($sql);
+        $statement->execute();
+    }
 
-        $this->dropTable();
-        $this->createTable();
+    public function drop()
+    {
+        $sql = 'DROP TABLE IF EXISTS subscriptions;';
 
-        $this->connection->commit();
+        $statement = $this->connection->prepare($sql);
+        $statement->execute();
     }
 
     private function fromRow($row) : Subscription
@@ -172,10 +195,13 @@ class DbalPostgresDAO implements DAO
         $row['state'] = json_decode($row['state'], true);
         $row['state'] = InMemoryState::fromArray($row['state']);
 
-        $row['started_by'] = json_decode($row['started_by'], true);
-        $row['started_by'] = $this->converter->arrayToObject($row['started_by']);
-
-        $row['started_at'] = $this->fromTimestamp($row['started_at']);
+        if (null !== $row['started_by']) {
+            $row['started_by'] = json_decode($row['started_by'], true);
+            $row['started_by'] = $this->converter->arrayToObject($row['started_by']);
+        }
+        if (null !== $row['started_at']) {
+            $row['started_at'] = $this->fromTimestamp($row['started_at']);
+        }
 
         if (null !== $row['last_processed_event']) {
             $row['last_processed_event'] = json_decode($row['last_processed_event'], true);
@@ -238,9 +264,16 @@ class DbalPostgresDAO implements DAO
 
     private function fromTimestamp(string $when) : \DateTimeImmutable
     {
-        $when = \DateTimeImmutable::createFromFormat('Y-m-d H:i:s.u P', $when);
+        $timestamp = \DateTimeImmutable::createFromFormat('Y-m-d H:i:s.u P', $when);
 
-        return $when;
+        // TIL that PDO is rounding microseconds when retrieving TIMESTAMP fields from postgresql and if those microseconds happened to be "000000"
+        // then they are removed entirely e.g. "2020-01-22 19:48:42.000000+00" becomes "2020-01-22 19:48:42+00".
+        // It can affect other DBSes and precisions.
+        if (false === $timestamp) {
+            $timestamp = \DateTimeImmutable::createFromFormat('Y-m-d H:i:s P', $when); // @ignoreCodeCoverage
+        }
+
+        return $timestamp;
     }
 
     /**
@@ -355,6 +388,8 @@ SQL;
             $sql = "$sql WHERE $where ";
         }
 
+        $sql .= ' ORDER BY id';
+
         $statement = $this->connection->prepare($sql);
         $statement->execute($parameters);
 
@@ -365,35 +400,6 @@ SQL;
         }
 
         $statement->closeCursor();
-    }
-
-    private function createTable()
-    {
-        $sql = <<<SQL
-CREATE TABLE IF NOT EXISTS subscriptions
-(
-  id SERIAL PRIMARY KEY,
-  subscription_type VARCHAR(255) NOT NULL,
-  subscription_id VARCHAR(52) NOT NULL,
-  state JSONB DEFAULT NULL,
-  started_by JSONB DEFAULT NULL,
-  started_at TIMESTAMP(6) WITH TIME ZONE DEFAULT NULL, -- microsecond precision
-  last_processed_event JSONB DEFAULT NULL,
-  last_event_processed_at TIMESTAMP(6) WITH TIME ZONE DEFAULT NULL, -- microsecond precision
-  completed BOOLEAN NOT NULL DEFAULT FALSE,
-  UNIQUE(subscription_type, subscription_id)
-);
-SQL;
-        $statement = $this->connection->prepare($sql);
-        $statement->execute();
-    }
-
-    private function dropTable()
-    {
-        $sql = 'DROP TABLE IF EXISTS subscriptions;';
-
-        $statement = $this->connection->prepare($sql);
-        $statement->execute();
     }
 
     /**
@@ -409,6 +415,7 @@ SQL;
             return $subscription;
         }
 
+        // @codeCoverageIgnoreStart
         while ($subscription instanceof Subscription\Decorator) {
             $subscription = $subscription->subscription();
 
@@ -418,5 +425,6 @@ SQL;
         }
 
         throw $exception;
+        // @codeCoverageIgnoreEnd
     }
 }
