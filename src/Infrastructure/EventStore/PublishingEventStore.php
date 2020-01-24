@@ -17,6 +17,7 @@ use Streak\Domain\Event;
 use Streak\Domain\EventBus;
 use Streak\Domain\EventStore;
 use Streak\Domain\Exception;
+use Streak\Domain\Id\UUID;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -26,6 +27,8 @@ class PublishingEventStore implements EventStore, Schemable
     private $store;
     private $bus;
     private $working = false;
+
+    /** @var Event\Envelope[] */
     private $events = [];
 
     public function __construct(EventStore $store, EventBus $bus)
@@ -77,5 +80,10 @@ class PublishingEventStore implements EventStore, Schemable
         }
 
         return null;
+    }
+
+    public function event(UUID $uuid) : ?Event\Envelope
+    {
+        return $this->store->event($uuid);
     }
 }

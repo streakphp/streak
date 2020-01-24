@@ -19,6 +19,7 @@ use Streak\Domain;
 use Streak\Domain\Event;
 use Streak\Domain\EventBus;
 use Streak\Domain\EventStore;
+use Streak\Domain\Id\UUID;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -205,5 +206,28 @@ class PublishingEventStoreTest extends TestCase
         $stream = $store->stream($filter);
 
         $this->assertSame($this->stream2, $stream);
+    }
+
+    public function testItReturnsEvent() : void
+    {
+        $store = new PublishingEventStore($this->store, $this->bus);
+        $event = $this->createEnvelopeStub('563dccb6-f225-4efb-8cc5-fc340163d3ef');
+        $this->store->expects($this->at(0))->method('event')->willReturn($event);
+        $this->store->expects($this->at(1))->method('event')->willReturn(null);
+        self::assertSame($event, $store->event(new UUID('563dccb6-f225-4efb-8cc5-fc340163d3ef')));
+        self::assertNull($store->event(new UUID('abd8a704-dba3-4919-bc3a-5cc16faaac0a')));
+    }
+
+    private function createEnvelopeStub($id) : Event\Envelope
+    {
+        return new Event\Envelope(new UUID($id), 'test', $this->crateEventStub(), new UUID($id));
+    }
+
+    private function crateEventStub() : Event
+    {
+        /** @var Event|MockObject $result */
+        $result = $this->getMockBuilder(Event::class)->getMock();
+
+        return $result;
     }
 }
