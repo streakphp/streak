@@ -15,11 +15,6 @@ namespace Streak\Infrastructure\Event\Subscription\DAO;
 
 use Streak\Domain\Event;
 use Streak\Domain\Event\Listener;
-use Streak\Domain\Event\Sourced\Subscription\Event\SubscriptionCompleted;
-use Streak\Domain\Event\Sourced\Subscription\Event\SubscriptionIgnoredEvent;
-use Streak\Domain\Event\Sourced\Subscription\Event\SubscriptionListenedToEvent;
-use Streak\Domain\Event\Sourced\Subscription\Event\SubscriptionRestarted;
-use Streak\Domain\Event\Sourced\Subscription\Event\SubscriptionStarted;
 use Streak\Domain\Event\Subscription\Exception;
 use Streak\Domain\EventStore;
 use Streak\Infrastructure\Event\Sourced\Subscription\InMemoryState;
@@ -73,9 +68,6 @@ class Subscription implements Event\Subscription
         }
 
         $stream = $store->stream(); // all events
-
-        // we are not interested in events of other subscriptions
-        $stream = $stream->without(SubscriptionStarted::class, SubscriptionListenedToEvent::class, SubscriptionIgnoredEvent::class, SubscriptionCompleted::class, SubscriptionRestarted::class);
 
         if ($this->listener instanceof Event\Filterer) {
             $stream = $this->listener->filter($stream);
