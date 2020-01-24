@@ -21,6 +21,7 @@ use Streak\Application\Query;
 use Streak\Application\QueryHandler;
 use Streak\Domain\Event;
 use Streak\Domain\Event\Listener;
+use Streak\Domain\Id\UUID;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -35,7 +36,7 @@ class LoggingListenerTest extends TestCase
     private $listener1;
 
     /**
-     * @var Event\Listener|Event\Listener\Replayable|Event\Listener\Completable|Event\Listener\Resettable|Event\Filterer|QueryHandler|MockObject
+     * @var Event\Listener|Event\Listener\Replayable|Event\Listener\Completable|Event\Listener\Resettable|Event\Filterer|QueryHandler|Listener\Stateful|MockObject
      */
     private $listener2;
 
@@ -69,16 +70,29 @@ class LoggingListenerTest extends TestCase
      */
     private $query;
 
+    /**
+     * @var Listener\State|MockObject
+     */
+    private $state1;
+
+    /**
+     * @var Listener\State|MockObject
+     */
+    private $state2;
+
     protected function setUp()
     {
         $this->listener1 = $this->getMockBuilder(Listener::class)->setMethods(['replay', 'reset', 'completed'])->setMockClassName('ListenerMock001')->getMockForAbstractClass();
-        $this->listener2 = $this->getMockBuilder([Event\Listener::class, Event\Listener\Replayable::class, Event\Listener\Completable::class, Event\Listener\Resettable::class, Event\Filterer::class, QueryHandler::class])->setMockClassName('ListenerMock002')->getMock();
+        $this->listener2 = $this->getMockBuilder([Event\Listener::class, Event\Listener\Replayable::class, Event\Listener\Completable::class, Event\Listener\Resettable::class, Event\Filterer::class, QueryHandler::class, Listener\Stateful::class])->setMockClassName('ListenerMock002')->getMock();
         $this->logger = $this->getMockBuilder(LoggerInterface::class)->getMockForAbstractClass();
         $this->listenerId = $this->getMockBuilder(Listener\Id::class)->getMockForAbstractClass();
         $this->event = $this->getMockBuilder(Event::class)->setMockClassName('EventMock001')->getMockForAbstractClass();
+        $this->event = Event\Envelope::new($this->event, UUID::random());
         $this->stream1 = $this->getMockBuilder(Event\Stream::class)->setMockClassName('stream1')->getMockForAbstractClass();
         $this->stream2 = $this->getMockBuilder(Event\Stream::class)->setMockClassName('stream2')->getMockForAbstractClass();
         $this->query = $this->getMockBuilder(Query::class)->getMockForAbstractClass();
+        $this->state1 = $this->getMockBuilder(Listener\State::class)->getMockForAbstractClass();
+        $this->state2 = $this->getMockBuilder(Listener\State::class)->getMockForAbstractClass();
     }
 
     public function testObject()
@@ -113,6 +127,20 @@ class LoggingListenerTest extends TestCase
         $filtered = $listener->filter($this->stream1);
 
         $this->assertSame($this->stream1, $filtered);
+
+        $this->listener2
+            ->expects($this->never())
+            ->method('fromState')
+        ;
+        $this->listener2
+            ->expects($this->never())
+            ->method('toState')
+        ;
+        $listener->fromState($this->state1);
+
+        $state = $listener->toState($this->state1);
+
+        $this->assertSame($this->state1, $state);
 
         $listener = new LoggingListener($this->listener2, $this->logger);
 
@@ -284,5 +312,29 @@ class LoggingListenerTest extends TestCase
         $result = $listener->handleQuery($this->query);
 
         $this->assertSame('result', $result);
+    }
+
+    public function testState()
+    {
+        $listener = new LoggingListener($this->listener2, $this->logger);
+
+        $this->listener2
+            ->expects($this->once())
+            ->method('fromState')
+            ->with($this->identicalTo($this->state1))
+        ;
+
+        $listener->fromState($this->state1);
+
+        $this->listener2
+            ->expects($this->once())
+            ->method('toState')
+            ->with($this->identicalTo($this->state2))
+            ->willReturn($this->state1)
+        ;
+
+        $state = $listener->toState($this->state2);
+
+        $this->assertSame($this->state1, $state);
     }
 }

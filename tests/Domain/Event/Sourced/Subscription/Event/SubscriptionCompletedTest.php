@@ -32,9 +32,8 @@ class SubscriptionCompletedTest extends TestCase
 
     public function testObject()
     {
-        $event = new SubscriptionCompleted(1, $now = new \DateTimeImmutable());
+        $event = new SubscriptionCompleted($now = new \DateTimeImmutable());
 
-        $this->assertSame(1, $event->subscriptionVersion());
         $this->assertEquals($now, $event->timestamp());
     }
 }

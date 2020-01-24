@@ -16,6 +16,7 @@ namespace Streak\Domain\Event\Subscription\Exception;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Streak\Domain\Event;
+use Streak\Domain\Id\UUID;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -25,13 +26,14 @@ use Streak\Domain\Event;
 class EventIgnoredTest extends TestCase
 {
     /**
-     * @var Event|MockObject
+     * @var Event\Envelope|MockObject
      */
     private $event;
 
     protected function setUp()
     {
         $this->event = $this->getMockBuilder(Event::class)->setMockClassName('event1')->getMockForAbstractClass();
+        $this->event = Event\Envelope::new($this->event, UUID::random());
     }
 
     public function testException()

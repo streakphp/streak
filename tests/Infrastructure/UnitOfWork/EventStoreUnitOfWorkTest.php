@@ -19,6 +19,7 @@ use Streak\Domain\Event;
 use Streak\Domain\EventStore;
 use Streak\Domain\Exception\ConcurrentWriteDetected;
 use Streak\Domain\Id\UUID;
+use Streak\Infrastructure\UnitOfWork\Exception\ObjectNotSupported;
 use Streak\Infrastructure\UnitOfWorkTest\NonVersionableEventSourcedStub;
 use Streak\Infrastructure\UnitOfWorkTest\VersionableEventSourcedStub;
 
@@ -35,27 +36,27 @@ class EventStoreUnitOfWorkTest extends TestCase
     private $store;
 
     /**
-     * @var Event\Sourced|MockObject
+     * @var Event|MockObject
      */
     private $event1;
 
     /**
-     * @var Event\Sourced|MockObject
+     * @var Event|MockObject
      */
     private $event2;
 
     /**
-     * @var Event\Sourced|MockObject
+     * @var Event|MockObject
      */
     private $event3;
 
     /**
-     * @var Event\Sourced|MockObject
+     * @var Event|MockObject
      */
     private $event4;
 
     /**
-     * @var Event\Sourced|MockObject
+     * @var Event|MockObject
      */
     private $event5;
 
@@ -72,15 +73,21 @@ class EventStoreUnitOfWorkTest extends TestCase
 
     public function testObject()
     {
-        $id1 = UUID::create();
-        $id2 = UUID::create();
-        $id3 = UUID::create();
-        $id4 = UUID::create();
+        $id1 = UUID::random();
+        $id2 = UUID::random();
+        $id3 = UUID::random();
+        $id4 = UUID::random();
 
-        $object1 = new VersionableEventSourcedStub($id1, 0, $this->event1);
-        $object2 = new VersionableEventSourcedStub($id2, 1, $this->event2);
-        $object3 = new VersionableEventSourcedStub($id3, 2, $this->event3, $this->event4);
-        $object4 = new NonVersionableEventSourcedStub($id4, $this->event5);
+        $event1 = Event\Envelope::new($this->event1, $id1, 1);
+        $event2 = Event\Envelope::new($this->event2, $id2, 1);
+        $event3 = Event\Envelope::new($this->event3, $id3, 1);
+        $event4 = Event\Envelope::new($this->event4, $id3, 2);
+        $event5 = Event\Envelope::new($this->event5, $id4, null);
+
+        $object1 = new VersionableEventSourcedStub($id1, 1, $event1);
+        $object2 = new VersionableEventSourcedStub($id2, 1, $event2);
+        $object3 = new VersionableEventSourcedStub($id3, 2, $event3, $event4);
+        $object4 = new NonVersionableEventSourcedStub($id4, $event5);
 
         $uow = new EventStoreUnitOfWork($this->store);
 
@@ -148,19 +155,19 @@ class EventStoreUnitOfWorkTest extends TestCase
         $this->store
             ->expects($this->at(0))
             ->method('add')
-            ->with($id1, 0, $this->event1)
+            ->with($event1)
         ;
 
         $this->store
             ->expects($this->at(1))
             ->method('add')
-            ->with($id3, 2, $this->event3, $this->event4)
+            ->with($event3, $event4)
         ;
 
         $this->store
             ->expects($this->at(2))
             ->method('add')
-            ->with($id4, null, $this->event5)
+            ->with($event5)
         ;
 
         $this->assertFalse($object1->commited());
@@ -184,15 +191,21 @@ class EventStoreUnitOfWorkTest extends TestCase
 
     public function testError()
     {
-        $id1 = UUID::create();
-        $id2 = UUID::create();
-        $id3 = UUID::create();
-        $object1 = new VersionableEventSourcedStub($id1, 0, $this->event1);
-        $object2 = new VersionableEventSourcedStub($id2, 0, $this->event2);
-        $object3 = new VersionableEventSourcedStub($id3, 1, $this->event3);
+        $id1 = UUID::random();
+        $id2 = UUID::random();
+        $id3 = UUID::random();
+
+        $event1 = Event\Envelope::new($this->event1, $id1, 1);
+        $event2 = Event\Envelope::new($this->event2, $id2, 1);
+        $event3 = Event\Envelope::new($this->event3, $id3, 1);
+
+        $object1 = new VersionableEventSourcedStub($id1, 1, $event1);
+        $object2 = new VersionableEventSourcedStub($id2, 1, $event2);
+        $object3 = new VersionableEventSourcedStub($id3, 1, $event3);
 
         $unknownError = new \RuntimeException();
-        $concurrencyError = new ConcurrentWriteDetected($id3);
+//        $concurrencyError = new ConcurrentWriteDetected($id3);
+        $concurrencyError = new ConcurrentWriteDetected(null);
 
         $uow = new EventStoreUnitOfWork($this->store);
 
@@ -202,33 +215,33 @@ class EventStoreUnitOfWorkTest extends TestCase
         $this->store
             ->expects($this->at(0))
             ->method('add')
-            ->with($id1, 0, $this->event1)
+            ->with($event1)
             ->willThrowException($unknownError)
         ;
 
         $this->store
             ->expects($this->at(1))
             ->method('add')
-            ->with($id1, 0, $this->event1)
+            ->with($event1)
         ;
 
         $this->store
             ->expects($this->at(2))
             ->method('add')
-            ->with($id2, 0, $this->event2)
+            ->with($event2)
             ->willThrowException($unknownError)
         ;
 
         $this->store
             ->expects($this->at(3))
             ->method('add')
-            ->with($id2, 0, $this->event2)
+            ->with($event2)
         ;
 
         $this->store
             ->expects($this->at(4))
             ->method('add')
-            ->with($id3, 1, $this->event3)
+            ->with($event3)
             ->willThrowException($concurrencyError)
         ;
 
@@ -270,7 +283,7 @@ class EventStoreUnitOfWorkTest extends TestCase
         $uow->add($object3);
 
         try {
-            $commited = iterator_to_array($uow->commit());
+            iterator_to_array($uow->commit());
         } catch (ConcurrentWriteDetected $exception4) {
             $this->assertSame(0, $uow->count());
             $this->assertFalse($uow->has($object1));
@@ -279,6 +292,20 @@ class EventStoreUnitOfWorkTest extends TestCase
         } finally {
             $this->assertTrue(isset($exception4));
         }
+    }
+
+    public function testWrongObject()
+    {
+        $object = new \stdClass();
+
+        $this->expectExceptionObject(new ObjectNotSupported($object));
+
+        $uow = new EventStoreUnitOfWork($this->store);
+
+        $this->assertFalse($uow->has($object));
+
+        $uow->remove($object);
+        $uow->add($object);
     }
 }
 
@@ -295,7 +322,7 @@ class VersionableEventSourcedStub implements Event\Sourced, Versionable
     private $events;
     private $commited = false;
 
-    public function __construct(Domain\Id $id, int $version, Event ...$events)
+    public function __construct(Domain\Id $id, int $version, Event\Envelope ...$events)
     {
         $this->id = $id;
         $this->version = $version;
@@ -307,7 +334,7 @@ class VersionableEventSourcedStub implements Event\Sourced, Versionable
         throw new \BadMethodCallException();
     }
 
-    public function lastReplayed() : ?Event
+    public function lastReplayed() : ?Event\Envelope
     {
         throw new \BadMethodCallException();
     }
@@ -348,7 +375,7 @@ class NonVersionableEventSourcedStub implements Event\Sourced
     private $id;
     private $events;
 
-    public function __construct(Domain\Id $id, Event ...$events)
+    public function __construct(Domain\Id $id, Event\Envelope ...$events)
     {
         $this->id = $id;
         $this->events = $events;
@@ -359,7 +386,7 @@ class NonVersionableEventSourcedStub implements Event\Sourced
         throw new \BadMethodCallException();
     }
 
-    public function lastReplayed() : ?Event
+    public function lastReplayed() : ?Event\Envelope
     {
         throw new \BadMethodCallException();
     }

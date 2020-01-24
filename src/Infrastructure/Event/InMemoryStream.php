@@ -21,6 +21,9 @@ use Streak\Domain\Event\Stream;
  */
 final class InMemoryStream implements \IteratorAggregate, Event\Stream
 {
+    /**
+     * @var Event\Envelope[]
+     */
     private $events = [];
 
     private $only = [];
@@ -31,13 +34,13 @@ final class InMemoryStream implements \IteratorAggregate, Event\Stream
     private $before;
     private $limit;
 
-    public function __construct(Event ...$events)
+    public function __construct(Event\Envelope ...$events)
     {
         $this->events = $events;
         $this->events = array_values($this->events); // reset keys
     }
 
-    public function from(Event $event) : Stream
+    public function from(Event\Envelope $event) : Stream
     {
         $stream = $this->copy();
         $stream->from = $event;
@@ -58,7 +61,7 @@ final class InMemoryStream implements \IteratorAggregate, Event\Stream
         return 0 === $this->count();
     }
 
-    public function to(Event $event) : Stream
+    public function to(Event\Envelope $event) : Stream
     {
         $stream = $this->copy();
         $stream->to = $event;
@@ -67,7 +70,7 @@ final class InMemoryStream implements \IteratorAggregate, Event\Stream
         return $stream;
     }
 
-    public function after(Event $event) : Stream
+    public function after(Event\Envelope $event) : Stream
     {
         $stream = $this->copy();
         $stream->from = null;
@@ -76,7 +79,7 @@ final class InMemoryStream implements \IteratorAggregate, Event\Stream
         return $stream;
     }
 
-    public function before(Event $event) : Stream
+    public function before(Event\Envelope $event) : Stream
     {
         $stream = $this->copy();
         $stream->to = null;
@@ -115,14 +118,14 @@ final class InMemoryStream implements \IteratorAggregate, Event\Stream
         return $stream;
     }
 
-    public function first() : ?Event
+    public function first() : ?Event\Envelope
     {
         $events = $this->filter();
 
         return array_shift($events);
     }
 
-    public function last() : ?Event
+    public function last() : ?Event\Envelope
     {
         $events = $this->filter();
 
@@ -148,6 +151,17 @@ final class InMemoryStream implements \IteratorAggregate, Event\Stream
         return $stream;
     }
 
+    private function search(Event\Envelope $event) : ?int
+    {
+        foreach ($this->events as $key => $stored) {
+            if ($stored->uuid()->equals($event->uuid())) {
+                return $key;
+            }
+        }
+
+        return null;
+    }
+
     /**
      * @return Event[]
      */
@@ -160,17 +174,17 @@ final class InMemoryStream implements \IteratorAggregate, Event\Stream
         $start = 0;
 
         if ($this->from) {
-            $index = array_search($this->from, $this->events, true);
+            $index = $this->search($this->from);
 
-            if (false !== $index) {
+            if (null !== $index) {
                 $start = $index;
             }
         }
 
         if ($this->after) {
-            $index = array_search($this->after, $this->events, true);
+            $index = $this->search($this->after);
 
-            if (false !== $index) {
+            if (null !== $index) {
                 $start = $index + 1;
             }
         }
@@ -178,17 +192,17 @@ final class InMemoryStream implements \IteratorAggregate, Event\Stream
         $stop = count($this->events) - 1;
 
         if ($this->to) {
-            $index = array_search($this->to, $this->events, true);
+            $index = $this->search($this->to);
 
-            if (false !== $index) {
+            if (null !== $index) {
                 $stop = $index;
             }
         }
 
         if ($this->before) {
-            $index = array_search($this->before, $this->events, true);
+            $index = $this->search($this->before);
 
-            if (false !== $index) {
+            if (null !== $index) {
                 $stop = $index - 1;
             }
         }
@@ -198,7 +212,7 @@ final class InMemoryStream implements \IteratorAggregate, Event\Stream
             $event = $this->events[$current];
 
             if ($this->only) {
-                $type = get_class($event);
+                $type = $event->name();
 
                 if (!in_array($type, $this->only, true)) {
                     continue;
@@ -206,7 +220,7 @@ final class InMemoryStream implements \IteratorAggregate, Event\Stream
             }
 
             if ($this->without) {
-                $type = get_class($event);
+                $type = $event->name();
 
                 if (in_array($type, $this->without, true)) {
                     continue;

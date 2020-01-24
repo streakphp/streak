@@ -11,12 +11,11 @@
 
 declare(strict_types=1);
 
-namespace Streak\Infrastructure\Event\Sourced;
+namespace Streak\Infrastructure\Event\Subscription;
 
 use Streak\Domain\Event;
 use Streak\Domain\Event\Subscription;
 use Streak\Domain\EventStore;
-use Streak\Infrastructure\Event\Sourced as EventSourced;
 use Streak\Infrastructure\UnitOfWork;
 
 /**
@@ -27,7 +26,7 @@ class CommittingSubscription implements Subscription, Subscription\Decorator
     private $subscription;
     private $uow;
 
-    public function __construct(EventSourced\Subscription $subscription, UnitOfWork $uow)
+    public function __construct(Subscription $subscription, UnitOfWork $uow)
     {
         $this->subscription = $subscription;
         $this->uow = $uow;
@@ -67,7 +66,7 @@ class CommittingSubscription implements Subscription, Subscription\Decorator
         }
     }
 
-    public function startFor(Event $event) : void
+    public function startFor(Event\Envelope $event) : void
     {
         try {
             $this->uow->add($this->subscription);
@@ -106,5 +105,10 @@ class CommittingSubscription implements Subscription, Subscription\Decorator
     public function completed() : bool
     {
         return $this->subscription->completed();
+    }
+
+    public function version() : int
+    {
+        return $this->subscription->version();
     }
 }

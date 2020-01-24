@@ -62,10 +62,10 @@ class EventSourcedRepository implements Subscription\Repository
         $listener = $this->listeners->create($id);
         $subscription = $this->subscriptions->create($listener);
 
-        $eventSourced = $this->eventSourced($subscription);
+        $unwrapped = $this->unwrap($subscription);
 
         $filter = new EventStore\Filter();
-        $filter = $filter->filterProducerIds($eventSourced->producerId());
+        $filter = $filter->filterProducerIds($unwrapped->producerId());
 
         $stream = $this->store->stream($filter);
 
@@ -73,9 +73,9 @@ class EventSourcedRepository implements Subscription\Repository
             return null;
         }
 
-        $eventSourced->replay($stream);
+        $unwrapped->replay($stream);
 
-        $this->uow->add($eventSourced);
+        $this->uow->add($unwrapped);
 
         return $subscription;
     }
@@ -85,10 +85,10 @@ class EventSourcedRepository implements Subscription\Repository
      */
     public function has(Event\Subscription $subscription) : bool
     {
-        $eventSourced = $this->eventSourced($subscription);
+        $unwrapped = $this->unwrap($subscription);
 
         $filter = new EventStore\Filter();
-        $filter = $filter->filterProducerIds($eventSourced->producerId());
+        $filter = $filter->filterProducerIds($unwrapped->producerId());
 
         $stream = $this->store->stream($filter);
 
@@ -104,9 +104,9 @@ class EventSourcedRepository implements Subscription\Repository
      */
     public function add(Event\Subscription $subscription) : void
     {
-        $eventSourced = $this->eventSourced($subscription);
+        $unwrapped = $this->unwrap($subscription);
 
-        $this->uow->add($eventSourced);
+        $this->uow->add($unwrapped);
     }
 
     /**
@@ -126,24 +126,29 @@ class EventSourcedRepository implements Subscription\Repository
 
         $ids = [];
         foreach ($stream as $event) {
-            $id = $this->store->producerId($event);
-
-            if ($event instanceof SubscriptionStarted) {
-                $ids[] = $id;
+            if ($event->message() instanceof SubscriptionStarted) {
+                $ids[] = $event->producerId();
             }
 
             if (true === $filter->areCompletedSubscriptionsIgnored()) {
-                if ($event instanceof SubscriptionCompleted) {
-                    if (false !== ($key = array_search($id, $ids))) { // TODO: make it look nicer
-                        unset($ids[$key]);
+                if ($event->message() instanceof SubscriptionCompleted) {
+                    foreach ($ids as $key => $id) {
+                        if ($event->producerId()->equals($id)) {
+                            unset($ids[$key]);
+                            break;
+                        }
                     }
                 }
             }
 
-            if ($event instanceof SubscriptionRestarted) {
-                if (false === ($key = array_search($id, $ids))) { // TODO: make it look nicer
-                    $ids[] = $id;
+            if ($event->message() instanceof SubscriptionRestarted) {
+                foreach ($ids as $key => $id) {
+                    if ($event->producerId()->equals($id)) {
+                        unset($ids[$key]);
+                        break;
+                    }
                 }
+                $ids[] = $event->producerId();
             }
         }
 
@@ -157,7 +162,7 @@ class EventSourcedRepository implements Subscription\Repository
      *
      * @return Event\Sourced|Subscription
      */
-    private function eventSourced(Event\Subscription $subscription) : Event\Sourced
+    private function unwrap(Event\Subscription $subscription) : Event\Sourced
     {
         $exception = new Exception\ObjectNotSupported($subscription);
 

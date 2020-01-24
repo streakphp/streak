@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Streak\Infrastructure\EventBus;
 
-use Streak\Domain;
 use Streak\Domain\Event;
 use Streak\Domain\EventBus;
 
@@ -52,7 +51,7 @@ class InMemoryEventBus implements EventBus
         $this->listeners->detach($listener);
     }
 
-    public function publish(Domain\Event ...$events)
+    public function publish(Event\Envelope ...$events)
     {
         if (0 === count($events)) {
             return;

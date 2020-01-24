@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace Streak\Infrastructure\Event\Subscription;
 
 use Doctrine\DBAL\Driver\Connection;
-use Streak\Domain;
+use Streak\Domain\Event;
 use Streak\Domain\Event\Listener;
 use Streak\Domain\Event\Subscription;
 use Streak\Domain\EventStore;
@@ -78,7 +78,7 @@ class DbalTransactionalSubscription implements Subscription, Subscription\Decora
         }
     }
 
-    public function startFor(Domain\Event $event) : void
+    public function startFor(Event\Envelope $event) : void
     {
         $this->subscription->startFor($event);
     }
@@ -101,5 +101,10 @@ class DbalTransactionalSubscription implements Subscription, Subscription\Decora
     public function completed() : bool
     {
         return $this->subscription->completed();
+    }
+
+    public function version() : int
+    {
+        return $this->subscription->version();
     }
 }

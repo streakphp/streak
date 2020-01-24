@@ -26,5 +26,5 @@ interface Listener extends Identifiable
     /**
      * @return bool whether event was processed/is supported
      */
-    public function on(Event $event) : bool;
+    public function on(Event\Envelope $event) : bool;
 }

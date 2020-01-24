@@ -17,6 +17,7 @@ use Doctrine\DBAL\Driver\Connection;
 use Doctrine\DBAL\DriverManager;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Streak\Domain\Event;
 use Streak\Domain\Event\Listener;
 use Streak\Domain\Event\Subscription;
 use Streak\Domain\EventStore;
@@ -112,10 +113,13 @@ class DbalTransactionalSubscriptionTest extends TestCase
         $this->listener = $this->getMockBuilder(Listener::class)->getMockForAbstractClass();
         $this->subscriptionId = $this->getMockBuilder(Listener\Id::class)->getMockForAbstractClass();
         $this->connection = $this->getMockBuilder(Connection::class)->getMockForAbstractClass();
-        $this->producerId1 = ProducerId1::create();
+        $this->producerId1 = ProducerId1::random();
         $this->event1 = new Event1();
+        $this->event1 = Event\Envelope::new($this->event1, $this->producerId1);
         $this->event2 = new Event2();
+        $this->event2 = Event\Envelope::new($this->event2, $this->producerId1);
         $this->event3 = new Event3();
+        $this->event3 = Event\Envelope::new($this->event3, $this->producerId1);
 
         self::$connection1->close();
         self::$connection1->connect();
@@ -143,6 +147,16 @@ class DbalTransactionalSubscriptionTest extends TestCase
         ;
 
         $this->assertSame($this->listener, $subscription->listener());
+
+        $this->subscription
+            ->expects($this->exactly(2))
+            ->method('version')
+            ->with()
+            ->willReturnOnConsecutiveCalls(1000, 1001)
+        ;
+
+        $this->assertSame(1000, $subscription->version());
+        $this->assertSame(1001, $subscription->version());
 
         $this->subscription
             ->expects($this->once())
@@ -212,7 +226,7 @@ class DbalTransactionalSubscriptionTest extends TestCase
                 $this->assertTrue($store->stream()->empty());
                 $this->assertTrue($this->store2->stream()->empty());
 
-                $store->add($this->producerId1, null, $this->event1);
+                $store->add($this->event1);
 
                 $this->assertFalse($store->stream()->empty());
                 $this->assertEquals([$this->event1], iterator_to_array($store->stream()));
@@ -225,7 +239,7 @@ class DbalTransactionalSubscriptionTest extends TestCase
                 $this->assertFalse($this->store2->stream()->empty());
                 $this->assertEquals([$this->event1], iterator_to_array($this->store2->stream()));
 
-                $store->add($this->producerId1, null, $this->event2);
+                $store->add($this->event2);
 
                 $this->assertFalse($store->stream()->empty());
                 $this->assertEquals([$this->event1, $this->event2], iterator_to_array($store->stream()));
@@ -239,7 +253,7 @@ class DbalTransactionalSubscriptionTest extends TestCase
                 $this->assertFalse($this->store2->stream()->empty());
                 $this->assertEquals([$this->event1, $this->event2], iterator_to_array($this->store2->stream()));
 
-                $store->add($this->producerId1, null, $this->event3);
+                $store->add($this->event3);
 
                 $this->assertFalse($store->stream()->empty());
                 $this->assertEquals([$this->event1, $this->event2, $this->event3], iterator_to_array($store->stream()));
@@ -280,7 +294,7 @@ class DbalTransactionalSubscriptionTest extends TestCase
                 $this->assertTrue($store->stream()->empty());
                 $this->assertTrue($this->store2->stream()->empty());
 
-                $store->add($this->producerId1, null, $this->event1);
+                $store->add($this->event1);
 
                 $this->assertFalse($store->stream()->empty());
                 $this->assertEquals([$this->event1], iterator_to_array($store->stream()));
@@ -292,7 +306,7 @@ class DbalTransactionalSubscriptionTest extends TestCase
                 $this->assertEquals([$this->event1], iterator_to_array($store->stream()));
                 $this->assertTrue($this->store2->stream()->empty());
 
-                $store->add($this->producerId1, null, $this->event2);
+                $store->add($this->event2);
 
                 $this->assertFalse($store->stream()->empty());
                 $this->assertEquals([$this->event1, $this->event2], iterator_to_array($store->stream()));
@@ -305,7 +319,7 @@ class DbalTransactionalSubscriptionTest extends TestCase
                 $this->assertFalse($this->store2->stream()->empty());
                 $this->assertEquals([$this->event1, $this->event2], iterator_to_array($this->store2->stream()));
 
-                $store->add($this->producerId1, null, $this->event3);
+                $store->add($this->event3);
 
                 $this->assertFalse($store->stream()->empty());
                 $this->assertEquals([$this->event1, $this->event2, $this->event3], iterator_to_array($store->stream()));
@@ -346,7 +360,7 @@ class DbalTransactionalSubscriptionTest extends TestCase
                 $this->assertTrue($store->stream()->empty());
                 $this->assertTrue($this->store2->stream()->empty());
 
-                $store->add($this->producerId1, null, $this->event1);
+                $store->add($this->event1);
 
                 $this->assertFalse($store->stream()->empty());
                 $this->assertEquals([$this->event1], iterator_to_array($store->stream()));
@@ -358,7 +372,7 @@ class DbalTransactionalSubscriptionTest extends TestCase
                 $this->assertEquals([$this->event1], iterator_to_array($store->stream()));
                 $this->assertTrue($this->store2->stream()->empty());
 
-                $store->add($this->producerId1, null, $this->event2);
+                $store->add($this->event2);
 
                 $this->assertFalse($store->stream()->empty());
                 $this->assertEquals([$this->event1, $this->event2], iterator_to_array($store->stream()));
@@ -370,7 +384,7 @@ class DbalTransactionalSubscriptionTest extends TestCase
                 $this->assertEquals([$this->event1, $this->event2], iterator_to_array($store->stream()));
                 $this->assertTrue($this->store2->stream()->empty());
 
-                $store->add($this->producerId1, null, $this->event3);
+                $store->add($this->event3);
 
                 $this->assertFalse($store->stream()->empty());
                 $this->assertEquals([$this->event1, $this->event2, $this->event3], iterator_to_array($store->stream()));
@@ -410,7 +424,7 @@ class DbalTransactionalSubscriptionTest extends TestCase
                 $this->assertTrue($store->stream()->empty());
                 $this->assertTrue($this->store2->stream()->empty());
 
-                $store->add($this->producerId1, null, $this->event1);
+                $store->add($this->event1);
 
                 $this->assertFalse($store->stream()->empty());
                 $this->assertEquals([$this->event1], iterator_to_array($store->stream()));
@@ -422,7 +436,7 @@ class DbalTransactionalSubscriptionTest extends TestCase
                 $this->assertEquals([$this->event1], iterator_to_array($store->stream()));
                 $this->assertTrue($this->store2->stream()->empty());
 
-                $store->add($this->producerId1, null, $this->event2);
+                $store->add($this->event2);
 
                 $this->assertFalse($store->stream()->empty());
                 $this->assertEquals([$this->event1, $this->event2], iterator_to_array($store->stream()));
@@ -434,7 +448,7 @@ class DbalTransactionalSubscriptionTest extends TestCase
                 $this->assertEquals([$this->event1, $this->event2], iterator_to_array($store->stream()));
                 $this->assertTrue($this->store2->stream()->empty());
 
-                $store->add($this->producerId1, null, $this->event3);
+                $store->add($this->event3);
 
                 $this->assertFalse($store->stream()->empty());
                 $this->assertEquals([$this->event1, $this->event2, $this->event3], iterator_to_array($store->stream()));
@@ -473,7 +487,7 @@ class DbalTransactionalSubscriptionTest extends TestCase
                 $this->assertTrue($store->stream()->empty());
                 $this->assertTrue($this->store2->stream()->empty());
 
-                $store->add($this->producerId1, null, $this->event1);
+                $store->add($this->event1);
 
                 $this->assertFalse($store->stream()->empty());
                 $this->assertEquals([$this->event1], iterator_to_array($store->stream()));
@@ -486,7 +500,7 @@ class DbalTransactionalSubscriptionTest extends TestCase
                 $this->assertFalse($this->store2->stream()->empty());
                 $this->assertEquals([$this->event1], iterator_to_array($this->store2->stream()));
 
-                $store->add($this->producerId1, null, $this->event2);
+                $store->add($this->event2);
 
                 $this->assertFalse($store->stream()->empty());
                 $this->assertEquals([$this->event1, $this->event2], iterator_to_array($store->stream()));
@@ -500,7 +514,7 @@ class DbalTransactionalSubscriptionTest extends TestCase
                 $this->assertFalse($this->store2->stream()->empty());
                 $this->assertEquals([$this->event1, $this->event2], iterator_to_array($this->store2->stream()));
 
-                $store->add($this->producerId1, null, $this->event3);
+                $store->add($this->event3);
 
                 $this->assertFalse($store->stream()->empty());
                 $this->assertEquals([$this->event1, $this->event2, $this->event3], iterator_to_array($store->stream()));
@@ -555,7 +569,7 @@ class DbalTransactionalSubscriptionTest extends TestCase
                 $this->assertTrue($store->stream()->empty());
                 $this->assertTrue($this->store2->stream()->empty());
 
-                $store->add($this->producerId1, null, $this->event1);
+                $store->add($this->event1);
 
                 $this->assertFalse($store->stream()->empty());
                 $this->assertEquals([$this->event1], iterator_to_array($store->stream()));
@@ -567,7 +581,7 @@ class DbalTransactionalSubscriptionTest extends TestCase
                 $this->assertEquals([$this->event1], iterator_to_array($store->stream()));
                 $this->assertTrue($this->store2->stream()->empty());
 
-                $store->add($this->producerId1, null, $this->event2);
+                $store->add($this->event2);
 
                 $this->assertFalse($store->stream()->empty());
                 $this->assertEquals([$this->event1, $this->event2], iterator_to_array($store->stream()));
@@ -580,7 +594,7 @@ class DbalTransactionalSubscriptionTest extends TestCase
                 $this->assertFalse($this->store2->stream()->empty());
                 $this->assertEquals([$this->event1, $this->event2], iterator_to_array($this->store2->stream()));
 
-                $store->add($this->producerId1, null, $this->event3);
+                $store->add($this->event3);
 
                 $this->assertFalse($store->stream()->empty());
                 $this->assertEquals([$this->event1, $this->event2, $this->event3], iterator_to_array($store->stream()));
@@ -632,7 +646,7 @@ class DbalTransactionalSubscriptionTest extends TestCase
                 $this->assertTrue($store->stream()->empty());
                 $this->assertTrue($this->store2->stream()->empty());
 
-                $store->add($this->producerId1, null, $this->event1);
+                $store->add($this->event1);
 
                 $this->assertFalse($store->stream()->empty());
                 $this->assertEquals([$this->event1], iterator_to_array($store->stream()));
@@ -644,7 +658,7 @@ class DbalTransactionalSubscriptionTest extends TestCase
                 $this->assertEquals([$this->event1], iterator_to_array($store->stream()));
                 $this->assertTrue($this->store2->stream()->empty());
 
-                $store->add($this->producerId1, null, $this->event2);
+                $store->add($this->event2);
 
                 $this->assertFalse($store->stream()->empty());
                 $this->assertEquals([$this->event1, $this->event2], iterator_to_array($store->stream()));
@@ -656,7 +670,7 @@ class DbalTransactionalSubscriptionTest extends TestCase
                 $this->assertEquals([$this->event1, $this->event2], iterator_to_array($store->stream()));
                 $this->assertTrue($this->store2->stream()->empty());
 
-                $store->add($this->producerId1, null, $this->event3);
+                $store->add($this->event3);
 
                 $this->assertFalse($store->stream()->empty());
                 $this->assertEquals([$this->event1, $this->event2, $this->event3], iterator_to_array($store->stream()));
@@ -710,7 +724,7 @@ class DbalTransactionalSubscriptionTest extends TestCase
                 $this->assertTrue($store->stream()->empty());
                 $this->assertTrue($this->store2->stream()->empty());
 
-                $store->add($this->producerId1, null, $this->event1);
+                $store->add($this->event1);
 
                 $this->assertFalse($store->stream()->empty());
                 $this->assertEquals([$this->event1], iterator_to_array($store->stream()));
@@ -722,7 +736,7 @@ class DbalTransactionalSubscriptionTest extends TestCase
                 $this->assertEquals([$this->event1], iterator_to_array($store->stream()));
                 $this->assertTrue($this->store2->stream()->empty());
 
-                $store->add($this->producerId1, null, $this->event2);
+                $store->add($this->event2);
 
                 $this->assertFalse($store->stream()->empty());
                 $this->assertEquals([$this->event1, $this->event2], iterator_to_array($store->stream()));
@@ -734,7 +748,7 @@ class DbalTransactionalSubscriptionTest extends TestCase
                 $this->assertEquals([$this->event1, $this->event2], iterator_to_array($store->stream()));
                 $this->assertTrue($this->store2->stream()->empty());
 
-                $store->add($this->producerId1, null, $this->event3);
+                $store->add($this->event3);
 
                 $this->assertFalse($store->stream()->empty());
                 $this->assertEquals([$this->event1, $this->event2, $this->event3], iterator_to_array($store->stream()));

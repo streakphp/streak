@@ -11,20 +11,20 @@
 
 declare(strict_types=1);
 
-namespace Streak\Infrastructure\Event\Sourced\CommittingSubscription;
+namespace Streak\Infrastructure\Event\Subscription\CommittingSubscription;
 
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Streak\Domain\Clock;
 use Streak\Domain\Event;
-use Streak\Infrastructure\Event\Sourced\CommittingSubscription;
 use Streak\Infrastructure\Event\Sourced\Subscription;
+use Streak\Infrastructure\Event\Subscription\CommittingSubscription;
 use Streak\Infrastructure\UnitOfWork;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  *
- * @covers \Streak\Infrastructure\Event\Sourced\CommittingSubscription\Factory
+ * @covers \Streak\Infrastructure\Event\Subscription\CommittingSubscription\Factory
  */
 class FactoryTest extends TestCase
 {

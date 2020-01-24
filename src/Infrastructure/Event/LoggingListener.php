@@ -20,11 +20,12 @@ use Streak\Application\QueryHandler;
 use Streak\Domain;
 use Streak\Domain\Event;
 use Streak\Domain\Event\Listener;
+use Streak\Domain\Event\Listener\State;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-class LoggingListener implements Event\Listener, Event\Listener\Replayable, Event\Listener\Completable, Listener\Resettable, Event\Filterer, QueryHandler
+class LoggingListener implements Event\Listener, Event\Listener\Replayable, Event\Listener\Completable, Listener\Resettable, Listener\Stateful, Event\Filterer, QueryHandler
 {
     private $listener;
     private $logger;
@@ -45,7 +46,7 @@ class LoggingListener implements Event\Listener, Event\Listener\Replayable, Even
         return $this->listener->listenerId();
     }
 
-    public function on(Event $event) : bool
+    public function on(Event\Envelope $event) : bool
     {
         try {
             return $this->listener->on($event);
@@ -54,7 +55,7 @@ class LoggingListener implements Event\Listener, Event\Listener\Replayable, Even
                 'listener' => get_class($this->listener),
                 'class' => get_class($exception),
                 'message' => $exception->getMessage(),
-                'event' => get_class($event),
+                'event' => get_class($event->message()),
                 'exception' => $exception,
             ]);
 
@@ -127,5 +128,21 @@ class LoggingListener implements Event\Listener, Event\Listener\Replayable, Even
         }
 
         throw new Exception\QueryNotSupported($query);
+    }
+
+    public function toState(State $state) : State
+    {
+        if ($this->listener instanceof Listener\Stateful) {
+            return $this->listener->toState($state);
+        }
+
+        return $state;
+    }
+
+    public function fromState(State $state)
+    {
+        if ($this->listener instanceof Listener\Stateful) {
+            $this->listener->fromState($state);
+        }
     }
 }

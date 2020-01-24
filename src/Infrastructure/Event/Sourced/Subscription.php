@@ -56,7 +56,7 @@ final class Subscription implements Event\Subscription, Event\Sourced, Versionab
     }
 
     /**
-     * @return iterable|Event[]
+     * @return iterable|Event\Envelope[]
      *
      * @throws Exception\SubscriptionAlreadyCompleted
      * @throws Exception\SubscriptionNotStartedYet
@@ -169,23 +169,23 @@ final class Subscription implements Event\Subscription, Event\Sourced, Versionab
             return;
         }
 
-        $this->applyEvent(new SubscriptionRestarted($this->startedBy, $this->nextExpectedVersion(), $this->clock->now()));
+        $this->apply(new SubscriptionRestarted($this->startedBy, $this->clock->now()));
     }
 
     /**
      * @see applySubscriptionStarted
      *
-     * @param Event $event
+     * @param Event\Envelope $event
      *
      * @throws \Throwable
      */
-    public function startFor(Domain\Event $event) : void
+    public function startFor(Event\Envelope $event) : void
     {
         if (true === $this->started()) {
             throw new Exception\SubscriptionAlreadyStarted($this);
         }
 
-        $this->applyEvent(new SubscriptionStarted($event, $this->clock->now()));
+        $this->apply(new SubscriptionStarted($event, $this->clock->now()));
     }
 
     /**
@@ -193,7 +193,6 @@ final class Subscription implements Event\Subscription, Event\Sourced, Versionab
      */
     public function replay(Event\Stream $stream) : void
     {
-        /** @var $last Event\Sourced\Subscription\Event */
         $last = $stream->last();
         $stream = $stream->to($last); // freeze the stream, ignore any events that were stored after replaying process started
 
@@ -205,7 +204,7 @@ final class Subscription implements Event\Subscription, Event\Sourced, Versionab
         if ($this->completed()) {
             $this->lastReplayed = $last;
             $this->lastEvent = $last;
-            $this->version = $last->subscriptionVersion();
+            $this->version = $last->version();
 
             return;
         }
@@ -234,7 +233,7 @@ final class Subscription implements Event\Subscription, Event\Sourced, Versionab
 
         $this->lastReplayed = $last;
         $this->lastEvent = $last;
-        $this->version = $last->subscriptionVersion(); // after event envelope will be introduced Subscription\Event::subscriptionVersion() can be removed
+        $this->version = $last->version();
     }
 
     public function equals($object) : bool
@@ -286,7 +285,7 @@ final class Subscription implements Event\Subscription, Event\Sourced, Versionab
      * @see applySubscriptionListenersStateChanged
      * @see applySubscriptionCompleted
      */
-    private function listenToEvent(Event $event) : void
+    private function listenToEvent(Event\Envelope $event) : void
     {
         if (true === $this->starting()) {
             // we are (re)starting subscription, lets reset listener if possible
@@ -298,9 +297,9 @@ final class Subscription implements Event\Subscription, Event\Sourced, Versionab
         $listened = $this->listener->on($event);
 
         if (true === $listened) {
-            $this->applyEvent(new SubscriptionListenedToEvent($event, $this->nextExpectedVersion(), $this->clock->now()));
+            $this->apply(new SubscriptionListenedToEvent($event, $this->clock->now()));
         } else {
-            $this->applyEvent(new SubscriptionIgnoredEvent($event, $this->nextExpectedVersion(), $this->clock->now()));
+            $this->apply(new SubscriptionIgnoredEvent($event, $this->clock->now()));
         }
 
         if ($this->listener instanceof Listener\Stateful) {
@@ -308,64 +307,91 @@ final class Subscription implements Event\Subscription, Event\Sourced, Versionab
             $currentState = InMemoryState::fromState($currentState);
 
             if (false === $this->lastState->equals($currentState)) {
-                $this->applyEvent(new SubscriptionListenersStateChanged($currentState, $this->nextExpectedVersion(), $this->clock->now()));
+                $this->apply(new SubscriptionListenersStateChanged($currentState, $this->clock->now()));
             }
         }
 
         if ($this->listener instanceof Event\Listener\Completable) {
             if ($this->listener->completed()) {
-                $this->applyEvent(new SubscriptionCompleted($this->nextExpectedVersion(), $this->clock->now()));
+                $this->apply(new SubscriptionCompleted($this->clock->now()));
             }
         }
     }
 
-    private function applySubscriptionListenedToEvent(SubscriptionListenedToEvent $event)
+    private function doApplyEvent(Event\Envelope $event) : void
     {
-        $this->starting = false;
-        $this->lastProcessedEvent = $event->event();
+        if ($event->message() instanceof SubscriptionListenedToEvent) {
+            $this->applySubscriptionListenedToEvent($event);
+
+            return;
+        }
+        if ($event->message() instanceof SubscriptionIgnoredEvent) {
+            $this->applySubscriptionIgnoredEvent($event);
+
+            return;
+        }
+        if ($event->message() instanceof SubscriptionCompleted) {
+            $this->applySubscriptionCompleted();
+
+            return;
+        }
+        if ($event->message() instanceof SubscriptionStarted) {
+            $this->applySubscriptionStarted($event);
+
+            return;
+        }
+        if ($event->message() instanceof SubscriptionRestarted) {
+            $this->applySubscriptionRestarted($event);
+
+            return;
+        }
+        if ($event->message() instanceof SubscriptionListenersStateChanged) {
+            $this->applySubscriptionListenersStateChanged($event);
+
+            return;
+        }
+
+        throw new Event\Exception\NoEventApplyingMethodFound($this, $event); // @codeCoverageIgnore
     }
 
-    private function applySubscriptionIgnoredEvent(SubscriptionIgnoredEvent $event)
+    private function applySubscriptionListenedToEvent(Event\Envelope $event)
     {
         $this->starting = false;
-        $this->lastProcessedEvent = $event->event();
+        $this->lastProcessedEvent = $event->message()->event();
     }
 
-    private function applySubscriptionCompleted(SubscriptionCompleted $event)
+    private function applySubscriptionIgnoredEvent(Event\Envelope $event)
+    {
+        $this->starting = false;
+        $this->lastProcessedEvent = $event->message()->event();
+    }
+
+    private function applySubscriptionCompleted()
     {
         $this->completedBy = $this->lastEvent;
         $this->starting = false;
     }
 
-    private function applySubscriptionStarted(SubscriptionStarted $event)
+    private function applySubscriptionStarted(Event\Envelope $event)
     {
-        $this->startedBy = $event->startedBy();
+        $this->startedBy = $event->message()->startedBy();
         $this->starting = true;
     }
 
-    private function applySubscriptionRestarted(SubscriptionRestarted $event)
+    private function applySubscriptionRestarted(Event\Envelope $event)
     {
-        $this->startedBy = $event->originallyStartedBy();
+        $this->startedBy = $event->message()->originallyStartedBy();
         $this->completedBy = null;
         $this->starting = true;
     }
 
-    private function applySubscriptionListenersStateChanged(SubscriptionListenersStateChanged $event)
+    private function applySubscriptionListenersStateChanged(Event\Envelope $event)
     {
-        $this->lastState = $event->state();
+        $state = $event->message()->state();
+        $this->lastState = $state;
 
         if ($this->listener instanceof Listener\Stateful) {
-            $this->listener->fromState($event->state());
+            $this->listener->fromState($state);
         }
-    }
-
-    private function expectedVersion() : int
-    {
-        return $this->version + count($this->events);
-    }
-
-    private function nextExpectedVersion() : int
-    {
-        return $this->expectedVersion() + 1;
     }
 }

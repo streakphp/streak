@@ -13,8 +13,6 @@ declare(strict_types=1);
 
 namespace Streak\Domain;
 
-use Streak\Domain;
-
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
@@ -24,12 +22,7 @@ interface EventStore
      * @throws Exception\ConcurrentWriteDetected
      * @throws Exception\InvalidAggregateGiven
      */
-    public function add(Domain\Id $producerId, ?int $version, Event ...$events) : void;
+    public function add(Event\Envelope ...$events) : array;
 
     public function stream(?EventStore\Filter $filter = null) : Event\Stream;
-
-    /**
-     * @throws Exception\EventNotInStore
-     */
-    public function producerId(Event $event) : Domain\Id;
 }

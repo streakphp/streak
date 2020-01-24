@@ -23,7 +23,7 @@ class NullListener implements Event\Listener
 {
     use Listener\Identifying;
 
-    public function on(Event $event) : bool
+    public function on(Event\Envelope $event) : bool
     {
         return true;
     }

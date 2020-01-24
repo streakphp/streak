@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Streak\Infrastructure\EventStore;
 
-use Streak\Domain;
 use Streak\Domain\Event;
 use Streak\Domain\EventBus;
 use Streak\Domain\EventStore;
@@ -26,8 +25,8 @@ class PublishingEventStore implements EventStore, Schemable
 {
     private $store;
     private $bus;
-    private $transactions = [];
-    private $adding = false;
+    private $working = false;
+    private $events = [];
 
     public function __construct(EventStore $store, EventBus $bus)
     {
@@ -35,34 +34,32 @@ class PublishingEventStore implements EventStore, Schemable
         $this->bus = $bus;
     }
 
-    public function producerId(Event $event) : Domain\Id
-    {
-        return $this->store->producerId($event);
-    }
-
-    public function add(Domain\Id $producerId, ?int $version, Event ...$events) : void
+    public function add(Event\Envelope ...$events) : array
     {
         if (0 === count($events)) {
-            return;
+            return [];
         }
 
-        array_push($this->transactions, [$producerId, $version, $events]);
+        $published = [];
+        $this->events = $events;
 
-        if (false === $this->adding) {
-            $this->adding = true;
+        if (false === $this->working) {
+            $this->working = true;
+            while (0 !== count($this->events)) {
+                $events = $this->events;
+                $this->events = [];
+                try {
+                    $events = $this->store->add(...$events);
+                    $this->bus->publish(...$events);
 
-            try {
-                $all = [];
-                while ($transaction = array_shift($this->transactions)) {
-                    [$producerId, $version, $events] = $transaction;
-                    $all = array_merge($all, $events);
-                    $this->store->add($producerId, $version, ...$events);
+                    $published = array_merge($published, $events);
+                } finally {
+                    $this->working = false;
                 }
-            } finally {
-                $this->adding = false;
             }
-            $this->bus->publish(...$all);
         }
+
+        return $published;
     }
 
     /**

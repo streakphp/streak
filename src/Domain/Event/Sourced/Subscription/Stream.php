@@ -39,7 +39,7 @@ class Stream extends \FilterIterator implements Event\Stream
     {
         $event = $this->getInnerIterator()->current();
 
-        if ($event instanceof SubscriptionListenedToEvent) {
+        if ($event->message() instanceof SubscriptionListenedToEvent) {
             return true;
         }
 
@@ -64,29 +64,29 @@ class Stream extends \FilterIterator implements Event\Stream
         return $this->stream->empty();
     }
 
-    public function current() : Event
+    public function current() : Event\Envelope
     {
         $event = $this->getInnerIterator()->current();
 
-        return $event->event();
+        return $event->message()->event();
     }
 
-    public function from(Event $event) : Event\Stream
+    public function from(Event\Envelope $event) : Event\Stream
     {
         throw new \BadMethodCallException('Method not supported.');
     }
 
-    public function to(Event $event) : Event\Stream
+    public function to(Event\Envelope $event) : Event\Stream
     {
         throw new \BadMethodCallException('Method not supported.');
     }
 
-    public function after(Event $event) : Event\Stream
+    public function after(Event\Envelope $event) : Event\Stream
     {
         throw new \BadMethodCallException('Method not supported.');
     }
 
-    public function before(Event $event) : Event\Stream
+    public function before(Event\Envelope $event) : Event\Stream
     {
         throw new \BadMethodCallException('Method not supported.');
     }
@@ -106,12 +106,12 @@ class Stream extends \FilterIterator implements Event\Stream
         throw new \BadMethodCallException('Method not supported.');
     }
 
-    public function first() : ?Event
+    public function first() : ?Event\Envelope
     {
         throw new \BadMethodCallException('Method not supported.');
     }
 
-    public function last() : ?Event
+    public function last() : ?Event\Envelope
     {
         throw new \BadMethodCallException('Method not supported.');
     }
