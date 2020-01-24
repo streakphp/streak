@@ -14,33 +14,31 @@ declare(strict_types=1);
 namespace Streak\Infrastructure;
 
 use Generator;
-use Streak\Domain\Event;
-use Streak\Domain\Exception;
-use Throwable;
+use Streak\Infrastructure\UnitOfWork\Exception;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
 interface UnitOfWork
 {
-    public function add(Event\Producer $producer) : void;
+    /**
+     * @throws Exception\ObjectNotSupported
+     */
+    public function add($object) : void;
 
-    public function remove(Event\Producer $producer) : void;
+    public function remove($object) : void;
 
-    public function has(Event\Producer $producer) : bool;
+    public function has($object) : bool;
 
     /**
-     * @return Event\Producer[]
+     * @return object[]
      */
     public function uncommitted() : array;
 
     public function count() : int;
 
     /**
-     * @return Generator|Event\Producer[]
-     *
-     * @throws Exception\ConcurrentWriteDetected
-     * @throws Throwable
+     * @return Generator|object[]
      */
     public function commit() : \Generator;
 

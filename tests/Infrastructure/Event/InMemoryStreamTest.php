@@ -45,16 +45,6 @@ class InMemoryStreamTest extends TestCase
      */
     private $event4;
 
-    /**
-     * @var Id|MockObject
-     */
-    private $id1;
-
-    /**
-     * @var Id|MockObject
-     */
-    private $id2;
-
     protected function setUp()
     {
         $this->event1 = $this->getMockBuilder(Event::class)->setMockClassName('event1')->getMockForAbstractClass();

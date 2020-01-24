@@ -31,10 +31,10 @@ class InMemoryEventStore implements EventStore
      * @throws Exception\ConcurrentWriteDetected
      * @throws Exception\EventAlreadyInStore
      */
-    public function add(Event\Envelope ...$events) : void
+    public function add(Event\Envelope ...$events) : array
     {
         if (0 === count($events)) {
-            return;
+            return [];
         }
 
         $backup = [
@@ -71,6 +71,8 @@ class InMemoryEventStore implements EventStore
             $this->streams[$streamName][$version] = $event;
             $this->all[] = $event;
         }
+
+        return $events;
     }
 
     public function stream(?EventStore\Filter $filter = null) : Event\Stream

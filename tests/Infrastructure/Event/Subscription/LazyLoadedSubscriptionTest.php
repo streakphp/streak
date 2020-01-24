@@ -104,6 +104,16 @@ class LazyLoadedSubscriptionTest extends TestCase
         $this->assertSame($this->listener, $subscription->listener());
 
         $this->subscription
+            ->expects($this->exactly(2))
+            ->method('version')
+            ->with()
+            ->willReturnOnConsecutiveCalls(1000, 1001)
+        ;
+
+        $this->assertSame(1000, $subscription->version());
+        $this->assertSame(1001, $subscription->version());
+
+        $this->subscription
             ->expects($this->once())
             ->method('completed')
             ->willReturn(false)

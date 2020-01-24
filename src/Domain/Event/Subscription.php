@@ -49,4 +49,6 @@ interface Subscription
     public function started() : bool;
 
     public function completed() : bool;
+
+    public function version() : int;
 }

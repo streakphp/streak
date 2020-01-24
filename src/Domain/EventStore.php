@@ -22,7 +22,7 @@ interface EventStore
      * @throws Exception\ConcurrentWriteDetected
      * @throws Exception\InvalidAggregateGiven
      */
-    public function add(Event\Envelope ...$events) : void;
+    public function add(Event\Envelope ...$events) : array;
 
     public function stream(?EventStore\Filter $filter = null) : Event\Stream;
 }

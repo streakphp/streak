@@ -81,4 +81,9 @@ class LazyLoadedSubscription implements Subscription, Subscription\Decorator
 
         return $this->subscription;
     }
+
+    public function version() : int
+    {
+        return $this->subscription()->version();
+    }
 }

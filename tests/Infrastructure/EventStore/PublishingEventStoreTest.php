@@ -109,6 +109,11 @@ class PublishingEventStoreTest extends TestCase
                 [$this->event2],
                 [$this->event2, $this->event3]
             )
+            ->willReturnOnConsecutiveCalls(
+                [$this->event2],
+                [$this->event2],
+                [$this->event2, $this->event3]
+            )
         ;
 
         $this->bus

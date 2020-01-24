@@ -34,12 +34,13 @@ class PublishingEventStore implements EventStore, Schemable
         $this->bus = $bus;
     }
 
-    public function add(Event\Envelope ...$events) : void
+    public function add(Event\Envelope ...$events) : array
     {
         if (0 === count($events)) {
-            return;
+            return [];
         }
 
+        $published = [];
         $this->events = $events;
 
         if (false === $this->working) {
@@ -48,13 +49,17 @@ class PublishingEventStore implements EventStore, Schemable
                 $events = $this->events;
                 $this->events = [];
                 try {
-                    $this->store->add(...$events);
+                    $events = $this->store->add(...$events);
                     $this->bus->publish(...$events);
+
+                    $published = array_merge($published, $events);
                 } finally {
                     $this->working = false;
                 }
             }
         }
+
+        return $published;
     }
 
     /**
