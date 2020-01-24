@@ -2,3 +2,23 @@ coverage:
   precision: 2
   round: down
   range: "70...100"
+
+  status:
+    project:
+      default:
+        target: auto
+        threshold: 0%
+        base: auto
+        if_not_found: success
+        if_ci_failed: error
+        informational: false
+        only_pulls: true
+    patch:
+      default:
+        target: auto
+        threshold: 0%
+        base: auto
+        if_not_found: success
+        if_ci_failed: error
+        informational: false
+        only_pulls: true
