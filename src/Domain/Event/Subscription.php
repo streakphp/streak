@@ -50,5 +50,5 @@ interface Subscription
 
     public function completed() : bool;
 
-    public function lastProcessedEvent() : ?Event\Envelope;
+    public function version() : int;
 }

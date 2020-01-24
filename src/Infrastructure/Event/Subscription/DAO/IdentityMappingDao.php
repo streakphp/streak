@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Streak\Infrastructure\Event\Subscription\DAO;
 
-use Streak\Domain\Event;
 use Streak\Domain\Event\Listener;
 use Streak\Domain\Event\Subscription;
 use Streak\Infrastructure\Event\Subscription\DAO;
@@ -23,28 +22,28 @@ class IdentityMappingDao implements DAO
     /** @var DAO */
     private $dao;
 
-    /** @var Event\Envelope[] */
-    private $lastProcessedEvents;
+    /** @var int[] */
+    private $versions = [];
 
     public function __construct(DAO $dao)
     {
         $this->dao = $dao;
-        $this->lastProcessedEvents = [];
     }
 
     public function save(DAO\Subscription $subscription) : void
     {
         if ($this->shouldSave($subscription)) {
             $this->dao->save($subscription);
-            $this->rememberLastProcessedEvent($subscription);
+            $this->rememberVersion($subscription);
         }
     }
 
     public function one(Listener\Id $id) : ?Subscription
     {
         $subscription = $this->dao->one($id);
+
         if (null !== $subscription) {
-            $this->rememberLastProcessedEvent($subscription);
+            $this->rememberVersion($subscription);
         }
 
         return $subscription;
@@ -61,44 +60,47 @@ class IdentityMappingDao implements DAO
     public function all(array $types = [], ?bool $completed = null) : iterable
     {
         foreach ($this->dao->all($types, $completed) as $subscription) {
-            $this->rememberLastProcessedEvent($subscription);
+            $this->rememberVersion($subscription);
+
             yield $subscription;
         }
     }
 
     public function shouldSave(Subscription $subscription) : bool
     {
-        if (false === $this->hasLastRememberedEvent($subscription)) {
+        if (false === $this->isVersionRemembered($subscription)) {
             return true;
         }
 
-        $subscriptionLastProcessedEvent = $subscription->lastProcessedEvent();
-        $thisLastRememberedEvent = $this->getLastRememberedEvent($subscription);
+        $previous = $this->rememberedVersion($subscription);
+        $current = $subscription->version();
 
-        if (null === $subscriptionLastProcessedEvent) {
-            return $subscriptionLastProcessedEvent !== $thisLastRememberedEvent;
+        if ($previous < $current) {
+            return true;
         }
 
-        return false === $subscriptionLastProcessedEvent->equals($thisLastRememberedEvent);
+        return false;
     }
 
-    private function createKey(Subscription $subscription) : string
+    private function key(Subscription $subscription) : string
     {
-        return sprintf('%s_%s', get_class($subscription->subscriptionId()), $subscription->subscriptionId()->toString());
+        $key = sprintf('%s_%s', get_class($subscription->subscriptionId()), $subscription->subscriptionId()->toString());
+
+        return $key;
     }
 
-    private function rememberLastProcessedEvent(Subscription $subscription)
+    private function rememberVersion(Subscription $subscription)
     {
-        $this->lastProcessedEvents[$this->createKey($subscription)] = $subscription->lastProcessedEvent();
+        $this->versions[$this->key($subscription)] = $subscription->version();
     }
 
-    private function hasLastRememberedEvent(Subscription $subscription) : bool
+    private function isVersionRemembered(Subscription $subscription) : bool
     {
-        return array_key_exists($this->createKey($subscription), $this->lastProcessedEvents);
+        return array_key_exists($this->key($subscription), $this->versions);
     }
 
-    private function getLastRememberedEvent(Subscription $subscription) : ?Event\Envelope
+    private function rememberedVersion(Subscription $subscription) : int
     {
-        return $this->lastProcessedEvents[$this->createKey($subscription)];
+        return $this->versions[$this->key($subscription)];
     }
 }

@@ -37,6 +37,7 @@ class Subscription implements Event\Subscription
     private $startedAt;
     private $lastProcessedEvent;
     private $lastEventProcessedAt;
+    private $version = 0;
     private $completed = false;
 
     public function __construct(Event\Listener $listener)
@@ -149,6 +150,7 @@ class Subscription implements Event\Subscription
 
         $this->startedBy = $event;
         $this->startedAt = new \DateTimeImmutable();
+        ++$this->version;
     }
 
     public function restart() : void
@@ -164,6 +166,7 @@ class Subscription implements Event\Subscription
         $this->lastProcessedEvent = null;
         $this->lastEventProcessedAt = null;
         $this->completed = false;
+        ++$this->version;
     }
 
     public function starting() : bool
@@ -197,9 +200,9 @@ class Subscription implements Event\Subscription
         return true === $this->completed;
     }
 
-    public function lastProcessedEvent() : ?Event\Envelope
+    public function version() : int
     {
-        return $this->lastProcessedEvent;
+        return $this->version;
     }
 
     private function listenToEvent(Event\Envelope $event) : void
@@ -217,9 +220,6 @@ class Subscription implements Event\Subscription
 
         $this->listener->on($event);
 
-        $this->lastProcessedEvent = $event;
-        $this->lastEventProcessedAt = new \DateTimeImmutable();
-
         if ($this->listener instanceof Listener\Stateful) {
             $this->state = $this->listener->toState(InMemoryState::empty());
             $this->state = InMemoryState::fromState($this->state);
@@ -230,5 +230,9 @@ class Subscription implements Event\Subscription
                 $this->completed = true;
             }
         }
+
+        $this->lastProcessedEvent = $event;
+        $this->lastEventProcessedAt = new \DateTimeImmutable();
+        ++$this->version;
     }
 }

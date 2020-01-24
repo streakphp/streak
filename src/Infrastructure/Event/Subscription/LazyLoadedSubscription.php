@@ -82,8 +82,8 @@ class LazyLoadedSubscription implements Subscription, Subscription\Decorator
         return $this->subscription;
     }
 
-    public function lastProcessedEvent() : ?Event\Envelope
+    public function version() : int
     {
-        return $this->subscription()->lastProcessedEvent();
+        return $this->subscription()->version();
     }
 }

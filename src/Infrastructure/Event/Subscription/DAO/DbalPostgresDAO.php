@@ -105,6 +105,7 @@ class DbalPostgresDAO implements DAO
         // dehydrate
         $row['subscription_type'] = get_class($subscription->subscriptionId());
         $row['subscription_id'] = $subscription->subscriptionId()->toString();
+        $row['subscription_version'] = $subscription->version();
 
         $reflection = new \ReflectionObject($subscription);
 
@@ -166,6 +167,7 @@ CREATE TABLE IF NOT EXISTS subscriptions
   id SERIAL PRIMARY KEY,
   subscription_type VARCHAR(255) NOT NULL,
   subscription_id VARCHAR(52) NOT NULL,
+  subscription_version INT NOT NULL,
   state JSONB DEFAULT NULL,
   started_by JSONB DEFAULT NULL,
   started_at TIMESTAMP(6) WITH TIME ZONE DEFAULT NULL, -- microsecond precision
@@ -221,6 +223,11 @@ SQL;
 
         // hydrate
         $reflection = new \ReflectionObject($unwrapped);
+
+        $property = $reflection->getProperty('version');
+        $property->setAccessible(true);
+        $property->setValue($unwrapped, $row['subscription_version']);
+        $property->setAccessible(false);
 
         $property = $reflection->getProperty('state');
         $property->setAccessible(true);
@@ -284,10 +291,10 @@ SQL;
     private function doSave(DAO\Subscription $subscription) : void
     {
         $sql = <<<SQL
-INSERT INTO subscriptions (subscription_type, subscription_id, state, started_by, started_at, last_processed_event, last_event_processed_at, completed) 
-VALUES (:subscription_type, :subscription_id, :state, :started_by, :started_at, :last_processed_event, :last_event_processed_at, :completed)
+INSERT INTO subscriptions (subscription_type, subscription_id, subscription_version, state, started_by, started_at, last_processed_event, last_event_processed_at, completed) 
+VALUES (:subscription_type, :subscription_id, :subscription_version, :state, :started_by, :started_at, :last_processed_event, :last_event_processed_at, :completed)
 ON CONFLICT ON CONSTRAINT subscriptions_subscription_type_subscription_id_key
-DO UPDATE SET state = :state, last_processed_event = :last_processed_event, last_event_processed_at = :last_event_processed_at, completed = :completed
+DO UPDATE SET subscription_version = :subscription_version, state = :state, last_processed_event = :last_processed_event, last_event_processed_at = :last_event_processed_at, completed = :completed
 SQL;
 
         $row = $this->toRow($subscription);
@@ -305,7 +312,7 @@ SQL;
      */
     private function doOne(Event\Listener\Id $id)
     {
-        $sql = 'SELECT subscription_type, subscription_id, state, started_by, started_at, last_processed_event, last_event_processed_at, completed FROM subscriptions WHERE subscription_type = :subscription_type AND subscription_id = :subscription_id LIMIT 1';
+        $sql = 'SELECT subscription_type, subscription_id, subscription_version, state, started_by, started_at, last_processed_event, last_event_processed_at, completed FROM subscriptions WHERE subscription_type = :subscription_type AND subscription_id = :subscription_id LIMIT 1';
 
         $statement = $this->connection->prepare($sql);
         $statement->execute([
@@ -362,7 +369,7 @@ SQL;
      */
     private function doAll(array $types, ?bool $completed) : \Generator
     {
-        $sql = 'SELECT subscription_type, subscription_id, state, started_by, started_at, last_processed_event, last_event_processed_at, completed FROM subscriptions';
+        $sql = 'SELECT subscription_type, subscription_id, subscription_version, state, started_by, started_at, last_processed_event, last_event_processed_at, completed FROM subscriptions';
         $where = [];
         $parameters = [];
 

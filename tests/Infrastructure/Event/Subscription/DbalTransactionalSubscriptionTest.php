@@ -21,7 +21,6 @@ use Streak\Domain\Event;
 use Streak\Domain\Event\Listener;
 use Streak\Domain\Event\Subscription;
 use Streak\Domain\EventStore;
-use Streak\Domain\Id\UUID;
 use Streak\Infrastructure\Event\Converter\NestedObjectConverter;
 use Streak\Infrastructure\Event\Subscription\DbalTransactionalSubscriptionTest\Event1;
 use Streak\Infrastructure\Event\Subscription\DbalTransactionalSubscriptionTest\Event2;
@@ -148,6 +147,16 @@ class DbalTransactionalSubscriptionTest extends TestCase
         ;
 
         $this->assertSame($this->listener, $subscription->listener());
+
+        $this->subscription
+            ->expects($this->exactly(2))
+            ->method('version')
+            ->with()
+            ->willReturnOnConsecutiveCalls(1000, 1001)
+        ;
+
+        $this->assertSame(1000, $subscription->version());
+        $this->assertSame(1001, $subscription->version());
 
         $this->subscription
             ->expects($this->once())
@@ -767,20 +776,6 @@ class DbalTransactionalSubscriptionTest extends TestCase
             $this->assertTrue($this->store1->stream()->empty());
             $this->assertTrue($this->store2->stream()->empty());
         }
-    }
-
-    public function testItReturnsLastProcessedEvent() : void
-    {
-        $subscription = new DbalTransactionalSubscription($this->subscription, $this->connection, 1);
-        $this->subscription->expects($this->at(0))->method('lastProcessedEvent')->willReturn(null);
-
-        /** @var Event|MockObject $event */
-        $event = $this->getMockBuilder(Event::class)->getMock();
-        $envelope = new Event\Envelope(new UUID('861bbfe1-81f0-43fa-aadd-c9f1c972c4e1'), 'test', $event, new UUID('8b962401-3f83-47d1-9442-cea4a5f3ede5'));
-        $this->subscription->expects($this->at(1))->method('lastProcessedEvent')->willReturn($envelope);
-
-        self::assertNull($subscription->lastProcessedEvent());
-        self::assertSame($envelope, $subscription->lastProcessedEvent());
     }
 }
 

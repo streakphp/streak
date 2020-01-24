@@ -279,11 +279,6 @@ final class Subscription implements Event\Subscription, Event\Sourced, Versionab
         return null !== $this->completedBy;
     }
 
-    public function lastProcessedEvent() : ?Event\Envelope
-    {
-        return $this->lastEvent();
-    }
-
     /**
      * @see applySubscriptionListenedToEvent
      * @see applySubscriptionIgnoredEvent
