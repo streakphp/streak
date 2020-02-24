@@ -90,7 +90,16 @@ class Subscription implements Event\Subscription
 
         $listened = 0;
         foreach ($stream as $event) {
-            $this->listenToEvent($event);
+            try {
+                $this->listenToEvent($event);
+                // @codeCoverageIgnoreStart
+            } catch (\Shared\Domain\Exception\Timeout $timeout) {
+                sleep(1);
+
+
+                return;
+                // @codeCoverageIgnoreEnd
+            }
 
             yield $event;
 
