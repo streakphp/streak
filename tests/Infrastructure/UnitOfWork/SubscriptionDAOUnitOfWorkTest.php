@@ -59,6 +59,13 @@ class SubscriptionDAOUnitOfWorkTest extends TestCase
         $this->uow->add($subscription);
     }
 
+    public function testHasOnNotSupportedObject() : void
+    {
+        $subscription = $this->getMockBuilder(Subscription::class)->getMock();
+        self::expectException(ObjectNotSupported::class);
+        $this->uow->has($subscription);
+    }
+
     public function testItRemoves() : void
     {
         $subscription = $this->createSubscriptionStub('1');
@@ -113,6 +120,7 @@ class SubscriptionDAOUnitOfWorkTest extends TestCase
         /** @var Subscription\Decorator|MockObject $result */
         $result = $this->getMockBuilder([Subscription\Decorator::class, Subscription::class])->getMock();
         $result->expects($this->any())->method('subscription')->willReturn($this->createSubscriptionStub($id));
+        $result->expects($this->any())->method('subscriptionId')->willReturn($this->createIdStub($id));
 
         return $result;
     }

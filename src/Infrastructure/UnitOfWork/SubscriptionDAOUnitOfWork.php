@@ -25,7 +25,7 @@ class SubscriptionDAOUnitOfWork implements UnitOfWork
     private $dao;
 
     /**
-     * @var DAO\Subscription[]
+     * @var Subscription[]
      */
     private $uncommited = [];
 
@@ -38,7 +38,9 @@ class SubscriptionDAOUnitOfWork implements UnitOfWork
 
     public function add($subscription) : void
     {
-        $subscription = $this->unwrap($subscription);
+        if (false === $this->supports($subscription)) {
+            throw new UnitOfWork\Exception\ObjectNotSupported($subscription);
+        }
 
         if (!$this->has($subscription)) {
             $this->uncommited[] = $subscription;
@@ -47,7 +49,9 @@ class SubscriptionDAOUnitOfWork implements UnitOfWork
 
     public function remove($subscription) : void
     {
-        $subscription = $this->unwrap($subscription);
+        if (false === $this->supports($subscription)) {
+            throw new UnitOfWork\Exception\ObjectNotSupported($subscription);
+        }
 
         foreach ($this->uncommited as $key => $current) {
             if ($current->subscriptionId()->equals($subscription->subscriptionId())) {
@@ -60,7 +64,9 @@ class SubscriptionDAOUnitOfWork implements UnitOfWork
 
     public function has($subscription) : bool
     {
-        $subscription = $this->unwrap($subscription);
+        if (false === $this->supports($subscription)) {
+            throw new UnitOfWork\Exception\ObjectNotSupported($subscription);
+        }
 
         foreach ($this->uncommited as $current) {
             if ($current->subscriptionId()->equals($subscription->subscriptionId())) {
@@ -90,7 +96,7 @@ class SubscriptionDAOUnitOfWork implements UnitOfWork
             $this->committing = true;
 
             try {
-                /** @var $subscription DAO\Subscription */
+                /** @var $subscription Subscription */
                 while ($subscription = array_shift($this->uncommited)) {
                     try {
                         $this->dao->save($subscription);
@@ -115,27 +121,20 @@ class SubscriptionDAOUnitOfWork implements UnitOfWork
         $this->uncommited = [];
     }
 
-    /**
-     * @param Subscription $subscription
-     *
-     * @return DAO\Subscription
-     */
-    private function unwrap(Subscription $subscription) : DAO\Subscription
+    private function supports(Subscription $subscription) : bool
     {
-        $exception = new UnitOfWork\Exception\ObjectNotSupported($subscription);
-
         if ($subscription instanceof DAO\Subscription) {
-            return $subscription;
+            return true;
         }
 
         while ($subscription instanceof Subscription\Decorator) {
             $subscription = $subscription->subscription();
 
             if ($subscription instanceof DAO\Subscription) {
-                return $subscription;
+                return true;
             }
         }
 
-        throw $exception;
+        return false;
     }
 }

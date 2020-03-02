@@ -677,7 +677,7 @@ SQL;
         return $this->producerId($matches['type'], $matches['id']);
     }
 
-    private function extractIdForEventAlreadyInStore(UniqueConstraintViolationException $e) : UUID
+    private function extractIdForEventAlreadyInStore(UniqueConstraintViolationException $e)
     {
         // example:
         // SQLSTATE[23505]: Unique violation: 7 ERROR:  duplicate key value violates unique constraint "events_uuid_key"

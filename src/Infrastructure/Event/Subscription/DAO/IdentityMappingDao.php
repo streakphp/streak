@@ -30,7 +30,7 @@ class IdentityMappingDao implements DAO
         $this->dao = $dao;
     }
 
-    public function save(DAO\Subscription $subscription) : void
+    public function save(Subscription $subscription) : void
     {
         if ($this->shouldSave($subscription)) {
             $this->dao->save($subscription);

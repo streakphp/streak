@@ -56,7 +56,7 @@ class DbalPostgresDAO implements DAO
         $this->converter = $converter;
     }
 
-    public function save(DAO\Subscription $subscription) : void
+    public function save(Subscription $subscription) : void
     {
         try {
             $this->doSave($subscription);
@@ -86,8 +86,7 @@ class DbalPostgresDAO implements DAO
     }
 
     /**
-     * @param string[]  $types
-     * @param bool|null $completed
+     * @param string[] $types
      *
      * @return Subscription[]
      */
@@ -333,10 +332,6 @@ SQL;
     }
 
     /**
-     * @param Listener\Id $id
-     *
-     * @return bool
-     *
      * @throws \Doctrine\DBAL\DBALException
      */
     private function doExists(Listener\Id $id) : bool
@@ -360,11 +355,6 @@ SQL;
     }
 
     /**
-     * @param array     $types
-     * @param bool|null $completed
-     *
-     * @return \Generator
-     *
      * @throws \Doctrine\DBAL\DBALException
      */
     private function doAll(array $types, ?bool $completed) : \Generator
@@ -409,11 +399,6 @@ SQL;
         $statement->closeCursor();
     }
 
-    /**
-     * @param Subscription $subscription
-     *
-     * @return DAO\Subscription
-     */
     private function unwrap(Subscription $subscription) : DAO\Subscription
     {
         $exception = new ObjectNotSupported($subscription);
