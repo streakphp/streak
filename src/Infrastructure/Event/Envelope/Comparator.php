@@ -42,12 +42,7 @@ class Comparator extends \SebastianBergmann\Comparator\Comparator
     {
         if ($expected instanceof Event\Envelope && $actual instanceof Event\Envelope) {
             if (false === $expected->equals($actual)) {
-                throw new ComparisonFailure(
-                    $expected,
-                    $actual,
-                    $expected->uuid()->toString(),
-                    $actual->uuid()->toString()
-                );
+                throw new ComparisonFailure($expected, $actual, $expected->uuid()->toString(), $actual->uuid()->toString());
             }
 
             return;

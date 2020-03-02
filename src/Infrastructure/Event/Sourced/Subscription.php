@@ -175,8 +175,6 @@ final class Subscription implements Event\Subscription, Event\Sourced, Versionab
     /**
      * @see applySubscriptionStarted
      *
-     * @param Event\Envelope $event
-     *
      * @throws \Throwable
      */
     public function startFor(Event\Envelope $event) : void

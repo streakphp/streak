@@ -23,11 +23,11 @@ use Streak\Infrastructure\Event\Subscription\DAO;
 class InMemoryDAO implements DAO
 {
     /**
-     * @var DAO\Subscription[]
+     * @var Subscription[]
      */
     private $subscriptions = [];
 
-    public function save(DAO\Subscription $subscription) : void
+    public function save(Subscription $subscription) : void
     {
         foreach ($this->subscriptions as $key => $stored) {
             if ($stored->subscriptionId()->equals($subscription->subscriptionId())) {

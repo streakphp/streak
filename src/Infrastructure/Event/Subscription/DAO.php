@@ -21,15 +21,14 @@ use Streak\Domain\Event\Subscription;
  */
 interface DAO
 {
-    public function save(DAO\Subscription $subscription) : void;
+    public function save(Subscription $subscription) : void;
 
     public function one(Listener\Id $id) : ?Subscription;
 
     public function exists(Listener\Id $id) : bool;
 
     /**
-     * @param string[]  $types
-     * @param bool|null $completed
+     * @param string[] $types
      *
      * @return DAO\Subscription[]
      */
