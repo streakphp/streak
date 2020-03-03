@@ -56,8 +56,13 @@ class DbalPostgresDAO implements DAO
         $this->converter = $converter;
     }
 
+    /**
+     * @throws \Doctrine\DBAL\DBALException
+     */
     public function save(Subscription $subscription) : void
     {
+        $subscription = $this->unwrap($subscription);
+
         try {
             $this->doSave($subscription);
         } catch (TableNotFoundException $e) {
@@ -89,6 +94,8 @@ class DbalPostgresDAO implements DAO
      * @param string[] $types
      *
      * @return Subscription[]
+     *
+     * @throws \Doctrine\DBAL\DBALException
      */
     public function all(array $types = [], ?bool $completed = null) : iterable
     {
