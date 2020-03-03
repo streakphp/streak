@@ -85,5 +85,10 @@ class DbalPostgresDAOTest extends DAOTestCase
         $this->assertNull($this->dao->one($listenerId1));
 
         $this->dao->save($subscription3);
+
+        $subscription4 = $this->getMockBuilder([Event\Subscription::class, Event\Subscription\Decorator::class])->getMock();
+        $subscription4->expects($this->any())->method('subscription')->willReturn($subscription3);
+
+        $this->dao->save($subscription4);
     }
 }
