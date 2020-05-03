@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Streak\Infrastructure\EventStore;
 
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Streak\Domain\Event;
 use Streak\Domain\EventStore;
@@ -226,9 +225,7 @@ abstract class EventStoreTestCase extends TestCase
         $this->assertEquals($event111, $stream->first());
         $this->assertEquals($event124, $stream->last());
 
-        $stream = $this->store->stream(
-            EventStore\Filter::nothing()->filterProducerTypes(EventStoreTestCase\ProducerId2::class)
-        );
+        $stream = $this->store->stream(EventStore\Filter::nothing()->filterProducerTypes(EventStoreTestCase\ProducerId2::class));
         $this->assertEquals([$event211, $event212, $event213, $event214], iterator_to_array($stream));
         $this->assertFalse($stream->empty());
         $this->assertEquals($event211, $stream->first());
@@ -323,27 +320,19 @@ abstract class EventStoreTestCase extends TestCase
 
     public function testItGetsEvent() : void
     {
-        $event = $this->createEnvelopeStub('9fd724b5-2c55-44ae-a3eb-8cefc493b072');
-        $eventStore = $this->newEventStore();
-        $eventStore->add($event);
-        self::assertEquals($event, $eventStore->event(new Id\UUID('9fd724b5-2c55-44ae-a3eb-8cefc493b072')));
-        self::assertNull($eventStore->event(new Id\UUID('5e04364e-4590-403b-9f8f-3ae14f6dcce6')));
+        $uuid1 = new Id\UUID('9fd724b5-2c55-44ae-a3eb-8cefc493b072');
+        $uuid2 = new Id\UUID('5e04364e-4590-403b-9f8f-3ae14f6dcce6');
+
+        $event = new EventStoreTestCase\Event1();
+        $event = new Event\Envelope($uuid1, 'event1', $event, new EventStoreTestCase\ProducerId1('producer1'), 1);
+
+        $this->store->add($event);
+
+        $this->assertEquals($event, $this->store->event($uuid1));
+        $this->assertNull($this->store->event($uuid2));
     }
 
     abstract protected function newEventStore() : EventStore;
-
-    private function createEnvelopeStub($id) : Event\Envelope
-    {
-        return new Event\Envelope(new Id\UUID($id), 'test', $this->crateEventStub(), new Id\UUID($id));
-    }
-
-    private function crateEventStub() : Event
-    {
-        /** @var Event|MockObject $result */
-        $result = $this->getMockBuilder(Event::class)->getMock();
-
-        return $result;
-    }
 }
 
 namespace Streak\Infrastructure\EventStore\EventStoreTestCase;

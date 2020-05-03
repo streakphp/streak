@@ -211,23 +211,17 @@ class PublishingEventStoreTest extends TestCase
     public function testItReturnsEvent() : void
     {
         $store = new PublishingEventStore($this->store, $this->bus);
-        $event = $this->createEnvelopeStub('563dccb6-f225-4efb-8cc5-fc340163d3ef');
-        $this->store->expects($this->at(0))->method('event')->willReturn($event);
-        $this->store->expects($this->at(1))->method('event')->willReturn(null);
-        self::assertSame($event, $store->event(new UUID('563dccb6-f225-4efb-8cc5-fc340163d3ef')));
-        self::assertNull($store->event(new UUID('abd8a704-dba3-4919-bc3a-5cc16faaac0a')));
-    }
 
-    private function createEnvelopeStub($id) : Event\Envelope
-    {
-        return new Event\Envelope(new UUID($id), 'test', $this->crateEventStub(), new UUID($id));
-    }
+        $uuid1 = new UUID('563dccb6-f225-4efb-8cc5-fc340163d3ef');
+        $uuid2 = new UUID('abd8a704-dba3-4919-bc3a-5cc16faaac0a');
 
-    private function crateEventStub() : Event
-    {
-        /** @var Event|MockObject $result */
-        $result = $this->getMockBuilder(Event::class)->getMock();
-
-        return $result;
+        $this->store
+            ->expects($this->exactly(2))
+            ->method('event')
+            ->withConsecutive([$uuid1], [$uuid2])
+            ->willReturnOnConsecutiveCalls($this->event1, null)
+        ;
+        $this->assertSame($this->event1, $store->event($uuid1));
+        $this->assertNull($store->event($uuid2));
     }
 }

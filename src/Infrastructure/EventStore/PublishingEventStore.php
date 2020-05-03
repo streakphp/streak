@@ -28,7 +28,6 @@ class PublishingEventStore implements EventStore, Schemable
     private $bus;
     private $working = false;
 
-    /** @var Event\Envelope[] */
     private $events = [];
 
     public function __construct(EventStore $store, EventBus $bus)

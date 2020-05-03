@@ -423,15 +423,18 @@ SQL;
 
     public function event(UUID $uuid) : ?Event\Envelope
     {
-        $sql = 'SELECT * FROM events WHERE uuid = ?';
+        $sql = 'SELECT * FROM events WHERE uuid = :uuid';
+
         $statement = $this->connection->prepare($sql);
-        $statement->execute([$uuid->toString()]);
+        $statement->execute(['uuid' => $uuid->toString()]);
+
         $row = $statement->fetch(\PDO::FETCH_ASSOC);
-        if (false !== $row) {
-            return $this->fromRow($row);
+
+        if (false === $row) {
+            return null;
         }
 
-        return null;
+        return $this->fromRow($row);
     }
 
     public function producerId($class, $id) : Domain\Id
