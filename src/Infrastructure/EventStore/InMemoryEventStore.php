@@ -17,6 +17,7 @@ use Streak\Domain\Event;
 use Streak\Domain\EventStore;
 use Streak\Domain\Exception;
 use Streak\Domain\Id;
+use Streak\Domain\Id\UUID;
 use Streak\Infrastructure\Event\InMemoryStream;
 
 /**
@@ -25,6 +26,8 @@ use Streak\Infrastructure\Event\InMemoryStream;
 class InMemoryEventStore implements EventStore
 {
     private $streams = [];
+
+    /** @var Event\Envelope[] */
     private $all = [];
 
     /**
@@ -73,6 +76,17 @@ class InMemoryEventStore implements EventStore
         }
 
         return $events;
+    }
+
+    public function event(UUID $uuid) : ?Event\Envelope
+    {
+        foreach ($this->all as $event) {
+            if ($event->uuid()->equals($uuid)) {
+                return $event;
+            }
+        }
+
+        return null;
     }
 
     public function stream(?EventStore\Filter $filter = null) : Event\Stream

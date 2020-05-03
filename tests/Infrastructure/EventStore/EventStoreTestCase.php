@@ -18,6 +18,7 @@ use Streak\Domain\Event;
 use Streak\Domain\EventStore;
 use Streak\Domain\Exception\ConcurrentWriteDetected;
 use Streak\Domain\Exception\EventAlreadyInStore;
+use Streak\Domain\Id;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -317,6 +318,20 @@ abstract class EventStoreTestCase extends TestCase
         }
     }
 
+    public function testItGetsEvent() : void
+    {
+        $uuid1 = new Id\UUID('9fd724b5-2c55-44ae-a3eb-8cefc493b072');
+        $uuid2 = new Id\UUID('5e04364e-4590-403b-9f8f-3ae14f6dcce6');
+
+        $event = new EventStoreTestCase\Event1();
+        $event = new Event\Envelope($uuid1, 'event1', $event, new EventStoreTestCase\ProducerId1('producer1'), 1);
+
+        $this->store->add($event);
+
+        $this->assertEquals($event, $this->store->event($uuid1));
+        $this->assertNull($this->store->event($uuid2));
+    }
+
     abstract protected function newEventStore() : EventStore;
 }
 
@@ -356,6 +371,7 @@ abstract class ValueId implements Domain\Id
 class ProducerId1 extends ValueId
 {
 }
+
 class ProducerId2 extends ValueId
 {
 }
@@ -363,12 +379,15 @@ class ProducerId2 extends ValueId
 class Event1 implements Domain\Event
 {
 }
+
 class Event2 implements Domain\Event
 {
 }
+
 class Event3 implements Domain\Event
 {
 }
+
 class Event4 implements Domain\Event
 {
 }
