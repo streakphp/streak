@@ -167,7 +167,7 @@ class DbalPostgresDAO implements DAO
 
     public function create()
     {
-        $sql = <<<SQL
+        $sqls[] = <<<SQL
 CREATE TABLE IF NOT EXISTS subscriptions
 (
   id SERIAL PRIMARY KEY,
@@ -183,8 +183,12 @@ CREATE TABLE IF NOT EXISTS subscriptions
   UNIQUE(subscription_type, subscription_id)
 );
 SQL;
-        $statement = $this->connection->prepare($sql);
-        $statement->execute();
+        $sqls[] = 'CREATE INDEX ON subscriptions (subscription_type, completed);';
+
+        foreach ($sqls as $sql) {
+            $statement = $this->connection->prepare($sql);
+            $statement->execute();
+        }
     }
 
     public function drop()
