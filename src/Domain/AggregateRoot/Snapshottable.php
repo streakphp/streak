@@ -18,6 +18,9 @@ namespace Streak\Domain\AggregateRoot;
  */
 interface Snapshottable
 {
+    /**
+     * @return object
+     */
     public function fromMemento(array $memento);
 
     public function toMemento() : array;

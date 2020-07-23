@@ -17,7 +17,7 @@ services:
     environment:
       POSTGRES_USER: phpunit
       POSTGRES_PASSWORD: phpunit
-      POSTGRES_DB: phpunit
+      POSTGRES_DB: streak
 
   redis:
     image: redis:alpine

@@ -20,6 +20,7 @@ use Streak\Application\CommandHandler;
  */
 class CommandHandlerAlreadyRegistered extends \OutOfRangeException
 {
+    /** @var CommandHandler */
     private $handler;
 
     public function __construct(CommandHandler $handler, \Exception $previous = null)

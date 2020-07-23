@@ -23,7 +23,9 @@ class SubscriptionListenedToEvent implements Subscription\Event
 {
     const DATE_FORMAT = 'U.u';
 
+    /** @var Event\Envelope */
     private $event;
+    /** @var string */
     private $timestamp;
 
     public function __construct(Event\Envelope $event, \DateTimeInterface $timestamp)
@@ -37,8 +39,14 @@ class SubscriptionListenedToEvent implements Subscription\Event
         return $this->event;
     }
 
+    /**
+     * @psalm-suppress InvalidFalsableReturnType
+     */
     public function timestamp() : \DateTimeImmutable
     {
+        /**
+         * @psalm-suppress FalsableReturnStatement
+         */
         return \DateTimeImmutable::createFromFormat(self::DATE_FORMAT, $this->timestamp);
     }
 }

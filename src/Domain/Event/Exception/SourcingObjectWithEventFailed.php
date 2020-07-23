@@ -30,8 +30,15 @@ class SourcingObjectWithEventFailed extends \BadMethodCallException
      */
     private $event;
 
+    /**
+     * @param object $object
+     */
     public function __construct($object, Event\Envelope $event, \Throwable $previous = null)
     {
+        /**
+         * @psalm-suppress DocblockTypeContradiction
+         * @psalm-suppress RedundantConditionGivenDocblockType
+         */
         if (false === \is_object($object)) {
             $message = sprintf('Object expected, but got "%s"', \gettype($object));
 
@@ -46,6 +53,9 @@ class SourcingObjectWithEventFailed extends \BadMethodCallException
         parent::__construct($message, 0, $previous);
     }
 
+    /**
+     * @return object
+     */
     public function subject()
     {
         return $this->subject;

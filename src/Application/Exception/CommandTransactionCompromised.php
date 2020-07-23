@@ -20,6 +20,7 @@ use Streak\Application;
  */
 class CommandTransactionCompromised extends \LogicException
 {
+    /** @var Application\Command */
     private $command;
 
     public function __construct(Application\Command $command, \Throwable $previous = null)

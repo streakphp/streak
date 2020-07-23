@@ -18,5 +18,8 @@ namespace Streak\Domain;
  */
 interface Comparable
 {
+    /**
+     * @param object $object
+     */
     public function equals($object) : bool;
 }

@@ -20,6 +20,7 @@ use Streak\Application;
  */
 class CommandNotSupported extends \RuntimeException
 {
+    /** @var Application\Command */
     private $command;
 
     public function __construct(Application\Command $command, \Exception $previous = null)

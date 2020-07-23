@@ -20,6 +20,7 @@ use Streak\Application;
  */
 class QueryNotSupported extends \RuntimeException
 {
+    /** @var Application\Query */
     private $query;
 
     public function __construct(Application\Query $query, \Exception $previous = null)

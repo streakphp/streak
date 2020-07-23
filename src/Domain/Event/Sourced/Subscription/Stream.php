@@ -23,7 +23,9 @@ use Streak\Domain\Event\Sourced\Subscription\Event\SubscriptionListenedToEvent;
  */
 class Stream extends \FilterIterator implements Event\Stream
 {
+    /** @var Event\Stream */
     private $stream;
+    /** @var int */
     private $position = 0;
 
     public function __construct(Event\Stream $stream)

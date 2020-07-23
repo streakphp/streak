@@ -21,6 +21,7 @@ use Streak\Domain\Event\Listener;
  */
 trait Identifying
 {
+    /** @var Listener\Id */
     private $id;
 
     public function __construct(Listener\Id $id)

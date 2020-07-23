@@ -28,7 +28,9 @@ final class Envelope implements Domain\Envelope
     public const METADATA_PRODUCER_TYPE = 'producer_type';
     public const METADATA_PRODUCER_ID = 'producer_id';
 
+    /** @var Event */
     private $message;
+    /** @var array<string, scalar> */
     private $metadata = [];
 
     public function __construct(UUID $uuid, string $name, Event $message, Domain\Id $producerId, ?int $version = null)
@@ -43,19 +45,25 @@ final class Envelope implements Domain\Envelope
         }
     }
 
-    public static function new(Event $event, Domain\Id $producerId, ?int $version = null)
+    public static function new(Event $event, Domain\Id $producerId, ?int $version = null) : self
     {
         return new self(UUID::random(), get_class($event), $event, $producerId, $version);
     }
 
     public function uuid() : UUID
     {
-        return new UUID($this->get(self::METADATA_UUID));
+        /** @var string $uuid */
+        $uuid = $this->get(self::METADATA_UUID);
+
+        return new UUID($uuid);
     }
 
     public function name() : string
     {
-        return $this->get(self::METADATA_NAME);
+        /** @var string $name */
+        $name = $this->get(self::METADATA_NAME);
+
+        return $name;
     }
 
     public function message() : Event
@@ -65,21 +73,38 @@ final class Envelope implements Domain\Envelope
 
     public function producerId() : Domain\Id
     {
-        return $this->get(self::METADATA_PRODUCER_TYPE)::fromString($this->get(self::METADATA_PRODUCER_ID));
+        /** @var string */
+        $class = $this->get(self::METADATA_PRODUCER_TYPE);
+        /** @var string */
+        $id = $this->get(self::METADATA_PRODUCER_ID);
+
+        return call_user_func([$class, 'fromString'], $id);
     }
 
     public function version() : ?int
     {
-        return $this->get(self::METADATA_VERSION);
+        /** @var int|null $version */
+        $version = $this->get(self::METADATA_VERSION);
+
+        return $version;
     }
 
+    /**
+     * @param string                       $name
+     * @param string|float|integer|boolean $value
+     *
+     * @return Envelope
+     */
     public function set(string $name, $value) : self
     {
         if (empty($name)) {
             throw new \InvalidArgumentException('Name of the attribute can not be empty.');
         }
+        /**
+         * @psalm-suppress DocblockTypeContradiction
+         */
         if (!is_scalar($value)) {
-            throw new \InvalidArgumentException(sprintf('Value for attribute "%s" is a scalar.', $name));
+            throw new \InvalidArgumentException(sprintf('Value for attribute "%s" is not scalar.', $name));
         }
 
         $new = new self(
@@ -96,6 +121,11 @@ final class Envelope implements Domain\Envelope
         return $new;
     }
 
+    /**
+     * @param string $name
+     *
+     * @return scalar|null
+     */
     public function get($name)
     {
         return $this->metadata[$name] ?? null;
@@ -106,6 +136,9 @@ final class Envelope implements Domain\Envelope
         return $this->metadata;
     }
 
+    /**
+     * @param object $envelope
+     */
     public function equals($envelope) : bool
     {
         if (!$envelope instanceof static) {

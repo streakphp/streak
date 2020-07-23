@@ -1,3 +1,6 @@
+Changes introduced via [psalm PR]:
+- `Streak\Domain\Event\Listener\Stateful::fromState` has a return type now.
+
 Changes introduced via https://github.com/streakphp/streak/pull/49
 - Classes implementing `Streak\Application\ProcessManager` should implement `Event\Listener`, `Event\Listener\Replayable` & `Event\Listener\Completable` instead.
 - Classes implementing `Streak\Application\ProcessManager\Id` should implement `Streak\Domain\Event\Listener\Id` instead.

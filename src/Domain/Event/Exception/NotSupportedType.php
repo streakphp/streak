@@ -20,6 +20,9 @@ final class NotSupportedType extends InvalidArgumentException
     /** @var mixed */
     private $value;
 
+    /**
+     * @param mixed $value
+     */
     public function __construct($value)
     {
         if (is_callable($value)) {

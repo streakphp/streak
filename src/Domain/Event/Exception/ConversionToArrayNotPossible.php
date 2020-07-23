@@ -21,6 +21,9 @@ class ConversionToArrayNotPossible extends ConversionNotPossible
     /** @var object */
     private $object;
 
+    /**
+     * @param object $object
+     */
     public function __construct($object, \Throwable $previous = null)
     {
         $this->object = $object;

@@ -24,12 +24,13 @@ use Streak\Domain\Event\Exception;
 class NestedObjectConverter implements Converter
 {
     /**
-     * @param $object
+     * @param object $object
      *
      * @throws Exception\ConversionToArrayNotPossible
      */
     public function objectToArray($object) : array
     {
+        /** @psalm-suppress DocblockTypeContradiction */
         if (false === is_object($object)) {
             throw new InvalidArgumentException('Argument must be an object!');
         }

@@ -42,7 +42,7 @@ class DbalPostgresEventStore implements \Iterator, EventStore, Event\Stream, Sch
     private $key = 0;
 
     /**
-     * @var \PDOStatement
+     * @var Statement
      */
     private $statement;
 
@@ -294,8 +294,8 @@ SQL;
     {
         $statement = $this->select(
             $this->filter,
-            self::DIRECTION_FORWARD,
             [],
+            self::DIRECTION_FORWARD,
             $this->from,
             $this->to,
             $this->after,
@@ -331,8 +331,8 @@ SQL;
 
         $statement = $this->select(
             $this->filter,
-            $direction,
             [],
+            $direction,
             $this->from,
             $this->to,
             $this->after,
@@ -358,8 +358,8 @@ SQL;
     {
         $statement = $this->select(
             $this->filter,
-            null, // we don't need ORDER BY here
             [],
+            null,
             $this->from,
             $this->to,
             $this->after,
@@ -406,8 +406,8 @@ SQL;
     {
         $this->statement = $this->select(
             $this->filter,
-            self::DIRECTION_FORWARD,
             [],
+            self::DIRECTION_FORWARD,
             $this->from,
             $this->to,
             $this->after,
@@ -456,8 +456,8 @@ SQL;
     {
         $statement = $this->select(
             $this->filter,
-            null,
             ['COUNT(*)'],
+            null,
             $this->from,
             $this->to,
             $this->after,
@@ -491,8 +491,8 @@ SQL;
 
     private function select(
         EventStore\Filter $filter,
-        ?string $direction,
         ?array $columns,
+        ?string $direction,
         ?Event\Envelope $from,
         ?Event\Envelope $to,
         ?Event\Envelope $after,
@@ -667,7 +667,7 @@ SQL;
         return $row;
     }
 
-    private function extractIdForConcurrentWrite(UniqueConstraintViolationException $e)
+    private function extractIdForConcurrentWrite(UniqueConstraintViolationException $e) : ?Domain\Id
     {
         // example:
         // SQLSTATE[23505]: Unique violation: 7 ERROR:  duplicate key value violates unique constraint "events_producer_type_producer_id_producer_version_key"
@@ -693,7 +693,7 @@ SQL;
         return $this->producerId($matches['type'], $matches['id']);
     }
 
-    private function extractIdForEventAlreadyInStore(UniqueConstraintViolationException $e)
+    private function extractIdForEventAlreadyInStore(UniqueConstraintViolationException $e) : ?Domain\Id
     {
         // example:
         // SQLSTATE[23505]: Unique violation: 7 ERROR:  duplicate key value violates unique constraint "events_uuid_key"

@@ -20,6 +20,7 @@ use Streak\Domain\Event;
  */
 class InvalidEventGiven extends \InvalidArgumentException
 {
+    /** @var Event\Envelope */
     private $event;
 
     public function __construct(Event\Envelope $event, \Throwable $previous = null)

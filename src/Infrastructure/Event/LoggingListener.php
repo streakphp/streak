@@ -139,7 +139,7 @@ class LoggingListener implements Event\Listener, Event\Listener\Replayable, Even
         return $state;
     }
 
-    public function fromState(State $state)
+    public function fromState(State $state) : void
     {
         if ($this->listener instanceof Listener\Stateful) {
             $this->listener->fromState($state);

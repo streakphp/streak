@@ -21,16 +21,15 @@ use Streak\Domain\Event;
  */
 trait Sourcing //implements Event\Consumer, Event\Producer, Domain\Identifiable, Domain\Versionable
 {
-    /**
-     * @var Event\Envelope[]
-     */
+    /** @var Event\Envelope[] */
     private $events = [];
-    /**
-     * @var Event\Envelope
-     */
+    /** @var Event\Envelope */
     private $lastEvent;
+    /** @var bool */
     private $replaying = false;
+    /** @var Event\Envelope|null */
     private $lastReplayed;
+    /** @var int */
     private $version = 0;
 
     abstract public function producerId() : Domain\Id;

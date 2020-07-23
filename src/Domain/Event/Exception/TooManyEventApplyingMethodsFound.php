@@ -20,7 +20,9 @@ use Streak\Domain\Event;
  */
 class TooManyEventApplyingMethodsFound extends \BadMethodCallException
 {
+    /** @var Event\Consumer */
     private $consumer;
+    /** @var Event\Envelope */
     private $event;
 
     public function __construct(Event\Consumer $consumer, Event\Envelope $event, \Throwable $previous = null)

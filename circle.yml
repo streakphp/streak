@@ -10,7 +10,7 @@ jobs:
           COMPOSER_CACHE_DIR: ~/cache/composer
           PHPUNIT_POSTGRES_HOSTNAME: localhost
           PHPUNIT_POSTGRES_PORT: 5432
-          PHPUNIT_POSTGRES_DATABASE: phpunit
+          PHPUNIT_POSTGRES_DATABASE: streak
           PHPUNIT_POSTGRES_USERNAME: phpunit
           PHPUNIT_POSTGRES_PASSWORD: phpunit
           PHPUNIT_REDIS_HOSTNAME: localhost
@@ -20,7 +20,7 @@ jobs:
         environment:
           POSTGRES_USER: phpunit
           POSTGRES_PASSWORD: phpunit
-          POSTGRES_DB: phpunit
+          POSTGRES_DB: streak
       - image: redis:alpine
     working_directory: ~/streak
     steps:

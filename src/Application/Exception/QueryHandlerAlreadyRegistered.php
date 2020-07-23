@@ -20,6 +20,7 @@ use Streak\Application\QueryHandler;
  */
 class QueryHandlerAlreadyRegistered extends \OutOfRangeException
 {
+    /** @var QueryHandler */
     private $handler;
 
     public function __construct(QueryHandler $handler, \Exception $previous = null)

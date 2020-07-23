@@ -24,12 +24,15 @@ interface Envelope extends ValueObject
 
     public function name() : string;
 
+    /**
+     * @return object
+     */
     public function message();
 
     /**
      * @param string $name
      *
-     * @return int|float|string|null
+     * @return scalar|null
      */
     public function get($name);
 

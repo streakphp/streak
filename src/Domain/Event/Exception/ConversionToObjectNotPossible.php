@@ -18,6 +18,7 @@ namespace Streak\Domain\Event\Exception;
  */
 class ConversionToObjectNotPossible extends ConversionNotPossible
 {
+    /** @var array */
     private $array;
 
     public function __construct(array $array, \Throwable $previous = null)

@@ -20,5 +20,5 @@ interface Stateful
 {
     public function toState(State $state) : State;
 
-    public function fromState(State $state);
+    public function fromState(State $state) : void;
 }

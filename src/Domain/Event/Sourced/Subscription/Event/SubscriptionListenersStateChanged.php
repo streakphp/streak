@@ -24,7 +24,9 @@ class SubscriptionListenersStateChanged implements Subscription\Event
 {
     private const DATE_FORMAT = 'U.u';
 
+    /** @var array */
     private $state;
+    /** @var string */
     private $timestamp;
 
     public function __construct(State $state, \DateTimeInterface $timestamp)
@@ -38,8 +40,14 @@ class SubscriptionListenersStateChanged implements Subscription\Event
         return InMemoryState::fromArray($this->state);
     }
 
+    /**
+     * @psalm-suppress InvalidFalsableReturnType
+     */
     public function timestamp() : \DateTimeImmutable
     {
+        /**
+         * @psalm-suppress FalsableReturnStatement
+         */
         return \DateTimeImmutable::createFromFormat(self::DATE_FORMAT, $this->timestamp);
     }
 }

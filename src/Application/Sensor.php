@@ -22,5 +22,8 @@ interface Sensor extends Producer
 {
     public function sensorId() : Sensor\Id;
 
+    /**
+     * @param mixed ...$messages
+     */
     public function process(...$messages) : void;
 }

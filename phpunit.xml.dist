@@ -23,7 +23,7 @@
     <php>
         <env name="PHPUNIT_POSTGRES_HOSTNAME" value="postgres" />
         <env name="PHPUNIT_POSTGRES_PORT" value="5432" />
-        <env name="PHPUNIT_POSTGRES_DATABASE" value="phpunit" />
+        <env name="PHPUNIT_POSTGRES_DATABASE" value="streak" />
         <env name="PHPUNIT_POSTGRES_USERNAME" value="phpunit" />
         <env name="PHPUNIT_POSTGRES_PASSWORD" value="phpunit" />
         <env name="PHPUNIT_REDIS_HOSTNAME" value="redis" />

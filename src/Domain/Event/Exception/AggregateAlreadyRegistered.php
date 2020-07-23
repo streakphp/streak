@@ -20,6 +20,7 @@ use Streak\Domain\Event;
  */
 class AggregateAlreadyRegistered extends \InvalidArgumentException
 {
+    /** @var Event\Sourced\Aggregate */
     private $aggregate;
 
     public function __construct(Event\Sourced\Aggregate $aggregate, \Throwable $previous = null)
