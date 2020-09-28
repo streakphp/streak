@@ -15,6 +15,7 @@ namespace Streak\Infrastructure\Event\Subscription\DAO\Subscription;
 
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Streak\Domain\Clock;
 use Streak\Domain\Event;
 use Streak\Infrastructure\Event\Subscription\DAO\Subscription;
 
@@ -30,17 +31,23 @@ class FactoryTest extends TestCase
      */
     private $listener;
 
+    /**
+     * @var Clock|MockObject
+     */
+    private $clock;
+
     protected function setUp()
     {
         $this->listener = $this->getMockBuilder(Event\Listener::class)->getMockForAbstractClass();
+        $this->clock = $this->getMockBuilder(Clock::class)->getMockForAbstractClass();
     }
 
     public function testFactory()
     {
-        $factory = new Factory();
+        $factory = new Factory($this->clock);
 
         $subscription = $factory->create($this->listener);
 
-        $this->assertEquals(new Subscription($this->listener), $subscription);
+        $this->assertEquals(new Subscription($this->listener, $this->clock), $subscription);
     }
 }

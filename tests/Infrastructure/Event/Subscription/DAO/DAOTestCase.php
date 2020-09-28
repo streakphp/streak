@@ -15,12 +15,14 @@ namespace Streak\Infrastructure\Event\Subscription\DAO;
 
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Streak\Domain\Clock;
 use Streak\Domain\Event;
 use Streak\Domain\Id\UUID;
 use Streak\Infrastructure\Event\Subscription\DAO;
 use Streak\Infrastructure\Event\Subscription\DAO\DAOTestCase\EventStub;
 use Streak\Infrastructure\Event\Subscription\DAO\DAOTestCase\ListenerId;
 use Streak\Infrastructure\EventStore\InMemoryEventStore;
+use Streak\Infrastructure\FixedClock;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -57,6 +59,11 @@ abstract class DAOTestCase extends TestCase
      */
     protected $event;
 
+    /**
+     * @var Clock
+     */
+    protected $clock;
+
     protected function setUp()
     {
         $this->subscriptions = $this->getMockBuilder(Event\Subscription\Factory::class)->getMockForAbstractClass();
@@ -65,7 +72,8 @@ abstract class DAOTestCase extends TestCase
         $this->listener2 = $this->getMockBuilder([Event\Listener::class, Event\Listener\Completable::class])->setMockClassName('listener2')->getMock();
         $this->event = new EventStub();
         $this->event = Event\Envelope::new($this->event, UUID::random());
-        $this->dao = $this->newDAO(new Subscription\Factory(), $this->listeners);
+        $this->clock = new FixedClock(new \DateTime('2018-09-28 19:12:32.763188 +00:00'));
+        $this->dao = $this->newDAO(new Subscription\Factory($this->clock), $this->listeners);
     }
 
     public function testDAO()
@@ -113,7 +121,7 @@ abstract class DAOTestCase extends TestCase
         $this->assertFalse($this->dao->exists($listenerId1));
         $this->assertNull($this->dao->one($listenerId1));
 
-        $subscription1 = new Subscription($this->listener1);
+        $subscription1 = new Subscription($this->listener1, $this->clock);
         $subscription1->startFor($event2);
 
         $this->dao->save($subscription1);
@@ -166,11 +174,19 @@ abstract class DAOTestCase extends TestCase
         $this->assertEquals([$subscription1], $all, '');
 
         $this->assertTrue($this->dao->exists($listenerId1));
+        $this->assertFalse($this->dao->exists($listenerId2));
+        $this->assertNull($this->dao->one($listenerId2));
 
-        $subscription2 = new Subscription($this->listener2);
+        $subscription2 = new Subscription($this->listener2, $this->clock);
         $subscription2->startFor($event2);
 
+        $this->assertFalse($this->dao->exists($listenerId2));
+        $this->assertNull($this->dao->one($listenerId2));
+
         $this->dao->save($subscription2);
+
+        $this->assertTrue($this->dao->exists($listenerId2));
+        $this->assertNotNull($this->dao->one($listenerId2));
 
         $all = $this->dao->all();
         $all = iterator_to_array($all);
@@ -201,6 +217,24 @@ abstract class DAOTestCase extends TestCase
         $all = iterator_to_array($all);
 
         $this->assertEquals([$subscription2], $all, '');
+
+        $subscription2->pause();
+
+        $this->assertTrue($subscription2->paused());
+
+        $this->dao->save($subscription2);
+
+        $subscription2b = $this->dao->one($listenerId2);
+        $this->assertTrue($subscription2b->paused());
+
+        $subscription2->unpause();
+
+        $this->assertFalse($subscription2->paused());
+
+        $this->dao->save($subscription2);
+
+        $subscription2b = $this->dao->one($listenerId2);
+        $this->assertFalse($subscription2b->paused());
     }
 
     abstract public function newDAO(Subscription\Factory $subscriptions, Event\Listener\Factory $listeners) : DAO;
