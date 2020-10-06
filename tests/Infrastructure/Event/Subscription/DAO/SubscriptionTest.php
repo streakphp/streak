@@ -209,12 +209,17 @@ class SubscriptionTest extends TestCase
         $this->assertSame($this->id1, $subscription->subscriptionId());
         $this->assertSame(0, $subscription->version());
         $this->assertFalse($subscription->starting());
+        $this->assertFalse($subscription->paused());
+
+        $subscription->pause();
+        $subscription->unpause();
 
         $subscription->startFor($this->event1);
 
         $this->assertSame($this->id1, $subscription->subscriptionId());
         $this->assertSame(1, $subscription->version());
         $this->assertTrue($subscription->starting());
+        $this->assertFalse($subscription->paused());
 
         $this->stream1 = new InMemoryStream($this->event1, $this->event2);
         $this->stream2 = new InMemoryStream($this->event3, $this->event4);
@@ -248,7 +253,7 @@ class SubscriptionTest extends TestCase
                 true
             )
         ;
-        $this->listener3
+        $this->listener1
             ->expects($this->never())
             ->method('completed')
         ;
@@ -264,12 +269,39 @@ class SubscriptionTest extends TestCase
 
         $this->assertEquals([$this->event3, $this->event4], $events);
         $this->assertSame(5, $subscription->version());
+        $this->assertFalse($subscription->paused());
+
+        $subscription->pause();
+
+        $this->assertTrue($subscription->paused());
+
+        $subscription->pause();
+
+        $this->assertTrue($subscription->paused());
+
+        try {
+            $events = $subscription->subscribeTo($this->store);
+            iterator_to_array($events);
+        } catch (Event\Subscription\Exception\SubscriptionPaused $exception) {
+            $this->assertSame($subscription, $exception->subscription());
+        } finally {
+            $this->assertTrue(isset($exception));
+        }
+
+        $subscription->unpause();
+
+        $this->assertFalse($subscription->paused());
+
+        $subscription->unpause();
+
+        $this->assertFalse($subscription->paused());
 
         $events = $subscription->subscribeTo($this->store);
         $events = iterator_to_array($events);
 
         $this->assertEquals([$this->event5], $events);
         $this->assertSame(6, $subscription->version());
+        $this->assertFalse($subscription->paused());
     }
 
     public function testStatefulListener()
@@ -621,11 +653,15 @@ class SubscriptionTest extends TestCase
         $this->assertSame($subscription->listener(), $this->listener3);
         $this->assertSame($this->id1, $subscription->subscriptionId());
         $this->assertSame(0, $subscription->version());
+        $this->assertFalse($subscription->completed());
+        $this->assertFalse($subscription->paused());
 
         $subscription->startFor($this->event1);
 
         $this->assertSame($this->id1, $subscription->subscriptionId());
         $this->assertSame(1, $subscription->version());
+        $this->assertFalse($subscription->completed());
+        $this->assertFalse($subscription->paused());
 
         $this->stream1 = new InMemoryStream($this->event1, $this->event2);
         $this->stream2 = new InMemoryStream($this->event3, $this->event4);
@@ -676,12 +712,15 @@ class SubscriptionTest extends TestCase
 
         $this->assertEquals([$this->event1, $this->event2], $events);
         $this->assertSame(3, $subscription->version());
+        $this->assertFalse($subscription->completed());
+        $this->assertFalse($subscription->paused());
 
         $events = $subscription->subscribeTo($this->store);
         $events = iterator_to_array($events);
 
         $this->assertEquals([$this->event3, $this->event4], $events);
         $this->assertSame(5, $subscription->version());
+        $this->assertFalse($subscription->paused());
 
         $events = $subscription->subscribeTo($this->store);
         $events = iterator_to_array($events);
@@ -689,6 +728,21 @@ class SubscriptionTest extends TestCase
         $this->assertEquals([$this->event5], $events);
         $this->assertSame(6, $subscription->version());
         $this->assertTrue($subscription->completed());
+        $this->assertFalse($subscription->paused());
+
+        $subscription->pause();
+
+        $this->assertEquals([$this->event5], $events);
+        $this->assertSame(6, $subscription->version());
+        $this->assertTrue($subscription->completed());
+        $this->assertFalse($subscription->paused());
+
+        $subscription->unpause();
+
+        $this->assertEquals([$this->event5], $events);
+        $this->assertSame(6, $subscription->version());
+        $this->assertTrue($subscription->completed());
+        $this->assertFalse($subscription->paused());
 
         $this->expectExceptionObject(new Event\Subscription\Exception\SubscriptionAlreadyCompleted($subscription));
 

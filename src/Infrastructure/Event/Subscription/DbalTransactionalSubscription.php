@@ -103,6 +103,21 @@ class DbalTransactionalSubscription implements Subscription, Subscription\Decora
         return $this->subscription->completed();
     }
 
+    public function paused() : bool
+    {
+        return $this->subscription->paused();
+    }
+
+    public function pause() : void
+    {
+        $this->subscription->pause();
+    }
+
+    public function unpause() : void
+    {
+        $this->subscription->unpause();
+    }
+
     public function version() : int
     {
         return $this->subscription->version();

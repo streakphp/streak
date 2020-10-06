@@ -44,6 +44,12 @@ interface Subscription
      */
     public function restart() : void;
 
+    public function paused() : bool;
+
+    public function pause() : void;
+
+    public function unpause() : void; // maybe: "play", "resume play" or rework all actions: play/start, stop, resume, rewind/restart
+
     public function starting() : bool;
 
     public function started() : bool;

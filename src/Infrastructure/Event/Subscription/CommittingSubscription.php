@@ -107,6 +107,37 @@ class CommittingSubscription implements Subscription, Subscription\Decorator
         return $this->subscription->completed();
     }
 
+    public function paused() : bool
+    {
+        return $this->subscription->paused();
+    }
+
+    public function pause() : void
+    {
+        try {
+            $this->uow->add($this->subscription);
+            $this->subscription->pause();
+            iterator_to_array($this->uow->commit());
+        } catch (\Throwable $exception) {
+            $this->uow->clear();
+
+            throw $exception;
+        }
+    }
+
+    public function unpause() : void
+    {
+        try {
+            $this->uow->add($this->subscription);
+            $this->subscription->unpause();
+            iterator_to_array($this->uow->commit());
+        } catch (\Throwable $exception) {
+            $this->uow->clear();
+
+            throw $exception;
+        }
+    }
+
     public function version() : int
     {
         return $this->subscription->version();

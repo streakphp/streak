@@ -45,7 +45,7 @@ class DbalPostgresDAOTest extends DAOTestCase
 
     public function newDAO(Subscription\Factory $subscriptions, Event\Listener\Factory $listeners) : DAO
     {
-        $dao = new DbalPostgresDAO(new Subscription\Factory(), $listeners, self::$connection, new NestedObjectConverter());
+        $dao = new DbalPostgresDAO(new Subscription\Factory($this->clock), $listeners, self::$connection, new NestedObjectConverter());
         $dao->drop();
         $dao->create();
 
@@ -65,7 +65,7 @@ class DbalPostgresDAOTest extends DAOTestCase
             ->method('listenerId')
             ->willReturn($listenerId3)
         ;
-        $subscription3 = new Subscription($listener3);
+        $subscription3 = new Subscription($listener3, $this->clock);
 
         $all = $this->dao->all();
         $all = iterator_to_array($all);

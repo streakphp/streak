@@ -212,6 +212,32 @@ class DbalTransactionalSubscriptionTest extends TestCase
 
         $this->assertFalse($subscription->completed());
         $this->assertTrue($subscription->completed());
+
+        $this->subscription
+            ->expects($this->exactly(2))
+            ->method('paused')
+            ->with()
+            ->willReturnOnConsecutiveCalls(false, true)
+        ;
+
+        $this->assertFalse($subscription->paused());
+        $this->assertTrue($subscription->paused());
+
+        $this->subscription
+            ->expects($this->once())
+            ->method('pause')
+            ->with()
+        ;
+
+        $subscription->pause();
+
+        $this->subscription
+            ->expects($this->once())
+            ->method('unpause')
+            ->with()
+        ;
+
+        $subscription->unpause();
     }
 
     public function testSubscriberForSingleEventTransaction()
