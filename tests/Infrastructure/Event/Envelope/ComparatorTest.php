@@ -94,7 +94,7 @@ class ComparatorTest extends TestCase
             [PHP_INT_MIN, PHP_INT_MAX],
             [1.1, 1.0],
             [-1.1, 1.0],
-            [PHP_FLOAT_MIN, PHP_FLOAT_MAX],
+            [2.2250738585072e-308, 1.7976931348623e+308],
             [[], []],
             [[1], [1]],
             [new \stdClass(), new \stdClass()],

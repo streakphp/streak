@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Streak\Infrastructure\Event\Subscription\DAO;
 
+use Streak\Domain\Clock;
 use Streak\Domain\Event;
 use Streak\Domain\Event\Listener;
 use Streak\Domain\Event\Subscription\Exception;
@@ -27,17 +28,20 @@ class Subscription implements Event\Subscription
     private const LIMIT_TO_INITIAL_STREAM = 0;
 
     private $listener;
+    private $clock;
     private $state;
     private $startedBy;
     private $startedAt;
+    private $pausedAt;
     private $lastProcessedEvent;
     private $lastEventProcessedAt;
     private $version = 0;
     private $completed = false;
 
-    public function __construct(Event\Listener $listener)
+    public function __construct(Event\Listener $listener, Clock $clock)
     {
         $this->listener = $listener;
+        $this->clock = $clock;
         $this->state = InMemoryState::empty();
     }
 
@@ -65,6 +69,10 @@ class Subscription implements Event\Subscription
 
         if (true === $this->completed()) {
             throw new Exception\SubscriptionAlreadyCompleted($this);
+        }
+
+        if (true === $this->paused()) {
+            throw new Exception\SubscriptionPaused($this);
         }
 
         $stream = $store->stream(); // all events
@@ -141,7 +149,7 @@ class Subscription implements Event\Subscription
         }
 
         $this->startedBy = $event;
-        $this->startedAt = new \DateTimeImmutable();
+        $this->startedAt = $this->clock->now();
         ++$this->version;
     }
 
@@ -158,7 +166,51 @@ class Subscription implements Event\Subscription
         $this->lastProcessedEvent = null;
         $this->lastEventProcessedAt = null;
         $this->completed = false;
+        $this->pausedAt = null;
         ++$this->version;
+    }
+
+    public function paused() : bool
+    {
+        if (null === $this->pausedAt) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public function pause() : void
+    {
+        if (false === $this->started()) {
+            return;
+        }
+
+        if (true === $this->completed()) {
+            return;
+        }
+
+        if (true === $this->paused()) { // subscription is already paused, no need for another pause
+            return;
+        }
+
+        $this->pausedAt = $this->clock->now();
+    }
+
+    public function unpause() : void
+    {
+        if (false === $this->started()) {
+            return;
+        }
+
+        if (true === $this->completed()) {
+            return;
+        }
+
+        if (false === $this->paused()) {
+            return;
+        }
+
+        $this->pausedAt = null;
     }
 
     public function starting() : bool
@@ -224,7 +276,7 @@ class Subscription implements Event\Subscription
         }
 
         $this->lastProcessedEvent = $event;
-        $this->lastEventProcessedAt = new \DateTimeImmutable();
+        $this->lastEventProcessedAt = $this->clock->now();
         ++$this->version;
     }
 }

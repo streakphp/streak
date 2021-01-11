@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Streak\Domain;
 
+use Streak\Domain\Id\UUID;
+
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
@@ -25,4 +27,6 @@ interface EventStore
     public function add(Event\Envelope ...$events) : array;
 
     public function stream(?EventStore\Filter $filter = null) : Event\Stream;
+
+    public function event(UUID $uuid) : ?Event\Envelope;
 }

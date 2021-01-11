@@ -165,5 +165,31 @@ class LazyLoadedSubscriptionTest extends TestCase
         $this->assertSame([$this->event2, $this->event3], $result);
 
         $this->assertSame($this->subscription, $subscription->subscription());
+
+        $this->subscription
+            ->expects($this->exactly(2))
+            ->method('paused')
+            ->with()
+            ->willReturnOnConsecutiveCalls(false, true)
+        ;
+
+        $this->assertFalse($subscription->paused());
+        $this->assertTrue($subscription->paused());
+
+        $this->subscription
+            ->expects($this->once())
+            ->method('pause')
+            ->with()
+        ;
+
+        $subscription->pause();
+
+        $this->subscription
+            ->expects($this->once())
+            ->method('unpause')
+            ->with()
+        ;
+
+        $subscription->unpause();
     }
 }

@@ -20,8 +20,10 @@ use Streak\Domain\Event\Sourced\Subscription\Event\SubscriptionCompleted;
 use Streak\Domain\Event\Sourced\Subscription\Event\SubscriptionIgnoredEvent;
 use Streak\Domain\Event\Sourced\Subscription\Event\SubscriptionListenedToEvent;
 use Streak\Domain\Event\Sourced\Subscription\Event\SubscriptionListenersStateChanged;
+use Streak\Domain\Event\Sourced\Subscription\Event\SubscriptionPaused;
 use Streak\Domain\Event\Sourced\Subscription\Event\SubscriptionRestarted;
 use Streak\Domain\Event\Sourced\Subscription\Event\SubscriptionStarted;
+use Streak\Domain\Event\Sourced\Subscription\Event\SubscriptionUnPaused;
 use Streak\Domain\Event\Sourced\Subscription\Stream as SubscriptionStream;
 use Streak\Domain\Event\Subscription\Exception;
 use Streak\Domain\EventStore;
@@ -45,6 +47,7 @@ final class Subscription implements Event\Subscription, Event\Sourced, Versionab
     private $clock;
     private $completedBy;
     private $startedBy;
+    private $paused = false;
     private $starting = false;
     private $lastProcessedEvent;
 
@@ -76,6 +79,10 @@ final class Subscription implements Event\Subscription, Event\Sourced, Versionab
 
         if (true === $this->completed()) {
             throw new Exception\SubscriptionAlreadyCompleted($this);
+        }
+
+        if (true === $this->paused()) {
+            throw new Exception\SubscriptionPaused($this);
         }
 
         $stream = $store->stream(); // all events
@@ -172,6 +179,40 @@ final class Subscription implements Event\Subscription, Event\Sourced, Versionab
         $this->apply(new SubscriptionRestarted($this->startedBy, $this->clock->now()));
     }
 
+    public function pause() : void
+    {
+        if (false === $this->started()) {
+            return;
+        }
+
+        if (true === $this->completed()) {
+            return;
+        }
+
+        if (true === $this->paused()) {
+            return;
+        }
+
+        $this->apply(new SubscriptionPaused($this->clock->now()));
+    }
+
+    public function unpause() : void
+    {
+        if (false === $this->started()) {
+            return;
+        }
+
+        if (true === $this->completed()) {
+            return;
+        }
+
+        if (false === $this->paused()) {
+            return;
+        }
+
+        $this->apply(new SubscriptionUnPaused($this->clock->now()));
+    }
+
     /**
      * @see applySubscriptionStarted
      *
@@ -207,9 +248,9 @@ final class Subscription implements Event\Subscription, Event\Sourced, Versionab
             return;
         }
 
-        // replaying last listened-to-event or ignored-event event
+        // replaying last listened-to-event, ignored-event, paused-event or unpaused-event
         $substream = $substream->after($substream->last());
-        $substream = $substream->only(SubscriptionListenedToEvent::class, SubscriptionIgnoredEvent::class); // inclusion is faster
+        $substream = $substream->only(SubscriptionListenedToEvent::class, SubscriptionIgnoredEvent::class, SubscriptionPaused::class, SubscriptionUnPaused::class); // inclusion is faster
         $processed = $substream->last(); // TODO: $substream = $substream->reverse()->limit(1) would return last event already as a stream
 
         if ($processed) {
@@ -225,7 +266,7 @@ final class Subscription implements Event\Subscription, Event\Sourced, Versionab
         } else {
             // only if no state change was found
             if ($this->listener instanceof Event\Listener\Replayable) {
-                $this->listener->replay(new SubscriptionStream($stream->only(SubscriptionListenedToEvent::class)));
+                $this->listener->replay(new SubscriptionStream($stream->only(SubscriptionListenedToEvent::class, SubscriptionPaused::class, SubscriptionUnPaused::class)));
             }
         }
 
@@ -265,6 +306,11 @@ final class Subscription implements Event\Subscription, Event\Sourced, Versionab
     public function started() : bool
     {
         return null !== $this->startedBy;
+    }
+
+    public function paused() : bool
+    {
+        return $this->paused;
     }
 
     public function starting() : bool
@@ -348,6 +394,16 @@ final class Subscription implements Event\Subscription, Event\Sourced, Versionab
 
             return;
         }
+        if ($event->message() instanceof SubscriptionPaused) {
+            $this->applySubscriptionPaused($event);
+
+            return;
+        }
+        if ($event->message() instanceof SubscriptionUnPaused) {
+            $this->applySubscriptionUnPaused($event);
+
+            return;
+        }
 
         throw new Event\Exception\NoEventApplyingMethodFound($this, $event); // @codeCoverageIgnore
     }
@@ -368,6 +424,7 @@ final class Subscription implements Event\Subscription, Event\Sourced, Versionab
     {
         $this->completedBy = $this->lastEvent;
         $this->starting = false;
+        $this->paused = false;
     }
 
     private function applySubscriptionStarted(Event\Envelope $event)
@@ -376,11 +433,22 @@ final class Subscription implements Event\Subscription, Event\Sourced, Versionab
         $this->starting = true;
     }
 
+    private function applySubscriptionPaused(Event\Envelope $event)
+    {
+        $this->paused = true;
+    }
+
+    private function applySubscriptionUnPaused(Event\Envelope $event)
+    {
+        $this->paused = false;
+    }
+
     private function applySubscriptionRestarted(Event\Envelope $event)
     {
         $this->startedBy = $event->message()->originallyStartedBy();
         $this->completedBy = null;
         $this->starting = true;
+        $this->paused = false;
     }
 
     private function applySubscriptionListenersStateChanged(Event\Envelope $event)
