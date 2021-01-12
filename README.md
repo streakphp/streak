@@ -5,5 +5,5 @@ Streak
 
 Running test
 ------------
-
+ 
 `docker-compose run --rm php bin/phpunit`

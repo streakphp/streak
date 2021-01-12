@@ -1,0 +1,28 @@
+import org.apache.commons.lang.RandomStringUtils
+
+int length = 10;
+String prefix = RandomStringUtils.random(length, true, true)
+String bucketName = "ifx-codedeploy-artifacts"
+String directory = "streak_${prefix}"
+
+pipeline {
+    agent any
+    stages {
+        stage('AWS BUILD') {
+            steps {
+                awsCodeBuild projectName: "streak", region: "eu-west-1", sourceControlType: "jenkins", credentialsId: "CodeBuild-jenkins", credentialsType: "jenkins", downloadArtifacts: "true", artifactNameOverride: "${directory}", artifactTypeOverride: "S3", artifactLocationOverride: "${bucketName}"
+            }
+        }
+    }
+    post {
+        always {
+            sh "aws s3 cp s3://${bucketName}/${directory} ${env.WORKSPACE}/${directory} --recursive"
+            junit allowEmptyResults: true, testResults: "${directory}/build/*.xml"
+            archiveArtifacts allowEmptyArchive: true, artifacts: "${directory}/build/clover.xml"
+	        archiveArtifacts allowEmptyArchive: true, artifacts: "${directory}/build/junit.xml"
+	        withCredentials([string(credentialsId: 'codecov-streak-token', variable: 'CODECOV_TOKEN')]) {
+                sh 'curl -s https://codecov.io/bash | bash'
+              }
+        }
+    }
+}
