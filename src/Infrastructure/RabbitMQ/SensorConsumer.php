@@ -31,9 +31,12 @@ final class SensorConsumer implements ConsumerInterface
 
     public function execute(AMQPMessage $message)
     {
+
         try {
             $sensor = $this->factory->create();
             $sensor->process($message);
+        } catch (\TypeError $e) {
+            return true;
         } catch (\Exception $e) {
             return false;
         }

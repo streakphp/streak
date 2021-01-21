@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Streak\Infrastructure\Sensor;
 
+use PhpAmqpLib\Message\AMQPMessage;
 use Psr\Log\LoggerInterface;
 use Streak\Application;
 use Streak\Application\Sensor;
@@ -51,6 +52,20 @@ class LoggingSensor implements Application\Sensor
     {
         try {
             $this->sensor->process(...$messages);
+        } catch (\TypeError $exception) {
+            foreach($messages as $message) {
+                $this->logger->critical(
+                    'Sensor "{sensor}" has thrown "{class}" exception with "{exceptionMessage}" message while processing following message {message}.',
+                    [
+                        'sensor' => get_class($this->sensor),
+                        'class' => get_class($exception),
+                        'exceptionMessage' => $exception->getMessage(),
+                        'message' => $message instanceof AMQPMessage ? $message->getBody() : $message
+                    ]
+                );
+            }
+
+            throw $exception;
         } catch (\Throwable $exception) {
             $this->logger->debug('Sensor "{sensor}" has thrown "{class}" exception with "{message}" message while processing messages.', [
                 'sensor' => get_class($this->sensor),
