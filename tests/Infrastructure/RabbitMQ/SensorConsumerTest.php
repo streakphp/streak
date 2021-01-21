@@ -93,4 +93,30 @@ class SensorConsumerTest extends TestCase
 
         $this->assertSame(self::NACK, $result);
     }
+
+    public function testAckWithTypeError()
+    {
+        $consumer = new SensorConsumer($this->factory);
+
+        $message = new AMQPMessage();
+        $exception = new \TypeError();
+
+        $this->factory
+            ->expects($this->once())
+            ->method('create')
+            ->with()
+            ->willReturn($this->sensor)
+        ;
+
+        $this->sensor
+            ->expects($this->once())
+            ->method('process')
+            ->with($message)
+            ->willThrowException($exception)
+        ;
+
+        $result = $consumer->execute($message);
+
+        $this->assertSame(self::ACK, $result);
+    }
 }
