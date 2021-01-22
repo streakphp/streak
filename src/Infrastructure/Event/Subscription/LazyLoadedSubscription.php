@@ -82,6 +82,21 @@ class LazyLoadedSubscription implements Subscription, Subscription\Decorator
         return $this->subscription;
     }
 
+    public function paused() : bool
+    {
+        return $this->subscription->paused();
+    }
+
+    public function pause() : void
+    {
+        $this->subscription->pause();
+    }
+
+    public function unpause() : void
+    {
+        $this->subscription->unpause();
+    }
+
     public function version() : int
     {
         return $this->subscription()->version();

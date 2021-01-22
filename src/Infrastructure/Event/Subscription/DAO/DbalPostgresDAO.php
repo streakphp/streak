@@ -162,12 +162,20 @@ class DbalPostgresDAO implements DAO
         $row['completed'] = $this->connection->convertToDatabaseValue($row['completed'], Type::BOOLEAN);
         $property->setAccessible(false);
 
+        $property = $reflection->getProperty('pausedAt');
+        $property->setAccessible(true);
+        $row['paused_at'] = $property->getValue($subscription);
+        if (null !== $row['paused_at']) {
+            $row['paused_at'] = $this->toTimestamp($row['paused_at']);
+        }
+        $property->setAccessible(false);
+
         return $row;
     }
 
     public function create()
     {
-        $sql = <<<SQL
+        $sqls[] = <<<SQL
 CREATE TABLE IF NOT EXISTS subscriptions
 (
   id SERIAL PRIMARY KEY,
@@ -180,11 +188,16 @@ CREATE TABLE IF NOT EXISTS subscriptions
   last_processed_event JSONB DEFAULT NULL,
   last_event_processed_at TIMESTAMP(6) WITH TIME ZONE DEFAULT NULL, -- microsecond precision
   completed BOOLEAN NOT NULL DEFAULT FALSE,
+  paused_at TIMESTAMP(6) WITH TIME ZONE DEFAULT NULL, -- microsecond precision
   UNIQUE(subscription_type, subscription_id)
 );
 SQL;
-        $statement = $this->connection->prepare($sql);
-        $statement->execute();
+        $sqls[] = 'CREATE INDEX ON subscriptions (subscription_type, completed);';
+
+        foreach ($sqls as $sql) {
+            $statement = $this->connection->prepare($sql);
+            $statement->execute();
+        }
     }
 
     public function drop()
@@ -218,6 +231,10 @@ SQL;
 
         if (null !== $row['last_event_processed_at']) {
             $row['last_event_processed_at'] = $this->fromTimestamp($row['last_event_processed_at']);
+        }
+
+        if (null !== $row['paused_at']) {
+            $row['paused_at'] = $this->fromTimestamp($row['paused_at']);
         }
 
         $row['completed'] = $this->connection->convertToPHPValue($row['completed'], Type::BOOLEAN);
@@ -265,6 +282,11 @@ SQL;
         $property->setValue($unwrapped, $row['completed']);
         $property->setAccessible(false);
 
+        $property = $reflection->getProperty('pausedAt');
+        $property->setAccessible(true);
+        $property->setValue($unwrapped, $row['paused_at']);
+        $property->setAccessible(false);
+
         return $subscription;
     }
 
@@ -297,10 +319,10 @@ SQL;
     private function doSave(DAO\Subscription $subscription) : void
     {
         $sql = <<<SQL
-INSERT INTO subscriptions (subscription_type, subscription_id, subscription_version, state, started_by, started_at, last_processed_event, last_event_processed_at, completed) 
-VALUES (:subscription_type, :subscription_id, :subscription_version, :state, :started_by, :started_at, :last_processed_event, :last_event_processed_at, :completed)
+INSERT INTO subscriptions (subscription_type, subscription_id, subscription_version, state, started_by, started_at, last_processed_event, last_event_processed_at, completed, paused_at) 
+VALUES (:subscription_type, :subscription_id, :subscription_version, :state, :started_by, :started_at, :last_processed_event, :last_event_processed_at, :completed, :paused_at)
 ON CONFLICT ON CONSTRAINT subscriptions_subscription_type_subscription_id_key
-DO UPDATE SET subscription_version = :subscription_version, state = :state, last_processed_event = :last_processed_event, last_event_processed_at = :last_event_processed_at, completed = :completed
+DO UPDATE SET subscription_version = :subscription_version, state = :state, last_processed_event = :last_processed_event, last_event_processed_at = :last_event_processed_at, completed = :completed, paused_at = :paused_at
 SQL;
 
         $row = $this->toRow($subscription);
@@ -318,7 +340,7 @@ SQL;
      */
     private function doOne(Event\Listener\Id $id)
     {
-        $sql = 'SELECT subscription_type, subscription_id, subscription_version, state, started_by, started_at, last_processed_event, last_event_processed_at, completed FROM subscriptions WHERE subscription_type = :subscription_type AND subscription_id = :subscription_id LIMIT 1';
+        $sql = 'SELECT subscription_type, subscription_id, subscription_version, state, started_by, started_at, last_processed_event, last_event_processed_at, completed, paused_at FROM subscriptions WHERE subscription_type = :subscription_type AND subscription_id = :subscription_id LIMIT 1';
 
         $statement = $this->connection->prepare($sql);
         $statement->execute([
@@ -366,7 +388,7 @@ SQL;
      */
     private function doAll(array $types, ?bool $completed) : \Generator
     {
-        $sql = 'SELECT subscription_type, subscription_id, subscription_version, state, started_by, started_at, last_processed_event, last_event_processed_at, completed FROM subscriptions';
+        $sql = 'SELECT subscription_type, subscription_id, subscription_version, state, started_by, started_at, last_processed_event, last_event_processed_at, completed, paused_at FROM subscriptions';
         $where = [];
         $parameters = [];
 

@@ -131,4 +131,29 @@ class LoggingSensorTest extends TestCase
 
         $sensor->process($this->event);
     }
+
+    public function testTypeErrorExceptionOnEvent()
+    {
+        $sensor = new LoggingSensor($this->sensor, $this->logger);
+        $exception = new \TypeError('Argument 1 passed to SomeEvent::__construct() must be of the type string, null given');
+        $this->sensor
+            ->expects($this->once())
+            ->method('process')
+            ->with($this->event)
+            ->willThrowException($exception);
+
+        $this->logger
+            ->expects($this->once())
+            ->method('critical')
+            ->with('Sensor "{sensor}" has thrown "{class}" exception with "{exceptionMessage}" message while processing following message {message}.', [
+                'sensor' => 'SensorMock001',
+                'class' => 'TypeError',
+                'exceptionMessage' => 'Argument 1 passed to SomeEvent::__construct() must be of the type string, null given',
+                'message' => $this->event,
+            ]);
+
+        $this->expectException(\TypeError::class);
+
+        $sensor->process($this->event);
+    }
 }

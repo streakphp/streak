@@ -19,6 +19,7 @@ use Streak\Domain;
 use Streak\Domain\Event;
 use Streak\Domain\EventBus;
 use Streak\Domain\EventStore;
+use Streak\Domain\Id\UUID;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -205,5 +206,22 @@ class PublishingEventStoreTest extends TestCase
         $stream = $store->stream($filter);
 
         $this->assertSame($this->stream2, $stream);
+    }
+
+    public function testItReturnsEvent() : void
+    {
+        $store = new PublishingEventStore($this->store, $this->bus);
+
+        $uuid1 = new UUID('563dccb6-f225-4efb-8cc5-fc340163d3ef');
+        $uuid2 = new UUID('abd8a704-dba3-4919-bc3a-5cc16faaac0a');
+
+        $this->store
+            ->expects($this->exactly(2))
+            ->method('event')
+            ->withConsecutive([$uuid1], [$uuid2])
+            ->willReturnOnConsecutiveCalls($this->event1, null)
+        ;
+        $this->assertSame($this->event1, $store->event($uuid1));
+        $this->assertNull($store->event($uuid2));
     }
 }
