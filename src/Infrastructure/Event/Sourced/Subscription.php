@@ -115,7 +115,16 @@ final class Subscription implements Event\Subscription, Event\Sourced, Versionab
 
         $listened = 0;
         foreach ($stream as $event) {
-            $this->listenToEvent($event);
+            try {
+                $this->listenToEvent($event);
+                // @codeCoverageIgnoreStart
+            } catch (\Shared\Domain\Exception\Timeout $timeout) {
+                sleep(1);
+
+
+                return;
+                // @codeCoverageIgnoreEnd
+            }
 
             yield $event;
 
