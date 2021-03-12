@@ -39,5 +39,5 @@ interface Repository
     /**
      * @return iterable|Event\Subscription[]
      */
-    public function all(?Repository\Filter $filter = null) : iterable;
+    public function all(Criteria $criteria) : iterable;
 }

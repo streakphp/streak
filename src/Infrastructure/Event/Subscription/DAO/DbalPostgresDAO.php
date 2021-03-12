@@ -386,38 +386,18 @@ SQL;
     /**
      * @throws \Doctrine\DBAL\DBALException
      */
-    private function doAll(array $types, ?bool $completed) : \Generator
+    private function doAll(Subscription\Criteria $criteria) : \Generator
     {
-        $sql = 'SELECT subscription_type, subscription_id, subscription_version, state, started_by, started_at, last_processed_event, last_event_processed_at, completed, paused_at FROM subscriptions';
-        $where = [];
-        $parameters = [];
+        $builder = $this->connection->createQueryBuilder();
 
-        if ($types) {
-            $sub = [];
-            foreach ($types as $key => $type) {
-                $sub[] = " (subscription_type = :subscription_type_$key) ";
-                $parameters["subscription_type_$key"] = $type;
-            }
-            $where[] = '('.implode(' OR ', $sub).')';
-        }
+        $visitor = new DbalVisitor($builder);
+        $criteria->accept($visitor);
 
-        if (true === $completed) {
-            $where[] = ' completed IS TRUE ';
-        }
-        if (false === $completed) {
-            $where[] = ' completed IS FALSE ';
-        }
+        $builder->select(['subscription_type', 'subscription_id', 'subscription_version', 'state', 'started_by', 'started_at', 'last_processed_event', 'last_event_processed_at', 'completed', 'paused_at']);
+        $builder->from('subscriptions');
+        $builder->orderBy('id', 'ASC');
 
-        $where = implode(' AND ', $where);
-
-        if ($where) {
-            $sql = "$sql WHERE $where ";
-        }
-
-        $sql .= ' ORDER BY id';
-
-        $statement = $this->connection->prepare($sql);
-        $statement->execute($parameters);
+        $statement = $builder->execute();
 
         while ($row = $statement->fetch(\PDO::FETCH_ASSOC)) {
             $subscription = $this->fromRow($row);

@@ -32,5 +32,5 @@ interface DAO
      *
      * @return DAO\Subscription[]
      */
-    public function all(array $types = [], ?bool $completed = null) : iterable;
+    public function all(Subscription\Criteria $criteria) : iterable;
 }
