@@ -100,7 +100,7 @@ CREATE TABLE IF NOT EXISTS events (
   producer_type VARCHAR(256) NOT NULL,
   producer_id VARCHAR(256) NOT NULL,
   producer_version INT,
-  appended_at timestamp NOT NULL DEFAULT NOW(),
+  appended_at timestamp NOT NULL DEFAULT clock_timestamp(),
   PRIMARY KEY(number),
   UNIQUE (number),
   UNIQUE (uuid),
@@ -174,20 +174,29 @@ SQL;
         $sql = "$sql RETURNING number, uuid";
 
         try {
+            $this->connection->beginTransaction();
+            $this->connection->exec('LOCK TABLE events IN SHARE UPDATE EXCLUSIVE MODE;');
             $statement = $this->connection->prepare($sql);
             $statement->execute($parameters);
+            $this->connection->commit();
         } catch (UniqueConstraintViolationException $e) {
             if ($id = $this->extractIdForConcurrentWrite($e)) {
+                $this->connection->rollBack();
                 throw new Exception\ConcurrentWriteDetected($id); // maybe supplement version as well?
             }
             if ($uuid = $this->extractIdForEventAlreadyInStore($e)) {
                 foreach ($events as $event) {
                     if ($event->uuid()->equals($uuid)) {
+                        $this->connection->rollBack();
                         throw new Exception\EventAlreadyInStore($event);
                     }
                 }
             }
+            $this->connection->rollBack();
             throw $e; // @codeCoverageIgnore
+        } catch (\Throwable $e) {
+            $this->connection->rollBack();
+            throw $e;
         }
 
         while ($returned = $statement->fetch(\PDO::FETCH_ASSOC)) {
