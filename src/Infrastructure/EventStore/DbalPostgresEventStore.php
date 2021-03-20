@@ -100,7 +100,7 @@ CREATE TABLE IF NOT EXISTS events (
   producer_type VARCHAR(256) NOT NULL,
   producer_id VARCHAR(256) NOT NULL,
   producer_version INT,
-  appended_at timestamp NOT NULL DEFAULT NOW(),
+  appended_at timestamp NOT NULL DEFAULT clock_timestamp(),
   PRIMARY KEY(number),
   UNIQUE (number),
   UNIQUE (uuid),
