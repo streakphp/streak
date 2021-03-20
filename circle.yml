@@ -16,6 +16,7 @@ jobs:
           PHPUNIT_REDIS_HOSTNAME: localhost
           PHPUNIT_REDIS_PORT: 6379
           PHPUNIT_REDIS_DATABASE: 0
+          XDEBUG_MODE: coverage
       - image: postgres:9.5-alpine
         environment:
           POSTGRES_USER: phpunit
