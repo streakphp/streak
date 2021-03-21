@@ -28,7 +28,7 @@ class InvalidAggregateIdGivenTest extends TestCase
      */
     private $aggregateId;
 
-    public function setUp()
+    public function setUp() : void
     {
         $this->aggregateId = $this->getMockBuilder(Domain\AggregateRoot\Id::class)->getMockForAbstractClass();
     }

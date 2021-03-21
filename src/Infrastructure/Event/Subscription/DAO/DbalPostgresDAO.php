@@ -25,28 +25,18 @@ use Streak\Infrastructure\Event\Subscription\DAO;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @see \Streak\Infrastructure\Event\Subscription\DAO\DbalPostgresDAOTest
  */
 class DbalPostgresDAO implements DAO
 {
-    /**
-     * @var Subscription\Factory
-     */
-    private $subscriptions;
+    private Event\Subscription\Factory $subscriptions;
 
-    /**
-     * @var Event\Listener\Factory
-     */
-    private $listeners;
+    private Event\Listener\Factory $listeners;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
-    /**
-     * @var Event\Converter
-     */
-    private $converter;
+    private Event\Converter $converter;
 
     public function __construct(Subscription\Factory $subscriptions, Event\Listener\Factory $listeners, Connection $connection, Event\Converter $converter)
     {

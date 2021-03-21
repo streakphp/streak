@@ -19,16 +19,12 @@ namespace Streak\Domain\Event;
 interface Converter
 {
     /**
-     * @param object $object
-     *
      * @throws Exception\ConversionToArrayNotPossible
      */
-    public function objectToArray($object) : array;
+    public function objectToArray(object $object) : array;
 
     /**
-     * @return object
-     *
      * @throws Exception\ConversionToObjectNotPossible
      */
-    public function arrayToObject(array $data);
+    public function arrayToObject(array $data) : object;
 }

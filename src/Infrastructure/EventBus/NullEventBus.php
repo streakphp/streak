@@ -20,6 +20,8 @@ use Streak\Domain\EventBus;
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  *
  * @codeCoverageIgnore
+ *
+ * @see \Streak\Infrastructure\EventBus\NullEventBusTest
  */
 class NullEventBus implements EventBus
 {

@@ -20,11 +20,13 @@ use Streak\Domain;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @see \Streak\Infrastructure\Sensor\LoggingSensorTest
  */
 class LoggingSensor implements Application\Sensor
 {
-    private $sensor;
-    private $logger;
+    private Sensor $sensor;
+    private LoggerInterface $logger;
 
     public function __construct(Application\Sensor $sensor, LoggerInterface $logger)
     {

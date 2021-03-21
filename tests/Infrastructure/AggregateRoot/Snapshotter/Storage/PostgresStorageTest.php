@@ -25,13 +25,11 @@ use Streak\Infrastructure\AggregateRoot\Snapshotter\Storage\Exception\SnapshotNo
  */
 final class PostgresStorageTest extends \PHPUnit\Framework\TestCase
 {
-    /** @var Connection */
-    private static $connection;
+    private static ?Connection $connection = null;
 
-    /** @var PostgresStorage */
-    private $storage;
+    private ?PostgresStorage $storage = null;
 
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass() : void
     {
         self::$connection = DriverManager::getConnection(
             [
@@ -45,7 +43,7 @@ final class PostgresStorageTest extends \PHPUnit\Framework\TestCase
         );
     }
 
-    public function setUp()
+    public function setUp() : void
     {
         parent::setUp();
         $this->storage = new PostgresStorage(self::$connection);
@@ -175,8 +173,7 @@ final class PostgresStorageTest extends \PHPUnit\Framework\TestCase
 
 class IdStub implements AggregateRoot\Id
 {
-    /** @var string */
-    private $id;
+    private string $id;
 
     /**
      * IdMock constructor.

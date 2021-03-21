@@ -15,12 +15,22 @@ namespace Streak\Infrastructure\Event\Subscription\DAO;
 
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Streak\Domain\Clock;
 use Streak\Domain\Event;
 use Streak\Domain\Event\Listener;
 use Streak\Domain\EventStore;
 use Streak\Domain\Id\UUID;
 use Streak\Infrastructure\Event\InMemoryStream;
 use Streak\Infrastructure\Event\Sourced\Subscription\InMemoryState;
+use Streak\Infrastructure\Event\Subscription\DAO\SubscriptionTest\CompletableAndResettableListener;
+use Streak\Infrastructure\Event\Subscription\DAO\SubscriptionTest\CompletableListener;
+use Streak\Infrastructure\Event\Subscription\DAO\SubscriptionTest\FilteringListener;
+use Streak\Infrastructure\Event\Subscription\DAO\SubscriptionTest\IterableStream;
+use Streak\Infrastructure\Event\Subscription\DAO\SubscriptionTest\ReplayableAndResettableListener;
+use Streak\Infrastructure\Event\Subscription\DAO\SubscriptionTest\ReplayableAndStatefulListener;
+use Streak\Infrastructure\Event\Subscription\DAO\SubscriptionTest\ReplayableListener;
+use Streak\Infrastructure\Event\Subscription\DAO\SubscriptionTest\ResettableListener;
+use Streak\Infrastructure\Event\Subscription\DAO\SubscriptionTest\ResettableListenerThatCanPickStartingEvent;
 use Streak\Infrastructure\FixedClock;
 
 /**
@@ -130,37 +140,25 @@ class SubscriptionTest extends TestCase
      */
     private $event5;
 
-    /**
-     * @var Listener\State
-     */
-    private $state1;
+    private ?Listener\State $state1 = null;
 
-    /**
-     * @var Listener\State
-     */
-    private $state2;
+    private ?Listener\State $state2 = null;
 
-    /**
-     * @var Listener\State
-     */
-    private $state3;
+    private ?Listener\State $state3 = null;
 
-    /**
-     * @var FixedClock
-     */
-    private $clock;
+    private ?Clock $clock = null;
 
-    public function setUp()
+    public function setUp() : void
     {
         $this->listener1 = $this->getMockBuilder(Listener::class)->setMethods(['replay', 'reset', 'completed'])->getMockForAbstractClass();
-        $this->listener2 = $this->getMockBuilder([Listener::class, Listener\Replayable::class])->getMock();
-        $this->listener3 = $this->getMockBuilder([Listener::class, Listener\Completable::class])->getMock();
-        $this->listener4 = $this->getMockBuilder([Listener::class, Listener\Resettable::class])->getMock();
-        $this->listener5 = $this->getMockBuilder([Listener::class, Listener\Replayable::class, Listener\Resettable::class])->getMock();
-        $this->listener6 = $this->getMockBuilder([Listener::class, Listener\Completable::class, Listener\Resettable::class])->getMock();
-        $this->listener7 = $this->getMockBuilder([Listener::class, Listener\Resettable::class, Event\Picker::class])->getMock();
-        $this->listener8 = $this->getMockBuilder([Listener::class, Event\Filterer::class])->getMock();
-        $this->listener9 = $this->getMockBuilder([Listener::class, Listener\Replayable::class, Listener\Stateful::class])->getMock();
+        $this->listener2 = $this->getMockBuilder(ReplayableListener::class)->getMock();
+        $this->listener3 = $this->getMockBuilder(CompletableListener::class)->getMock();
+        $this->listener4 = $this->getMockBuilder(ResettableListener::class)->getMock();
+        $this->listener5 = $this->getMockBuilder(ReplayableAndResettableListener::class)->getMock();
+        $this->listener6 = $this->getMockBuilder(CompletableAndResettableListener::class)->getMock();
+        $this->listener7 = $this->getMockBuilder(ResettableListenerThatCanPickStartingEvent::class)->getMock();
+        $this->listener8 = $this->getMockBuilder(FilteringListener::class)->getMock();
+        $this->listener9 = $this->getMockBuilder(ReplayableAndStatefulListener::class)->getMock();
 
         $this->id1 = new class('f5e65690-e50d-4312-a175-b004ec1bd42a') extends UUID implements Listener\Id {
         };
@@ -169,9 +167,9 @@ class SubscriptionTest extends TestCase
 
         $this->store = $this->getMockBuilder(EventStore::class)->getMockForAbstractClass();
 
-        $this->stream1 = $this->getMockBuilder([Event\Stream::class, \IteratorAggregate::class])->getMock();
-        $this->stream2 = $this->getMockBuilder([Event\Stream::class, \IteratorAggregate::class])->getMock();
-        $this->stream3 = $this->getMockBuilder([Event\Stream::class, \IteratorAggregate::class])->getMock();
+        $this->stream1 = $this->getMockBuilder(IterableStream::class)->getMock();
+        $this->stream2 = $this->getMockBuilder(IterableStream::class)->getMock();
+        $this->stream3 = $this->getMockBuilder(IterableStream::class)->getMock();
 
         $this->event1 = $this->getMockBuilder(Event::class)->setMockClassName('event1')->getMockForAbstractClass();
         $this->event1 = Event\Envelope::new($this->event1, UUID::random());
@@ -1445,4 +1443,45 @@ class SubscriptionTest extends TestCase
         $this->assertEquals([$this->event1, $this->event2, $this->event3, $this->event4, $this->event5], $events);
         $this->assertSame(6, $subscription->version());
     }
+}
+
+namespace Streak\Infrastructure\Event\Subscription\DAO\SubscriptionTest;
+
+use Streak\Domain\Event;
+use Streak\Domain\Event\Listener;
+
+abstract class ReplayableListener implements Listener, Listener\Replayable
+{
+}
+
+abstract class CompletableListener implements Listener, Listener\Completable
+{
+}
+
+abstract class ResettableListener implements Listener, Listener\Resettable
+{
+}
+
+abstract class ReplayableAndResettableListener implements Listener, Listener\Replayable, Listener\Resettable
+{
+}
+
+abstract class CompletableAndResettableListener implements Listener, Listener\Completable, Listener\Resettable
+{
+}
+
+abstract class ResettableListenerThatCanPickStartingEvent implements Listener, Listener\Resettable, Event\Picker
+{
+}
+
+abstract class FilteringListener implements Listener, Event\Filterer
+{
+}
+
+abstract class ReplayableAndStatefulListener implements Listener, Listener\Replayable, Listener\Stateful
+{
+}
+
+abstract class IterableStream implements Event\Stream, \IteratorAggregate
+{
 }

@@ -60,7 +60,7 @@ class EventStoreUnitOfWorkTest extends TestCase
      */
     private $event5;
 
-    public function setUp()
+    public function setUp() : void
     {
         $this->store = $this->getMockBuilder(EventStore::class)->getMockForAbstractClass();
 
@@ -317,10 +317,10 @@ use Streak\Domain\Versionable;
 
 class VersionableEventSourcedStub implements Event\Sourced, Versionable
 {
-    private $id;
-    private $version;
-    private $events;
-    private $commited = false;
+    private Domain\Id $id;
+    private int $version;
+    private array $events;
+    private bool $commited = false;
 
     public function __construct(Domain\Id $id, int $version, Event\Envelope ...$events)
     {
@@ -372,8 +372,8 @@ class VersionableEventSourcedStub implements Event\Sourced, Versionable
 
 class NonVersionableEventSourcedStub implements Event\Sourced
 {
-    private $id;
-    private $events;
+    private Domain\Id $id;
+    private array $events;
 
     public function __construct(Domain\Id $id, Event\Envelope ...$events)
     {

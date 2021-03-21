@@ -16,6 +16,7 @@ namespace Streak\Infrastructure\Event\Sourced;
 use Streak\Domain;
 use Streak\Domain\Event;
 use Streak\Domain\Event\Listener;
+use Streak\Domain\Event\Listener\State;
 use Streak\Domain\Event\Sourced\Subscription\Event\SubscriptionCompleted;
 use Streak\Domain\Event\Sourced\Subscription\Event\SubscriptionIgnoredEvent;
 use Streak\Domain\Event\Sourced\Subscription\Event\SubscriptionListenedToEvent;
@@ -33,6 +34,8 @@ use Streak\Infrastructure\Event\Sourced\Subscription\InMemoryState;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @see \Streak\Infrastructure\Event\Sourced\SubscriptionTest
  */
 final class Subscription implements Event\Subscription, Event\Sourced, Versionable
 {
@@ -42,13 +45,13 @@ final class Subscription implements Event\Subscription, Event\Sourced, Versionab
 
     private const LIMIT_TO_INITIAL_STREAM = 0;
 
-    private $listener;
-    private $lastState;
-    private $clock;
-    private $completedBy;
+    private Event\Listener $listener;
+    private State  $lastState;
+    private Domain\Clock $clock;
+    private ?Event\Envelope $completedBy = null;
     private $startedBy;
-    private $paused = false;
-    private $starting = false;
+    private bool $paused = false;
+    private bool $starting = false;
     private $lastProcessedEvent;
 
     public function __construct(Event\Listener $listener, Domain\Clock $clock)

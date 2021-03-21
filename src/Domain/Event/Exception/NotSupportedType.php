@@ -15,6 +15,9 @@ namespace Streak\Domain\Event\Exception;
 
 use InvalidArgumentException;
 
+/**
+ * @see \Streak\Domain\Event\Exception\NotSupportedTypeTest
+ */
 final class NotSupportedType extends InvalidArgumentException
 {
     /** @var mixed */

@@ -22,13 +22,15 @@ use Streak\Infrastructure\Event\InMemoryStream;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @see \Streak\Infrastructure\EventStore\InMemoryEventStoreTest
  */
 class InMemoryEventStore implements EventStore
 {
-    private $streams = [];
+    private array $streams = [];
 
     /** @var Event\Envelope[] */
-    private $all = [];
+    private array $all = [];
 
     /**
      * @throws Exception\ConcurrentWriteDetected

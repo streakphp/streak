@@ -17,12 +17,14 @@ use Streak\Domain\Event\Sourced\Subscription;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @see \Streak\Domain\Event\Sourced\Subscription\Event\SubscriptionCompletedTest
  */
 class SubscriptionCompleted implements Subscription\Event
 {
     const DATE_FORMAT = 'U.u';
 
-    private $timestamp;
+    private string $timestamp;
 
     public function __construct(\DateTimeInterface $timestamp)
     {

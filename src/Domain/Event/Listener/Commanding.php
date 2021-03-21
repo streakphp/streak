@@ -21,10 +21,7 @@ use Streak\Infrastructure\CommandBus\LockableCommandBus;
  */
 trait Commanding
 {
-    /**
-     * @var LockableCommandBus
-     */
-    private $bus;
+    private LockableCommandBus $bus;
 
     public function __construct(Application\CommandBus $bus)
     {

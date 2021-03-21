@@ -18,6 +18,8 @@ use Streak\Domain\Event;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @see \Streak\Infrastructure\Event\Envelope\ComparatorTest
  */
 class Comparator extends \SebastianBergmann\Comparator\Comparator
 {

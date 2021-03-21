@@ -39,7 +39,7 @@ class ComparisonTest extends TestCase
      */
     private $id3;
 
-    public function setUp()
+    public function setUp() : void
     {
         $this->id1 = $this->getMockBuilder(Entity\Id::class)->getMockForAbstractClass();
         $this->id2 = $this->getMockBuilder(Entity\Id::class)->getMockForAbstractClass();
@@ -98,7 +98,7 @@ class ComparisonStub implements Domain\Entity
 {
     use Entity\Comparison;
 
-    private $id;
+    private Entity\Id $id;
 
     public function __construct(Entity\Id $id)
     {
@@ -120,7 +120,7 @@ class NonEntityComparisonStub
 {
     use Entity\Comparison;
 
-    private $id;
+    private Entity\Id $id;
 
     public function __construct(Entity\Id $id)
     {

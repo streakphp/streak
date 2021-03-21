@@ -165,13 +165,13 @@ class ListeningStub
 {
     use Event\Listener\Listening;
 
-    private $preEvents = [];
-    private $listened = [];
-    private $postEvents = [];
-    private $exceptions = [];
-    private $listenerMethodMoreThanOneParameterInMethodActivated = false;
-    private $listenerMethodWithNullableEventActivated = false;
-    private $listenerMethodWithParameterThatIsNotSubclassOfEventActivated = false;
+    private array $preEvents = [];
+    private array $listened = [];
+    private array $postEvents = [];
+    private array $exceptions = [];
+    private bool $listenerMethodMoreThanOneParameterInMethodActivated = false;
+    private bool $listenerMethodWithNullableEventActivated = false;
+    private bool $listenerMethodWithParameterThatIsNotSubclassOfEventActivated = false;
 
     public function onEvent1(SupportedEvent1 $event1)
     {

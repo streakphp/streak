@@ -18,8 +18,8 @@ namespace Streak\Domain\Event\Subscription\Repository;
  */
 final class Filter
 {
-    private $subscriptionTypes = [];
-    private $areCompletedSubscriptionsIgnored = true;
+    private array $subscriptionTypes = [];
+    private bool $areCompletedSubscriptionsIgnored = true;
 
     public function __construct()
     {

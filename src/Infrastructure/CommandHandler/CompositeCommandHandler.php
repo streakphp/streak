@@ -19,10 +19,15 @@ use Streak\Application\Exception;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @see \Streak\Infrastructure\CommandHandler\CompositeCommandHandlerTest
  */
 class CompositeCommandHandler implements Application\CommandHandler
 {
-    private $handlers = [];
+    /**
+     * @var Application\CommandHandler[]
+     */
+    private array $handlers = [];
 
     public function __construct(Application\CommandHandler ...$handlers)
     {

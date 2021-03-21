@@ -29,7 +29,7 @@ class IdentificationTest extends TestCase
      */
     private $id;
 
-    public function setUp()
+    public function setUp() : void
     {
         $this->id = $this->getMockBuilder(Sensor\Id::class)->getMockForAbstractClass();
     }

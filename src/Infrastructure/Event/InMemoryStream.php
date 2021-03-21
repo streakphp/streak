@@ -18,21 +18,23 @@ use Streak\Domain\Event\Stream;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @see \Streak\Infrastructure\Event\InMemoryStreamTest
  */
 final class InMemoryStream implements \IteratorAggregate, Event\Stream
 {
     /**
      * @var Event\Envelope[]
      */
-    private $events = [];
+    private array $events = [];
 
-    private $only = [];
-    private $without = [];
-    private $from;
-    private $to;
-    private $after;
-    private $before;
-    private $limit;
+    private array $only = [];
+    private array $without = [];
+    private ?Event\Envelope $from = null;
+    private ?Event\Envelope $to = null;
+    private ?Event\Envelope $after = null;
+    private ?Event\Envelope $before = null;
+    private ?int $limit = null;
 
     public function __construct(Event\Envelope ...$events)
     {

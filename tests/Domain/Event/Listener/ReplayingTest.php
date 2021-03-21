@@ -16,6 +16,7 @@ namespace Streak\Domain\Event\Listener;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Streak\Domain\Event;
+use Streak\Domain\Event\Listener\ReplayingTest\IterableStream;
 use Streak\Domain\Event\Listener\ReplayingTest\ReplayingStub;
 use Streak\Domain\Event\Listener\ReplayingTest\SupportedEvent1;
 use Streak\Domain\Event\Listener\ReplayingTest\SupportedEvent2;
@@ -33,9 +34,9 @@ class ReplayingTest extends TestCase
      */
     private $stream;
 
-    public function setUp()
+    public function setUp() : void
     {
-        $this->stream = $this->getMockBuilder([Event\Stream::class, \IteratorAggregate::class])->getMock();
+        $this->stream = $this->getMockBuilder(IterableStream::class)->getMock();
     }
 
     public function testReplaying()
@@ -100,7 +101,6 @@ class ReplayingTest extends TestCase
         $internal = new \ArrayIterator($items);
 
         $iterator
-            ->expects($this->any())
             ->method('getIterator')
             ->willReturn($internal)
         ;
@@ -117,9 +117,9 @@ class ReplayingStub
 {
     use Event\Listener\Replaying;
 
-    private $enableSideEffectsCalled = 0;
-    private $disableSideEffectsCalled = 0;
-    private $listened;
+    private int $enableSideEffectsCalled = 0;
+    private int $disableSideEffectsCalled = 0;
+    private ?array $listened = null;
 
     public function onEvent1(SupportedEvent1 $event1)
     {
@@ -168,5 +168,9 @@ class SupportedEvent1 implements Event
 {
 }
 class SupportedEvent2 implements Event
+{
+}
+
+abstract class IterableStream implements Event\Stream, \IteratorAggregate
 {
 }

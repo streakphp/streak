@@ -15,11 +15,12 @@ namespace Streak\Domain\Event\Exception;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @see \Streak\Domain\Event\Exception\ConversionToArrayNotPossibleTest
  */
 class ConversionToArrayNotPossible extends ConversionNotPossible
 {
-    /** @var object */
-    private $object;
+    private object $object;
 
     public function __construct($object, \Throwable $previous = null)
     {
@@ -28,10 +29,7 @@ class ConversionToArrayNotPossible extends ConversionNotPossible
         parent::__construct($previous);
     }
 
-    /**
-     * @return object
-     */
-    public function object()
+    public function object() : object
     {
         return $this->object;
     }

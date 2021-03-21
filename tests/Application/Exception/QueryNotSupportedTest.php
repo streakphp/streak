@@ -24,9 +24,9 @@ use Streak\Application;
 class QueryNotSupportedTest extends TestCase
 {
     private $query;
-    private $previous;
+    private ?\Exception $previous = null;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         $this->query = $this->getMockBuilder(Application\Query::class)->getMockForAbstractClass();
         $this->previous = new \Exception();

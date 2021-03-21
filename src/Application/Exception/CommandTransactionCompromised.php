@@ -17,10 +17,12 @@ use Streak\Application;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @see \Streak\Application\Exception\CommandTransactionCompromisedTest
  */
 class CommandTransactionCompromised extends \LogicException
 {
-    private $command;
+    private Application\Command $command;
 
     public function __construct(Application\Command $command, \Throwable $previous = null)
     {

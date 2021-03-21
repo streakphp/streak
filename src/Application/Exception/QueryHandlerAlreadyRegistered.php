@@ -17,10 +17,12 @@ use Streak\Application\QueryHandler;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @see \Streak\Application\Exception\QueryHandlerAlreadyRegisteredTest
  */
 class QueryHandlerAlreadyRegistered extends \OutOfRangeException
 {
-    private $handler;
+    private QueryHandler $handler;
 
     public function __construct(QueryHandler $handler, \Exception $previous = null)
     {

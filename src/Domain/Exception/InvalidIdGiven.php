@@ -17,10 +17,12 @@ use Streak\Domain;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @see \Streak\Domain\Exception\InvalidIdGivenTest
  */
 class InvalidIdGiven extends \InvalidArgumentException
 {
-    private $id;
+    private Domain\Id $id;
 
     public function __construct(Domain\Id $id, \Throwable $previous = null)
     {

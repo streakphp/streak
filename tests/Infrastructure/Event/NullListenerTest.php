@@ -40,7 +40,7 @@ class NullListenerTest extends TestCase
      */
     private $event;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         $this->listener = $this->getMockBuilder(Event\Listener::class)->setMethods(['replay', 'reset', 'completed'])->getMockForAbstractClass();
         $this->id = $this->getMockBuilder(Event\Listener\Id::class)->getMockForAbstractClass();

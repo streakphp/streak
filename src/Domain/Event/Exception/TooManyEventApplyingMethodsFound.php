@@ -17,11 +17,13 @@ use Streak\Domain\Event;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @see \Streak\Domain\Event\Exception\TooManyEventApplyingMethodsFoundTest
  */
 class TooManyEventApplyingMethodsFound extends \BadMethodCallException
 {
-    private $consumer;
-    private $event;
+    private Event\Consumer $consumer;
+    private Event\Envelope $event;
 
     public function __construct(Event\Consumer $consumer, Event\Envelope $event, \Throwable $previous = null)
     {

@@ -18,6 +18,7 @@ use PHPUnit\Framework\TestCase;
 use Streak\Application\Exception\QueryNotSupported;
 use Streak\Application\Query;
 use Streak\Application\QueryHandler;
+use Streak\Application\QueryHandler\EventListenerHandlerTest\QueryHandlingListener;
 use Streak\Domain\Event;
 use Streak\Domain\Event\Subscription\Exception\ListenerNotFound;
 use Streak\Domain\Event\Subscription\Repository;
@@ -64,7 +65,7 @@ class EventListenerHandlerTest extends TestCase
      */
     private $eventListenerId;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         $this->repository = $this->getMockBuilder(Repository::class)->getMockForAbstractClass();
         $this->query = $this->getMockBuilder(Query::class)->getMockForAbstractClass();
@@ -72,7 +73,7 @@ class EventListenerHandlerTest extends TestCase
         $this->eventListener = $this->getMockBuilder(Event\Listener::class)->getMockForAbstractClass();
         $this->eventListenerId = $this->getMockBuilder(Event\Listener\Id::class)->getMockForAbstractClass();
         $this->eventListenerQuery = $this->getMockBuilder(Query\EventListenerQuery::class)->getMockForAbstractClass();
-        $this->eventListenerQueryHandler = $this->getMockBuilder([Event\Listener::class, QueryHandler::class])->getMock();
+        $this->eventListenerQueryHandler = $this->getMockBuilder(QueryHandlingListener::class)->getMock();
     }
 
     public function testQueryNotSupported()
@@ -156,4 +157,13 @@ class EventListenerHandlerTest extends TestCase
         $handler = new EventListenerHandler($this->repository);
         $handler->handleQuery($this->eventListenerQuery);
     }
+}
+
+namespace Streak\Application\QueryHandler\EventListenerHandlerTest;
+
+use Streak\Application\QueryHandler;
+use Streak\Domain\Event;
+
+abstract class QueryHandlingListener implements QueryHandler, Event\Listener
+{
 }

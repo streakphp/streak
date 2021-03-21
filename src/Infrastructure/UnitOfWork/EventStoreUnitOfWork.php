@@ -22,20 +22,19 @@ use Streak\Infrastructure\UnitOfWork;
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  *
  * @TODO: rename to EventSourcedUnitOfWork
+ *
+ * @see \Streak\Infrastructure\UnitOfWork\EventStoreUnitOfWorkTest
  */
 class EventStoreUnitOfWork implements UnitOfWork
 {
-    /**
-     * @var Domain\EventStore
-     */
-    private $store;
+    private Domain\EventStore $store;
 
     /**
      * @var Event\Producer[]
      */
-    private $uncommited = [];
+    private array $uncommited = [];
 
-    private $committing = false;
+    private bool $committing = false;
 
     public function __construct(Domain\EventStore $store)
     {
@@ -43,7 +42,7 @@ class EventStoreUnitOfWork implements UnitOfWork
         $this->uncommited = [];
     }
 
-    public function add($producer) : void
+    public function add(object $producer) : void
     {
         if (!$producer instanceof Event\Producer) {
             throw new Exception\ObjectNotSupported($producer);
@@ -54,7 +53,7 @@ class EventStoreUnitOfWork implements UnitOfWork
         }
     }
 
-    public function remove($producer) : void
+    public function remove(object $producer) : void
     {
         if (!$producer instanceof Event\Producer) {
             return;
@@ -70,7 +69,7 @@ class EventStoreUnitOfWork implements UnitOfWork
         }
     }
 
-    public function has($producer) : bool
+    public function has(object $producer) : bool
     {
         if (!$producer instanceof Event\Producer) {
             return false;

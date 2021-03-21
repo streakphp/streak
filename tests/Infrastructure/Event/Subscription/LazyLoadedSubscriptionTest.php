@@ -67,7 +67,7 @@ class LazyLoadedSubscriptionTest extends TestCase
      */
     private $store;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         $this->id = $this->getMockBuilder(Listener\Id::class)->getMockForAbstractClass();
         $this->listener = $this->getMockBuilder(Listener::class)->getMockForAbstractClass();
@@ -119,7 +119,7 @@ class LazyLoadedSubscriptionTest extends TestCase
             ->willReturn(false)
         ;
 
-        $this->assertSame(false, $subscription->completed());
+        $this->assertFalse($subscription->completed());
 
         $this->subscription
             ->expects($this->once())
@@ -127,7 +127,7 @@ class LazyLoadedSubscriptionTest extends TestCase
             ->willReturn(true)
         ;
 
-        $this->assertSame(true, $subscription->started());
+        $this->assertTrue($subscription->started());
 
         $this->subscription
             ->expects($this->once())
@@ -135,7 +135,7 @@ class LazyLoadedSubscriptionTest extends TestCase
             ->willReturn(true)
         ;
 
-        $this->assertSame(true, $subscription->starting());
+        $this->assertTrue($subscription->starting());
 
         $this->subscription
             ->expects($this->once())
@@ -155,11 +155,11 @@ class LazyLoadedSubscriptionTest extends TestCase
         $this->subscription
             ->expects($this->once())
             ->method('subscribeTo')
-            ->with($this->store, 94857623)
+            ->with($this->store, 94_857_623)
             ->willReturn([$this->event2, $this->event3])
         ;
 
-        $result = $subscription->subscribeTo($this->store, 94857623);
+        $result = $subscription->subscribeTo($this->store, 94_857_623);
         $result = iterator_to_array($result);
 
         $this->assertSame([$this->event2, $this->event3], $result);

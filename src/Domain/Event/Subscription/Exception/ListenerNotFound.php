@@ -17,10 +17,12 @@ use Streak\Domain\Event\Listener;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @see \Streak\Domain\Event\Subscription\Exception\ListenerNotFoundTest
  */
 class ListenerNotFound extends \RuntimeException
 {
-    private $listenerId;
+    private Listener\Id $listenerId;
 
     public function __construct(Listener\Id $listenerId, \Throwable $previous = null)
     {

@@ -19,19 +19,18 @@ use Streak\Domain\Event\Listener\Id;
 use Streak\Domain\Event\Subscription;
 use Streak\Infrastructure\Event\Subscription\DAO;
 use Streak\Infrastructure\UnitOfWork\Exception\ObjectNotSupported;
+use Streak\Infrastructure\UnitOfWork\SubscriptionDAOUnitOfWorkTest\DecoratedSubscription;
 
 /**
  * @covers \Streak\Infrastructure\UnitOfWork\SubscriptionDAOUnitOfWork
  */
 class SubscriptionDAOUnitOfWorkTest extends TestCase
 {
-    /** @var DAO */
-    private $dao;
+    private ?DAO $dao = null;
 
-    /** @var SubscriptionDAOUnitOfWork */
-    private $uow;
+    private ?SubscriptionDAOUnitOfWork $uow = null;
 
-    public function setUp()
+    public function setUp() : void
     {
         parent::setUp();
         $this->dao = $this->getMockBuilder(DAO::class)->getMockForAbstractClass();
@@ -118,9 +117,9 @@ class SubscriptionDAOUnitOfWorkTest extends TestCase
     private function createSubscriptionDecoratorStub(string $id) : Subscription\Decorator
     {
         /** @var Subscription\Decorator|MockObject $result */
-        $result = $this->getMockBuilder([Subscription\Decorator::class, Subscription::class])->getMock();
-        $result->expects($this->any())->method('subscription')->willReturn($this->createSubscriptionStub($id));
-        $result->expects($this->any())->method('subscriptionId')->willReturn($this->createIdStub($id));
+        $result = $this->getMockBuilder(DecoratedSubscription::class)->getMock();
+        $result->method('subscription')->willReturn($this->createSubscriptionStub($id));
+        $result->method('subscriptionId')->willReturn($this->createIdStub($id));
 
         return $result;
     }
@@ -132,7 +131,7 @@ class SubscriptionDAOUnitOfWorkTest extends TestCase
     {
         /** @var DAO\Subscription|MockObject $result */
         $result = $this->getMockBuilder(DAO\Subscription::class)->disableOriginalConstructor()->getMock();
-        $result->expects($this->any())->method('subscriptionId')->willReturn($this->createIdStub($id));
+        $result->method('subscriptionId')->willReturn($this->createIdStub($id));
 
         return $result;
     }
@@ -141,13 +140,19 @@ class SubscriptionDAOUnitOfWorkTest extends TestCase
     {
         /** @var Id|MockObject $result */
         $result = $this->getMockBuilder(Id::class)->getMock();
-        $result->expects($this->any())->method('equals')->willReturnCallback(
-            function ($argument) use ($id) {
-                return $argument->toString() === $id;
-            }
+        $result->method('equals')->willReturnCallback(
+            fn ($argument) => $argument->toString() === $id
         );
-        $result->expects($this->any())->method('toString')->willReturn($id);
+        $result->method('toString')->willReturn($id);
 
         return $result;
     }
+}
+
+namespace Streak\Infrastructure\UnitOfWork\SubscriptionDAOUnitOfWorkTest;
+
+use Streak\Domain\Event\Subscription;
+
+abstract class DecoratedSubscription implements Subscription\Decorator, Subscription
+{
 }

@@ -13,27 +13,22 @@ declare(strict_types=1);
 
 namespace Streak\Infrastructure\Event\Converter;
 
-use InvalidArgumentException;
 use Streak\Domain\Event;
 use Streak\Domain\Event\Converter;
 use Streak\Domain\Event\Exception;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @see \Streak\Infrastructure\Event\Converter\NestedObjectConverterTest
  */
 class NestedObjectConverter implements Converter
 {
     /**
-     * @param $object
-     *
      * @throws Exception\ConversionToArrayNotPossible
      */
-    public function objectToArray($object) : array
+    public function objectToArray(object $object) : array
     {
-        if (false === is_object($object)) {
-            throw new InvalidArgumentException('Argument must be an object!');
-        }
-
         try {
             $class = get_class($object);
             $array = $this->toArray($object);
@@ -46,11 +41,9 @@ class NestedObjectConverter implements Converter
     }
 
     /**
-     * @return Event
-     *
      * @throws Exception\ConversionToObjectNotPossible
      */
-    public function arrayToObject(array $data)
+    public function arrayToObject(array $data) : object
     {
         try {
             return $this->toObject($data);
@@ -110,12 +103,13 @@ class NestedObjectConverter implements Converter
         return $object;
     }
 
-    private function toObject(array $array)
+    private function toObject(array $array) : object
     {
         $class = array_keys($array)[0];
         $array = $array[$class];
 
         $reflection = new \ReflectionClass($class);
+        /** @var Event $event */
         $event = $reflection->newInstanceWithoutConstructor();
 
         $reflection = new \ReflectionObject($event);

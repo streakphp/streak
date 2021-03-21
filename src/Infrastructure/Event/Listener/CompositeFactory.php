@@ -27,7 +27,7 @@ class CompositeFactory implements Event\Listener\Factory
     /**
      * @var Event\Listener\Factory[]
      */
-    private $factories = [];
+    private array $factories = [];
 
     public function add(Event\Listener\Factory $factory)
     {

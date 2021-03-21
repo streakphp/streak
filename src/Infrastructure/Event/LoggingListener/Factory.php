@@ -15,24 +15,25 @@ namespace Streak\Infrastructure\Event\LoggingListener;
 
 use Psr\Log\LoggerInterface;
 use Streak\Domain\Event;
-use Streak\Domain\Event\Listener;
 use Streak\Infrastructure\Event\LoggingListener;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @see \Streak\Infrastructure\Event\LoggingListener\FactoryTest
  */
-class Factory implements Listener\Factory
+class Factory implements Event\Listener\Factory
 {
-    private $factory;
-    private $logger;
+    private Event\Listener\Factory $factory;
+    private LoggerInterface $logger;
 
-    public function __construct(Listener\Factory $factory, LoggerInterface $logger)
+    public function __construct(Event\Listener\Factory $factory, LoggerInterface $logger)
     {
         $this->factory = $factory;
         $this->logger = $logger;
     }
 
-    public function create(Listener\Id $id) : Listener
+    public function create(Event\Listener\Id $id) : Event\Listener
     {
         $saga = $this->factory->create($id);
         $saga = new LoggingListener($saga, $this->logger);
@@ -40,7 +41,7 @@ class Factory implements Listener\Factory
         return $saga;
     }
 
-    public function createFor(Event\Envelope $event) : Listener
+    public function createFor(Event\Envelope $event) : Event\Listener
     {
         $listener = $this->factory->createFor($event);
         $listener = new LoggingListener($listener, $this->logger);

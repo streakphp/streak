@@ -39,7 +39,7 @@ class CompositeUnitOfWorkTest extends TestCase
      */
     private $uow3;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         $this->uow1 = $this->getMockBuilder(UnitOfWork::class)->setMockClassName('uow1')->getMockForAbstractClass();
         $this->uow2 = $this->getMockBuilder(UnitOfWork::class)->setMockClassName('uow2')->getMockForAbstractClass();

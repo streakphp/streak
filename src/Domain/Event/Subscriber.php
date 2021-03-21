@@ -23,14 +23,16 @@ use Streak\Domain\EventBus;
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  *
  * TODO: move under `Infrastructure`
+ *
+ * @see \Streak\Domain\Event\SubscriberTest
  */
 class Subscriber implements Event\Listener
 {
     use Event\Listener\Identifying;
 
-    private $listenerFactory;
-    private $subscriptionFactory;
-    private $subscriptionsRepository;
+    private Event\Listener\Factory $listenerFactory;
+    private Event\Subscription\Factory $subscriptionFactory;
+    private Event\Subscription\Repository $subscriptionsRepository;
 
     public function __construct(Event\Listener\Factory $listenerFactory, Event\Subscription\Factory $subscriptionFactory, Event\Subscription\Repository $subscriptionsRepository)
     {

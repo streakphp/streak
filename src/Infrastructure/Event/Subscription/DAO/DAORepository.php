@@ -20,18 +20,14 @@ use Streak\Infrastructure\UnitOfWork;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @see \Streak\Infrastructure\Event\Subscription\DAO\DAORepositoryTest
  */
 class DAORepository implements Subscription\Repository
 {
-    /**
-     * @var DAO
-     */
-    private $dao;
+    private DAO $dao;
 
-    /**
-     * @var UnitOfWork
-     */
-    private $uow;
+    private UnitOfWork $uow;
 
     public function __construct(DAO $dao, UnitOfWork $uow)
     {

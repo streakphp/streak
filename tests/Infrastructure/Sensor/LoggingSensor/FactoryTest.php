@@ -47,7 +47,7 @@ class FactoryTest extends TestCase
      */
     private $event;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         $this->factory = $this->getMockBuilder(Sensor\Factory::class)->setMockClassName('SensorFactoryMock001')->getMockForAbstractClass();
         $this->sensor = $this->getMockBuilder(Sensor::class)->setMockClassName('SensorMock001')->getMockForAbstractClass();

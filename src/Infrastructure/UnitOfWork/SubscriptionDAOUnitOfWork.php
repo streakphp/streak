@@ -19,24 +19,26 @@ use Streak\Infrastructure\UnitOfWork;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @see \Streak\Infrastructure\UnitOfWork\SubscriptionDAOUnitOfWorkTest
  */
 class SubscriptionDAOUnitOfWork implements UnitOfWork
 {
-    private $dao;
+    private DAO $dao;
 
     /**
      * @var Subscription[]
      */
-    private $uncommited = [];
+    private array $uncommited = [];
 
-    private $committing = false;
+    private bool $committing = false;
 
     public function __construct(DAO $dao)
     {
         $this->dao = $dao;
     }
 
-    public function add($subscription) : void
+    public function add(object $subscription) : void
     {
         if (false === $this->supports($subscription)) {
             throw new UnitOfWork\Exception\ObjectNotSupported($subscription);
@@ -47,7 +49,7 @@ class SubscriptionDAOUnitOfWork implements UnitOfWork
         }
     }
 
-    public function remove($subscription) : void
+    public function remove(object $subscription) : void
     {
         if (false === $this->supports($subscription)) {
             throw new UnitOfWork\Exception\ObjectNotSupported($subscription);
@@ -62,7 +64,7 @@ class SubscriptionDAOUnitOfWork implements UnitOfWork
         }
     }
 
-    public function has($subscription) : bool
+    public function has(object $subscription) : bool
     {
         if (false === $this->supports($subscription)) {
             throw new UnitOfWork\Exception\ObjectNotSupported($subscription);
@@ -121,7 +123,7 @@ class SubscriptionDAOUnitOfWork implements UnitOfWork
         $this->uncommited = [];
     }
 
-    private function supports(Subscription $subscription) : bool
+    private function supports(object $subscription) : bool
     {
         if ($subscription instanceof DAO\Subscription) {
             return true;

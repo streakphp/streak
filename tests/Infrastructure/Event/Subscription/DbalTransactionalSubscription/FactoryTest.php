@@ -47,7 +47,7 @@ class FactoryTest extends TestCase
      */
     private $subscription;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         $this->factory = $this->getMockBuilder(Subscription\Factory::class)->getMockForAbstractClass();
         $this->connection = $this->getMockBuilder(Connection::class)->getMockForAbstractClass();

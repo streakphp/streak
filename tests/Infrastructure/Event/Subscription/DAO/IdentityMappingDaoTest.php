@@ -29,7 +29,7 @@ class IdentityMappingDaoTest extends TestCase
     /** @var DAO|MockObject */
     private $dao;
 
-    public function setUp()
+    public function setUp() : void
     {
         parent::setUp();
 
@@ -177,8 +177,8 @@ class IdentityMappingDaoTest extends TestCase
     {
         /** @var Subscription|MockObject $result */
         $result = $this->getMockBuilder(Subscription::class)->disableOriginalConstructor()->getMock();
-        $result->expects($this->any())->method('subscriptionId')->willReturn($this->createSubscriptionIdStub($subscriptionIdClassName, $subscriptionId));
-        $result->expects($this->any())->method('version')->willReturn($version);
+        $result->method('subscriptionId')->willReturn($this->createSubscriptionIdStub($subscriptionIdClassName, $subscriptionId));
+        $result->method('version')->willReturn($version);
 
         return $result;
     }
@@ -195,7 +195,7 @@ class IdentityMappingDaoTest extends TestCase
     {
         /** @var Id|MockObject $result */
         $result = $this->getMockBuilder(Id::class)->setMockClassName($className)->getMock();
-        $result->expects($this->any())->method('toString')->willReturn($id);
+        $result->method('toString')->willReturn($id);
 
         return $result;
     }

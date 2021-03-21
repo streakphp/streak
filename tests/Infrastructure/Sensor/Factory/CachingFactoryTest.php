@@ -34,7 +34,7 @@ class CachingFactoryTest extends TestCase
      */
     private $sensor;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         $this->factory = $this->getMockBuilder(Sensor\Factory::class)->getMockForAbstractClass();
         $this->sensor = $this->getMockBuilder(Sensor::class)->getMockForAbstractClass();

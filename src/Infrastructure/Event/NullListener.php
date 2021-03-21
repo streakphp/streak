@@ -18,6 +18,8 @@ use Streak\Domain\Event\Listener;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @see \Streak\Infrastructure\Event\NullListenerTest
  */
 class NullListener implements Event\Listener
 {

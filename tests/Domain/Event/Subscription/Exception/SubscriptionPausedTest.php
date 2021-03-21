@@ -35,7 +35,7 @@ class SubscriptionPausedTest extends TestCase
      */
     private $subscriptionId;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         $this->subscription = $this->getMockBuilder(Subscription::class)->getMockForAbstractClass();
         $this->subscriptionId = $this->getMockBuilder(Listener\Id::class)->setMockClassName('test_id')->getMockForAbstractClass();

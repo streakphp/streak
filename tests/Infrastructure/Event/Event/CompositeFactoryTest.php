@@ -59,7 +59,7 @@ class CompositeFactoryTest extends TestCase
      */
     private $event1;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         $this->id1 = $this->getMockBuilder(Listener\Id::class)->getMockForAbstractClass();
 

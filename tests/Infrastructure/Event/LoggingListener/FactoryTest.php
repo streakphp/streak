@@ -52,7 +52,7 @@ class FactoryTest extends TestCase
      */
     private $event;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         $this->factory = $this->getMockBuilder(Listener\Factory::class)->setMockClassName('ListenerFactoryMock001')->getMockForAbstractClass();
         $this->listener = $this->getMockBuilder(Listener::class)->setMockClassName('ListenerMock001')->setMethods(['replay', 'reset', 'completed'])->getMockForAbstractClass();

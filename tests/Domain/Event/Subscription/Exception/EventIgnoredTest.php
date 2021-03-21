@@ -30,7 +30,7 @@ class EventIgnoredTest extends TestCase
      */
     private $event;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         $this->event = $this->getMockBuilder(Event::class)->setMockClassName('event1')->getMockForAbstractClass();
         $this->event = Event\Envelope::new($this->event, UUID::random());

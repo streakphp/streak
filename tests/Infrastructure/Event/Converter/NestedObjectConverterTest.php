@@ -167,27 +167,6 @@ class NestedObjectConverterTest extends TestCase
         self::assertEquals($expectedObject, $converter->arrayToObject($array));
     }
 
-    /**
-     * @dataProvider wrongTypesProvider
-     */
-    public function testItDoesNotConvertWrongType($value) : void
-    {
-        self::expectException(\InvalidArgumentException::class);
-        $converter = new NestedObjectConverter();
-        $converter->objectToArray($value);
-    }
-
-    public function wrongTypesProvider() : array
-    {
-        return [
-            [2],
-            [false],
-            [2.5],
-            ['test'],
-            [null],
-        ];
-    }
-
     public function testItDoesntConvertWrongNestedType() : void
     {
         self::expectException(Event\Exception\ConversionToArrayNotPossible::class);
@@ -212,24 +191,24 @@ class NestedResource
 
 class Event1Stub implements Event
 {
-    public $publicStringProperty;
-    public $publicIntegerProperty;
-    public $publicFloatProperty;
-    public $publicArrayProperty;
+    public string $publicStringProperty;
+    public int $publicIntegerProperty;
+    public float $publicFloatProperty;
+    public array $publicArrayProperty;
     public $publicAnyTypeProperty;
-    public $publicEmptyArrayProperty;
-    protected $protectedStringProperty;
-    protected $protectedIntegerProperty;
-    protected $protectedFloatProperty;
-    protected $protectedArrayProperty;
+    public array $publicEmptyArrayProperty;
+    protected string $protectedStringProperty;
+    protected int $protectedIntegerProperty;
+    protected float $protectedFloatProperty;
+    protected array $protectedArrayProperty;
     protected $protectedAnyTypeProperty;
-    protected $protectedEmptyArrayProperty;
-    private $privateStringProperty;
-    private $privateIntegerProperty;
-    private $privateFloatProperty;
-    private $privateArrayProperty;
+    protected array $protectedEmptyArrayProperty;
+    private string $privateStringProperty;
+    private int $privateIntegerProperty;
+    private float $privateFloatProperty;
+    private array $privateArrayProperty;
     private $privateAnyTypeProperty;
-    private $privateEmptyArrayProperty;
+    private array $privateEmptyArrayProperty;
 
     public function __construct(
         string $privateStringProperty,
@@ -280,7 +259,7 @@ class Event1Stub implements Event
 
 class EventA implements Event
 {
-    private $property1;
+    private string $property1;
 
     public function __construct(string $property1)
     {
@@ -301,7 +280,7 @@ class EventB extends EventA
 
 class EventC implements Event
 {
-    private $event;
+    private Event $event;
 
     public function __construct(Event $event)
     {
@@ -311,14 +290,11 @@ class EventC implements Event
 
 class ParentObject
 {
-    /** @var object|null */
-    private $objectProperty;
+    private ?object $objectProperty = null;
 
-    /** @var string */
-    private $scalarProperty;
+    private string $scalarProperty;
 
-    /** @var array */
-    private $arrayProperty;
+    private array $arrayProperty;
 
     public function __construct(string $scalarProperty, $objectProperty, array $arrayProperty)
     {
@@ -330,14 +306,11 @@ class ParentObject
 
 class ChildObject
 {
-    /** @var string */
-    private $scalarProperty;
+    private string $scalarProperty;
 
-    /** @var array */
-    private $arrayProperty;
+    private array $arrayProperty;
 
-    /** @var ChildObject|null */
-    private $child;
+    private ?\Streak\Infrastructure\Event\Converter\ChildObject $child = null;
 
     public function __construct(string $scalarProperty, array $arrayProperty, ChildObject $childObject = null)
     {

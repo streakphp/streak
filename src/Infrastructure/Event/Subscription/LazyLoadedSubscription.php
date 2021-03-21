@@ -20,12 +20,14 @@ use Streak\Domain\EventStore;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @see \Streak\Infrastructure\Event\Subscription\LazyLoadedSubscriptionTest
  */
 class LazyLoadedSubscription implements Subscription, Subscription\Decorator
 {
-    private $id;
-    private $subscription;
-    private $repository;
+    private Listener\Id $id;
+    private ?Subscription $subscription = null;
+    private Subscription\Repository $repository;
 
     public function __construct(Listener\Id $id, Subscription\Repository $repository)
     {

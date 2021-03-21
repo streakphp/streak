@@ -17,6 +17,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Streak\Application\Command;
 use Streak\Application\CommandHandler;
+use Streak\Application\CommandHandler\AggregateRootHandlerTest\CommandHandlingAggregateRoot;
 use Streak\Application\Exception\CommandNotSupported;
 use Streak\Domain\AggregateRoot;
 
@@ -62,7 +63,7 @@ class AggregateRootHandlerTest extends TestCase
      */
     private $aggregateRootId;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         $this->factory = $this->getMockBuilder(AggregateRoot\Factory::class)->getMockForAbstractClass();
         $this->repository = $this->getMockBuilder(AggregateRoot\Repository::class)->getMockForAbstractClass();
@@ -70,7 +71,7 @@ class AggregateRootHandlerTest extends TestCase
         $this->aggregateRoot = $this->getMockBuilder(AggregateRoot::class)->getMockForAbstractClass();
         $this->aggregateRootId = $this->getMockBuilder(AggregateRoot\Id::class)->getMockForAbstractClass();
         $this->aggregateRootCommand = $this->getMockBuilder(Command\AggregateRootCommand::class)->getMockForAbstractClass();
-        $this->aggregateRootCommandHandler = $this->getMockBuilder([AggregateRoot::class, CommandHandler::class])->getMock();
+        $this->aggregateRootCommandHandler = $this->getMockBuilder(CommandHandlingAggregateRoot::class)->getMock();
     }
 
     public function testCommandNotSupported()
@@ -193,4 +194,13 @@ class AggregateRootHandlerTest extends TestCase
         $handler = new AggregateRootHandler($this->factory, $this->repository);
         $handler->handle($this->aggregateRootCommand);
     }
+}
+
+namespace Streak\Application\CommandHandler\AggregateRootHandlerTest;
+
+use Streak\Application\CommandHandler;
+use Streak\Domain\AggregateRoot;
+
+abstract class CommandHandlingAggregateRoot implements AggregateRoot, CommandHandler
+{
 }

@@ -24,14 +24,11 @@ trait Sourcing //implements Event\Consumer, Event\Producer, Domain\Identifiable,
     /**
      * @var Event\Envelope[]
      */
-    private $events = [];
-    /**
-     * @var Event\Envelope
-     */
-    private $lastEvent;
+    private array $events = [];
+    private ?Event\Envelope $lastEvent = null;
     private $replaying = false;
     private $lastReplayed;
-    private $version = 0;
+    private int $version = 0;
 
     abstract public function producerId() : Domain\Id;
 

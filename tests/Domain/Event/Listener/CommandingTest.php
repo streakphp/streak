@@ -33,7 +33,7 @@ class CommandingTest extends TestCase
      */
     private $bus;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         $this->bus = $this->getMockBuilder(CommandBus::class)->getMockForAbstractClass();
     }
@@ -71,7 +71,7 @@ class CommandingStub
         unmuteCommands as public;
     }
 
-    private $listened = [];
+    private array $listened = [];
 
     public function dispatch(Command $command) : void
     {

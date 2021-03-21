@@ -24,9 +24,9 @@ use Streak\Application;
 class CommandHandlerAlreadyRegisteredTest extends TestCase
 {
     private $handler;
-    private $previous;
+    private ?\Exception $previous = null;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         $this->handler = $this->getMockBuilder(Application\CommandHandler::class)->getMockForAbstractClass();
         $this->previous = new \Exception();

@@ -29,7 +29,7 @@ class NullSnapshotterTest extends TestCase
      */
     private $aggregate1;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         $this->aggregate1 = $this->getMockBuilder(AggregateRoot::class)->getMockForAbstractClass();
     }

@@ -21,7 +21,7 @@ use Streak\Infrastructure\AggregateRoot\Snapshotter;
  */
 final class InMemoryStorage implements Snapshotter\Storage
 {
-    private $snapshots = [];
+    private array $snapshots = [];
 
     /**
      * @throws Exception\SnapshotNotFound

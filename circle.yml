@@ -3,7 +3,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: streakphp/php72-cli:latest
+      - image: streakphp/php74-cli:latest
         environment:
           COMPOSER_NO_INTERACTION: 1
           COMPOSER_ALLOW_SUPERUSER: 1

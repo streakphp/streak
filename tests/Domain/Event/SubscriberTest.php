@@ -76,7 +76,7 @@ class SubscriberTest extends TestCase
      */
     private $producer1;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         $this->store = $this->getMockBuilder(EventStore::class)->getMockForAbstractClass();
         $this->bus = $this->getMockBuilder(EventBus::class)->getMockForAbstractClass();

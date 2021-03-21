@@ -18,11 +18,13 @@ use Streak\Infrastructure\UnitOfWork;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @see \Streak\Infrastructure\Sensor\Factory\TransactionalFactoryTest
  */
 class TransactionalFactory implements Sensor\Factory
 {
-    private $factory;
-    private $uow;
+    private Sensor\Factory $factory;
+    private UnitOfWork $uow;
 
     public function __construct(Sensor\Factory $factory, UnitOfWork $uow)
     {

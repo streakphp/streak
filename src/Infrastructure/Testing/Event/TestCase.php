@@ -11,7 +11,7 @@
 
 declare(strict_types=1);
 
-namespace Streak\Infrastructure\Testing\Message;
+namespace Streak\Infrastructure\Testing\Event;
 
 use Streak\Domain\Event;
 

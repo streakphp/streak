@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Streak\Domain\Event;
 
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Streak\Domain;
 use Streak\Domain\AggregateRoot;
@@ -27,36 +26,22 @@ use Streak\Infrastructure\Event\InMemoryStream;
  */
 class SourcingTest extends TestCase
 {
-    /**
-     * @var AggregateRoot\Id|MockObject
-     */
-    private $id1;
+    private ?AggregateRoot\Id $id1 = null;
 
-    /**
-     * @var AggregateRoot\Id|MockObject
-     */
-    private $id2;
+    private ?AggregateRoot\Id $id2 = null;
 
-    /**
-     * @var Domain\Event|MockObject
-     */
-    private $event1;
+    private ?Event\Envelope $event1 = null;
 
-    /**
-     * @var Domain\Event|MockObject
-     */
-    private $event2;
+    private ?Event\Envelope $event2 = null;
 
-    public function setUp()
+    public function setUp() : void
     {
         $this->id1 = new class('f5e65690-e50d-4312-a175-b004ec1bd42a') extends Domain\Id\UUID implements AggregateRoot\Id {
         };
         $this->id2 = new class('f84d8230-90a8-416f-af09-5ba315214888') extends Domain\Id\UUID implements AggregateRoot\Id {
         };
-        $this->event1 = $this->getMockBuilder(Event::class)->setMockClassName('event1')->getMockForAbstractClass();
-        $this->event1 = Event\Envelope::new($this->event1, $this->id1, 1);
-        $this->event2 = $this->getMockBuilder(Event::class)->setMockClassName('event2')->getMockForAbstractClass();
-        $this->event2 = Event\Envelope::new($this->event2, $this->id2, 1);
+        $this->event1 = Event\Envelope::new($this->getMockBuilder(Event::class)->setMockClassName('event1')->getMockForAbstractClass(), $this->id1, 1);
+        $this->event2 = Event\Envelope::new($this->getMockBuilder(Event::class)->setMockClassName('event2')->getMockForAbstractClass(), $this->id2, 1);
     }
 
     public function testSuccessfullyApplyingEventWithPublicHandlingMethod()
@@ -280,14 +265,14 @@ class EventSourcedAggregateRootStub implements Event\Consumer
 {
     use Event\Sourcing;
 
-    private $id;
+    private \Streak\Domain\Id $id;
 
-    private $eventStubForTestingPublicHandlingMethodApplied = false;
-    private $eventStubForTestingNonPublicHandlingMethodApplied = false;
-    private $numberOfAppliesOfEvent7 = 0;
-    private $event8Applied = false;
-    private $event8aApplied = false;
-    private $event9Applied = false;
+    private bool $eventStubForTestingPublicHandlingMethodApplied = false;
+    private bool $eventStubForTestingNonPublicHandlingMethodApplied = false;
+    private int $numberOfAppliesOfEvent7 = 0;
+    private bool $event8Applied = false;
+    private bool $event8aApplied = false;
+    private bool $event9Applied = false;
 
     public function __construct(AggregateRoot\Id $id)
     {
@@ -454,7 +439,7 @@ class EventSourcedNonConsumer
 {
     use Event\Sourcing;
 
-    private $id;
+    private \Streak\Domain\Id $id;
 
     public function __construct(AggregateRoot\Id $id)
     {

@@ -30,27 +30,18 @@ use Streak\Infrastructure\Event\Converter\NestedObjectConverter;
  */
 class DbalPostgresEventStoreTest extends EventStoreTestCase
 {
-    /**
-     * @var Connection
-     */
-    private static $connection1;
+    private static ?Connection $connection1 = null;
 
-    /**
-     * @var Connection
-     */
-    private static $connection2;
+    private static ?Connection $connection2 = null;
 
     /**
      * @var Connection|MockObject
      */
     private $mysql;
 
-    /**
-     * @var MySqlPlatform
-     */
-    private $mysqlPlatform;
+    private ?MySqlPlatform $mysqlPlatform = null;
 
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass() : void
     {
         self::$connection1 = DriverManager::getConnection([
             'driver' => 'pdo_pgsql',
@@ -70,7 +61,7 @@ class DbalPostgresEventStoreTest extends EventStoreTestCase
         ]);
     }
 
-    protected function setUp()
+    protected function setUp() : void
     {
         parent::setUp();
 

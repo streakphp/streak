@@ -24,9 +24,9 @@ use Streak\Application;
 class CommandTransactionCompromisedTest extends TestCase
 {
     private $command;
-    private $previous;
+    private ?\Exception $previous = null;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         $this->command = $this->getMockBuilder(Application\Command::class)->getMockForAbstractClass();
         $this->previous = new \Exception();

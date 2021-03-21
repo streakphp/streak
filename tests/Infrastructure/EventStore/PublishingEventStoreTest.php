@@ -20,6 +20,7 @@ use Streak\Domain\Event;
 use Streak\Domain\EventBus;
 use Streak\Domain\EventStore;
 use Streak\Domain\Id\UUID;
+use Streak\Infrastructure\EventStore\PublishingEventStoreTest\EventStoreWithSchema;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -78,10 +79,10 @@ class PublishingEventStoreTest extends TestCase
      */
     private $schema;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         $this->store = $this->getMockBuilder(EventStore::class)->getMockForAbstractClass();
-        $this->schemableStore = $this->getMockBuilder([EventStore::class, Schemable::class])->getMock();
+        $this->schemableStore = $this->getMockBuilder(EventStoreWithSchema::class)->getMock();
         $this->bus = $this->getMockBuilder(EventBus::class)->getMockForAbstractClass();
 
         $this->id = $this->getMockBuilder(Domain\Id::class)->getMockForAbstractClass();
@@ -224,4 +225,13 @@ class PublishingEventStoreTest extends TestCase
         $this->assertSame($this->event1, $store->event($uuid1));
         $this->assertNull($store->event($uuid2));
     }
+}
+
+namespace Streak\Infrastructure\EventStore\PublishingEventStoreTest;
+
+use Streak\Domain\EventStore;
+use Streak\Infrastructure\EventStore\Schemable;
+
+abstract class EventStoreWithSchema implements EventStore, Schemable
+{
 }

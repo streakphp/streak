@@ -24,7 +24,7 @@ use Streak\Domain\Event;
  */
 class Scenario implements Scenario\Given, Scenario\Then
 {
-    private $sensor;
+    private Sensor $sensor;
 
     public function __construct(Sensor\Factory $factory)
     {
@@ -40,9 +40,7 @@ class Scenario implements Scenario\Given, Scenario\Then
 
     public function then(Event ...$expected) : void
     {
-        $actual = array_map(function (Event\Envelope $event) {
-            return $event->message();
-        }, $this->sensor->events());
+        $actual = array_map(fn (Event\Envelope $event) => $event->message(), $this->sensor->events());
         Assert::assertEquals($expected, $actual, 'Expected events don\'t match produced events.');
     }
 }

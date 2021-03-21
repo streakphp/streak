@@ -22,6 +22,7 @@ use Streak\Application\QueryHandler;
 use Streak\Domain\Event;
 use Streak\Domain\Event\Listener;
 use Streak\Domain\Id\UUID;
+use Streak\Infrastructure\Event\LoggingListenerTest\ListenerWithAllPossibleFeatures;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -80,10 +81,10 @@ class LoggingListenerTest extends TestCase
      */
     private $state2;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         $this->listener1 = $this->getMockBuilder(Listener::class)->setMethods(['replay', 'reset', 'completed'])->setMockClassName('ListenerMock001')->getMockForAbstractClass();
-        $this->listener2 = $this->getMockBuilder([Event\Listener::class, Event\Listener\Replayable::class, Event\Listener\Completable::class, Event\Listener\Resettable::class, Event\Filterer::class, QueryHandler::class, Listener\Stateful::class])->setMockClassName('ListenerMock002')->getMock();
+        $this->listener2 = $this->getMockBuilder(ListenerWithAllPossibleFeatures::class)->setMockClassName('ListenerMock002')->getMock();
         $this->logger = $this->getMockBuilder(LoggerInterface::class)->getMockForAbstractClass();
         $this->listenerId = $this->getMockBuilder(Listener\Id::class)->getMockForAbstractClass();
         $this->event = $this->getMockBuilder(Event::class)->setMockClassName('EventMock001')->getMockForAbstractClass();
@@ -337,4 +338,13 @@ class LoggingListenerTest extends TestCase
 
         $this->assertSame($this->state1, $state);
     }
+}
+
+namespace Streak\Infrastructure\Event\LoggingListenerTest;
+
+use Streak\Application\QueryHandler;
+use Streak\Domain\Event;
+
+abstract class ListenerWithAllPossibleFeatures implements Event\Listener, Event\Listener\Replayable, Event\Listener\Completable, Event\Listener\Resettable, Event\Filterer, QueryHandler, Event\Listener\Stateful
+{
 }

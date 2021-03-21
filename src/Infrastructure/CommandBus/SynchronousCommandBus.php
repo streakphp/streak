@@ -21,13 +21,12 @@ use Streak\Infrastructure\CommandHandler\CompositeCommandHandler;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @see \Streak\Infrastructure\CommandBus\SynchronousCommandBusTest
  */
 class SynchronousCommandBus implements Application\CommandBus
 {
-    /**
-     * @var CommandHandler
-     */
-    private $handler;
+    private CompositeCommandHandler $handler;
 
     public function __construct()
     {

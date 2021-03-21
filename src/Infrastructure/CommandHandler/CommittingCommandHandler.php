@@ -18,18 +18,14 @@ use Streak\Infrastructure;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @see \Streak\Infrastructure\CommandHandler\CommittingCommandHandlerTest
  */
 class CommittingCommandHandler implements Application\CommandHandler
 {
-    /**
-     * @var Application\CommandHandler
-     */
-    private $handler;
+    private Application\CommandHandler $handler;
 
-    /**
-     * @var Infrastructure\UnitOfWork
-     */
-    private $uow;
+    private Infrastructure\UnitOfWork $uow;
 
     public function __construct(Application\CommandHandler $handler, Infrastructure\UnitOfWork $uow)
     {

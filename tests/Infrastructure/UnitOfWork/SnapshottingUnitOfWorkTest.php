@@ -77,7 +77,7 @@ class SnapshottingUnitOfWorkTest extends TestCase
      */
     private $snapshottedAggregateRootId2;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         $this->uow = $this->getMockBuilder(UnitOfWork::class)->getMockForAbstractClass();
         $this->snapshotter = $this->getMockBuilder(Snapshotter::class)->getMockForAbstractClass();

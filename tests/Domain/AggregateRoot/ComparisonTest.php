@@ -39,7 +39,7 @@ class ComparisonTest extends TestCase
      */
     private $id3;
 
-    public function setUp()
+    public function setUp() : void
     {
         $this->id1 = $this->getMockBuilder(AggregateRoot\Id::class)->getMockForAbstractClass();
         $this->id2 = $this->getMockBuilder(AggregateRoot\Id::class)->getMockForAbstractClass();
@@ -100,7 +100,7 @@ class ComparisonStub implements Domain\AggregateRoot
 {
     use AggregateRoot\Comparison;
 
-    private $id;
+    private AggregateRoot\Id $id;
 
     public function __construct(AggregateRoot\Id $id)
     {
@@ -132,7 +132,7 @@ class NonAggregateRootComparisonStub
 {
     use AggregateRoot\Comparison;
 
-    private $id;
+    private AggregateRoot\Id $id;
 
     public function __construct(AggregateRoot\Id $id)
     {

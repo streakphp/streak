@@ -19,10 +19,12 @@ use Streak\Application\Sensor;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @see \Streak\Infrastructure\RabbitMQ\SensorConsumerTest
  */
 final class SensorConsumer implements ConsumerInterface
 {
-    private $factory;
+    private Sensor\Factory $factory;
 
     public function __construct(Sensor\Factory $factory)
     {

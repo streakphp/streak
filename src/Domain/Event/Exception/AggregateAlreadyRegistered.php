@@ -17,10 +17,12 @@ use Streak\Domain\Event;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @see \Streak\Domain\Event\Exception\AggregateAlreadyRegisteredTest
  */
 class AggregateAlreadyRegistered extends \InvalidArgumentException
 {
-    private $aggregate;
+    private Event\Sourced\Aggregate $aggregate;
 
     public function __construct(Event\Sourced\Aggregate $aggregate, \Throwable $previous = null)
     {

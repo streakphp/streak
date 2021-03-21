@@ -22,9 +22,10 @@ use Streak\Domain\Event\Sourced\Subscription\Event\SubscriptionCompleted;
 use Streak\Domain\Event\Sourced\Subscription\Event\SubscriptionListenedToEvent;
 use Streak\Domain\Event\Sourced\Subscription\Event\SubscriptionRestarted;
 use Streak\Domain\Event\Sourced\Subscription\Event\SubscriptionStarted;
-use Streak\Domain\EventStore;
 use Streak\Domain\Exception;
 use Streak\Domain\Id\UUID;
+use Streak\Infrastructure\Event\Subscription\EventSourcedRepositoryTest\DecoratedSubscription;
+use Streak\Infrastructure\Event\Subscription\EventSourcedRepositoryTest\EventSourcedSubscription;
 use Streak\Infrastructure\EventStore\InMemoryEventStore;
 use Streak\Infrastructure\FixedClock;
 use Streak\Infrastructure\UnitOfWork;
@@ -131,12 +132,9 @@ class EventSourcedRepositoryTest extends TestCase
      */
     private $event4;
 
-    /**
-     * @var FixedClock
-     */
-    private $clock;
+    private ?Domain\Clock $clock = null;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         $this->subscriptions = $this->getMockBuilder(Event\Subscription\Factory::class)->getMockForAbstractClass();
         $this->listeners = $this->getMockBuilder(Event\Listener\Factory::class)->getMockForAbstractClass();
@@ -145,17 +143,17 @@ class EventSourcedRepositoryTest extends TestCase
 
         $this->listener1 = $this->getMockBuilder(Event\Listener::class)->setMockClassName('listener1')->getMockForAbstractClass();
 
-        $this->eventSourcedSubscription1 = $this->getMockBuilder([Event\Subscription::class, Event\Sourced::class])->setMockClassName('eventSourcedSubscription1')->getMock();
-        $this->eventSourcedSubscription2 = $this->getMockBuilder([Event\Subscription::class, Event\Subscription\Decorator::class])->setMockClassName('eventSourcedSubscription2')->getMock();
-        $this->eventSourcedSubscription2->expects($this->any())->method('subscription')->willReturn($this->eventSourcedSubscription1);
-        $this->eventSourcedSubscription3 = $this->getMockBuilder([Event\Subscription::class, Event\Subscription\Decorator::class])->setMockClassName('eventSourcedSubscription3')->getMock();
-        $this->eventSourcedSubscription3->expects($this->any())->method('subscription')->willReturn($this->eventSourcedSubscription2);
+        $this->eventSourcedSubscription1 = $this->getMockBuilder(EventSourcedSubscription::class)->setMockClassName('eventSourcedSubscription1')->getMock();
+        $this->eventSourcedSubscription2 = $this->getMockBuilder(DecoratedSubscription::class)->setMockClassName('eventSourcedSubscription2')->getMock();
+        $this->eventSourcedSubscription2->method('subscription')->willReturn($this->eventSourcedSubscription1);
+        $this->eventSourcedSubscription3 = $this->getMockBuilder(DecoratedSubscription::class)->setMockClassName('eventSourcedSubscription3')->getMock();
+        $this->eventSourcedSubscription3->method('subscription')->willReturn($this->eventSourcedSubscription2);
 
         $this->nonEventSourcedSubscription1 = $this->getMockBuilder(Event\Subscription::class)->setMockClassName('nonEventSourcedSubscription1')->getMockForAbstractClass();
-        $this->nonEventSourcedSubscription2 = $this->getMockBuilder([Event\Subscription::class, Event\Subscription\Decorator::class])->setMockClassName('nonEventSourcedSubscription2')->getMock();
-        $this->nonEventSourcedSubscription2->expects($this->any())->method('subscription')->willReturn($this->nonEventSourcedSubscription1);
-        $this->nonEventSourcedSubscription3 = $this->getMockBuilder([Event\Subscription::class, Event\Subscription\Decorator::class])->setMockClassName('nonEventSourcedSubscription3')->getMock();
-        $this->nonEventSourcedSubscription3->expects($this->any())->method('subscription')->willReturn($this->nonEventSourcedSubscription2);
+        $this->nonEventSourcedSubscription2 = $this->getMockBuilder(DecoratedSubscription::class)->setMockClassName('nonEventSourcedSubscription2')->getMock();
+        $this->nonEventSourcedSubscription2->method('subscription')->willReturn($this->nonEventSourcedSubscription1);
+        $this->nonEventSourcedSubscription3 = $this->getMockBuilder(DecoratedSubscription::class)->setMockClassName('nonEventSourcedSubscription3')->getMock();
+        $this->nonEventSourcedSubscription3->method('subscription')->willReturn($this->nonEventSourcedSubscription2);
 
         $this->id1 = new class('f5e65690-e50d-4312-a175-b004ec1bd42a') extends Domain\Id\UUID implements Listener\Id {
         };
@@ -485,4 +483,16 @@ class EventSourcedRepositoryTest extends TestCase
 
         $this->assertEquals([$subscription3, $subscription1, $subscription4], $subscriptions);
     }
+}
+
+namespace Streak\Infrastructure\Event\Subscription\EventSourcedRepositoryTest;
+
+use Streak\Domain\Event;
+
+abstract class EventSourcedSubscription implements Event\Subscription, Event\Sourced
+{
+}
+
+abstract class DecoratedSubscription implements Event\Subscription, Event\Subscription\Decorator
+{
 }

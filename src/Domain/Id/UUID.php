@@ -21,10 +21,11 @@ use Streak\Domain;
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  *
  * @see https://gist.github.com/tdomarkas/c5fbc10385ae004cbde6
+ * @see \Streak\Domain\Id\UUIDTest
  */
 class UUID implements Domain\Id
 {
-    private $value;
+    private string $value;
 
     final public function __construct(string $value)
     {

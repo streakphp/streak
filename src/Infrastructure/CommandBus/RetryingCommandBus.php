@@ -20,12 +20,14 @@ use Streak\Domain\Exception;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @see \Streak\Infrastructure\CommandBus\RetryingCommandBusTest
  */
 class RetryingCommandBus implements CommandBus
 {
-    private $bus;
-    private $numberOfAttempts = 0;
-    private $maxAttemptsAllowed = 10;
+    private CommandBus $bus;
+    private int $numberOfAttempts = 0;
+    private int $maxAttemptsAllowed = 10;
 
     public function __construct(CommandBus $bus, int $maxAttemptsAllowed)
     {

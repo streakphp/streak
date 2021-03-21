@@ -18,10 +18,12 @@ use Streak\Domain\Exception;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @see \Streak\Infrastructure\AggregateRoot\Factory\CompositeFactoryTest
  */
 class CompositeFactory implements AggregateRoot\Factory
 {
-    private $factories = [];
+    private array $factories = [];
 
     public function __construct(AggregateRoot\Factory ...$factories)
     {

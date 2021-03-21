@@ -1,35 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-<phpunit bootstrap="tests/bootstrap.php" colors="true">
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" bootstrap="tests/bootstrap.php" colors="true"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd">
+    <coverage>
+        <include>
+            <directory suffix=".php">src</directory>
+        </include>
+        <report>
+            <clover outputFile="build/clover.xml"/>
+            <html outputDirectory="build/code-coverage" lowUpperBound="35" highLowerBound="70"/>
+            <text outputFile="php://stdout" showUncoveredFiles="true"/>
+        </report>
+    </coverage>
     <testsuites>
         <testsuite name="Streak Test Suite">
             <directory>tests</directory>
         </testsuite>
     </testsuites>
-
-    <filter>
-        <whitelist>
-            <directory suffix=".php">src</directory>
-        </whitelist>
-    </filter>
-
     <logging>
-        <log type="coverage-text" target="php://stdout" showUncoveredFiles="true"/>
-        <log type="coverage-html" target="build/code-coverage" lowUpperBound="35" highLowerBound="70"/>
-        <log type="coverage-clover" target="build/clover.xml"/>
-        <log type="junit" target="build/junit.xml"/>
+        <junit outputFile="build/junit.xml"/>
     </logging>
-
     <php>
-        <env name="PHPUNIT_POSTGRES_HOSTNAME" value="postgres" />
-        <env name="PHPUNIT_POSTGRES_PORT" value="5432" />
-        <env name="PHPUNIT_POSTGRES_DATABASE" value="phpunit" />
-        <env name="PHPUNIT_POSTGRES_USERNAME" value="phpunit" />
-        <env name="PHPUNIT_POSTGRES_PASSWORD" value="phpunit" />
-        <env name="PHPUNIT_REDIS_HOSTNAME" value="redis" />
-        <env name="PHPUNIT_REDIS_PORT" value="6379" />
-        <env name="PHPUNIT_REDIS_DATABASE" value="0" />
+        <env name="PHPUNIT_POSTGRES_HOSTNAME" value="postgres"/>
+        <env name="PHPUNIT_POSTGRES_PORT" value="5432"/>
+        <env name="PHPUNIT_POSTGRES_DATABASE" value="phpunit"/>
+        <env name="PHPUNIT_POSTGRES_USERNAME" value="phpunit"/>
+        <env name="PHPUNIT_POSTGRES_PASSWORD" value="phpunit"/>
+        <env name="PHPUNIT_REDIS_HOSTNAME" value="redis"/>
+        <env name="PHPUNIT_REDIS_PORT" value="6379"/>
+        <env name="PHPUNIT_REDIS_DATABASE" value="0"/>
     </php>
-
-
 </phpunit>

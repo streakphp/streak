@@ -21,12 +21,14 @@ use Streak\Domain\EventStore;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @see \Streak\Infrastructure\Event\Subscription\DbalTransactionalSubscriptionTest
  */
 class DbalTransactionalSubscription implements Subscription, Subscription\Decorator
 {
-    private $subscription;
-    private $connection;
-    private $maxTransactionSize;
+    private Subscription $subscription;
+    private Connection $connection;
+    private int $maxTransactionSize;
 
     public function __construct(Subscription $subscription, Connection $connection, int $maxTransactionSize = 1)
     {

@@ -13,16 +13,18 @@ declare(strict_types=1);
 
 namespace Streak\Domain\Exception;
 
-use Streak\Domain;
+use Streak\Domain\Aggregate;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @see \Streak\Domain\Exception\AggregateNotFoundTest
  */
 class AggregateNotFound extends \RuntimeException
 {
-    private $aggregateId;
+    private Aggregate\Id $aggregateId;
 
-    public function __construct(Domain\Aggregate\Id $aggregateId, \Throwable $previous = null)
+    public function __construct(Aggregate\Id $aggregateId, \Throwable $previous = null)
     {
         $this->aggregateId = $aggregateId;
 
@@ -31,7 +33,7 @@ class AggregateNotFound extends \RuntimeException
         parent::__construct($message, 0, $previous);
     }
 
-    public function aggregateId() : Domain\Aggregate\Id
+    public function aggregateId() : Aggregate\Id
     {
         return $this->aggregateId;
     }

@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Streak\Infrastructure;
 
-use Generator;
 use Streak\Infrastructure\UnitOfWork\Exception;
 
 /**
@@ -24,11 +23,11 @@ interface UnitOfWork
     /**
      * @throws Exception\ObjectNotSupported
      */
-    public function add($object) : void;
+    public function add(object $object) : void;
 
-    public function remove($object) : void;
+    public function remove(object $object) : void;
 
-    public function has($object) : bool;
+    public function has(object $object) : bool;
 
     /**
      * @return object[]

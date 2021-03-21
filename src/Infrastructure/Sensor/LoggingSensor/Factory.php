@@ -19,11 +19,13 @@ use Streak\Infrastructure\Sensor\LoggingSensor;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @see \Streak\Infrastructure\Sensor\LoggingSensor\FactoryTest
  */
 class Factory implements Sensor\Factory
 {
-    private $factory;
-    private $logger;
+    private Sensor\Factory $factory;
+    private LoggerInterface $logger;
 
     public function __construct(Sensor\Factory $factory, LoggerInterface $logger)
     {

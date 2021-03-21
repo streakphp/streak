@@ -17,10 +17,12 @@ use Streak\Domain\Event\Subscription;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @see \Streak\Domain\Event\Subscription\Exception\SubscriptionPausedTest
  */
 class SubscriptionPaused extends \RuntimeException implements Subscription\Exception
 {
-    private $subscription;
+    private Subscription $subscription;
 
     public function __construct(Subscription $subscription)
     {

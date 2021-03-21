@@ -24,9 +24,9 @@ use Streak\Application;
 class QueryHandlerAlreadyRegisteredTest extends TestCase
 {
     private $handler;
-    private $previous;
+    private ?\Exception $previous = null;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         $this->handler = $this->getMockBuilder(Application\QueryHandler::class)->getMockForAbstractClass();
         $this->previous = new \Exception();
