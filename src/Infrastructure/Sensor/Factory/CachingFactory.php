@@ -18,10 +18,12 @@ use Streak\Application\Sensor\Factory;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @see \Streak\Infrastructure\Sensor\Factory\CachingFactoryTest
  */
 class CachingFactory implements Factory
 {
-    private $factory;
+    private Factory $factory;
     private $cached;
 
     public function __construct(Factory $factory)

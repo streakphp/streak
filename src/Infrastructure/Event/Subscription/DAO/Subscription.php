@@ -22,21 +22,23 @@ use Streak\Infrastructure\Event\Sourced\Subscription\InMemoryState;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @see \Streak\Infrastructure\Event\Subscription\DAO\SubscriptionTest
  */
 class Subscription implements Event\Subscription
 {
     private const LIMIT_TO_INITIAL_STREAM = 0;
 
-    private $listener;
-    private $clock;
-    private $state;
-    private $startedBy;
-    private $startedAt;
-    private $pausedAt;
-    private $lastProcessedEvent;
-    private $lastEventProcessedAt;
-    private $version = 0;
-    private $completed = false;
+    private Event\Listener $listener;
+    private Clock $clock;
+    private InMemoryState $state;
+    private ?Event\Envelope $startedBy = null;
+    private ?\DateTimeImmutable $startedAt = null;
+    private ?\DateTimeImmutable $pausedAt = null;
+    private ?Event\Envelope $lastProcessedEvent = null;
+    private ?\DateTimeImmutable $lastEventProcessedAt = null;
+    private int $version = 0;
+    private bool $completed = false;
 
     public function __construct(Event\Listener $listener, Clock $clock)
     {

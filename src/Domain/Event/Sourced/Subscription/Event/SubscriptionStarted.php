@@ -18,13 +18,15 @@ use Streak\Domain\Event\Sourced\Subscription;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @see \Streak\Domain\Event\Sourced\Subscription\Event\SubscriptionStartedTest
  */
 class SubscriptionStarted implements Subscription\Event
 {
     const DATE_FORMAT = 'U.u';
 
-    private $startFrom;
-    private $timestamp;
+    private Event\Envelope $startFrom;
+    private string $timestamp;
 
     public function __construct(Event\Envelope $startedBy, \DateTimeInterface $timestamp)
     {

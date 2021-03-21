@@ -19,6 +19,8 @@ use Streak\Application\CommandHandler;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @see \Streak\Infrastructure\CommandBus\NullCommandBusTest
  */
 class NullCommandBus implements CommandBus
 {

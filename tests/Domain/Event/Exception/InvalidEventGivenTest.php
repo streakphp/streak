@@ -30,7 +30,7 @@ class InvalidEventGivenTest extends TestCase
      */
     private $event;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         $this->event = $this->getMockBuilder(Event::class)->getMockForAbstractClass();
         $this->event = Event\Envelope::new($this->event, UUID::random(), 1);

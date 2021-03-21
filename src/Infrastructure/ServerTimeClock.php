@@ -17,6 +17,8 @@ use Streak\Domain\Clock;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @see \Streak\Infrastructure\ServerTimeClockTest
  */
 class ServerTimeClock implements Clock
 {

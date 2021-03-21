@@ -15,15 +15,14 @@ namespace Streak\Domain\Exception;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @see \Streak\Domain\Exception\ObjectNotSupportedTest
  */
 class ObjectNotSupported extends \RuntimeException
 {
-    private $object;
+    private object $object;
 
-    /**
-     * @param object $object
-     */
-    public function __construct($object, \Throwable $previous = null)
+    public function __construct(object $object, \Throwable $previous = null)
     {
         $this->object = $object;
 
@@ -32,10 +31,7 @@ class ObjectNotSupported extends \RuntimeException
         parent::__construct($message, 0, $previous);
     }
 
-    /**
-     * @return object
-     */
-    public function object()
+    public function object() : object
     {
         return $this->object;
     }

@@ -46,7 +46,7 @@ class SynchronousQueryBusTest extends TestCase
      */
     private $query1;
 
-    public function setUp()
+    public function setUp() : void
     {
         $this->handler1 = $this->getMockBuilder(QueryHandler::class)->setMockClassName('query_handler1')->getMockForAbstractClass();
         $this->handler2 = $this->getMockBuilder(QueryHandler::class)->setMockClassName('query_handler2')->getMockForAbstractClass();

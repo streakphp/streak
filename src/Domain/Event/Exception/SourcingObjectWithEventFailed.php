@@ -17,27 +17,17 @@ use Streak\Domain\Event;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @see \Streak\Domain\Event\Exception\SourcingObjectWithEventFailedTest
  */
 class SourcingObjectWithEventFailed extends \BadMethodCallException
 {
-    /**
-     * @var object
-     */
-    private $subject;
+    private object $subject;
 
-    /**
-     * @var Event\Envelope
-     */
-    private $event;
+    private Event\Envelope $event;
 
-    public function __construct($object, Event\Envelope $event, \Throwable $previous = null)
+    public function __construct(object $object, Event\Envelope $event, \Throwable $previous = null)
     {
-        if (false === \is_object($object)) {
-            $message = sprintf('Object expected, but got "%s"', \gettype($object));
-
-            throw new \InvalidArgumentException($message);
-        }
-
         $this->subject = $object;
         $this->event = $event;
 

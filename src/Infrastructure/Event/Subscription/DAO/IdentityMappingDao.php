@@ -17,13 +17,15 @@ use Streak\Domain\Event\Listener;
 use Streak\Domain\Event\Subscription;
 use Streak\Infrastructure\Event\Subscription\DAO;
 
+/**
+ * @see \Streak\Infrastructure\Event\Subscription\DAO\IdentityMappingDaoTest
+ */
 class IdentityMappingDao implements DAO
 {
-    /** @var DAO */
-    private $dao;
+    private DAO $dao;
 
     /** @var int[] */
-    private $versions = [];
+    private array $versions = [];
 
     public function __construct(DAO $dao)
     {

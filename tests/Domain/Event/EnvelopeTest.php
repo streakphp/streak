@@ -30,7 +30,7 @@ class EnvelopeTest extends TestCase
      */
     private $event1;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         $this->event1 = $this->getMockBuilder(Event::class)->setMockClassName('dushf9fguiewhfh')->getMockForAbstractClass();
     }

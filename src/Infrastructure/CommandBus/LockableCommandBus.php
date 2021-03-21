@@ -19,11 +19,13 @@ use Streak\Application\CommandHandler;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @see \Streak\Infrastructure\CommandBus\LockableCommandBusTest
  */
 class LockableCommandBus implements CommandBus
 {
-    private $bus;
-    private $locked = false;
+    private CommandBus $bus;
+    private bool $locked = false;
 
     public function __construct(CommandBus $bus)
     {

@@ -17,17 +17,22 @@ use Streak\Infrastructure\UnitOfWork;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @see \Streak\Infrastructure\UnitOfWork\CompositeUnitOfWorkTest
  */
 class CompositeUnitOfWork implements UnitOfWork
 {
-    private $uows = [];
+    /**
+     * @var UnitOfWork[]
+     */
+    private array $uows = [];
 
     public function __construct(UnitOfWork ...$uows)
     {
         $this->uows = $uows;
     }
 
-    public function add($object) : void
+    public function add(object $object) : void
     {
         foreach ($this->uows as $uow) {
             try {
@@ -42,14 +47,14 @@ class CompositeUnitOfWork implements UnitOfWork
         throw new Exception\ObjectNotSupported($object);
     }
 
-    public function remove($object) : void
+    public function remove(object $object) : void
     {
         foreach ($this->uows as $uow) {
             $uow->remove($object);
         }
     }
 
-    public function has($object) : bool
+    public function has(object $object) : bool
     {
         foreach ($this->uows as $uow) {
             if (true === $uow->has($object)) {

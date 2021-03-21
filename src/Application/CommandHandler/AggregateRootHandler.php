@@ -20,11 +20,13 @@ use Streak\Domain\AggregateRoot;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @see \Streak\Application\CommandHandler\AggregateRootHandlerTest
  */
 class AggregateRootHandler implements CommandHandler
 {
-    private $repository;
-    private $factory;
+    private AggregateRoot\Repository $repository;
+    private AggregateRoot\Factory $factory;
 
     public function __construct(AggregateRoot\Factory $factory, AggregateRoot\Repository $repository)
     {

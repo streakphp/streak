@@ -19,13 +19,12 @@ use Streak\Infrastructure\Event\Subscription\DAO\Subscription;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @see \Streak\Infrastructure\Event\Subscription\DAO\Subscription\FactoryTest
  */
 class Factory implements Event\Subscription\Factory
 {
-    /**
-     * @var Clock
-     */
-    private $clock;
+    private Clock $clock;
 
     public function __construct(Clock $clock)
     {

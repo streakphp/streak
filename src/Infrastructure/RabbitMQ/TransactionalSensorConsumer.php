@@ -19,11 +19,13 @@ use Streak\Infrastructure\UnitOfWork;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @see \Streak\Infrastructure\RabbitMQ\TransactionalSensorConsumerTest
  */
 class TransactionalSensorConsumer implements ConsumerInterface
 {
-    private $consumer;
-    private $uow;
+    private ConsumerInterface $consumer;
+    private UnitOfWork $uow;
 
     public function __construct(ConsumerInterface $consumer, UnitOfWork $uow)
     {

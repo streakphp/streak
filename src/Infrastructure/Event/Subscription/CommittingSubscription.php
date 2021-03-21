@@ -20,11 +20,13 @@ use Streak\Infrastructure\UnitOfWork;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @see \Streak\Infrastructure\Event\Subscription\CommittingSubscriptionTest
  */
 class CommittingSubscription implements Subscription, Subscription\Decorator
 {
-    private $subscription;
-    private $uow;
+    private Subscription $subscription;
+    private UnitOfWork $uow;
 
     public function __construct(Subscription $subscription, UnitOfWork $uow)
     {

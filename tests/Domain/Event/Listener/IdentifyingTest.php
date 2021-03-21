@@ -29,7 +29,7 @@ class IdentifyingTest extends TestCase
      */
     private $id;
 
-    public function setUp()
+    public function setUp() : void
     {
         $this->id = $this->getMockBuilder(Listener\Id::class)->getMockForAbstractClass();
     }

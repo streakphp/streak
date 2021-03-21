@@ -26,12 +26,9 @@ use Streak\Infrastructure\Event\Subscription\DAO;
  */
 class DbalPostgresDAOTest extends DAOTestCase
 {
-    /**
-     * @var Connection
-     */
-    private static $connection;
+    private static ?Connection $connection = null;
 
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass() : void
     {
         self::$connection = DriverManager::getConnection([
             'driver' => 'pdo_pgsql',
@@ -59,7 +56,7 @@ class DbalPostgresDAOTest extends DAOTestCase
         $listenerId1 = DAO\DAOTestCase\ListenerId::fromString('275b4f3e-ff07-4a48-8a24-d895c8d257b9');
         $listenerId3 = DAO\DAOTestCase\ListenerId::fromString('275b4f3e-ff07-4a48-8a24-d895c8d257b9');
 
-        $listener3 = $this->getMockBuilder([Event\Listener::class, Event\Listener\Completable::class])->setMockClassName('listener3')->getMock();
+        $listener3 = $this->getMockBuilder(DAO\DbalPostgresDAOTest\CompletableListener::class)->setMockClassName('listener3')->getMock();
         $listener3
             ->expects($this->atLeastOnce())
             ->method('listenerId')
@@ -86,9 +83,21 @@ class DbalPostgresDAOTest extends DAOTestCase
 
         $this->dao->save($subscription3);
 
-        $subscription4 = $this->getMockBuilder([Event\Subscription::class, Event\Subscription\Decorator::class])->getMock();
-        $subscription4->expects($this->any())->method('subscription')->willReturn($subscription3);
+        $subscription4 = $this->getMockBuilder(DAO\DbalPostgresDAOTest\DecoratedSubscription::class)->getMock();
+        $subscription4->method('subscription')->willReturn($subscription3);
 
         $this->dao->save($subscription4);
     }
+}
+
+namespace Streak\Infrastructure\Event\Subscription\DAO\DbalPostgresDAOTest;
+
+use Streak\Domain\Event;
+
+abstract class DecoratedSubscription implements Event\Subscription, Event\Subscription\Decorator
+{
+}
+
+abstract class CompletableListener implements Event\Listener, Event\Listener\Completable
+{
 }

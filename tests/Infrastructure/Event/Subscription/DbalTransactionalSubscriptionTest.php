@@ -45,15 +45,9 @@ class DbalTransactionalSubscriptionTest extends TestCase
      */
     private $listener;
 
-    /**
-     * @var EventStore
-     */
-    private $store1;
+    private ?EventStore $store1 = null;
 
-    /**
-     * @var EventStore
-     */
-    private $store2;
+    private ?EventStore $store2 = null;
 
     /**
      * @var Listener\Id|MockObject
@@ -62,28 +56,22 @@ class DbalTransactionalSubscriptionTest extends TestCase
 
     private $producerId1;
 
-    private $event1;
+    private Event\Envelope $event1;
 
-    private $event2;
+    private Event\Envelope $event2;
 
-    private $event3;
+    private Event\Envelope $event3;
 
     /**
      * @var Connection|MockObject
      */
     private $connection;
 
-    /**
-     * @var \Doctrine\DBAL\Connection
-     */
-    private static $connection1;
+    private static ?\Doctrine\DBAL\Connection $connection1 = null;
 
-    /**
-     * @var \Doctrine\DBAL\Connection
-     */
-    private static $connection2;
+    private static ?\Doctrine\DBAL\Connection $connection2 = null;
 
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass() : void
     {
         self::$connection1 = DriverManager::getConnection(
             [
@@ -107,19 +95,16 @@ class DbalTransactionalSubscriptionTest extends TestCase
         );
     }
 
-    protected function setUp()
+    protected function setUp() : void
     {
         $this->subscription = $this->getMockBuilder(Subscription::class)->getMockForAbstractClass();
         $this->listener = $this->getMockBuilder(Listener::class)->getMockForAbstractClass();
         $this->subscriptionId = $this->getMockBuilder(Listener\Id::class)->getMockForAbstractClass();
         $this->connection = $this->getMockBuilder(Connection::class)->getMockForAbstractClass();
         $this->producerId1 = ProducerId1::random();
-        $this->event1 = new Event1();
-        $this->event1 = Event\Envelope::new($this->event1, $this->producerId1);
-        $this->event2 = new Event2();
-        $this->event2 = Event\Envelope::new($this->event2, $this->producerId1);
-        $this->event3 = new Event3();
-        $this->event3 = Event\Envelope::new($this->event3, $this->producerId1);
+        $this->event1 = Event\Envelope::new(new Event1(), $this->producerId1);
+        $this->event2 = Event\Envelope::new(new Event2(), $this->producerId1);
+        $this->event3 = Event\Envelope::new(new Event3(), $this->producerId1);
 
         self::$connection1->close();
         self::$connection1->connect();

@@ -20,13 +20,15 @@ use Streak\Infrastructure\Serializer;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @see \Streak\Infrastructure\AggregateRoot\Snapshotter\SnapshottableAggregatesSnapshotterTest
  */
 final class SnapshottableAggregatesSnapshotter implements Snapshotter
 {
-    private $serializer;
-    private $storage;
+    private Serializer $serializer;
+    private Snapshotter\Storage $storage;
 
-    public function __construct(Serializer $serializer, Storage $storage)
+    public function __construct(Serializer $serializer, Snapshotter\Storage $storage)
     {
         $this->serializer = $serializer;
         $this->storage = $storage;

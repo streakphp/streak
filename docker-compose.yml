@@ -2,7 +2,7 @@ version: '3'
 services:
 
   php:
-    image: streakphp/php72-cli:latest
+    image: streakphp/php74-cli:latest
     volumes:
       - .:/var/www/project
     working_dir: /var/www/project

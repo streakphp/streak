@@ -17,18 +17,20 @@ use Streak\Domain\Id;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @see \Streak\Domain\EventStore\FilterTest
  */
 final class Filter
 {
     /**
      * @var Id[]
      */
-    private $producerIds = [];
+    private array $producerIds = [];
 
     /**
      * @var string[]
      */
-    private $producerTypes = [];
+    private array $producerTypes = [];
 
     public function __construct()
     {

@@ -29,7 +29,7 @@ class FilteringTest extends TestCase
      */
     private $stream;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         $this->stream = $this->getMockBuilder(Event\Stream::class)->getMockForAbstractClass();
     }

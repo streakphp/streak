@@ -20,11 +20,13 @@ use Streak\Domain\Event\Sourced\Subscription\Event\SubscriptionListenedToEvent;
  * Stream that iterates only over SubscriptionListenedToEvent events and emits events that SubscriptionListenedToEvent contains.
  *
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @see \Streak\Domain\Event\Sourced\Subscription\StreamTest
  */
 class Stream extends \FilterIterator implements Event\Stream
 {
-    private $stream;
-    private $position = 0;
+    private Event\Stream $stream;
+    private int $position = 0;
 
     public function __construct(Event\Stream $stream)
     {

@@ -17,6 +17,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Streak\Domain\AggregateRoot;
 use Streak\Infrastructure\AggregateRoot\Snapshotter;
+use Streak\Infrastructure\AggregateRoot\Snapshotter\SnapshottableAggregatesSnapshotterTest\SnapshottableAggregateRoot;
 use Streak\Infrastructure\AggregateRoot\Snapshotter\Storage\Exception\SnapshotNotFound;
 use Streak\Infrastructure\Serializer;
 
@@ -46,12 +47,12 @@ class SnapshottableAggregatesSnapshotterTest extends TestCase
      */
     private $snapshottableAggregateRoot;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         $this->serializer = $this->getMockBuilder(Serializer::class)->getMockForAbstractClass();
         $this->storage = $this->getMockBuilder(Snapshotter\Storage::class)->getMockForAbstractClass();
         $this->nonSnapshottableAggregateRoot = $this->getMockBuilder(AggregateRoot::class)->getMockForAbstractClass();
-        $this->snapshottableAggregateRoot = $this->getMockBuilder([AggregateRoot::class, AggregateRoot\Snapshottable::class])->getMock();
+        $this->snapshottableAggregateRoot = $this->getMockBuilder(SnapshottableAggregateRoot::class)->getMock();
     }
 
     public function testTakingSnapshotOfSnapshottableAggregateRoot()
@@ -169,4 +170,12 @@ class SnapshottableAggregatesSnapshotterTest extends TestCase
 
         $this->assertNull($snapshotter->restoreToSnapshot($this->snapshottableAggregateRoot));
     }
+}
+
+namespace Streak\Infrastructure\AggregateRoot\Snapshotter\SnapshottableAggregatesSnapshotterTest;
+
+use Streak\Domain\AggregateRoot;
+
+abstract class SnapshottableAggregateRoot implements AggregateRoot, AggregateRoot\Snapshottable
+{
 }

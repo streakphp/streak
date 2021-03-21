@@ -77,7 +77,7 @@ class CommandHandlingStub implements CommandHandler
 {
     use Command\Handling;
 
-    private $handled = [];
+    private array $handled = [];
 
     public function handle1(SupportedCommand1 $command)
     {

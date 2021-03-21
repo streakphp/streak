@@ -48,37 +48,19 @@ class RetryingCommandBusTest extends TestCase
      */
     private $handler;
 
-    /**
-     * @var Exception\ConcurrentWriteDetected
-     */
-    private $exception1;
+    private ?Exception\ConcurrentWriteDetected $exception1 = null;
 
-    /**
-     * @var Exception\ConcurrentWriteDetected
-     */
-    private $exception2;
+    private ?Exception\ConcurrentWriteDetected $exception2 = null;
 
-    /**
-     * @var Exception\ConcurrentWriteDetected
-     */
-    private $exception3;
+    private ?Exception\ConcurrentWriteDetected $exception3 = null;
 
-    /**
-     * @var Exception\ConcurrentWriteDetected
-     */
-    private $exception4;
+    private ?Exception\ConcurrentWriteDetected $exception4 = null;
 
-    /**
-     * @var Exception\ConcurrentWriteDetected
-     */
-    private $exception5;
+    private ?Exception\ConcurrentWriteDetected $exception5 = null;
 
-    /**
-     * @var Exception\ConcurrentWriteDetected
-     */
-    private $exception6;
+    private ?Exception\ConcurrentWriteDetected $exception6 = null;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         $this->bus = $this->getMockBuilder(CommandBus::class)->getMockForAbstractClass();
         $this->command = $this->getMockBuilder(Command::class)->getMockForAbstractClass();

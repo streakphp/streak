@@ -18,13 +18,15 @@ use Streak\Domain\Event\Exception;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @see \Streak\Infrastructure\Event\Converter\CompositeConverterTest
  */
 class CompositeConverter implements Converter
 {
     /**
      * @var Converter[]
      */
-    private $converters = [];
+    private array $converters = [];
 
     public function __construct(Converter ...$converters)
     {
@@ -39,7 +41,7 @@ class CompositeConverter implements Converter
     /**
      * @throws Exception\ConversionToArrayNotPossible
      */
-    public function objectToArray($object) : array
+    public function objectToArray(object $object) : array
     {
         foreach ($this->converters as $converter) {
             try {
@@ -57,7 +59,7 @@ class CompositeConverter implements Converter
     /**
      * @throws Exception\ConversionToObjectNotPossible
      */
-    public function arrayToObject(array $data)
+    public function arrayToObject(array $data) : object
     {
         $previous = null;
         foreach ($this->converters as $converter) {

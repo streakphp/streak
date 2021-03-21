@@ -20,16 +20,16 @@ use Streak\Infrastructure\UnitOfWork;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @see \Streak\Infrastructure\UnitOfWork\SnapshottingUnitOfWorkTest
  */
 class SnapshottingUnitOfWork implements UnitOfWork
 {
-    private $uow;
-    private $snapshotter;
-    private $versions;
-    private $committing = false;
-
-    /** @var int */
-    private $interval = 1;
+    private UnitOfWork $uow;
+    private Snapshotter $snapshotter;
+    private \SplObjectStorage $versions;
+    private bool $committing = false;
+    private int $interval = 1;
 
     public function __construct(UnitOfWork $uow, Snapshotter $snapshotter, int $interval = 1)
     {
@@ -43,7 +43,7 @@ class SnapshottingUnitOfWork implements UnitOfWork
         $this->interval = $interval;
     }
 
-    public function add($producer) : void
+    public function add(object $producer) : void
     {
         $this->uow->add($producer);
 
@@ -54,7 +54,7 @@ class SnapshottingUnitOfWork implements UnitOfWork
         }
     }
 
-    public function remove($producer) : void
+    public function remove(object $producer) : void
     {
         if ($producer instanceof Event\Sourced\AggregateRoot) {
             $id = $producer->producerId();
@@ -64,7 +64,7 @@ class SnapshottingUnitOfWork implements UnitOfWork
         $this->uow->remove($producer);
     }
 
-    public function has($producer) : bool
+    public function has(object $producer) : bool
     {
         return $this->uow->has($producer);
     }

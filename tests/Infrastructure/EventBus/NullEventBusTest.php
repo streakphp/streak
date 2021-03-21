@@ -54,7 +54,7 @@ class NullEventBusTest extends TestCase
      */
     private $event3;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         $this->listener1 = $this->getMockBuilder(Event\Listener::class)->setMockClassName('listener1')->getMockForAbstractClass();
         $this->listener2 = $this->getMockBuilder(Event\Listener::class)->setMockClassName('listener2')->getMockForAbstractClass();

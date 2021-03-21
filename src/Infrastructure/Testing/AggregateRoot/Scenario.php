@@ -30,13 +30,13 @@ use Streak\Infrastructure\UnitOfWork;
  */
 class Scenario implements Scenario\Given, Scenario\When, Scenario\Then
 {
-    private $handler;
-    private $store;
-    private $factory;
-    private $snapshotter;
-    private $uow;
-    private $id;
-    private $events = [];
+    private Application\CommandHandler $handler;
+    private InMemoryEventStore $store;
+    private AggregateRoot\Factory $factory;
+    private AggregateRoot\Snapshotter $snapshotter;
+    private UnitOfWork $uow;
+    private ?Domain\Id $id = null;
+    private array $events = [];
 
     public function __construct(Application\CommandHandler $handler, InMemoryEventStore $store, AggregateRoot\Factory $factory, Snapshotter $snapshotter, UnitOfWork $uow)
     {
@@ -100,9 +100,7 @@ class Scenario implements Scenario\Given, Scenario\When, Scenario\Then
         Domain\Event\Metadata::clear(...$actual);
 
         // unpack events from envelopes
-        $actual = array_map(function (Event\Envelope $envelope) {
-            return $envelope->message();
-        }, $actual);
+        $actual = array_map(fn (Event\Envelope $envelope) => $envelope->message(), $actual);
 
         Assert::assertEquals($expected, $actual, 'Expected events don\'t match produced events.');
 

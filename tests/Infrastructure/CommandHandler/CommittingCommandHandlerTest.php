@@ -77,7 +77,7 @@ class CommittingCommandHandlerTest extends TestCase
      */
     private $producer2;
 
-    public function setUp()
+    public function setUp() : void
     {
         $this->command = $this->getMockBuilder(Application\Command::class)->getMockForAbstractClass();
         $this->handler = $this->getMockBuilder(Application\CommandHandler::class)->getMockForAbstractClass();

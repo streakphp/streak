@@ -35,7 +35,7 @@ class FilterTest extends TestCase
      */
     private $id2;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         $this->id1 = $this->getMockBuilder(Listener\Id::class)->setMockClassName('id1')->getMock();
         $this->id2 = $this->getMockBuilder(Listener\Id::class)->setMockClassName('id2')->getMockForAbstractClass();

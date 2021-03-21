@@ -21,14 +21,16 @@ use Streak\Domain\Id\UUID;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @see \Streak\Infrastructure\EventStore\PublishingEventStoreTest
  */
 class PublishingEventStore implements EventStore, Schemable
 {
-    private $store;
-    private $bus;
-    private $working = false;
+    private EventStore $store;
+    private EventBus $bus;
+    private bool $working = false;
 
-    private $events = [];
+    private array $events = [];
 
     public function __construct(EventStore $store, EventBus $bus)
     {

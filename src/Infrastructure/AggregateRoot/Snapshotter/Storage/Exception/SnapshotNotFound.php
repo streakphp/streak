@@ -17,10 +17,12 @@ use Streak\Domain\AggregateRoot;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @see \Streak\Infrastructure\AggregateRoot\Snapshotter\Storage\Exception\SnapshotNotFoundTest
  */
 class SnapshotNotFound extends \RuntimeException
 {
-    private $aggregate;
+    private AggregateRoot $aggregate;
 
     public function __construct(AggregateRoot $aggregate)
     {

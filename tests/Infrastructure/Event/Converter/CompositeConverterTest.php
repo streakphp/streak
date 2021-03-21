@@ -43,7 +43,7 @@ class CompositeConverterTest extends TestCase
      */
     private $message;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         $this->converter1 = $this->getMockBuilder(Event\Converter::class)->getMockForAbstractClass();
         $this->converter2 = $this->getMockBuilder(Event\Converter::class)->getMockForAbstractClass();

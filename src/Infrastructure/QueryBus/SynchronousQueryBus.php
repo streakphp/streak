@@ -21,13 +21,12 @@ use Streak\Infrastructure\QueryHandler\CompositeQueryHandler;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @see \Streak\Infrastructure\QueryBus\SynchronousQueryBusTest
  */
 class SynchronousQueryBus implements Application\QueryBus
 {
-    /**
-     * @var QueryHandler
-     */
-    private $handler;
+    private CompositeQueryHandler $handler;
 
     public function __construct()
     {

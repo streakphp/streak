@@ -17,6 +17,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Streak\Domain\Event;
 use Streak\Domain\Event\Sourced\Subscription\Event\SubscriptionListenedToEvent;
+use Streak\Domain\Event\Sourced\Subscription\StreamTest\IterableStream;
 use Streak\Domain\Id\UUID;
 
 /**
@@ -51,9 +52,9 @@ class StreamTest extends TestCase
      */
     private $event4;
 
-    protected function setUp()
+    protected function setUp() : void
     {
-        $this->stream = $this->getMockBuilder([Event\Stream::class, \IteratorAggregate::class])->getMock();
+        $this->stream = $this->getMockBuilder(IterableStream::class)->getMock();
 
         $this->event1 = $this->getMockBuilder(Event::class)->getMockForAbstractClass();
         $this->event1 = Event\Envelope::new($this->event1, UUID::random());
@@ -203,11 +204,18 @@ class StreamTest extends TestCase
         $internal = new \ArrayIterator($items);
 
         $iterator
-            ->expects($this->any())
             ->method('getIterator')
             ->willReturn($internal)
         ;
 
         return $iterator;
     }
+}
+
+namespace Streak\Domain\Event\Sourced\Subscription\StreamTest;
+
+use Streak\Domain\Event;
+
+abstract class IterableStream implements Event\Stream, \IteratorAggregate
+{
 }

@@ -51,7 +51,7 @@ class LoggingSensorTest extends TestCase
      */
     private $stream;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         $this->sensor = $this->getMockBuilder(Sensor::class)->setMockClassName('SensorMock001')->getMockForAbstractClass();
         $this->logger = $this->getMockBuilder(LoggerInterface::class)->getMockForAbstractClass();

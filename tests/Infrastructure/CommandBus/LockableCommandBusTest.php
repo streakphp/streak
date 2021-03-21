@@ -48,7 +48,7 @@ class LockableCommandBusTest extends TestCase
      */
     private $handler3;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         $this->bus = $this->getMockBuilder(CommandBus::class)->getMockForAbstractClass();
         $this->handler1 = $this->getMockBuilder(CommandHandler::class)->getMockForAbstractClass();

@@ -29,7 +29,7 @@ class ListenerNotFoundTest extends TestCase
      */
     private $listenerId;
 
-    public function setUp()
+    public function setUp() : void
     {
         $this->listenerId = $this->getMockBuilder(Event\Listener\Id::class)->setMockClassName('listener_id_1')->getMockForAbstractClass();
     }

@@ -19,6 +19,8 @@ use Streak\Domain\Id\UUID;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @see \Streak\Domain\Event\EnvelopeTest
  */
 final class Envelope implements Domain\Envelope
 {
@@ -28,8 +30,8 @@ final class Envelope implements Domain\Envelope
     public const METADATA_PRODUCER_TYPE = 'producer_type';
     public const METADATA_PRODUCER_ID = 'producer_id';
 
-    private $message;
-    private $metadata = [];
+    private Event $message;
+    private array $metadata = [];
 
     public function __construct(UUID $uuid, string $name, Event $message, Domain\Id $producerId, ?int $version = null)
     {

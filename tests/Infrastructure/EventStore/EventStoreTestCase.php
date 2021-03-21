@@ -25,12 +25,9 @@ use Streak\Domain\Id;
  */
 abstract class EventStoreTestCase extends TestCase
 {
-    /**
-     * @var DbalPostgresEventStore
-     */
-    private $store;
+    private ?EventStore $store = null;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         $this->store = $this->newEventStore();
     }
@@ -341,7 +338,7 @@ use Streak\Domain;
 
 abstract class ValueId implements Domain\Id
 {
-    private $value;
+    private string $value;
 
     public function __construct(string $value)
     {

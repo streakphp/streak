@@ -13,12 +13,11 @@ declare(strict_types=1);
 
 namespace Streak\Infrastructure\Event\Subscription\DAO;
 
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Streak\Domain\Clock;
 use Streak\Domain\Event;
 use Streak\Domain\Id\UUID;
 use Streak\Infrastructure\Event\Subscription\DAO;
+use Streak\Infrastructure\Event\Subscription\DAO\DAOTestCase\CompletableListener;
 use Streak\Infrastructure\Event\Subscription\DAO\DAOTestCase\EventStub;
 use Streak\Infrastructure\Event\Subscription\DAO\DAOTestCase\ListenerId;
 use Streak\Infrastructure\EventStore\InMemoryEventStore;
@@ -29,49 +28,27 @@ use Streak\Infrastructure\FixedClock;
  */
 abstract class DAOTestCase extends TestCase
 {
-    /**
-     * @var DAO
-     */
-    protected $dao;
+    protected ?DAO $dao = null;
 
-    /**
-     * @var Event\Subscription\Factory|MockObject
-     */
-    protected $subscriptions;
+    protected Event\Subscription\Factory $subscriptions;
 
-    /**
-     * @var Event\Listener\Factory|MockObject
-     */
-    protected $listeners;
+    protected Event\Listener\Factory $listeners;
 
-    /**
-     * @var Event\Listener|MockObject
-     */
-    protected $listener1;
+    protected Event\Listener $listener1;
 
-    /**
-     * @var Event\Listener|MockObject
-     */
-    protected $listener2;
+    protected Event\Listener $listener2;
 
-    /**
-     * @var Event\Envelope|MockObject
-     */
-    protected $event;
+    protected ?Event\Envelope $event = null;
 
-    /**
-     * @var Clock
-     */
-    protected $clock;
+    protected ?FixedClock $clock = null;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         $this->subscriptions = $this->getMockBuilder(Event\Subscription\Factory::class)->getMockForAbstractClass();
         $this->listeners = $this->getMockBuilder(Event\Listener\Factory::class)->getMockForAbstractClass();
-        $this->listener1 = $this->getMockBuilder([Event\Listener::class, Event\Listener\Completable::class])->setMockClassName('listener1')->getMock();
-        $this->listener2 = $this->getMockBuilder([Event\Listener::class, Event\Listener\Completable::class])->setMockClassName('listener2')->getMock();
-        $this->event = new EventStub();
-        $this->event = Event\Envelope::new($this->event, UUID::random());
+        $this->listener1 = $this->getMockBuilder(CompletableListener::class)->setMockClassName('listener1')->getMock();
+        $this->listener2 = $this->getMockBuilder(CompletableListener::class)->setMockClassName('listener2')->getMock();
+        $this->event = Event\Envelope::new(new EventStub(), UUID::random());
         $this->clock = new FixedClock(new \DateTime('2018-09-28 19:12:32.763188 +00:00'));
         $this->dao = $this->newDAO(new Subscription\Factory($this->clock), $this->listeners);
     }
@@ -103,12 +80,10 @@ abstract class DAOTestCase extends TestCase
         ;
 
         $this->listener1
-            ->expects($this->any())
             ->method('completed')
             ->willReturnOnConsecutiveCalls(false, true)
         ;
         $this->listener2
-            ->expects($this->any())
             ->method('completed')
             ->willReturnOnConsecutiveCalls(false, false)
         ;
@@ -127,16 +102,17 @@ abstract class DAOTestCase extends TestCase
         $this->dao->save($subscription1);
 
         $this->listeners
-            ->expects($this->any())
             ->method('create')
-            ->willReturnCallback(function (ListenerId $id) use ($listenerId1, $listenerId2) {
-                if ($id->equals($listenerId1)) {
-                    return $this->listener1;
+            ->willReturnCallback(
+                function (ListenerId $id) use ($listenerId1, $listenerId2) {
+                    if ($id->equals($listenerId1)) {
+                        return $this->listener1;
+                    }
+                    if ($id->equals($listenerId2)) {
+                        return $this->listener2;
+                    }
                 }
-                if ($id->equals($listenerId2)) {
-                    return $this->listener2;
-                }
-            })
+            )
         ;
 
         $all = $this->dao->all();
@@ -250,5 +226,9 @@ class EventStub implements Event
 }
 
 class ListenerId extends UUID implements Event\Listener\Id
+{
+}
+
+abstract class CompletableListener implements Event\Listener, Event\Listener\Completable
 {
 }

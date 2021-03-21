@@ -40,7 +40,7 @@ class ProcessingTest extends TestCase
      */
     private $id;
 
-    public function setUp()
+    public function setUp() : void
     {
         $this->id = $this->getMockBuilder(Sensor\Id::class)->getMockForAbstractClass();
     }
@@ -216,7 +216,7 @@ class SensorStub2 implements Sensor
 
 class ArrayProcessed implements Event
 {
-    private $array;
+    private array $array;
 
     public function __construct(array $array)
     {
@@ -226,7 +226,7 @@ class ArrayProcessed implements Event
 
 class IntegerProcessed implements Event
 {
-    private $integer;
+    private int $integer;
 
     public function __construct(int $array)
     {
@@ -236,7 +236,7 @@ class IntegerProcessed implements Event
 
 class StringProcessed implements Event
 {
-    private $string;
+    private string $string;
 
     public function __construct(string $string)
     {
@@ -246,7 +246,7 @@ class StringProcessed implements Event
 
 class StdClassProcessed implements Event
 {
-    private $stdClass;
+    private \stdClass $stdClass;
 
     public function __construct(\stdClass $stdClass)
     {
@@ -256,7 +256,7 @@ class StdClassProcessed implements Event
 
 class BooleanProcessed implements Event
 {
-    private $boolean;
+    private bool $boolean;
 
     public function __construct(bool $boolean)
     {
@@ -278,7 +278,7 @@ class B2 extends A
 
 class AProcessed implements Event
 {
-    private $a;
+    private A $a;
 
     public function __construct(A $a)
     {
@@ -288,7 +288,7 @@ class AProcessed implements Event
 
 class B2Processed implements Event
 {
-    private $b2;
+    private B2 $b2;
 
     public function __construct(B2 $b2)
     {
@@ -298,7 +298,7 @@ class B2Processed implements Event
 
 class B1Processed implements Event
 {
-    private $b1;
+    private B1 $b1;
 
     public function __construct(B1 $b1)
     {

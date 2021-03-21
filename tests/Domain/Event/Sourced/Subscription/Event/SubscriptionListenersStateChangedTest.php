@@ -23,9 +23,9 @@ use Streak\Infrastructure\Event\Sourced\Subscription\InMemoryState;
  */
 class SubscriptionListenersStateChangedTest extends TestCase
 {
-    private $state;
+    private ?InMemoryState $state = null;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         $this->state = InMemoryState::empty();
         $this->state = $this->state->set('name', 'value');

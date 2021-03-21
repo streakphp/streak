@@ -17,6 +17,8 @@ use Streak\Infrastructure\Serializer;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @see \Streak\Infrastructure\Serializer\PhpSerializerTest
  */
 class PhpSerializer implements Serializer
 {

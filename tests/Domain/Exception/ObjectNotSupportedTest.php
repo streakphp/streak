@@ -28,7 +28,7 @@ class ObjectNotSupportedTest extends TestCase
      */
     private $object;
 
-    public function setUp()
+    public function setUp() : void
     {
         $this->object = $this->getMockBuilder(Domain\AggregateRoot::class)->getMockForAbstractClass();
     }

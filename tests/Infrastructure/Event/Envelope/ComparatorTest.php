@@ -32,40 +32,19 @@ class ComparatorTest extends TestCase
      */
     private $factory;
 
-    /**
-     * @var Comparator
-     */
-    private $comparator;
+    private ?Comparator $comparator = null;
 
-    /**
-     * @var \SebastianBergmann\Comparator\Comparator
-     */
-    private $subcomparator;
+    private ?Comparator $subcomparator;
 
-    /**
-     * @var UUID
-     */
-    private $uuid;
+    private UUID $uuid;
 
-    /**
-     * @var Event|MockObject
-     */
-    private $event1;
+    private ?Event $event1 = null;
 
-    /**
-     * @var Event\Envelope|MockObject
-     */
-    private $envelope1a;
+    private ?Event\Envelope $envelope1a = null;
 
-    /**
-     * @var Event\Envelope|MockObject
-     */
-    private $envelope1b;
+    private ?Event\Envelope $envelope1b = null;
 
-    /**
-     * @var Event|MockObject
-     */
-    private $event2;
+    private ?Event $event2 = null;
 
     /**
      * @var Event\Envelope|MockObject
@@ -77,7 +56,7 @@ class ComparatorTest extends TestCase
         $this->factory = $this->getMockBuilder(Factory::class)->disableOriginalConstructor()->getMock();
         $this->comparator = new Comparator();
         $this->comparator->setFactory($this->factory);
-        $this->subcomparator = $this->getMockBuilder(\SebastianBergmann\Comparator\Comparator::class)->disableOriginalConstructor()->getMock();
+        $this->subcomparator = $this->getMockBuilder(Comparator::class)->disableOriginalConstructor()->getMock();
 
         $this->uuid = UUID::random();
         $this->event1 = $this->getMockBuilder(Event::class)->getMockForAbstractClass();

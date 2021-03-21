@@ -17,10 +17,12 @@ use Streak\Domain\Event\Listener\State;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @see \Streak\Infrastructure\Event\Sourced\Subscription\InMemoryStateTest
  */
 class InMemoryState implements State
 {
-    private $state = [];
+    private array $state = [];
 
     private function __construct()
     {

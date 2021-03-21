@@ -25,12 +25,9 @@ use Streak\Domain\Id\UUID;
  */
 class EventNotSupportedTest extends TestCase
 {
-    /**
-     * @var Event\Envelope
-     */
-    private $event;
+    private ?Event\Envelope $event = null;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         $producerId = $this->getMockBuilder(Domain\Id::class)->getMockForAbstractClass();
         $event = $this->getMockBuilder(Event::class)->getMockForAbstractClass();

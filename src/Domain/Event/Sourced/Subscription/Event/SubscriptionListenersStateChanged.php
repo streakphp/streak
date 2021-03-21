@@ -19,13 +19,15 @@ use Streak\Infrastructure\Event\Sourced\Subscription\InMemoryState;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @see \Streak\Domain\Event\Sourced\Subscription\Event\SubscriptionListenersStateChangedTest
  */
 class SubscriptionListenersStateChanged implements Subscription\Event
 {
     private const DATE_FORMAT = 'U.u';
 
-    private $state;
-    private $timestamp;
+    private array $state;
+    private string $timestamp;
 
     public function __construct(State $state, \DateTimeInterface $timestamp)
     {

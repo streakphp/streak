@@ -17,10 +17,12 @@ use Streak\Application;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @see \Streak\Application\Exception\QueryNotSupportedTest
  */
 class QueryNotSupported extends \RuntimeException
 {
-    private $query;
+    private Application\Query $query;
 
     public function __construct(Application\Query $query, \Exception $previous = null)
     {

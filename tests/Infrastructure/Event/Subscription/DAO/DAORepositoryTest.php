@@ -26,8 +26,7 @@ use Streak\Infrastructure\UnitOfWork;
  */
 class DAORepositoryTest extends TestCase
 {
-    /** @var DAORepository */
-    private $daoRepository;
+    private ?DAORepository $daoRepository = null;
 
     /** @var DAO|MockObject */
     private $dao;

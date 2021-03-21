@@ -35,7 +35,7 @@ class EventAndConsumerMismatchTest extends TestCase
      */
     private $event;
 
-    public function setUp()
+    public function setUp() : void
     {
         $this->consumer = $this->getMockBuilder(Event\Consumer::class)->getMockForAbstractClass();
         $this->event = $this->getMockBuilder(Domain\Event::class)->getMockForAbstractClass();

@@ -20,6 +20,8 @@ use Streak\Infrastructure\AggregateRoot\Snapshotter;
  * Snapshotting is effectively turned off if this snapshotter is used.
  *
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @see \Streak\Infrastructure\AggregateRoot\Snapshotter\NullSnapshotterTest
  */
 class NullSnapshotter implements Snapshotter
 {

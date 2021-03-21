@@ -28,45 +28,33 @@ use Streak\Infrastructure\Testing\Listener\Scenario\Then;
  */
 class Scenario implements Scenario\Given, Scenario\When, Scenario\Then, Application\CommandHandler
 {
-    /**
-     * @var Application\CommandBus
-     */
-    private $bus;
+    private Application\CommandBus $bus;
+
+    private Event\Listener\Factory $factory;
 
     /**
-     * @var Event\Listener\Factory
+     * @var Event\Envelope[]
      */
-    private $factory;
+    private array $given = [];
 
-    /**
-     * @var Event[]
-     */
-    private $given = [];
+    private ?Event\Envelope $when = null;
 
-    /**
-     * @var Event
-     */
-    private $when;
-
-    /**
-     * @var bool
-     */
-    private $replaying = false;
+    private bool $replaying = false;
 
     /**
      * @var Application\Command[]
      */
-    private $actualCommands = [];
+    private array $actualCommands = [];
 
     /**
      * @var Application\Command[]
      */
-    private $expectedCommands = [];
+    private array $expectedCommands = [];
 
     /**
      * @var \Throwable[]
      */
-    private $expectedErrors = [];
+    private array $expectedErrors = [];
 
     public function __construct(Application\CommandBus $bus, Event\Listener\Factory $factory)
     {
@@ -77,18 +65,14 @@ class Scenario implements Scenario\Given, Scenario\When, Scenario\Then, Applicat
 
     public function given(Domain\Event ...$events) : Scenario\When
     {
-        $this->given = $events;
-        $this->given = array_map(function (Domain\Event $event) {
-            return Event\Envelope::new($event, Domain\Id\UUID::random());
-        }, $this->given);
+        $this->given = array_map(fn (Domain\Event $event) => Event\Envelope::new($event, Domain\Id\UUID::random()), $events);
 
         return $this;
     }
 
     public function when(Domain\Event $event) : Scenario\Then
     {
-        $this->when = $event;
-        $this->when = Event\Envelope::new($this->when, Domain\Id\UUID::random());
+        $this->when = Event\Envelope::new($event, Domain\Id\UUID::random());
 
         return $this;
     }

@@ -25,12 +25,10 @@ class InMemoryStateTest extends TestCase
 {
     /**
      * Stub acting as ['attribute-1' => 'value-1'] state.
-     *
-     * @var State
      */
-    private $stub;
+    private ?State $stub = null;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         $this->stub = new class() implements State {
             public function equals($object) : bool

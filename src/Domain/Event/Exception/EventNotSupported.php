@@ -17,10 +17,12 @@ use Streak\Domain\Event;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @see \Streak\Domain\Event\Exception\EventNotSupportedTest
  */
 class EventNotSupported extends \InvalidArgumentException
 {
-    private $event;
+    private Event\Envelope $event;
 
     public function __construct(Event\Envelope $event, \Throwable $previous = null)
     {

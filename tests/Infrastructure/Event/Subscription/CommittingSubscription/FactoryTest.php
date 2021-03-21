@@ -43,7 +43,7 @@ class FactoryTest extends TestCase
      */
     private $uow;
 
-    public function setUp()
+    public function setUp() : void
     {
         $this->listener = $this->getMockBuilder(Event\Listener::class)->getMockForAbstractClass();
         $this->clock = $this->getMockBuilder(Clock::class)->getMockForAbstractClass();

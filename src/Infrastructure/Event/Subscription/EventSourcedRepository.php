@@ -26,28 +26,18 @@ use Streak\Infrastructure;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @see \Streak\Infrastructure\Event\Subscription\EventSourcedRepositoryTest
  */
 class EventSourcedRepository implements Subscription\Repository
 {
-    /**
-     * @var Subscription\Factory
-     */
-    private $subscriptions;
+    private Subscription\Factory $subscriptions;
 
-    /**
-     * @var Event\Listener\Factory
-     */
-    private $listeners;
+    private Event\Listener\Factory $listeners;
 
-    /**
-     * @var Domain\EventStore
-     */
-    private $store;
+    private Domain\EventStore $store;
 
-    /**
-     * @var Infrastructure\UnitOfWork
-     */
-    private $uow;
+    private Infrastructure\UnitOfWork $uow;
 
     public function __construct(Subscription\Factory $subscriptions, Event\Listener\Factory $listeners, Domain\EventStore $store, Infrastructure\UnitOfWork $uow)
     {

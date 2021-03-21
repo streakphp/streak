@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace Streak\Infrastructure\Event;
 
-use Psr\Log;
+use Psr\Log\LoggerInterface;
 use Streak\Application\Exception;
 use Streak\Application\Query;
 use Streak\Application\QueryHandler;
@@ -24,13 +24,15 @@ use Streak\Domain\Event\Listener\State;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @see \Streak\Infrastructure\Event\LoggingListenerTest
  */
 class LoggingListener implements Event\Listener, Event\Listener\Replayable, Event\Listener\Completable, Listener\Resettable, Listener\Stateful, Event\Filterer, QueryHandler
 {
-    private $listener;
-    private $logger;
+    private Event\Listener $listener;
+    private LoggerInterface $logger;
 
-    public function __construct(Event\Listener $listener, Log\LoggerInterface $logger)
+    public function __construct(Event\Listener $listener, LoggerInterface $logger)
     {
         $this->listener = $listener;
         $this->logger = $logger;

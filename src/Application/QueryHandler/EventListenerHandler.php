@@ -21,10 +21,12 @@ use Streak\Domain\Event\Subscription\Exception\ListenerNotFound;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @see \Streak\Application\QueryHandler\EventListenerHandlerTest
  */
 class EventListenerHandler implements QueryHandler
 {
-    private $repository;
+    private Subscription\Repository $repository;
 
     public function __construct(Subscription\Repository $repository)
     {

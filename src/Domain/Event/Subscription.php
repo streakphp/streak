@@ -24,9 +24,9 @@ use Streak\Domain\EventStore;
  */
 interface Subscription
 {
-    public function listener() : Listener;
+    public function listener() : Event\Listener;
 
-    public function subscriptionId() : Listener\Id;
+    public function subscriptionId() : Event\Listener\Id;
 
     /**
      * @return iterable|Event\Envelope[]

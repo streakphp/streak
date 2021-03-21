@@ -28,7 +28,7 @@ class AggregateNotFoundTest extends TestCase
      */
     private $aggregateId;
 
-    public function setUp()
+    public function setUp() : void
     {
         $this->aggregateId = $this->getMockBuilder(Domain\AggregateRoot\Id::class)->setMockClassName('aggregate_id_1')->getMockForAbstractClass();
     }

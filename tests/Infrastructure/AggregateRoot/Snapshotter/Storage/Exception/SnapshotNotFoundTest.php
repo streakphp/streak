@@ -34,7 +34,7 @@ class SnapshotNotFoundTest extends TestCase
      */
     private $aggregateId;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         $this->aggregate = $this->getMockBuilder(AggregateRoot::class)->setMockClassName('streak__aggregate_1')->getMockForAbstractClass();
         $this->aggregateId = $this->getMockBuilder(AggregateRoot\Id::class)->setMockClassName('streak__aggregate_id_1')->getMockForAbstractClass();

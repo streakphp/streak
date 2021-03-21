@@ -19,10 +19,12 @@ use Streak\Domain\AggregateRoot;
 use Streak\Infrastructure\AggregateRoot\Snapshotter\Storage;
 use Streak\Infrastructure\Resettable;
 
+/**
+ * @see \Streak\Infrastructure\AggregateRoot\Snapshotter\Storage\PostgresStorageTest
+ */
 class PostgresStorage implements Storage, Resettable
 {
-    /** @var Connection */
-    private $connection;
+    private Connection $connection;
 
     public function __construct(Connection $connection)
     {

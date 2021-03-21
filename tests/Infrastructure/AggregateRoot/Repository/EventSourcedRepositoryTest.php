@@ -87,7 +87,7 @@ class EventSourcedRepositoryTest extends TestCase
      */
     private $stream;
 
-    public function setUp()
+    public function setUp() : void
     {
         $this->factory = $this->getMockBuilder(Domain\AggregateRoot\Factory::class)->getMockForAbstractClass();
         $this->store = $this->getMockBuilder(Domain\EventStore::class)->getMockForAbstractClass();

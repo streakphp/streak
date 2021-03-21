@@ -61,7 +61,7 @@ class ConsumerStub
 {
     use Event\Consuming;
 
-    private $consumed = [];
+    private array $consumed = [];
 
     public function on(Event\Envelope $event) : bool
     {

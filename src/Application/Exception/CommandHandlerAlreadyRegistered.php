@@ -17,10 +17,12 @@ use Streak\Application\CommandHandler;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @see \Streak\Application\Exception\CommandHandlerAlreadyRegisteredTest
  */
 class CommandHandlerAlreadyRegistered extends \OutOfRangeException
 {
-    private $handler;
+    private CommandHandler $handler;
 
     public function __construct(CommandHandler $handler, \Exception $previous = null)
     {

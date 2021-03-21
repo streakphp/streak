@@ -28,7 +28,7 @@ class AggregateAlreadyRegisteredTest extends TestCase
      */
     private $aggregate;
 
-    public function setUp()
+    public function setUp() : void
     {
         $this->aggregate = $this->getMockBuilder(Event\Sourced\Aggregate::class)->getMockForAbstractClass();
     }

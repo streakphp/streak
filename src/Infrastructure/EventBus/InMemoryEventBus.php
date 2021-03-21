@@ -18,23 +18,22 @@ use Streak\Domain\EventBus;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @see \Streak\Infrastructure\EventBus\InMemoryEventBusTest
  */
 class InMemoryEventBus implements EventBus
 {
     /**
      * @var Event\Listener[]
      */
-    private $listeners = [];
+    private \SplObjectStorage $listeners;
 
     /**
      * @var Event[]
      */
-    private $events = [];
+    private array $events = [];
 
-    /**
-     * @var bool
-     */
-    private $publishing = false;
+    private bool $publishing = false;
 
     public function __construct()
     {

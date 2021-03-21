@@ -15,20 +15,20 @@ namespace Streak\Infrastructure\Event\Subscription\DbalTransactionalSubscription
 
 use Doctrine\DBAL\Driver\Connection;
 use Streak\Domain\Event;
-use Streak\Domain\Event\Subscription;
 use Streak\Infrastructure\Event\Subscription\DbalTransactionalSubscription;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @see \Streak\Infrastructure\Event\Subscription\DbalTransactionalSubscription\FactoryTest
  */
-class Factory implements Subscription\Factory
+class Factory implements Event\Subscription\Factory
 {
-    private $factory;
-    private $connection;
-    private $class;
+    private Event\Subscription\Factory $factory;
+    private Connection $connection;
     private $maxTransactionSize;
 
-    public function __construct(Subscription\Factory $factory, Connection $connection, int $maxTransactionSize = 1)
+    public function __construct(Event\Subscription\Factory $factory, Connection $connection, int $maxTransactionSize = 1)
     {
         $this->factory = $factory;
         $this->connection = $connection;

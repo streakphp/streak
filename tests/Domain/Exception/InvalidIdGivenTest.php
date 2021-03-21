@@ -28,7 +28,7 @@ class InvalidIdGivenTest extends TestCase
      */
     private $id;
 
-    public function setUp()
+    public function setUp() : void
     {
         $this->id = $this->getMockBuilder(Domain\Id::class)->getMockForAbstractClass();
     }

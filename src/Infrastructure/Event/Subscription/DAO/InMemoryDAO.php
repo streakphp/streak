@@ -19,13 +19,15 @@ use Streak\Infrastructure\Event\Subscription\DAO;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @see \Streak\Infrastructure\Event\Subscription\DAO\InMemoryDAOTest
  */
 class InMemoryDAO implements DAO
 {
     /**
      * @var Subscription[]
      */
-    private $subscriptions = [];
+    private array $subscriptions = [];
 
     public function save(Subscription $subscription) : void
     {

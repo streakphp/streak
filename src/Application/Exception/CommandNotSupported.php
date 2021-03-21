@@ -17,10 +17,12 @@ use Streak\Application;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @see \Streak\Application\Exception\CommandNotSupportedTest
  */
 class CommandNotSupported extends \RuntimeException
 {
-    private $command;
+    private Application\Command $command;
 
     public function __construct(Application\Command $command, \Exception $previous = null)
     {

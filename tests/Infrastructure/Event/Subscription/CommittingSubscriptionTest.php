@@ -15,10 +15,12 @@ namespace Streak\Infrastructure\Event\Subscription;
 
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Streak\Domain\Clock;
 use Streak\Domain\Event;
 use Streak\Domain\Event\Listener;
 use Streak\Domain\EventStore;
 use Streak\Domain\Id\UUID;
+use Streak\Infrastructure\Event\Subscription\CommittingSubscriptionTest\IterableStream;
 use Streak\Infrastructure\FixedClock;
 use Streak\Infrastructure\UnitOfWork;
 
@@ -128,17 +130,14 @@ class CommittingSubscriptionTest extends TestCase
      */
     private $event5;
 
-    /**
-     * @var FixedClock
-     */
-    private $clock;
+    private ?Clock $clock = null;
 
     /**
      * @var UnitOfWork|MockObject
      */
     private $uow;
 
-    public function setUp()
+    public function setUp() : void
     {
         $this->listener = $this->getMockBuilder(Listener::class)->setMethods(['replay', 'reset', 'completed'])->getMockForAbstractClass();
 
@@ -149,9 +148,9 @@ class CommittingSubscriptionTest extends TestCase
 
         $this->store = $this->getMockBuilder(EventStore::class)->getMockForAbstractClass();
 
-        $this->stream1 = $this->getMockBuilder([Event\Stream::class, \IteratorAggregate::class])->getMock();
-        $this->stream2 = $this->getMockBuilder([Event\Stream::class, \IteratorAggregate::class])->getMock();
-        $this->stream3 = $this->getMockBuilder([Event\Stream::class, \IteratorAggregate::class])->getMock();
+        $this->stream1 = $this->getMockBuilder(IterableStream::class)->getMock();
+        $this->stream2 = $this->getMockBuilder(IterableStream::class)->getMock();
+        $this->stream3 = $this->getMockBuilder(IterableStream::class)->getMock();
 
         $this->event1 = $this->getMockBuilder(Event::class)->setMockClassName('event1')->getMockForAbstractClass();
         $this->event1 = Event\Envelope::new($this->event1, UUID::random());
@@ -544,4 +543,12 @@ class CommittingSubscriptionTest extends TestCase
 
         $subscription->unpause();
     }
+}
+
+namespace Streak\Infrastructure\Event\Subscription\CommittingSubscriptionTest;
+
+use Streak\Domain\Event;
+
+abstract class IterableStream implements Event\Stream, \IteratorAggregate
+{
 }

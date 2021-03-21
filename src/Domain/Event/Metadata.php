@@ -15,10 +15,12 @@ namespace Streak\Domain\Event;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @see \Streak\Domain\Event\MetadataTest
  */
 final class Metadata
 {
-    private $metadata = [];
+    private array $metadata = [];
 
     private function __construct(array $metadata)
     {

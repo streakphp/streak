@@ -19,13 +19,15 @@ use Streak\Application\QueryHandler;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @see \Streak\Infrastructure\QueryHandler\CompositeQueryHandlerTest
  */
 class CompositeQueryHandler implements QueryHandler
 {
     /**
      * @var QueryHandler[]
      */
-    private $handlers = [];
+    private array $handlers = [];
 
     public function __construct(QueryHandler ...$handlers)
     {

@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Streak\Infrastructure\AggregateRoot\Snapshotter\Storage;
 
-use Redis;
 use Streak\Domain\AggregateRoot;
 use Streak\Infrastructure\AggregateRoot\Snapshotter\Storage;
 use Streak\Infrastructure\AggregateRoot\Snapshotter\Storage\Exception\SnapshotNotFound;
@@ -24,9 +23,9 @@ use Streak\Infrastructure\Resettable;
  */
 final class RedisStorage implements Storage, Resettable
 {
-    private $redis;
+    private \Redis $redis;
 
-    public function __construct(Redis $client)
+    public function __construct(\Redis $client)
     {
         $this->redis = $client;
     }

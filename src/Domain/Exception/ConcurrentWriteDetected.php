@@ -17,16 +17,18 @@ use Streak\Domain;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @see \Streak\Domain\Exception\ConcurrentWriteDetectedTest
  */
 class ConcurrentWriteDetected extends \RuntimeException
 {
-    private $id;
+    private ?Domain\Id $id = null;
 
     public function __construct(?Domain\Id $id, \Throwable $previous = null)
     {
         $this->id = $id;
 
-        $id = $id ?? Domain\Id\UUID::random(); // TODO: fix it, remove weak dependency
+        $id ??= Domain\Id\UUID::random(); // TODO: fix it, remove weak dependency
 
         $message = sprintf('Concurrent write detected when tried to persist "%s#%s" aggregate.', get_class($id), $id->toString());
 

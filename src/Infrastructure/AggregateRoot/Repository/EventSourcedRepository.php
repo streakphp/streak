@@ -16,35 +16,24 @@ namespace Streak\Infrastructure\AggregateRoot\Repository;
 use Streak\Domain;
 use Streak\Domain\Event;
 use Streak\Domain\Exception;
-use Streak\Infrastructure\AggregateRoot\Snapshotter;
-use Streak\Infrastructure\UnitOfWork;
+use Streak\Infrastructure;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @see \Streak\Infrastructure\AggregateRoot\Repository\EventSourcedRepositoryTest
  */
 class EventSourcedRepository implements Domain\AggregateRoot\Repository
 {
-    /**
-     * @var Domain\AggregateRoot\Factory
-     */
-    private $factory;
+    private Domain\AggregateRoot\Factory $factory;
 
-    /**
-     * @var Domain\EventStore
-     */
-    private $store;
+    private Domain\EventStore $store;
 
-    /**
-     * @var Snapshotter
-     */
-    private $snapshotter;
+    private Infrastructure\AggregateRoot\Snapshotter $snapshotter;
 
-    /**
-     * @var UnitOfWork
-     */
-    private $uow;
+    private Infrastructure\UnitOfWork $uow;
 
-    public function __construct(Domain\AggregateRoot\Factory $factory, Domain\EventStore $store, Snapshotter $snapshotter, UnitOfWork $uow)
+    public function __construct(Domain\AggregateRoot\Factory $factory, Domain\EventStore $store, Infrastructure\AggregateRoot\Snapshotter $snapshotter, Infrastructure\UnitOfWork $uow)
     {
         $this->factory = $factory;
         $this->store = $store;

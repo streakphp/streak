@@ -45,7 +45,7 @@ class CompositeFactoryTest extends TestCase
      */
     private $aggregate1;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         $this->id1 = $this->getMockBuilder(AggregateRoot\Id::class)->getMockForAbstractClass();
         $this->factory1 = $this->getMockBuilder(AggregateRoot\Factory::class)->getMockForAbstractClass();

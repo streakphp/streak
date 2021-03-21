@@ -20,11 +20,13 @@ use Streak\Infrastructure\UnitOfWork;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @see \Streak\Infrastructure\Event\Subscription\CommittingSubscription\FactoryTest
  */
 class Factory implements Subscription\Factory
 {
-    private $factory;
-    private $uow;
+    private Subscription\Factory $factory;
+    private UnitOfWork $uow;
 
     public function __construct(Subscription\Factory $factory, UnitOfWork $uow)
     {

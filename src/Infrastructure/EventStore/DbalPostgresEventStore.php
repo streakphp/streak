@@ -25,6 +25,8 @@ use Streak\Domain\Id\UUID;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @see \Streak\Infrastructure\EventStore\DbalPostgresEventStoreTest
  */
 class DbalPostgresEventStore implements \Iterator, EventStore, Event\Stream, Schemable, Schema
 {
@@ -35,30 +37,27 @@ class DbalPostgresEventStore implements \Iterator, EventStore, Event\Stream, Sch
     private const DIRECTION_FORWARD = 'forward';
     private const DIRECTION_BACKWARD = 'backward';
 
-    private $connection;
-    private $converter;
+    private Connection $connection;
+    private Event\Converter $converter;
 
-    private $current = false;
-    private $key = 0;
+    private ?array $current;
+    private int $key = 0;
 
-    /**
-     * @var \PDOStatement
-     */
-    private $statement;
+    private ?Statement $statement = null;
 
-    private $filter = [];
-    private $only = [];
-    private $without = [];
-    private $from;
-    private $to;
-    private $after;
-    private $before;
-    private $limit;
+    private EventStore\Filter $filter;
+    private array $only = [];
+    private array $without = [];
+    private ?Event\Envelope $from = null;
+    private ?Event\Envelope $to = null;
+    private ?Event\Envelope $after = null;
+    private ?Event\Envelope $before = null;
+    private ?int $limit = null;
 
     /**
      * @var Event\Envelope[]
      */
-    private $session = [];
+    private array $session = [];
 
     public function __construct(Connection $connection, Event\Converter $converter)
     {
@@ -397,7 +396,13 @@ SQL;
 
     public function next()
     {
-        $this->current = $this->statement->fetch(\PDO::FETCH_ASSOC);
+        $row = $this->statement->fetch(\PDO::FETCH_ASSOC);
+
+        if (false === $row) {
+            $row = null;
+        }
+
+        $this->current = $row;
         $this->key = $this->key + 1;
     }
 
@@ -408,7 +413,7 @@ SQL;
 
     public function valid()
     {
-        return false !== $this->current;
+        return null !== $this->current;
     }
 
     public function rewind()
@@ -426,7 +431,14 @@ SQL;
             $this->limit,
             null
         );
-        $this->current = $this->statement->fetch(\PDO::FETCH_ASSOC);
+
+        $row = $this->statement->fetch(\PDO::FETCH_ASSOC);
+
+        if (false === $row) {
+            $row = null;
+        }
+
+        $this->current = $row;
         $this->key = 0;
     }
 
