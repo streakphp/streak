@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace Streak\Infrastructure\Event\Subscription;
 
-use Doctrine\DBAL\Driver\Connection;
+use Doctrine\DBAL\Connection;
 use Streak\Domain\Event;
 use Streak\Domain\Event\Listener;
 use Streak\Domain\Event\Subscription;

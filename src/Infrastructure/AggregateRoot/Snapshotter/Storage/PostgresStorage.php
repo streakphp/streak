@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace Streak\Infrastructure\AggregateRoot\Snapshotter\Storage;
 
-use Doctrine\DBAL\Driver\Connection;
+use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\TableNotFoundException;
 use Streak\Domain\AggregateRoot;
 use Streak\Infrastructure\AggregateRoot\Snapshotter\Storage;
@@ -67,8 +67,10 @@ class PostgresStorage implements Storage, Resettable
         $statement = $this->connection->prepare($sql);
         $statement->bindValue('type', get_class($aggregate->id()));
         $statement->bindValue('id', $aggregate->id()->toString());
-        $statement->execute();
-        $row = $statement->fetch();
+        $result = $statement->execute();
+
+        $row = $result->fetchAssociative();
+
         if (empty($row)) {
             throw new Storage\Exception\SnapshotNotFound($aggregate);
         }

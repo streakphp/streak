@@ -15,7 +15,7 @@ namespace Streak\Infrastructure\EventStore;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
-use Doctrine\DBAL\Statement;
+use Doctrine\DBAL\Result;
 use Streak\Domain;
 use Streak\Domain\Event;
 use Streak\Domain\Event\Stream;
@@ -40,10 +40,10 @@ class DbalPostgresEventStore implements \Iterator, EventStore, Event\Stream, Sch
     private Connection $connection;
     private Event\Converter $converter;
 
-    private ?array $current;
+    private ?array $current = null;
     private int $key = 0;
 
-    private ?Statement $statement = null;
+    private ?Result $result = null;
 
     private EventStore\Filter $filter;
     private array $only = [];
@@ -67,7 +67,7 @@ class DbalPostgresEventStore implements \Iterator, EventStore, Event\Stream, Sch
     }
 
     /**
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws \Doctrine\DBAL\Exception
      * @throws \RuntimeException
      */
     public function checkPlatform()
@@ -81,7 +81,7 @@ class DbalPostgresEventStore implements \Iterator, EventStore, Event\Stream, Sch
 
     /**
      * @throws \Doctrine\DBAL\ConnectionException
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws \Doctrine\DBAL\Exception
      * @throws \RuntimeException
      */
     public function create() : void
@@ -119,7 +119,7 @@ SQL;
     }
 
     /**
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws \Doctrine\DBAL\Exception
      * @throws \RuntimeException
      */
     public function drop() : void
@@ -174,9 +174,9 @@ SQL;
 
         try {
             $this->connection->beginTransaction();
-            $this->connection->exec('LOCK TABLE events IN SHARE UPDATE EXCLUSIVE MODE;');
+            $this->connection->executeStatement('LOCK TABLE events IN SHARE UPDATE EXCLUSIVE MODE;');
             $statement = $this->connection->prepare($sql);
-            $statement->execute($parameters);
+            $result = $statement->execute($parameters);
             $this->connection->commit();
         } catch (UniqueConstraintViolationException $e) {
             if ($id = $this->extractIdForConcurrentWrite($e)) {
@@ -198,7 +198,7 @@ SQL;
             throw $e;
         }
 
-        while ($returned = $statement->fetch(\PDO::FETCH_ASSOC)) {
+        while ($returned = $result->fetchAssociative()) {
             $number = (string) $returned['number'];
             $uuid = new UUID($returned['uuid']);
 
@@ -300,7 +300,7 @@ SQL;
 
     public function first() : ?Event\Envelope
     {
-        $statement = $this->select(
+        $result = $this->select(
             $this->filter,
             self::DIRECTION_FORWARD,
             [],
@@ -314,7 +314,7 @@ SQL;
             null
         );
 
-        $row = $statement->fetch(\PDO::FETCH_ASSOC);
+        $row = $result->fetchAssociative();
 
         if (false === $row) {
             return null;
@@ -337,7 +337,7 @@ SQL;
             $offset = $this->limit - 1;
         }
 
-        $statement = $this->select(
+        $result = $this->select(
             $this->filter,
             $direction,
             [],
@@ -351,7 +351,7 @@ SQL;
             $offset
         );
 
-        $row = $statement->fetch(\PDO::FETCH_ASSOC);
+        $row = $result->fetchAssociative();
 
         if (false === $row) {
             return null;
@@ -364,7 +364,7 @@ SQL;
 
     public function empty() : bool
     {
-        $statement = $this->select(
+        $result = $this->select(
             $this->filter,
             null, // we don't need ORDER BY here
             [],
@@ -378,7 +378,7 @@ SQL;
             null
         );
 
-        $row = $statement->fetch(\PDO::FETCH_ASSOC);
+        $row = $result->fetchAssociative();
 
         if (false === $row) {
             return true;
@@ -396,7 +396,7 @@ SQL;
 
     public function next()
     {
-        $row = $this->statement->fetch(\PDO::FETCH_ASSOC);
+        $row = $this->result->fetchAssociative();
 
         if (false === $row) {
             $row = null;
@@ -418,7 +418,7 @@ SQL;
 
     public function rewind()
     {
-        $this->statement = $this->select(
+        $this->result = $this->select(
             $this->filter,
             self::DIRECTION_FORWARD,
             [],
@@ -432,7 +432,7 @@ SQL;
             null
         );
 
-        $row = $this->statement->fetch(\PDO::FETCH_ASSOC);
+        $row = $this->result->fetchAssociative();
 
         if (false === $row) {
             $row = null;
@@ -447,9 +447,9 @@ SQL;
         $sql = 'SELECT * FROM events WHERE uuid = :uuid';
 
         $statement = $this->connection->prepare($sql);
-        $statement->execute(['uuid' => $uuid->toString()]);
+        $result = $statement->execute(['uuid' => $uuid->toString()]);
 
-        $row = $statement->fetch(\PDO::FETCH_ASSOC);
+        $row = $result->fetchAssociative();
 
         if (false === $row) {
             return null;
@@ -475,7 +475,7 @@ SQL;
 
     private function count() : int
     {
-        $statement = $this->select(
+        $result = $this->select(
             $this->filter,
             null,
             ['COUNT(*)'],
@@ -489,7 +489,7 @@ SQL;
             null
         );
 
-        $count = $statement->fetchColumn(0);
+        $count = $result->fetchOne();
 
         return (int) $count;
     }
@@ -522,7 +522,7 @@ SQL;
         ?array $without,
         ?int $limit,
         ?int $offset
-    ) : Statement {
+    ) : Result {
         $columns = implode(' , ', $columns);
 
         if (!$columns) {
@@ -637,9 +637,9 @@ SQL;
         }
 
         $statement = $this->connection->prepare($sql);
-        $statement->execute($parameters);
+        $result = $statement->execute($parameters);
 
-        return $statement;
+        return $result;
     }
 
     private function fromRow(array $row) : Event\Envelope

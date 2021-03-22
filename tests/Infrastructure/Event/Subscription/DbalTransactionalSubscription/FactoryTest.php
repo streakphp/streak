@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace Streak\Infrastructure\Event\Subscription\DbalTransactionalSubscription;
 
-use Doctrine\DBAL\Driver\Connection;
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Streak\Domain\Event\Listener;
@@ -50,7 +50,7 @@ class FactoryTest extends TestCase
     protected function setUp() : void
     {
         $this->factory = $this->getMockBuilder(Subscription\Factory::class)->getMockForAbstractClass();
-        $this->connection = $this->getMockBuilder(Connection::class)->getMockForAbstractClass();
+        $this->connection = $this->getMockBuilder(Connection::class)->disableOriginalConstructor()->getMockForAbstractClass();
         $this->listener = $this->getMockBuilder(Listener::class)->getMockForAbstractClass();
         $this->subscription = $this->getMockBuilder(Subscription::class)->getMockForAbstractClass();
     }

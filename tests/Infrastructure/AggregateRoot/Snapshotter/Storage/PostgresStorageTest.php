@@ -142,7 +142,7 @@ final class PostgresStorageTest extends \PHPUnit\Framework\TestCase
     {
         $sql = 'SELECT id, type, snapshot, snapshot_size, stores_counter FROM snapshots WHERE id = :id';
 
-        return self::$connection->fetchAssoc($sql, ['id' => $id]);
+        return self::$connection->fetchAssociative($sql, ['id' => $id]);
     }
 
     private function givenThereIsSnapshot(array $fixture) : void

@@ -14,9 +14,9 @@ declare(strict_types=1);
 namespace Streak\Infrastructure\EventStore;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\DriverManager;
-use Doctrine\DBAL\Platforms\MySqlPlatform;
+use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\Platforms\MySQLPlatform;
 use PHPUnit\Framework\MockObject\MockObject;
 use Streak\Domain\Event;
 use Streak\Domain\EventStore;
@@ -163,7 +163,7 @@ class DbalPostgresEventStoreTest extends EventStoreTestCase
         $store1 = new DbalPostgresEventStore(self::$connection2, new NestedObjectConverter());
         $store1->drop();
 
-        $this->expectException(DBALException::class);
+        $this->expectException(Exception::class);
 
         $store2 = new DbalPostgresEventStore(self::$connection1, new NestedObjectConverter());
         $store2->add($event1, $event2);

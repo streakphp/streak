@@ -34,7 +34,7 @@ class ComparatorTest extends TestCase
 
     private ?Comparator $comparator = null;
 
-    private ?Comparator $subcomparator;
+    private ?Comparator $subcomparator = null;
 
     private UUID $uuid;
 

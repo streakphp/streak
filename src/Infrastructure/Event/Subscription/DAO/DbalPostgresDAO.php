@@ -15,7 +15,7 @@ namespace Streak\Infrastructure\Event\Subscription\DAO;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\TableNotFoundException;
-use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\Types;
 use Streak\Domain\Event;
 use Streak\Domain\Event\Listener;
 use Streak\Domain\Event\Subscription;
@@ -47,7 +47,7 @@ class DbalPostgresDAO implements DAO
     }
 
     /**
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws \Doctrine\DBAL\Exception
      */
     public function save(Subscription $subscription) : void
     {
@@ -85,7 +85,7 @@ class DbalPostgresDAO implements DAO
      *
      * @return Subscription[]
      *
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws \Doctrine\DBAL\Exception
      */
     public function all(array $types = [], ?bool $completed = null) : iterable
     {
@@ -149,7 +149,7 @@ class DbalPostgresDAO implements DAO
         $property = $reflection->getProperty('completed');
         $property->setAccessible(true);
         $row['completed'] = $property->getValue($subscription);
-        $row['completed'] = $this->connection->convertToDatabaseValue($row['completed'], Type::BOOLEAN);
+        $row['completed'] = $this->connection->convertToDatabaseValue($row['completed'], Types::BOOLEAN);
         $property->setAccessible(false);
 
         $property = $reflection->getProperty('pausedAt');
@@ -227,7 +227,7 @@ SQL;
             $row['paused_at'] = $this->fromTimestamp($row['paused_at']);
         }
 
-        $row['completed'] = $this->connection->convertToPHPValue($row['completed'], Type::BOOLEAN);
+        $row['completed'] = $this->connection->convertToPHPValue($row['completed'], Types::BOOLEAN);
 
         $listener = $this->listeners->create($id);
         $subscription = $this->subscriptions->create($listener);
@@ -304,7 +304,7 @@ SQL;
     /**
      * @param \Streak\Infrastructure\Event\Subscription\DAO\Subscription $subscription
      *
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws \Doctrine\DBAL\Exception
      */
     private function doSave(DAO\Subscription $subscription) : void
     {
@@ -326,20 +326,19 @@ SQL;
      *
      * @return \Streak\Infrastructure\Event\Subscription\DAO\Subscription|null
      *
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws \Doctrine\DBAL\Exception
      */
     private function doOne(Event\Listener\Id $id)
     {
         $sql = 'SELECT subscription_type, subscription_id, subscription_version, state, started_by, started_at, last_processed_event, last_event_processed_at, completed, paused_at FROM subscriptions WHERE subscription_type = :subscription_type AND subscription_id = :subscription_id LIMIT 1';
 
         $statement = $this->connection->prepare($sql);
-        $statement->execute([
+        $result = $statement->execute([
             'subscription_type' => get_class($id),
             'subscription_id' => $id->toString(),
         ]);
 
-        $row = $statement->fetch(\PDO::FETCH_ASSOC);
-        $statement->closeCursor();
+        $row = $result->fetchAssociative();
 
         if (false === $row) {
             return null;
@@ -351,20 +350,19 @@ SQL;
     }
 
     /**
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws \Doctrine\DBAL\Exception
      */
     private function doExists(Listener\Id $id) : bool
     {
         $sql = 'SELECT subscription_type, subscription_id FROM subscriptions WHERE subscription_type = :subscription_type AND subscription_id = :subscription_id LIMIT 1';
 
         $statement = $this->connection->prepare($sql);
-        $statement->execute([
+        $result = $statement->execute([
             'subscription_type' => get_class($id),
             'subscription_id' => $id->toString(),
         ]);
 
-        $row = $statement->fetch(\PDO::FETCH_ASSOC);
-        $statement->closeCursor();
+        $row = $result->fetchAssociative();
 
         if (false === $row) {
             return false;
@@ -374,7 +372,7 @@ SQL;
     }
 
     /**
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws \Doctrine\DBAL\Exception
      */
     private function doAll(array $types, ?bool $completed) : \Generator
     {
@@ -407,15 +405,13 @@ SQL;
         $sql .= ' ORDER BY id';
 
         $statement = $this->connection->prepare($sql);
-        $statement->execute($parameters);
+        $result = $statement->execute($parameters);
 
-        while ($row = $statement->fetch(\PDO::FETCH_ASSOC)) {
+        while ($row = $result->fetchAssociative()) {
             $subscription = $this->fromRow($row);
 
             yield $subscription;
         }
-
-        $statement->closeCursor();
     }
 
     private function unwrap(Subscription $subscription) : DAO\Subscription

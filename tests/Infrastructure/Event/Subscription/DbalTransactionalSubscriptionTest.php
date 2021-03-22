@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace Streak\Infrastructure\Event\Subscription;
 
-use Doctrine\DBAL\Driver\Connection;
+use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -67,9 +67,9 @@ class DbalTransactionalSubscriptionTest extends TestCase
      */
     private $connection;
 
-    private static ?\Doctrine\DBAL\Connection $connection1 = null;
+    private static ?Connection $connection1 = null;
 
-    private static ?\Doctrine\DBAL\Connection $connection2 = null;
+    private static ?Connection $connection2 = null;
 
     public static function setUpBeforeClass() : void
     {
@@ -100,7 +100,7 @@ class DbalTransactionalSubscriptionTest extends TestCase
         $this->subscription = $this->getMockBuilder(Subscription::class)->getMockForAbstractClass();
         $this->listener = $this->getMockBuilder(Listener::class)->getMockForAbstractClass();
         $this->subscriptionId = $this->getMockBuilder(Listener\Id::class)->getMockForAbstractClass();
-        $this->connection = $this->getMockBuilder(Connection::class)->getMockForAbstractClass();
+        $this->connection = $this->getMockBuilder(Connection::class)->disableOriginalConstructor()->getMockForAbstractClass();
         $this->producerId1 = ProducerId1::random();
         $this->event1 = Event\Envelope::new(new Event1(), $this->producerId1);
         $this->event2 = Event\Envelope::new(new Event2(), $this->producerId1);
