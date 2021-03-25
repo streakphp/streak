@@ -108,7 +108,7 @@ final class Envelope implements Domain\Envelope
         return $this->metadata;
     }
 
-    public function equals($envelope) : bool
+    public function equals(object $envelope) : bool
     {
         if (!$envelope instanceof static) {
             return false;

@@ -33,9 +33,9 @@ class Scenario implements Scenario\Given, Scenario\When, Scenario\Then
     private Application\CommandHandler $handler;
     private InMemoryEventStore $store;
     private AggregateRoot\Factory $factory;
-    private AggregateRoot\Snapshotter $snapshotter;
+    private Snapshotter $snapshotter;
     private UnitOfWork $uow;
-    private ?Domain\Id $id = null;
+    private ?AggregateRoot\Id $id = null;
     private array $events = [];
 
     public function __construct(Application\CommandHandler $handler, InMemoryEventStore $store, AggregateRoot\Factory $factory, Snapshotter $snapshotter, UnitOfWork $uow)
@@ -47,7 +47,7 @@ class Scenario implements Scenario\Given, Scenario\When, Scenario\Then
         $this->uow = $uow;
     }
 
-    public function for(Domain\Id $id) : Given
+    public function for(AggregateRoot\Id $id) : Given
     {
         $this->id = $id;
 
@@ -81,6 +81,7 @@ class Scenario implements Scenario\Given, Scenario\When, Scenario\Then
 
         $this->store->clear();
 
+        /** @var AggregateRoot[] $uncommitted */
         $uncommitted = $this->uow->uncommitted();
 
         Assert::assertCount(1, $uncommitted, 'Only one aggregate root should be used during command execution.');

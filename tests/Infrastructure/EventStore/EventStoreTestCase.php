@@ -345,7 +345,7 @@ abstract class ValueId implements Domain\Id
         $this->value = $value;
     }
 
-    public function equals($id) : bool
+    public function equals(object $id) : bool
     {
         if (!$id instanceof self) {
             return false;

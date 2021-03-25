@@ -80,10 +80,6 @@ class EnvelopeTest extends TestCase
         $this->assertFalse($envelope2a->equals($envelope1a));
         $this->assertTrue($envelope2a->equals($envelope2b));
 
-        $this->assertFalse($envelope1a->equals(1));
-        $this->assertFalse($envelope1a->equals(1.0));
-        $this->assertFalse($envelope1a->equals('1'));
-        $this->assertFalse($envelope1a->equals([]));
         $this->assertFalse($envelope1a->equals(new \stdClass()));
     }
 

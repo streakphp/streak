@@ -185,7 +185,7 @@ class IdStub implements AggregateRoot\Id
         $this->id = $id;
     }
 
-    public function equals($object) : bool
+    public function equals(object $object) : bool
     {
         return true;
     }

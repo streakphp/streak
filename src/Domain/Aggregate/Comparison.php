@@ -26,7 +26,7 @@ trait Comparison
 
     abstract public function aggregateId() : Aggregate\Id;
 
-    final public function equals($aggregate) : bool
+    final public function equals(object $aggregate) : bool
     {
         if (!$this instanceof Domain\Aggregate) {
             return false;

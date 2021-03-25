@@ -26,7 +26,7 @@ trait Comparison
 
     abstract public function aggregateRootId() : AggregateRoot\Id;
 
-    final public function equals($root) : bool
+    final public function equals(object $root) : bool
     {
         if (!$this instanceof Domain\AggregateRoot) {
             return false;
