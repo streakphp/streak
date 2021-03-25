@@ -278,7 +278,7 @@ final class Subscription implements Event\Subscription, Event\Sourced, Versionab
         $this->version = $last->version();
     }
 
-    public function equals($object) : bool
+    public function equals(object $object) : bool
     {
         if (!$object instanceof self) {
             return false;

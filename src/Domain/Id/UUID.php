@@ -54,7 +54,7 @@ class UUID implements Domain\Id
         return new static($uuid);
     }
 
-    public function equals($uuid) : bool
+    public function equals(object $uuid) : bool
     {
         if (!$uuid instanceof static) {
             return false;

@@ -329,7 +329,7 @@ class VersionableEventSourcedStub implements Event\Sourced, Versionable
         $this->events = $events;
     }
 
-    public function equals($object) : bool
+    public function equals(object $object) : bool
     {
         throw new \BadMethodCallException();
     }
@@ -381,7 +381,7 @@ class NonVersionableEventSourcedStub implements Event\Sourced
         $this->events = $events;
     }
 
-    public function equals($object) : bool
+    public function equals(object $object) : bool
     {
         throw new \BadMethodCallException();
     }

@@ -31,7 +31,7 @@ class InMemoryStateTest extends TestCase
     protected function setUp() : void
     {
         $this->stub = new class() implements State {
-            public function equals($object) : bool
+            public function equals(object $object) : bool
             {
                 throw new \BadMethodCallException('Do not call method State::equals() on this stub.');
             }
@@ -67,8 +67,6 @@ class InMemoryStateTest extends TestCase
         $state1a = InMemoryState::empty();
         $state2a = InMemoryState::empty();
 
-        $this->assertFalse($state1a->equals(null));
-        $this->assertFalse($state2a->equals(null));
         $this->assertFalse($state1a->equals(new \stdClass()));
         $this->assertFalse($state2a->equals(new \stdClass()));
 

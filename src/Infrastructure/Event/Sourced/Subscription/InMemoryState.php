@@ -28,7 +28,7 @@ class InMemoryState implements State
     {
     }
 
-    public function equals($state) : bool
+    public function equals(object $state) : bool
     {
         if (!$state instanceof State) {
             return false;
