@@ -44,11 +44,11 @@ class SensorConsumerTest extends TestCase
         $this->sensor = $this->getMockBuilder(Sensor::class)->getMockForAbstractClass();
     }
 
-    public function testAck()
+    public function testAckWithJsonMessage()
     {
         $consumer = new SensorConsumer($this->factory);
 
-        $message = new AMQPMessage();
+        $message = new AMQPMessage('{"hello": "world"}');
 
         $this->factory
             ->expects($this->once())
@@ -60,7 +60,7 @@ class SensorConsumerTest extends TestCase
         $this->sensor
             ->expects($this->once())
             ->method('process')
-            ->with($message)
+            ->with(['hello' => 'world'])
         ;
 
         $result = $consumer->execute($message);
@@ -68,12 +68,11 @@ class SensorConsumerTest extends TestCase
         $this->assertSame(self::ACK, $result);
     }
 
-    public function testNack()
+    public function testAckWithTextMessage()
     {
         $consumer = new SensorConsumer($this->factory);
 
-        $message = new AMQPMessage();
-        $exception = new \RuntimeException();
+        $message = new AMQPMessage('Hello world!');
 
         $this->factory
             ->expects($this->once())
@@ -85,8 +84,55 @@ class SensorConsumerTest extends TestCase
         $this->sensor
             ->expects($this->once())
             ->method('process')
-            ->with($message)
-            ->willThrowException($exception)
+            ->with('Hello world!')
+        ;
+
+        $result = $consumer->execute($message);
+
+        $this->assertSame(self::ACK, $result);
+    }
+
+    public function testNackWithJsonMessage()
+    {
+        $consumer = new SensorConsumer($this->factory);
+
+        $message = new AMQPMessage('{"hello": "world"}');
+
+        $this->factory
+            ->expects($this->once())
+            ->method('create')
+            ->willReturn($this->sensor)
+        ;
+
+        $this->sensor
+            ->expects($this->once())
+            ->method('process')
+            ->with(['hello' => 'world'])
+            ->willThrowException(new \RuntimeException())
+        ;
+
+        $result = $consumer->execute($message);
+
+        $this->assertSame(self::NACK, $result);
+    }
+
+    public function testNackWithTextMessage()
+    {
+        $consumer = new SensorConsumer($this->factory);
+
+        $message = new AMQPMessage('Hello world!');
+
+        $this->factory
+            ->expects($this->once())
+            ->method('create')
+            ->willReturn($this->sensor)
+        ;
+
+        $this->sensor
+            ->expects($this->once())
+            ->method('process')
+            ->with('Hello world!')
+            ->willThrowException(new \RuntimeException())
         ;
 
         $result = $consumer->execute($message);
