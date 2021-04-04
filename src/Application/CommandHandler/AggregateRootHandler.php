@@ -17,6 +17,7 @@ use Streak\Application\Command;
 use Streak\Application\CommandHandler;
 use Streak\Application\Exception\CommandNotSupported;
 use Streak\Domain\AggregateRoot;
+use Streak\Domain\Exception\AggregateNotFound;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -26,11 +27,9 @@ use Streak\Domain\AggregateRoot;
 class AggregateRootHandler implements CommandHandler
 {
     private AggregateRoot\Repository $repository;
-    private AggregateRoot\Factory $factory;
 
-    public function __construct(AggregateRoot\Factory $factory, AggregateRoot\Repository $repository)
+    public function __construct(AggregateRoot\Repository $repository)
     {
-        $this->factory = $factory;
         $this->repository = $repository;
     }
 
@@ -44,7 +43,7 @@ class AggregateRootHandler implements CommandHandler
         $aggregate = $this->repository->find($id);
 
         if (null === $aggregate) {
-            $aggregate = $this->factory->create($id);
+            throw new AggregateNotFound($id);
         }
 
         if (!$aggregate instanceof CommandHandler) {
