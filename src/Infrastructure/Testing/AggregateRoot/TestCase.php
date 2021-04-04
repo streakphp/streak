@@ -52,7 +52,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
 
     protected function createHandler(AggregateRoot\Factory $factory, AggregateRoot\Repository $repository) : Application\CommandHandler
     {
-        return new CommandHandler\AggregateRootHandler($factory, $repository);
+        return new CommandHandler\AggregateRootHandler($repository);
     }
 
     protected function createSnapshotterSerializer() : Serializer
