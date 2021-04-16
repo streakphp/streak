@@ -13,12 +13,11 @@ declare(strict_types=1);
 
 namespace Streak\Infrastructure\CommandHandler;
 
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Streak\Application;
-use Streak\Domain;
+use Streak\Application\Command;
+use Streak\Application\CommandHandler;
 use Streak\Domain\Event;
-use Streak\Infrastructure;
+use Streak\Infrastructure\UnitOfWork;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -27,88 +26,44 @@ use Streak\Infrastructure;
  */
 class CommittingCommandHandlerTest extends TestCase
 {
-    /**
-     * @var Application\Command|MockObject
-     */
-    private $command;
+    private Command $command;
 
-    /**
-     * @var Application\CommandHandler|MockObject
-     */
-    private $handler;
+    private CommandHandler $handler;
 
-    /**
-     * @var Domain\EventStore|MockObject
-     */
-    private $store;
+    private UnitOfWork $uow;
 
-    /**
-     * @var Infrastructure\UnitOfWork|MockObject
-     */
-    private $uow;
+    private Event\Sourced\AggregateRoot $aggregateRoot1;
 
-    /**
-     * @var Event\Sourced\AggregateRoot|MockObject
-     */
-    private $aggregateRoot1;
+    private Event\Producer $producer1;
+    private Event\Producer $producer2;
 
-    /**
-     * @var Event\Sourced\AggregateRoot|MockObject
-     */
-    private $aggregateRoot2;
-
-    /**
-     * @var Domain\AggregateRoot\Id|MockObject
-     */
-    private $aggregateRootId1;
-
-    /**
-     * @var Domain\AggregateRoot\Id|MockObject
-     */
-    private $aggregateRootId2;
-
-    /**
-     * @var Event\Producer|MockObject
-     */
-    private $producer1;
-
-    /**
-     * @var Event\Producer|MockObject
-     */
-    private $producer2;
-
-    public function setUp() : void
+    protected function setUp(): void
     {
-        $this->command = $this->getMockBuilder(Application\Command::class)->getMockForAbstractClass();
-        $this->handler = $this->getMockBuilder(Application\CommandHandler::class)->getMockForAbstractClass();
-        $this->store = $this->getMockBuilder(Domain\EventStore::class)->getMockForAbstractClass();
-        $this->uow = $this->getMockBuilder(Infrastructure\UnitOfWork::class)->getMockForAbstractClass();
+        $this->command = $this->getMockBuilder(Command::class)->getMockForAbstractClass();
+        $this->handler = $this->getMockBuilder(CommandHandler::class)->getMockForAbstractClass();
+        $this->uow = $this->getMockBuilder(UnitOfWork::class)->getMockForAbstractClass();
 
         $this->aggregateRoot1 = $this->getMockBuilder(Event\Sourced\AggregateRoot::class)->getMockForAbstractClass();
-        $this->aggregateRoot2 = $this->getMockBuilder(Event\Sourced\AggregateRoot::class)->getMockForAbstractClass();
-
-        $this->aggregateRootId1 = $this->getMockBuilder(Domain\AggregateRoot\Id::class)->getMockForAbstractClass();
-        $this->aggregateRootId2 = $this->getMockBuilder(Domain\AggregateRoot\Id::class)->getMockForAbstractClass();
 
         $this->producer1 = $this->getMockBuilder(Event\Producer::class)->getMockForAbstractClass();
         $this->producer2 = $this->getMockBuilder(Event\Producer::class)->getMockForAbstractClass();
     }
 
-    public function testHandlingCommand()
+    public function testHandlingCommand(): void
     {
         $handler = new CommittingCommandHandler($this->handler, $this->uow);
 
         $this->handler
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('handle')
             ->with($this->command)
-            ->willReturnCallback(function () : void {
+            ->willReturnCallback(function (): void {
                 $this->uow->add($this->aggregateRoot1);
             })
         ;
 
         $this->uow
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('commit')
             ->with()
             ->willReturn($this->committed($this->producer1, $this->producer2))
@@ -117,7 +72,7 @@ class CommittingCommandHandlerTest extends TestCase
         $handler->handle($this->command);
     }
 
-    public function committed(Event\Producer ...$producers) : \Generator
+    public function committed(Event\Producer ...$producers): \Generator
     {
         foreach ($producers as $producer) {
             yield $producer;

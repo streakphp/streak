@@ -23,23 +23,23 @@ interface UnitOfWork
     /**
      * @throws Exception\ObjectNotSupported
      */
-    public function add(object $object) : void;
+    public function add(object $object): void;
 
-    public function remove(object $object) : void;
+    public function remove(object $object): void;
 
-    public function has(object $object) : bool;
+    public function has(object $object): bool;
 
     /**
      * @return object[]
      */
-    public function uncommitted() : array;
+    public function uncommitted(): array;
 
-    public function count() : int;
+    public function count(): int;
 
     /**
      * @return Generator|object[]
      */
-    public function commit() : \Generator;
+    public function commit(): \Generator;
 
-    public function clear() : void;
+    public function clear(): void;
 }

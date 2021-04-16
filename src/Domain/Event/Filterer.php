@@ -20,5 +20,5 @@ use Streak\Domain\Event;
  */
 interface Filterer
 {
-    public function filter(Event\Stream $stream) : Event\Stream;
+    public function filter(Event\Stream $stream): Event\Stream;
 }

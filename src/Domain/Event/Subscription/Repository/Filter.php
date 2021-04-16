@@ -25,19 +25,19 @@ final class Filter
     {
     }
 
-    public static function nothing() : Filter
+    public static function nothing(): self
     {
         return new self();
     }
 
-    public function filterSubscriptionTypes(string ...$types) : Filter
+    public function filterSubscriptionTypes(string ...$types): self
     {
         $filter = new self();
         $filter->subscriptionTypes = $this->subscriptionTypes;
         $filter->areCompletedSubscriptionsIgnored = $this->areCompletedSubscriptionsIgnored;
 
         foreach ($types as $type) {
-            if (true === in_array($type, $filter->subscriptionTypes, true)) {
+            if (true === \in_array($type, $filter->subscriptionTypes, true)) {
                 continue;
             }
             $filter->subscriptionTypes[] = $type;
@@ -46,7 +46,7 @@ final class Filter
         return $filter;
     }
 
-    public function doNotFilterProducerTypes() : Filter
+    public function doNotFilterProducerTypes(): self
     {
         $filter = new self();
         $filter->subscriptionTypes = [];
@@ -55,12 +55,12 @@ final class Filter
         return $filter;
     }
 
-    public function subscriptionTypes() : array
+    public function subscriptionTypes(): array
     {
         return $this->subscriptionTypes;
     }
 
-    public function ignoreCompletedSubscriptions() : Filter
+    public function ignoreCompletedSubscriptions(): self
     {
         $filter = new self();
         $filter->subscriptionTypes = $this->subscriptionTypes;
@@ -69,7 +69,7 @@ final class Filter
         return $filter;
     }
 
-    public function doNotIgnoreCompletedSubscriptions() : Filter
+    public function doNotIgnoreCompletedSubscriptions(): self
     {
         $filter = new self();
         $filter->subscriptionTypes = $this->subscriptionTypes;
@@ -78,7 +78,7 @@ final class Filter
         return $filter;
     }
 
-    public function areCompletedSubscriptionsIgnored() : bool
+    public function areCompletedSubscriptionsIgnored(): bool
     {
         return $this->areCompletedSubscriptionsIgnored;
     }

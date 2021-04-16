@@ -26,7 +26,7 @@ use Streak\Infrastructure\Testing\Listener;
  */
 abstract class TestCase extends \PHPUnit\Framework\TestCase
 {
-    public function given(Domain\Event ...$events) : Scenario\When
+    public function given(Domain\Event ...$events): Scenario\When
     {
         $bus = new SynchronousCommandBus();
         $factory = $this->createFactory($bus);
@@ -37,9 +37,9 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
         ;
     }
 
-    abstract public function createFactory(Application\CommandBus $bus) : Event\Listener\Factory;
+    abstract public function createFactory(Application\CommandBus $bus): Event\Listener\Factory;
 
-    private function createScenario(Application\CommandBus $bus, Event\Listener\Factory $factory) : Listener\Scenario
+    private function createScenario(Application\CommandBus $bus, Event\Listener\Factory $factory): Listener\Scenario
     {
         return new Listener\Scenario($bus, $factory);
     }

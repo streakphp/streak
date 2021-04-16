@@ -22,18 +22,18 @@ use Streak\Domain\Event;
  */
 abstract class TestCase extends \PHPUnit\Framework\TestCase
 {
-    abstract public function provideExampleMessages() : array;
+    abstract public function provideExampleMessages(): array;
 
     /**
      * @dataProvider provideExampleMessages
      */
-    public function testConverting(Event $message)
+    public function testConverting(Event $message): void
     {
         $array = $this->createConverter()->objectToArray($message);
-        $object = $this->createConverter()->arrayToObject(get_class($message), $array);
+        $object = $this->createConverter()->arrayToObject(\get_class($message), $array);
 
-        $this->assertEquals($message, $object);
+        self::assertEquals($message, $object);
     }
 
-    abstract protected function createConverter() : Event\Converter;
+    abstract protected function createConverter(): Event\Converter;
 }

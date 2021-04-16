@@ -28,17 +28,17 @@ trait Identifying
         $this->identifyBy($id);
     }
 
-    public function listenerId() : Listener\Id
+    public function listenerId(): Listener\Id
     {
         return $this->id;
     }
 
-    public function id() : Domain\Id
+    public function id(): Domain\Id
     {
         return $this->listenerId();
     }
 
-    protected function identifyBy(Listener\Id $id) : void
+    protected function identifyBy(Listener\Id $id): void
     {
         $this->id = $id;
     }

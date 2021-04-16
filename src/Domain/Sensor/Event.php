@@ -23,5 +23,5 @@ interface Event extends Domain\Event
 {
 //    public function producerId() : Actor\Id;
 
-    public function sensorId() : Sensor\Id;
+    public function sensorId(): Sensor\Id;
 }

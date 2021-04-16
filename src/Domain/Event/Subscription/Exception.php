@@ -20,5 +20,5 @@ use Streak\Domain\Event\Subscription;
  */
 interface Exception
 {
-    public function subscription() : Subscription;
+    public function subscription(): Subscription;
 }

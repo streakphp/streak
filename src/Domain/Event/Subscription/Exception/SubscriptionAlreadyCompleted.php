@@ -28,12 +28,12 @@ class SubscriptionAlreadyCompleted extends \RuntimeException implements Subscrip
     {
         $this->subscription = $subscription;
 
-        $message = sprintf('Subscription "%s#%s" is already completed.', get_class($this->subscription->subscriptionId()), $this->subscription->subscriptionId()->toString());
+        $message = sprintf('Subscription "%s#%s" is already completed.', \get_class($this->subscription->subscriptionId()), $this->subscription->subscriptionId()->toString());
 
         parent::__construct($message);
     }
 
-    public function subscription() : Subscription
+    public function subscription(): Subscription
     {
         return $this->subscription;
     }

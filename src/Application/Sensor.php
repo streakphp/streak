@@ -20,7 +20,7 @@ use Streak\Domain\Event\Producer;
  */
 interface Sensor extends Producer
 {
-    public function sensorId() : Sensor\Id;
+    public function sensorId(): Sensor\Id;
 
-    public function process(...$messages) : void;
+    public function process(...$messages): void;
 }

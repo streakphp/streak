@@ -28,11 +28,11 @@ class CommandNotSupported extends \RuntimeException
     {
         $this->command = $command;
 
-        $message = sprintf('Command "%s" is not supported.', get_class($command));
+        $message = sprintf('Command "%s" is not supported.', \get_class($command));
         parent::__construct($message, 0, $previous);
     }
 
-    public function command() : Application\Command
+    public function command(): Application\Command
     {
         return $this->command;
     }

@@ -24,14 +24,14 @@ use Streak\Application\Sensor\Factory;
 class CachingFactory implements Factory
 {
     private Factory $factory;
-    private $cached;
+    private ?Sensor $cached = null;
 
     public function __construct(Factory $factory)
     {
         $this->factory = $factory;
     }
 
-    public function create() : Sensor
+    public function create(): Sensor
     {
         if (null !== $this->cached) {
             return $this->cached;

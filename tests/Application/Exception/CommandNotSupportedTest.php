@@ -26,17 +26,17 @@ class CommandNotSupportedTest extends TestCase
     private $command;
     private ?\Exception $previous = null;
 
-    protected function setUp() : void
+    protected function setUp(): void
     {
         $this->command = $this->getMockBuilder(Application\Command::class)->getMockForAbstractClass();
         $this->previous = new \Exception();
     }
 
-    public function testException()
+    public function testException(): void
     {
         $exception = new CommandNotSupported($this->command, $this->previous);
 
-        $this->assertSame($this->command, $exception->command());
-        $this->assertSame($this->previous, $exception->getPrevious());
+        self::assertSame($this->command, $exception->command());
+        self::assertSame($this->previous, $exception->getPrevious());
     }
 }

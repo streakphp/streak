@@ -17,7 +17,6 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
-use PHPUnit\Framework\MockObject\MockObject;
 use Streak\Domain\Event;
 use Streak\Domain\EventStore;
 use Streak\Domain\Exception\ConcurrentWriteDetected;
@@ -30,18 +29,15 @@ use Streak\Infrastructure\Event\Converter\NestedObjectConverter;
  */
 class DbalPostgresEventStoreTest extends EventStoreTestCase
 {
-    private static ?Connection $connection1 = null;
+    private static Connection $connection1;
 
-    private static ?Connection $connection2 = null;
+    private static Connection $connection2;
 
-    /**
-     * @var Connection|MockObject
-     */
-    private $mysql;
+    private Connection $mysql;
 
-    private ?MySqlPlatform $mysqlPlatform = null;
+    private MySqlPlatform $mysqlPlatform;
 
-    public static function setUpBeforeClass() : void
+    public static function setUpBeforeClass(): void
     {
         self::$connection1 = DriverManager::getConnection([
             'driver' => 'pdo_pgsql',
@@ -61,7 +57,7 @@ class DbalPostgresEventStoreTest extends EventStoreTestCase
         ]);
     }
 
-    protected function setUp() : void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -69,7 +65,7 @@ class DbalPostgresEventStoreTest extends EventStoreTestCase
         $this->mysqlPlatform = new MySqlPlatform();
     }
 
-    public function testPlatformCheckWhenCreatingStore()
+    public function testPlatformCheckWhenCreatingStore(): void
     {
         $expected = new \RuntimeException('Only PostgreSQL database is supported by selected event store.');
         $this->expectExceptionObject($expected);
@@ -77,21 +73,21 @@ class DbalPostgresEventStoreTest extends EventStoreTestCase
         $store = new DbalPostgresEventStore($this->mysql, new NestedObjectConverter());
 
         $this->mysql
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('getDatabasePlatform')
             ->with()
             ->willReturn($this->mysqlPlatform)
         ;
 
         $this->mysql
-            ->expects($this->never())
-            ->method($this->logicalNot($this->equalTo('getDatabasePlatform')))
+            ->expects(self::never())
+            ->method(self::logicalNot(self::equalTo('getDatabasePlatform')))
         ;
 
         $store->create();
     }
 
-    public function testPlatformCheckWhenDropingStore()
+    public function testPlatformCheckWhenDropingStore(): void
     {
         $expected = new \RuntimeException('Only PostgreSQL database is supported by selected event store.');
         $this->expectExceptionObject($expected);
@@ -99,15 +95,15 @@ class DbalPostgresEventStoreTest extends EventStoreTestCase
         $store = new DbalPostgresEventStore($this->mysql, new NestedObjectConverter());
 
         $this->mysql
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('getDatabasePlatform')
             ->with()
             ->willReturn($this->mysqlPlatform)
         ;
 
         $this->mysql
-            ->expects($this->never())
-            ->method($this->logicalNot($this->equalTo('getDatabasePlatform')))
+            ->expects(self::never())
+            ->method(self::logicalNot(self::equalTo('getDatabasePlatform')))
         ;
 
         $store->drop();
@@ -118,7 +114,7 @@ class DbalPostgresEventStoreTest extends EventStoreTestCase
      *
      * @see EventStoreTestCase::testConcurrentWriting()
      */
-    public function testConcurrentWriting2()
+    public function testConcurrentWriting2(): void
     {
         $producerId1 = new EventStoreTestCase\ProducerId1('producer1');
         $event1 = new EventStoreTestCase\Event1();
@@ -141,7 +137,7 @@ class DbalPostgresEventStoreTest extends EventStoreTestCase
             $store2->add($event3, $event4);
         } catch (ConcurrentWriteDetected $e) {
             // test that no events were added
-            $this->assertEquals([$event1, $event2], iterator_to_array($store2->stream()));
+            self::assertEquals([$event1, $event2], iterator_to_array($store2->stream()));
 
             throw $e;
         }
@@ -152,7 +148,7 @@ class DbalPostgresEventStoreTest extends EventStoreTestCase
      *
      * @see EventStoreTestCase::testConcurrentWriting()
      */
-    public function testWritingWhenNoTableInDatabase()
+    public function testWritingWhenNoTableInDatabase(): void
     {
         $producerId1 = new EventStoreTestCase\ProducerId1('producer1');
         $event1 = new EventStoreTestCase\Event1();
@@ -169,16 +165,16 @@ class DbalPostgresEventStoreTest extends EventStoreTestCase
         $store2->add($event1, $event2);
     }
 
-    public function testSchema()
+    public function testSchema(): void
     {
         $store = new DbalPostgresEventStore($this->mysql, new NestedObjectConverter());
 
         $schema = $store->schema();
 
-        $this->assertSame($store, $schema);
+        self::assertSame($store, $schema);
     }
 
-    protected function newEventStore() : EventStore
+    protected function newEventStore(): EventStore
     {
         $store = new DbalPostgresEventStore(self::$connection1, new NestedObjectConverter());
         $store->drop();

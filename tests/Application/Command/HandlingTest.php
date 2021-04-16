@@ -30,7 +30,7 @@ use Streak\Application\Exception\CommandNotSupported;
  */
 class HandlingTest extends TestCase
 {
-    public function testSuccess()
+    public function testSuccess(): void
     {
         $handler = new CommandHandlingStub();
 
@@ -46,13 +46,13 @@ class HandlingTest extends TestCase
             'Streak\Application\Command\HandlingTest\CommandHandlingStub::handle4',
         ];
 
-        $this->assertSame($handled, $handler->handled());
+        self::assertSame($handled, $handler->handled());
     }
 
     /**
      * @dataProvider failingQueries
      */
-    public function testFailure(Command $query)
+    public function testFailure(Command $query): void
     {
         $this->expectExceptionObject(new CommandNotSupported($query));
 
@@ -60,7 +60,7 @@ class HandlingTest extends TestCase
         $handler->handle($query);
     }
 
-    public function failingQueries() : array
+    public function failingQueries(): array
     {
         return [
             [new NotSupportedCommand1()],
@@ -79,57 +79,57 @@ class CommandHandlingStub implements CommandHandler
 
     private array $handled = [];
 
-    public function handle1(SupportedCommand1 $command)
+    public function handle1(SupportedCommand1 $command): void
     {
         $this->handled[] = __METHOD__;
     }
 
-    public function handle2(SupportedCommand2 $command)
+    public function handle2(SupportedCommand2 $command): void
     {
         $this->handled[] = __METHOD__;
     }
 
-    public function handle3(SupportedCommand3 $command)
+    public function handle3(SupportedCommand3 $command): void
     {
         $this->handled[] = __METHOD__;
     }
 
-    public function handle4(SupportedCommand4 $command)
+    public function handle4(SupportedCommand4 $command): void
     {
         $this->handled[] = __METHOD__;
     }
 
-    public function notStartingWithHandle(NotSupportedCommand1 $command)
+    public function notStartingWithHandle(NotSupportedCommand1 $command): void
     {
         $this->handled[] = __METHOD__;
     }
 
-    public function handleHandlingMethodWithMoreThanOneParameter1(SupportedCommand1 $command1, SupportedCommand2 $command2)
+    public function handleHandlingMethodWithMoreThanOneParameter1(SupportedCommand1 $command1, SupportedCommand2 $command2): void
     {
         $this->handled[] = __METHOD__;
     }
 
-    public function handleHandlingMethodWithMoreThanOneParameter2(SupportedCommand1 $command1, SupportedCommand2 $command2, NotSupportedCommand1 $command3)
+    public function handleHandlingMethodWithMoreThanOneParameter2(SupportedCommand1 $command1, SupportedCommand2 $command2, NotSupportedCommand1 $command3): void
     {
         $this->handled[] = __METHOD__;
     }
 
-    public function handleNotRequiredCommandParameter(?SupportedCommand1 $command1)
+    public function handleNotRequiredCommandParameter(?SupportedCommand1 $command1): void
     {
         $this->handled[] = __METHOD__;
     }
 
-    public function handleNonCommandParameter(\stdClass $command1)
+    public function handleNonCommandParameter(\stdClass $command1): void
     {
         $this->handled[] = __METHOD__;
     }
 
-    public function handled() : array
+    public function handled(): array
     {
         return $this->handled;
     }
 
-    private function handlePrivateMethodHandlingMethod(NotSupportedCommand1 $command)
+    private function handlePrivateMethodHandlingMethod(NotSupportedCommand1 $command): void
     {
         $this->handled[] = __METHOD__;
     }

@@ -26,12 +26,12 @@ use Streak\Infrastructure\Event\InMemoryStream;
  */
 class ConsumingTest extends TestCase
 {
-    public function testConsuming()
+    public function testConsuming(): void
     {
         $consumer = new ConsumerStub();
 
-        $this->assertEmpty($consumer->consumed());
-        $this->assertNull($consumer->lastReplayed());
+        self::assertEmpty($consumer->consumed());
+        self::assertNull($consumer->lastReplayed());
 
         $producer1 = $this->getMockBuilder(Id::class)->getMockForAbstractClass();
 
@@ -48,8 +48,8 @@ class ConsumingTest extends TestCase
 
         $consumer->replay(new InMemoryStream(...$events));
 
-        $this->assertEquals($events, $consumer->consumed());
-        $this->assertEquals($event4, $consumer->lastReplayed());
+        self::assertEquals($events, $consumer->consumed());
+        self::assertEquals($event4, $consumer->lastReplayed());
     }
 }
 
@@ -63,7 +63,7 @@ class ConsumerStub
 
     private array $consumed = [];
 
-    public function on(Event\Envelope $event) : bool
+    public function on(Event\Envelope $event): bool
     {
         $this->consumed[] = $event;
 
@@ -73,7 +73,7 @@ class ConsumerStub
     /**
      * @return Event[]
      */
-    public function consumed() : array
+    public function consumed(): array
     {
         return $this->consumed;
     }

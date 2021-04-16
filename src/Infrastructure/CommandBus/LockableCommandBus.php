@@ -32,12 +32,12 @@ class LockableCommandBus implements CommandBus
         $this->bus = $bus;
     }
 
-    public function register(CommandHandler $handler) : void
+    public function register(CommandHandler $handler): void
     {
         $this->bus->register($handler);
     }
 
-    public function dispatch(Command $command) : void
+    public function dispatch(Command $command): void
     {
         if (true === $this->locked) {
             return;
@@ -46,12 +46,12 @@ class LockableCommandBus implements CommandBus
         $this->bus->dispatch($command);
     }
 
-    public function lock() : void
+    public function lock(): void
     {
         $this->locked = true;
     }
 
-    public function unlock() : void
+    public function unlock(): void
     {
         $this->locked = false;
     }

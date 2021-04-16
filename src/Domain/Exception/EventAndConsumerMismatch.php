@@ -33,12 +33,12 @@ class EventAndConsumerMismatch extends \LogicException
         parent::__construct('Event mismatched when applying on consumer.', 0, $previous);
     }
 
-    public function consumer() : Event\Consumer
+    public function consumer(): Event\Consumer
     {
         return $this->consumer;
     }
 
-    public function event() : Event\Envelope
+    public function event(): Event\Envelope
     {
         return $this->event;
     }

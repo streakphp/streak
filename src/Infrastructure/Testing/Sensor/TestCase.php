@@ -22,14 +22,14 @@ use Streak\Application\Sensor;
  */
 abstract class TestCase extends \PHPUnit\Framework\TestCase
 {
-    public function given(...$messages) : Scenario\Then
+    public function given(...$messages): Scenario\Then
     {
         return $this->createScenario()->given(...$messages);
     }
 
-    abstract public function createFactory() : Sensor\Factory;
+    abstract public function createFactory(): Sensor\Factory;
 
-    private function createScenario() : Scenario
+    private function createScenario(): Scenario
     {
         return new Scenario($this->createFactory());
     }

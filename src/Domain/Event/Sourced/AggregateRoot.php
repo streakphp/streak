@@ -22,5 +22,5 @@ use Streak\Domain\Versionable;
  */
 interface AggregateRoot extends Domain\AggregateRoot, Event\Sourced, Versionable
 {
-    public function lastEvent() : ?Event\Envelope;
+    public function lastEvent(): ?Event\Envelope;
 }

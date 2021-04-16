@@ -26,19 +26,16 @@ use Streak\Infrastructure\Event\Subscription\DAO;
  */
 class IdentityMappingDaoTest extends TestCase
 {
-    /** @var DAO|MockObject */
-    private $dao;
+    private DAO $dao;
 
-    public function setUp() : void
+    protected function setUp(): void
     {
-        parent::setUp();
-
         $this->dao = $this->getMockBuilder(DAO::class)->getMock();
     }
 
-    public function testItSavesNotSavedSubscription() : void
+    public function testItSavesNotSavedSubscription(): void
     {
-        $this->dao->expects($this->once())->method('save');
+        $this->dao->expects(self::once())->method('save');
         $subscription = $this->createSubscriptionStub(
             'eea81580-4e00-4680-8f87-e96054d3c41b',
             'SubscriptionId',
@@ -49,7 +46,7 @@ class IdentityMappingDaoTest extends TestCase
         $dao->save($subscription);
     }
 
-    public function testItSavesDifferentSubscriptions() : void
+    public function testItSavesDifferentSubscriptions(): void
     {
         $subscriptionA = $this->createSubscriptionStub(
             'eea81580-4e00-4680-8f87-e96054d3c41b',
@@ -63,14 +60,14 @@ class IdentityMappingDaoTest extends TestCase
             1
         );
 
-        $this->dao->expects($this->exactly(2))->method('save');
+        $this->dao->expects(self::exactly(2))->method('save');
 
         $dao = new IdentityMappingDao($this->dao);
         $dao->save($subscriptionA);
         $dao->save($subscriptionB);
     }
 
-    public function testItSavesWhenSubscriptionChanged() : void
+    public function testItSavesWhenSubscriptionChanged(): void
     {
         $subscription1 = $this->createSubscriptionStub(
             'eea81580-4e00-4680-8f87-e96054d3c41b',
@@ -83,14 +80,14 @@ class IdentityMappingDaoTest extends TestCase
             2
         );
 
-        $this->dao->expects($this->exactly(2))->method('save');
+        $this->dao->expects(self::exactly(2))->method('save');
 
         $dao = new IdentityMappingDao($this->dao);
         $dao->save($subscription1);
         $dao->save($subscription2);
     }
 
-    public function testItDoesNotSaveTwice() : void
+    public function testItDoesNotSaveTwice(): void
     {
         $subscription1 = $this->createSubscriptionStub(
             'eea81580-4e00-4680-8f87-e96054d3c41b',
@@ -103,38 +100,39 @@ class IdentityMappingDaoTest extends TestCase
             0
         );
 
-        $this->dao->expects($this->once())->method('save');
+        $this->dao->expects(self::once())->method('save');
 
         $dao = new IdentityMappingDao($this->dao);
         $dao->save($subscription1);
         $dao->save($subscription2);
     }
 
-    public function testItDoesNotSaveNotChangedSubscriptionGotByOne() : void
+    public function testItDoesNotSaveNotChangedSubscriptionGotByOne(): void
     {
-        $this->dao->expects($this->once())->method('one')->willReturn(
+        $this->dao->expects(self::once())->method('one')->willReturn(
             $this->createSubscriptionStub('eea81580-4e00-4680-8f87-e96054d3c41b', 'SubscriptionId', 1)
         );
-        $this->dao->expects($this->never())->method('save');
+        $this->dao->expects(self::never())->method('save');
 
         $dao = new IdentityMappingDao($this->dao);
         $subscription = $dao->one($this->createSubscriptionIdStub('SubscriptionId', 'eea81580-4e00-4680-8f87-e96054d3c41b'));
         $dao->save($subscription);
     }
 
-    public function testItDoesNotSaveNotChangedSubscriptionsGotByAll() : void
+    public function testItDoesNotSaveNotChangedSubscriptionsGotByAll(): void
     {
         $subscriptions = [
             $this->createSubscriptionStub('eea81580-4e00-4680-8f87-e96054d3c41b', 'SubscriptionId', 123),
             $this->createSubscriptionStub('d8daf5de-fff2-43c4-b30a-0595241ab1a4', 'SubscriptionId', 234),
         ];
         $this->dao
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('all')
-            ->willReturnCallback(function () use ($subscriptions) : iterable {
+            ->willReturnCallback(function () use ($subscriptions): iterable {
                 yield from $subscriptions;
-            });
-        $this->dao->expects($this->never())->method('save');
+            })
+        ;
+        $this->dao->expects(self::never())->method('save');
 
         $dao = new IdentityMappingDao($this->dao);
         foreach ($dao->all() as $subscription) {
@@ -142,40 +140,40 @@ class IdentityMappingDaoTest extends TestCase
         }
     }
 
-    public function testItReturnsAll() : void
+    public function testItReturnsAll(): void
     {
         $subscription = $this->createSubscriptionStub('eea81580-4e00-4680-8f87-e96054d3c41b', 'SubscriptionId', 100);
         $this->dao
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('all')
-            ->willReturnCallback(function () use ($subscription) : iterable {
+            ->willReturnCallback(function () use ($subscription): iterable {
                 yield $subscription;
-            });
+            })
+        ;
         $dao = new IdentityMappingDao($this->dao);
         self::assertEquals([$subscription], iterator_to_array($dao->all()));
     }
 
-    public function testItReturnsOne() : void
+    public function testItReturnsOne(): void
     {
         $subscription = $this->createSubscriptionStub('eea81580-4e00-4680-8f87-e96054d3c41b', 'SubscriptionId', 100);
-        $this->dao->expects($this->once())->method('one')->willReturn($subscription);
+        $this->dao->expects(self::once())->method('one')->willReturn($subscription);
         $dao = new IdentityMappingDao($this->dao);
         self::assertSame($subscription, $dao->one($subscription->subscriptionId()));
     }
 
-    public function testItExists() : void
+    public function testItExists(): void
     {
-        $this->dao->expects($this->once())->method('exists');
+        $this->dao->expects(self::once())->method('exists');
         $dao = new IdentityMappingDao($this->dao);
         $dao->exists($this->createSubscriptionIdStub('Id', 'be0e34c3-d53b-4463-b316-4a210971e64d'));
     }
 
     /**
-     * @return Subscription|MockObject
+     * @return MockObject|Subscription
      */
-    private function createSubscriptionStub(string $subscriptionId, string $subscriptionIdClassName, int $version) : Subscription
+    private function createSubscriptionStub(string $subscriptionId, string $subscriptionIdClassName, int $version): Subscription
     {
-        /** @var Subscription|MockObject $result */
         $result = $this->getMockBuilder(Subscription::class)->disableOriginalConstructor()->getMock();
         $result->method('subscriptionId')->willReturn($this->createSubscriptionIdStub($subscriptionIdClassName, $subscriptionId));
         $result->method('version')->willReturn($version);
@@ -183,17 +181,15 @@ class IdentityMappingDaoTest extends TestCase
         return $result;
     }
 
-    private function createEnvelopeStub(string $id) : Envelope
+    private function createEnvelopeStub(string $id): Envelope
     {
-        /** @var Event|MockObject $event */
         $event = $this->getMockBuilder(Event::class)->getMock();
 
         return new Envelope(new UUID($id), 'test', $event, new UUID($id));
     }
 
-    private function createSubscriptionIdStub(string $className, string $id) : Id
+    private function createSubscriptionIdStub(string $className, string $id): Id
     {
-        /** @var Id|MockObject $result */
         $result = $this->getMockBuilder(Id::class)->setMockClassName($className)->getMock();
         $result->method('toString')->willReturn($id);
 

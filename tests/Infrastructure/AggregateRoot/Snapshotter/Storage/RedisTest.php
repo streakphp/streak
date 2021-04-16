@@ -24,13 +24,13 @@ use Streak\Infrastructure\AggregateRoot\Snapshotter\Storage\Exception\SnapshotNo
  */
 class RedisTest extends Storage\TestCase
 {
-    public function testResetting()
+    public function testResetting(): void
     {
         $this->storage->store($this->aggregate1, 'snapshot-1');
 
         $result = $this->storage->find($this->aggregate1);
 
-        $this->assertSame('snapshot-1', $result);
+        self::assertSame('snapshot-1', $result);
 
         $this->storage->reset();
 
@@ -39,7 +39,7 @@ class RedisTest extends Storage\TestCase
         $this->storage->find($this->aggregate1);
     }
 
-    protected function newStorage() : Storage
+    protected function newStorage(): Storage
     {
         $redis = new \Redis();
         $redis->connect($_ENV['PHPUNIT_REDIS_HOSTNAME'], (int) $_ENV['PHPUNIT_REDIS_PORT']);

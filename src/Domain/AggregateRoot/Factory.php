@@ -24,5 +24,5 @@ interface Factory
     /**
      * @throws Exception\InvalidAggregateIdGiven
      */
-    public function create(AggregateRoot\Id $id) : AggregateRoot;
+    public function create(AggregateRoot\Id $id): AggregateRoot;
 }

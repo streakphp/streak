@@ -35,7 +35,7 @@ class PublishingEventStoreTest extends TestCase
     private $store;
 
     /**
-     * @var EventStore|Schemable|MockObject
+     * @var EventStore|MockObject|Schemable
      */
     private $schemableStore;
 
@@ -75,11 +75,11 @@ class PublishingEventStoreTest extends TestCase
     private $stream2;
 
     /**
-     * @var Schema|MockObject
+     * @var MockObject|Schema
      */
     private $schema;
 
-    protected function setUp() : void
+    protected function setUp(): void
     {
         $this->store = $this->getMockBuilder(EventStore::class)->getMockForAbstractClass();
         $this->schemableStore = $this->getMockBuilder(EventStoreWithSchema::class)->getMock();
@@ -99,12 +99,12 @@ class PublishingEventStoreTest extends TestCase
         $this->schema = $this->getMockBuilder(Schema::class)->getMockForAbstractClass();
     }
 
-    public function testStore()
+    public function testStore(): void
     {
         $store = new PublishingEventStore($this->store, $this->bus);
 
         $this->store
-            ->expects($this->exactly(3))
+            ->expects(self::exactly(3))
             ->method('add')
             ->withConsecutive(
                 [$this->event2],
@@ -119,7 +119,7 @@ class PublishingEventStoreTest extends TestCase
         ;
 
         $this->bus
-            ->expects($this->exactly(3))
+            ->expects(self::exactly(3))
             ->method('publish')
             ->withConsecutive(
                 [$this->event2],
@@ -133,17 +133,17 @@ class PublishingEventStoreTest extends TestCase
         $store->add($this->event2, $this->event3);
     }
 
-    public function testStoringNoEvents()
+    public function testStoringNoEvents(): void
     {
         $store = new PublishingEventStore($this->store, $this->bus);
 
         $this->store
-            ->expects($this->never())
+            ->expects(self::never())
             ->method('add')
         ;
 
         $this->bus
-            ->expects($this->never())
+            ->expects(self::never())
             ->method('publish')
         ;
 
@@ -152,26 +152,26 @@ class PublishingEventStoreTest extends TestCase
         $store->add(...$events);
     }
 
-    public function testSchemalessEventStore()
+    public function testSchemalessEventStore(): void
     {
         $store = new PublishingEventStore($this->store, $this->bus);
 
         $this->store
-            ->expects($this->never())
-            ->method($this->anything())
+            ->expects(self::never())
+            ->method(self::anything())
         ;
 
         $schema = $store->schema();
 
-        $this->assertNull($schema);
+        self::assertNull($schema);
     }
 
-    public function testSchemableEventStore()
+    public function testSchemableEventStore(): void
     {
         $store = new PublishingEventStore($this->schemableStore, $this->bus);
 
         $this->schemableStore
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('schema')
             ->with()
             ->willReturn($this->schema)
@@ -179,16 +179,16 @@ class PublishingEventStoreTest extends TestCase
 
         $schema = $store->schema();
 
-        $this->assertSame($this->schema, $schema);
+        self::assertSame($this->schema, $schema);
     }
 
-    public function testRetrievingStream()
+    public function testRetrievingStream(): void
     {
         $store = new PublishingEventStore($this->store, $this->bus);
         $filter = EventStore\Filter::nothing();
 
         $this->store
-            ->expects($this->exactly(2))
+            ->expects(self::exactly(2))
             ->method('stream')
             ->withConsecutive(
                 [null],
@@ -202,14 +202,14 @@ class PublishingEventStoreTest extends TestCase
 
         $stream = $store->stream();
 
-        $this->assertSame($this->stream1, $stream);
+        self::assertSame($this->stream1, $stream);
 
         $stream = $store->stream($filter);
 
-        $this->assertSame($this->stream2, $stream);
+        self::assertSame($this->stream2, $stream);
     }
 
-    public function testItReturnsEvent() : void
+    public function testItReturnsEvent(): void
     {
         $store = new PublishingEventStore($this->store, $this->bus);
 
@@ -217,13 +217,13 @@ class PublishingEventStoreTest extends TestCase
         $uuid2 = new UUID('abd8a704-dba3-4919-bc3a-5cc16faaac0a');
 
         $this->store
-            ->expects($this->exactly(2))
+            ->expects(self::exactly(2))
             ->method('event')
             ->withConsecutive([$uuid1], [$uuid2])
             ->willReturnOnConsecutiveCalls($this->event1, null)
         ;
-        $this->assertSame($this->event1, $store->event($uuid1));
-        $this->assertNull($store->event($uuid2));
+        self::assertSame($this->event1, $store->event($uuid1));
+        self::assertNull($store->event($uuid2));
     }
 }
 

@@ -20,7 +20,7 @@ use PHPUnit\Framework\TestCase;
  */
 class ObjectNotSupportedTest extends TestCase
 {
-    public function testIt()
+    public function testIt(): void
     {
         $object = new \stdClass();
         $previous = new \Exception();

@@ -24,11 +24,11 @@ use Streak\Application\CommandHandler;
  */
 class NullCommandBus implements CommandBus
 {
-    public function register(CommandHandler $handler) : void
+    public function register(CommandHandler $handler): void
     {
     }
 
-    public function dispatch(Command $command) : void
+    public function dispatch(Command $command): void
     {
     }
 }

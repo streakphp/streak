@@ -22,7 +22,7 @@ use Streak\Domain\Clock;
  */
 class FixedClock implements Clock
 {
-    const DATE_FORMAT = 'U.u';
+    private const DATE_FORMAT = 'U.u';
 
     private $now;
 
@@ -31,7 +31,7 @@ class FixedClock implements Clock
         $this->now = \DateTimeImmutable::createFromFormat(self::DATE_FORMAT, $time->format(self::DATE_FORMAT));
     }
 
-    public function now() : \DateTimeImmutable
+    public function now(): \DateTimeImmutable
     {
         return $this->now;
     }

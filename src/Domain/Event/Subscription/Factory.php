@@ -20,5 +20,5 @@ use Streak\Domain\Event;
  */
 interface Factory
 {
-    public function create(Event\Listener $listener) : Event\Subscription;
+    public function create(Event\Listener $listener): Event\Subscription;
 }

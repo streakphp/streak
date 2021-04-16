@@ -21,10 +21,10 @@ use Streak\Domain\Exception;
  */
 interface Repository
 {
-    public function add(Domain\AggregateRoot $aggregate) : void;
+    public function add(Domain\AggregateRoot $aggregate): void;
 
     /**
      * @throws Exception\ObjectNotSupported
      */
-    public function find(Domain\AggregateRoot\Id $id) : ?Domain\AggregateRoot;
+    public function find(Domain\AggregateRoot\Id $id): ?Domain\AggregateRoot;
 }

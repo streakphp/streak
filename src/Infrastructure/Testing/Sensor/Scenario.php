@@ -31,14 +31,14 @@ class Scenario implements Scenario\Given, Scenario\Then
         $this->sensor = $factory->create();
     }
 
-    public function given(...$messages) : Scenario\Then
+    public function given(...$messages): Scenario\Then
     {
         $this->sensor->process(...$messages);
 
         return $this;
     }
 
-    public function then(Event ...$expected) : void
+    public function then(Event ...$expected): void
     {
         $actual = array_map(fn (Event\Envelope $event) => $event->message(), $this->sensor->events());
         Assert::assertEquals($expected, $actual, 'Expected events don\'t match produced events.');

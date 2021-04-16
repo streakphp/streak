@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Streak\Infrastructure\UnitOfWork;
 
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Streak\Domain\Event;
 use Streak\Domain\EventStore;
@@ -30,37 +29,15 @@ use Streak\Infrastructure\UnitOfWorkTest\VersionableEventSourcedStub;
  */
 class EventStoreUnitOfWorkTest extends TestCase
 {
-    /**
-     * @var EventStore|MockObject
-     */
-    private $store;
+    private EventStore $store;
 
-    /**
-     * @var Event|MockObject
-     */
-    private $event1;
+    private Event $event1;
+    private Event $event2;
+    private Event $event3;
+    private Event $event4;
+    private Event $event5;
 
-    /**
-     * @var Event|MockObject
-     */
-    private $event2;
-
-    /**
-     * @var Event|MockObject
-     */
-    private $event3;
-
-    /**
-     * @var Event|MockObject
-     */
-    private $event4;
-
-    /**
-     * @var Event|MockObject
-     */
-    private $event5;
-
-    public function setUp() : void
+    protected function setUp(): void
     {
         $this->store = $this->getMockBuilder(EventStore::class)->getMockForAbstractClass();
 
@@ -71,7 +48,7 @@ class EventStoreUnitOfWorkTest extends TestCase
         $this->event5 = $this->getMockBuilder(Event::class)->setMockClassName('event5')->getMockForAbstractClass();
     }
 
-    public function testObject()
+    public function testObject(): void
     {
         $id1 = UUID::random();
         $id2 = UUID::random();
@@ -91,105 +68,105 @@ class EventStoreUnitOfWorkTest extends TestCase
 
         $uow = new EventStoreUnitOfWork($this->store);
 
-        $this->assertEmpty($uow->uncommitted());
-        $this->assertEquals(0, $uow->count());
-        $this->assertFalse($uow->has($object1));
-        $this->assertFalse($uow->has($object2));
-        $this->assertFalse($uow->has($object3));
-        $this->assertFalse($uow->has($object4));
+        self::assertEmpty($uow->uncommitted());
+        self::assertEquals(0, $uow->count());
+        self::assertFalse($uow->has($object1));
+        self::assertFalse($uow->has($object2));
+        self::assertFalse($uow->has($object3));
+        self::assertFalse($uow->has($object4));
 
         $uow->remove($object1);
 
-        $this->assertEmpty($uow->uncommitted());
-        $this->assertEquals(0, $uow->count());
-        $this->assertFalse($uow->has($object1));
-        $this->assertFalse($uow->has($object2));
-        $this->assertFalse($uow->has($object3));
-        $this->assertFalse($uow->has($object4));
+        self::assertEmpty($uow->uncommitted());
+        self::assertEquals(0, $uow->count());
+        self::assertFalse($uow->has($object1));
+        self::assertFalse($uow->has($object2));
+        self::assertFalse($uow->has($object3));
+        self::assertFalse($uow->has($object4));
 
         $uow->add($object1);
 
-        $this->assertSame([$object1], $uow->uncommitted());
-        $this->assertEquals(1, $uow->count());
-        $this->assertTrue($uow->has($object1));
-        $this->assertFalse($uow->has($object2));
-        $this->assertFalse($uow->has($object3));
-        $this->assertFalse($uow->has($object4));
+        self::assertSame([$object1], $uow->uncommitted());
+        self::assertEquals(1, $uow->count());
+        self::assertTrue($uow->has($object1));
+        self::assertFalse($uow->has($object2));
+        self::assertFalse($uow->has($object3));
+        self::assertFalse($uow->has($object4));
 
         $uow->add($object2);
 
-        $this->assertSame([$object1, $object2], $uow->uncommitted());
-        $this->assertEquals(2, $uow->count());
-        $this->assertTrue($uow->has($object1));
-        $this->assertTrue($uow->has($object2));
-        $this->assertFalse($uow->has($object3));
-        $this->assertFalse($uow->has($object4));
+        self::assertSame([$object1, $object2], $uow->uncommitted());
+        self::assertEquals(2, $uow->count());
+        self::assertTrue($uow->has($object1));
+        self::assertTrue($uow->has($object2));
+        self::assertFalse($uow->has($object3));
+        self::assertFalse($uow->has($object4));
 
         $uow->remove($object2);
 
-        $this->assertSame([$object1], $uow->uncommitted());
-        $this->assertEquals(1, $uow->count());
-        $this->assertTrue($uow->has($object1));
-        $this->assertFalse($uow->has($object2));
-        $this->assertFalse($uow->has($object3));
-        $this->assertFalse($uow->has($object4));
+        self::assertSame([$object1], $uow->uncommitted());
+        self::assertEquals(1, $uow->count());
+        self::assertTrue($uow->has($object1));
+        self::assertFalse($uow->has($object2));
+        self::assertFalse($uow->has($object3));
+        self::assertFalse($uow->has($object4));
 
         $uow->add($object3);
 
-        $this->assertSame([$object1, $object3], $uow->uncommitted());
-        $this->assertEquals(2, $uow->count());
-        $this->assertTrue($uow->has($object1));
-        $this->assertFalse($uow->has($object2));
-        $this->assertTrue($uow->has($object3));
-        $this->assertFalse($uow->has($object4));
+        self::assertSame([$object1, $object3], $uow->uncommitted());
+        self::assertEquals(2, $uow->count());
+        self::assertTrue($uow->has($object1));
+        self::assertFalse($uow->has($object2));
+        self::assertTrue($uow->has($object3));
+        self::assertFalse($uow->has($object4));
 
         $uow->add($object4);
 
-        $this->assertSame([$object1, $object3, $object4], $uow->uncommitted());
-        $this->assertEquals(3, $uow->count());
-        $this->assertTrue($uow->has($object1));
-        $this->assertFalse($uow->has($object2));
-        $this->assertTrue($uow->has($object3));
-        $this->assertTrue($uow->has($object4));
+        self::assertSame([$object1, $object3, $object4], $uow->uncommitted());
+        self::assertEquals(3, $uow->count());
+        self::assertTrue($uow->has($object1));
+        self::assertFalse($uow->has($object2));
+        self::assertTrue($uow->has($object3));
+        self::assertTrue($uow->has($object4));
 
         $this->store
-            ->expects($this->at(0))
+            ->expects(self::at(0))
             ->method('add')
             ->with($event1)
         ;
 
         $this->store
-            ->expects($this->at(1))
+            ->expects(self::at(1))
             ->method('add')
             ->with($event3, $event4)
         ;
 
         $this->store
-            ->expects($this->at(2))
+            ->expects(self::at(2))
             ->method('add')
             ->with($event5)
         ;
 
-        $this->assertFalse($object1->commited());
-        $this->assertFalse($object2->commited());
-        $this->assertFalse($object3->commited());
+        self::assertFalse($object1->commited());
+        self::assertFalse($object2->commited());
+        self::assertFalse($object3->commited());
 
         $commited = $uow->commit();
         $commited = iterator_to_array($commited);
 
-        $this->assertEmpty($uow->uncommitted());
-        $this->assertSame([$object1, $object3, $object4], $commited);
-        $this->assertTrue($object1->commited());
-        $this->assertFalse($object2->commited());
-        $this->assertTrue($object3->commited());
-        $this->assertEquals(0, $uow->count());
-        $this->assertFalse($uow->has($object1));
-        $this->assertFalse($uow->has($object2));
-        $this->assertFalse($uow->has($object3));
-        $this->assertFalse($uow->has($object4));
+        self::assertEmpty($uow->uncommitted());
+        self::assertSame([$object1, $object3, $object4], $commited);
+        self::assertTrue($object1->commited());
+        self::assertFalse($object2->commited());
+        self::assertTrue($object3->commited());
+        self::assertEquals(0, $uow->count());
+        self::assertFalse($uow->has($object1));
+        self::assertFalse($uow->has($object2));
+        self::assertFalse($uow->has($object3));
+        self::assertFalse($uow->has($object4));
     }
 
-    public function testError()
+    public function testError(): void
     {
         $id1 = UUID::random();
         $id2 = UUID::random();
@@ -213,33 +190,33 @@ class EventStoreUnitOfWorkTest extends TestCase
         $uow->add($object2);
 
         $this->store
-            ->expects($this->at(0))
+            ->expects(self::at(0))
             ->method('add')
             ->with($event1)
             ->willThrowException($unknownError)
         ;
 
         $this->store
-            ->expects($this->at(1))
+            ->expects(self::at(1))
             ->method('add')
             ->with($event1)
         ;
 
         $this->store
-            ->expects($this->at(2))
+            ->expects(self::at(2))
             ->method('add')
             ->with($event2)
             ->willThrowException($unknownError)
         ;
 
         $this->store
-            ->expects($this->at(3))
+            ->expects(self::at(3))
             ->method('add')
             ->with($event2)
         ;
 
         $this->store
-            ->expects($this->at(4))
+            ->expects(self::at(4))
             ->method('add')
             ->with($event3)
             ->willThrowException($concurrencyError)
@@ -248,36 +225,36 @@ class EventStoreUnitOfWorkTest extends TestCase
         try {
             $commited = iterator_to_array($uow->commit());
         } catch (\RuntimeException $exception1) {
-            $this->assertSame($unknownError, $exception1);
-            $this->assertSame(2, $uow->count());
-            $this->assertTrue($uow->has($object1));
-            $this->assertTrue($uow->has($object2));
+            self::assertSame($unknownError, $exception1);
+            self::assertSame(2, $uow->count());
+            self::assertTrue($uow->has($object1));
+            self::assertTrue($uow->has($object2));
         } finally {
-            $this->assertTrue(isset($exception1));
+            self::assertTrue(isset($exception1));
         }
 
         // retry
         try {
             $commited = iterator_to_array($uow->commit());
         } catch (\RuntimeException $exception2) {
-            $this->assertSame($unknownError, $exception2);
-            $this->assertSame(1, $uow->count());
-            $this->assertFalse($uow->has($object1));
-            $this->assertTrue($uow->has($object2));
+            self::assertSame($unknownError, $exception2);
+            self::assertSame(1, $uow->count());
+            self::assertFalse($uow->has($object1));
+            self::assertTrue($uow->has($object2));
         } finally {
-            $this->assertTrue(isset($exception2));
+            self::assertTrue(isset($exception2));
         }
 
         // retry
         try {
             $commited = iterator_to_array($uow->commit());
         } catch (\RuntimeException $exception3) {
-            $this->assertSame([$object1], $commited);
+            self::assertSame([$object1], $commited);
         } finally {
-            $this->assertSame(0, $uow->count());
-            $this->assertFalse($uow->has($object1));
-            $this->assertFalse($uow->has($object2));
-            $this->assertFalse(isset($exception3));
+            self::assertSame(0, $uow->count());
+            self::assertFalse($uow->has($object1));
+            self::assertFalse($uow->has($object2));
+            self::assertFalse(isset($exception3));
         }
 
         $uow->add($object3);
@@ -285,16 +262,16 @@ class EventStoreUnitOfWorkTest extends TestCase
         try {
             iterator_to_array($uow->commit());
         } catch (ConcurrentWriteDetected $exception4) {
-            $this->assertSame(0, $uow->count());
-            $this->assertFalse($uow->has($object1));
-            $this->assertFalse($uow->has($object2));
-            $this->assertFalse($uow->has($object3)); // object was removed instead of saved for later retry
+            self::assertSame(0, $uow->count());
+            self::assertFalse($uow->has($object1));
+            self::assertFalse($uow->has($object2));
+            self::assertFalse($uow->has($object3)); // object was removed instead of saved for later retry
         } finally {
-            $this->assertTrue(isset($exception4));
+            self::assertTrue(isset($exception4));
         }
     }
 
-    public function testWrongObject()
+    public function testWrongObject(): void
     {
         $object = new \stdClass();
 
@@ -302,7 +279,7 @@ class EventStoreUnitOfWorkTest extends TestCase
 
         $uow = new EventStoreUnitOfWork($this->store);
 
-        $this->assertFalse($uow->has($object));
+        self::assertFalse($uow->has($object));
 
         $uow->remove($object);
         $uow->add($object);
@@ -329,42 +306,42 @@ class VersionableEventSourcedStub implements Event\Sourced, Versionable
         $this->events = $events;
     }
 
-    public function equals(object $object) : bool
+    public function equals(object $object): bool
     {
         throw new \BadMethodCallException();
     }
 
-    public function lastReplayed() : ?Event\Envelope
+    public function lastReplayed(): ?Event\Envelope
     {
         throw new \BadMethodCallException();
     }
 
-    public function producerId() : Domain\Id
+    public function producerId(): Domain\Id
     {
         return $this->id;
     }
 
-    public function events() : array
+    public function events(): array
     {
         return $this->events;
     }
 
-    public function replay(Event\Stream $events) : void
+    public function replay(Event\Stream $events): void
     {
         throw new \BadMethodCallException();
     }
 
-    public function version() : int
+    public function version(): int
     {
         return $this->version;
     }
 
-    public function commit() : void
+    public function commit(): void
     {
         $this->commited = true;
     }
 
-    public function commited() : bool
+    public function commited(): bool
     {
         return $this->commited;
     }
@@ -381,27 +358,27 @@ class NonVersionableEventSourcedStub implements Event\Sourced
         $this->events = $events;
     }
 
-    public function equals(object $object) : bool
+    public function equals(object $object): bool
     {
         throw new \BadMethodCallException();
     }
 
-    public function lastReplayed() : ?Event\Envelope
+    public function lastReplayed(): ?Event\Envelope
     {
         throw new \BadMethodCallException();
     }
 
-    public function producerId() : Domain\Id
+    public function producerId(): Domain\Id
     {
         return $this->id;
     }
 
-    public function events() : array
+    public function events(): array
     {
         return $this->events;
     }
 
-    public function replay(Event\Stream $events) : void
+    public function replay(Event\Stream $events): void
     {
         throw new \BadMethodCallException();
     }

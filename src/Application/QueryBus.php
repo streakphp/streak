@@ -21,12 +21,12 @@ interface QueryBus
     /**
      * @throws Exception\CommandHandlerAlreadyRegistered
      */
-    public function register(QueryHandler $handler) : void;
+    public function register(QueryHandler $handler): void;
 
     /**
-     * @return mixed
-     *
      * @throws Exception\CommandNotSupported
+     *
+     * @return mixed
      */
     public function dispatch(Query $query);
 }

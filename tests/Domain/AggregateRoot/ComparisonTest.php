@@ -24,46 +24,35 @@ use Streak\Domain\AggregateRoot;
  */
 class ComparisonTest extends TestCase
 {
-    /**
-     * @var AggregateRoot\Id|\PHPUnit_Framework_MockObject_MockObject
-     */
-    private $id1;
+    private AggregateRoot\Id $id1;
+    private AggregateRoot\Id $id2;
+    private AggregateRoot\Id $id3;
 
-    /**
-     * @var AggregateRoot\Id|\PHPUnit_Framework_MockObject_MockObject
-     */
-    private $id2;
-
-    /**
-     * @var AggregateRoot\Id|\PHPUnit_Framework_MockObject_MockObject
-     */
-    private $id3;
-
-    public function setUp() : void
+    protected function setUp(): void
     {
         $this->id1 = $this->getMockBuilder(AggregateRoot\Id::class)->getMockForAbstractClass();
         $this->id2 = $this->getMockBuilder(AggregateRoot\Id::class)->getMockForAbstractClass();
         $this->id3 = $this->getMockBuilder(AggregateRoot\Id::class)->getMockForAbstractClass();
     }
 
-    public function testObject()
+    public function testObject(): void
     {
         $this->id1
-            ->expects($this->at(0))
+            ->expects(self::at(0))
             ->method('equals')
             ->with($this->id1)
             ->willReturn(true)
         ;
 
         $this->id2
-            ->expects($this->at(0))
+            ->expects(self::at(0))
             ->method('equals')
             ->with($this->id1)
             ->willReturn(false)
         ;
 
         $this->id1
-            ->expects($this->at(1))
+            ->expects(self::at(1))
             ->method('equals')
             ->with($this->id2)
             ->willReturn(false)
@@ -72,20 +61,19 @@ class ComparisonTest extends TestCase
         $comparison1 = new ComparisonTest\ComparisonStub($this->id1);
         $comparison2 = new ComparisonTest\ComparisonStub($this->id2);
 
-        $this->assertTrue($comparison1->equals($comparison1));
-        $this->assertFalse($comparison1->equals($comparison2));
-        $this->assertFalse($comparison2->equals($comparison1));
+        self::assertTrue($comparison1->equals($comparison1));
+        self::assertFalse($comparison1->equals($comparison2));
+        self::assertFalse($comparison2->equals($comparison1));
 
-        /* @var $comparison3 Domain\Entity */
         $comparison3 = $this->getMockBuilder(Domain\Entity::class)->getMockForAbstractClass();
-        $this->assertFalse($comparison1->equals($comparison3));
-        $this->assertFalse($comparison2->equals($comparison3));
+        self::assertFalse($comparison1->equals($comparison3));
+        self::assertFalse($comparison2->equals($comparison3));
 
         $comparison4 = new ComparisonTest\NonAggregateRootComparisonStub($this->id3);
-        $this->assertFalse($comparison1->equals($comparison4));
-        $this->assertFalse($comparison2->equals($comparison4));
-        $this->assertFalse($comparison4->equals($comparison1));
-        $this->assertFalse($comparison4->equals($comparison2));
+        self::assertFalse($comparison1->equals($comparison4));
+        self::assertFalse($comparison2->equals($comparison4));
+        self::assertFalse($comparison4->equals($comparison1));
+        self::assertFalse($comparison4->equals($comparison2));
     }
 }
 
@@ -107,22 +95,22 @@ class ComparisonStub implements Domain\AggregateRoot
         $this->id = $id;
     }
 
-    public function aggregateRootId() : AggregateRoot\Id
+    public function aggregateRootId(): AggregateRoot\Id
     {
         return $this->id;
     }
 
-    public function aggregateId() : Aggregate\Id
+    public function aggregateId(): Aggregate\Id
     {
         return $this->id;
     }
 
-    public function entityId() : Entity\Id
+    public function entityId(): Entity\Id
     {
         return $this->id;
     }
 
-    public function id() : Domain\Id
+    public function id(): Domain\Id
     {
         return $this->id;
     }
@@ -139,17 +127,17 @@ class NonAggregateRootComparisonStub
         $this->id = $id;
     }
 
-    public function aggregateRootId() : AggregateRoot\Id
+    public function aggregateRootId(): AggregateRoot\Id
     {
         return $this->id;
     }
 
-    public function aggregateId() : Aggregate\Id
+    public function aggregateId(): Aggregate\Id
     {
         return $this->id;
     }
 
-    public function entityId() : Entity\Id
+    public function entityId(): Entity\Id
     {
         return $this->id;
     }

@@ -35,7 +35,7 @@ class DAORepository implements Subscription\Repository
         $this->uow = $uow;
     }
 
-    public function find(Event\Listener\Id $id) : ?Event\Subscription
+    public function find(Event\Listener\Id $id): ?Event\Subscription
     {
         $subscription = $this->dao->one($id);
 
@@ -48,17 +48,17 @@ class DAORepository implements Subscription\Repository
         return $subscription;
     }
 
-    public function has(Event\Subscription $subscription) : bool
+    public function has(Event\Subscription $subscription): bool
     {
         return $this->dao->exists($subscription->subscriptionId());
     }
 
-    public function add(Event\Subscription $subscription) : void
+    public function add(Event\Subscription $subscription): void
     {
         $this->uow->add($subscription);
     }
 
-    public function all(?Subscription\Repository\Filter $filter = null) : iterable
+    public function all(?Subscription\Repository\Filter $filter = null): iterable
     {
         if (null === $filter) {
             $filter = Subscription\Repository\Filter::nothing();

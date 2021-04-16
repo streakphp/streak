@@ -26,17 +26,17 @@ class SubscriptionStartedTest extends TestCase
 {
     private $event;
 
-    protected function setUp() : void
+    protected function setUp(): void
     {
         $this->event = $this->getMockBuilder(Event::class)->getMockForAbstractClass();
         $this->event = Event\Envelope::new($this->event, UUID::random());
     }
 
-    public function testObject()
+    public function testObject(): void
     {
         $event = new SubscriptionStarted($this->event, $now = new \DateTime());
 
-        $this->assertSame($this->event, $event->startedBy());
-        $this->assertEquals($now, $event->timestamp());
+        self::assertSame($this->event, $event->startedBy());
+        self::assertEquals($now, $event->timestamp());
     }
 }

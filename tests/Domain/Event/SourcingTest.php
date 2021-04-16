@@ -34,7 +34,7 @@ class SourcingTest extends TestCase
 
     private ?Event\Envelope $event2 = null;
 
-    public function setUp() : void
+    protected function setUp(): void
     {
         $this->id1 = new class('f5e65690-e50d-4312-a175-b004ec1bd42a') extends Domain\Id\UUID implements AggregateRoot\Id {
         };
@@ -44,54 +44,54 @@ class SourcingTest extends TestCase
         $this->event2 = Event\Envelope::new($this->getMockBuilder(Event::class)->setMockClassName('event2')->getMockForAbstractClass(), $this->id2, 1);
     }
 
-    public function testSuccessfullyApplyingEventWithPublicHandlingMethod()
+    public function testSuccessfullyApplyingEventWithPublicHandlingMethod(): void
     {
         $event = new SourcingTest\EventStubForTestingPublicHandlingMethod();
         $event = Event\Envelope::new($event, $this->id1, 1);
 
         $sourcing = new SourcingTest\EventSourcedAggregateRootStub($this->id1);
 
-        $this->assertFalse($sourcing->isEventStubForTestingPublicHandlingMethodApplied());
-        $this->assertNull($sourcing->lastReplayed());
-        $this->assertNull($sourcing->lastEvent());
-        $this->assertEquals(0, $sourcing->version());
-        $this->assertEmpty($sourcing->events());
+        self::assertFalse($sourcing->isEventStubForTestingPublicHandlingMethodApplied());
+        self::assertNull($sourcing->lastReplayed());
+        self::assertNull($sourcing->lastEvent());
+        self::assertEquals(0, $sourcing->version());
+        self::assertEmpty($sourcing->events());
 
         $sourcing->replay(new InMemoryStream($event));
 
-        $this->assertTrue($sourcing->isEventStubForTestingPublicHandlingMethodApplied());
-        $this->assertSame($event, $sourcing->lastReplayed());
-        $this->assertEquals($event, $sourcing->lastEvent());
-        $this->assertEquals(1, $sourcing->version());
-        $this->assertEmpty($sourcing->events());
+        self::assertTrue($sourcing->isEventStubForTestingPublicHandlingMethodApplied());
+        self::assertSame($event, $sourcing->lastReplayed());
+        self::assertEquals($event, $sourcing->lastEvent());
+        self::assertEquals(1, $sourcing->version());
+        self::assertEmpty($sourcing->events());
 
         $sourcing->commit();
 
-        $this->assertTrue($sourcing->isEventStubForTestingPublicHandlingMethodApplied());
-        $this->assertSame($event, $sourcing->lastReplayed());
-        $this->assertEquals($event, $sourcing->lastEvent());
-        $this->assertEquals(1, $sourcing->version());
-        $this->assertEmpty($sourcing->events());
+        self::assertTrue($sourcing->isEventStubForTestingPublicHandlingMethodApplied());
+        self::assertSame($event, $sourcing->lastReplayed());
+        self::assertEquals($event, $sourcing->lastEvent());
+        self::assertEquals(1, $sourcing->version());
+        self::assertEmpty($sourcing->events());
     }
 
-    public function testSuccessfullyApplyingEventWithNonPublicHandlingMethod()
+    public function testSuccessfullyApplyingEventWithNonPublicHandlingMethod(): void
     {
         $event = new SourcingTest\EventStubForTestingNonPublicHandlingMethod();
         $event = Event\Envelope::new($event, $this->id1, 1);
         $sourcing = new SourcingTest\EventSourcedAggregateRootStub($this->id1);
 
-        $this->assertFalse($sourcing->isEventStubForTestingNonPublicHandlingMethodApplied());
+        self::assertFalse($sourcing->isEventStubForTestingNonPublicHandlingMethodApplied());
 
         $sourcing->replay(new InMemoryStream($event));
 
-        $this->assertTrue($sourcing->isEventStubForTestingNonPublicHandlingMethodApplied());
-        $this->assertSame($event, $sourcing->lastReplayed());
-        $this->assertEquals($event, $sourcing->lastEvent());
-        $this->assertEquals(1, $sourcing->version());
-        $this->assertEmpty($sourcing->events());
+        self::assertTrue($sourcing->isEventStubForTestingNonPublicHandlingMethodApplied());
+        self::assertSame($event, $sourcing->lastReplayed());
+        self::assertEquals($event, $sourcing->lastEvent());
+        self::assertEquals(1, $sourcing->version());
+        self::assertEmpty($sourcing->events());
     }
 
-    public function testAggregateWithMissingHandlingMethodForGivenEvent()
+    public function testAggregateWithMissingHandlingMethodForGivenEvent(): void
     {
         $event = new SourcingTest\EventStubForTestingMissingHandlingMethod();
         $event = Event\Envelope::new($event, $this->id1, 1);
@@ -103,7 +103,7 @@ class SourcingTest extends TestCase
         $sourcing->replay(new InMemoryStream($event));
     }
 
-    public function testAggregateWithTwoOrMoreHandlingMethodsPresentForGivenEvent()
+    public function testAggregateWithTwoOrMoreHandlingMethodsPresentForGivenEvent(): void
     {
         $event = new SourcingTest\EventStubForTestingTwoOrMoreHandlingMethodsPresent();
         $event = Event\Envelope::new($event, $this->id1, 1);
@@ -115,7 +115,7 @@ class SourcingTest extends TestCase
         $sourcing->replay(new InMemoryStream($event));
     }
 
-    public function testAggregateWithTwoOrMoreParametersPresentOnHandlingMethod()
+    public function testAggregateWithTwoOrMoreParametersPresentOnHandlingMethod(): void
     {
         $event = new SourcingTest\EventStubForTestingTwoOrMoreParametersPresentOnHandlingMethod();
         $event = Event\Envelope::new($event, $this->id1, 1);
@@ -127,7 +127,7 @@ class SourcingTest extends TestCase
         $sourcing->replay(new InMemoryStream($event));
     }
 
-    public function testAggregateWithOptionalParameterOnHandlingMethodForGivenEvent()
+    public function testAggregateWithOptionalParameterOnHandlingMethodForGivenEvent(): void
     {
         $event = new SourcingTest\EventStubForTestingOptionalParameterOnHandlingMethod();
         $event = Event\Envelope::new($event, $this->id1, 1);
@@ -139,7 +139,7 @@ class SourcingTest extends TestCase
         $sourcing->replay(new InMemoryStream($event));
     }
 
-    public function testApplyingMethodPresentForEventsParentClassOnly()
+    public function testApplyingMethodPresentForEventsParentClassOnly(): void
     {
         $event1 = new SourcingTest\EventWhichIsSubclassOfEvent7();
         $event1 = Event\Envelope::new($event1, $this->id1, 1);
@@ -148,21 +148,21 @@ class SourcingTest extends TestCase
 
         $sourcing = new SourcingTest\EventSourcedAggregateRootStub($this->id1);
 
-        $this->assertEquals(0, $sourcing->numberOfAppliesOfEvent7());
+        self::assertEquals(0, $sourcing->numberOfAppliesOfEvent7());
 
         $sourcing->replay(new InMemoryStream($event1, $event2));
 
-        $this->assertEquals(2, $sourcing->numberOfAppliesOfEvent7());
-        $this->assertSame($event2, $sourcing->lastReplayed());
-        $this->assertEquals($event2, $sourcing->lastEvent());
-        $this->assertEquals(2, $sourcing->version());
-        $this->assertEmpty($sourcing->events());
+        self::assertEquals(2, $sourcing->numberOfAppliesOfEvent7());
+        self::assertSame($event2, $sourcing->lastReplayed());
+        self::assertEquals($event2, $sourcing->lastEvent());
+        self::assertEquals(2, $sourcing->version());
+        self::assertEmpty($sourcing->events());
     }
 
 //    public function testApplyingMethodPresentForEventsParentClassAndOnlyOneOfChildren()
 //    {
 //        $this->id
-//            ->expects($this->exactly(2))
+//            ->expects(self::exactly(2))
 //            ->method('equals')
 //            ->willReturn(true)
 //        ;
@@ -172,45 +172,45 @@ class SourcingTest extends TestCase
 //
 //        $sourcing = new SourcingTest\EventSourcedAggregateRootStub($this->id);
 //
-//        $this->assertFalse($sourcing->isEvent8Applied());
-//        $this->assertFalse($sourcing->isEvent8aApplied());
+//        self::assertFalse($sourcing->isEvent8Applied());
+//        self::assertFalse($sourcing->isEvent8aApplied());
 //
 //        $sourcing->replay($event1, $event2);
 //
-//        $this->assertTrue($sourcing->isEvent8Applied());
-//        $this->assertTrue($sourcing->isEvent8aApplied());
-//        $this->assertSame($event2, $sourcing->lastReplayed());
-//        $this->assertEmpty($sourcing->events());
+//        self::assertTrue($sourcing->isEvent8Applied());
+//        self::assertTrue($sourcing->isEvent8aApplied());
+//        self::assertSame($event2, $sourcing->lastReplayed());
+//        self::assertEmpty($sourcing->events());
 //    }
 
-    public function testApplyingEventViaCommand()
+    public function testApplyingEventViaCommand(): void
     {
         $sourcing = new SourcingTest\EventSourcedAggregateRootStub($this->id1);
-        $this->assertEmpty($sourcing->events());
-        $this->assertNull($sourcing->lastEvent());
+        self::assertEmpty($sourcing->events());
+        self::assertNull($sourcing->lastEvent());
 
-        $this->assertFalse($sourcing->isEvent9Applied());
+        self::assertFalse($sourcing->isEvent9Applied());
 
         $sourcing->command1($this->id1);
 
-        $this->assertTrue($sourcing->isEvent9Applied());
+        self::assertTrue($sourcing->isEvent9Applied());
 
         $event = new SourcingTest\EventStubForTestingApplyingViaCommand();
 
-        $this->assertNull($sourcing->lastReplayed());
-        $this->assertEquals($event, $sourcing->lastEvent()->message());
-        $this->assertEquals(0, $sourcing->version());
-        $this->assertEquals([$event], $sourcing->events());
+        self::assertNull($sourcing->lastReplayed());
+        self::assertEquals($event, $sourcing->lastEvent()->message());
+        self::assertEquals(0, $sourcing->version());
+        self::assertEquals([$event], $sourcing->events());
 
         $sourcing->commit();
 
-        $this->assertNull($sourcing->lastReplayed());
-        $this->assertEquals($event, $sourcing->lastEvent()->message());
-        $this->assertEquals(1, $sourcing->version());
-        $this->assertEquals([], $sourcing->events());
+        self::assertNull($sourcing->lastReplayed());
+        self::assertEquals($event, $sourcing->lastEvent()->message());
+        self::assertEquals(1, $sourcing->version());
+        self::assertEquals([], $sourcing->events());
     }
 
-    public function testApplyingEventViaCommandResultingInAnException()
+    public function testApplyingEventViaCommandResultingInAnException(): void
     {
         $sourcing = new SourcingTest\EventSourcedAggregateRootStub($this->id1);
 
@@ -218,23 +218,23 @@ class SourcingTest extends TestCase
         $this->expectExceptionObject($exception);
 
         try {
-            $this->assertEmpty($sourcing->events());
-            $this->assertNull($sourcing->lastEvent());
-            $this->assertNull($sourcing->lastReplayed());
+            self::assertEmpty($sourcing->events());
+            self::assertNull($sourcing->lastEvent());
+            self::assertNull($sourcing->lastReplayed());
 
             $sourcing->command2($this->id1);
         } catch (\Exception $thrown) {
-            $this->assertEmpty($sourcing->events());
-            $this->assertNull($sourcing->lastEvent());
-            $this->assertNull($sourcing->lastReplayed());
+            self::assertEmpty($sourcing->events());
+            self::assertNull($sourcing->lastEvent());
+            self::assertNull($sourcing->lastReplayed());
         } finally {
-            $this->assertTrue(isset($thrown));
+            self::assertTrue(isset($thrown));
 
             throw $thrown;
         }
     }
 
-    public function testEventSourcingNonConsumer()
+    public function testEventSourcingNonConsumer(): void
     {
         $sourcing = new Domain\Event\SourcingTest\EventSourcedNonConsumer($this->id1);
 
@@ -244,7 +244,7 @@ class SourcingTest extends TestCase
         $sourcing->replay(new InMemoryStream($this->event1));
     }
 
-    public function testEventAndConsumerMismatch()
+    public function testEventAndConsumerMismatch(): void
     {
         $sourcing = new SourcingTest\EventSourcedAggregateRootStub($this->id1);
 
@@ -279,112 +279,112 @@ class EventSourcedAggregateRootStub implements Event\Consumer
         $this->id = $id;
     }
 
-    public function producerId() : Domain\Id
+    public function producerId(): Domain\Id
     {
         return $this->id;
     }
 
-    public function applyEventStubForTestingPublicHandlingMethodApplied(EventStubForTestingPublicHandlingMethod $event)
+    public function applyEventStubForTestingPublicHandlingMethodApplied(EventStubForTestingPublicHandlingMethod $event): void
     {
         $this->eventStubForTestingPublicHandlingMethodApplied = true;
     }
 
-    public function applyEvent2(EventStubForTestingTwoOrMoreHandlingMethodsPresent $event2)
+    public function applyEvent2(EventStubForTestingTwoOrMoreHandlingMethodsPresent $event2): void
     {
     }
 
-    public function applyEvent2Deux(EventStubForTestingTwoOrMoreHandlingMethodsPresent $event2)
+    public function applyEvent2Deux(EventStubForTestingTwoOrMoreHandlingMethodsPresent $event2): void
     {
     }
 
-    public function applyEvent4(EventStubForTestingTwoOrMoreParametersPresentOnHandlingMethod $event, mixed $thisParameterUnneeded)
+    public function applyEvent4(EventStubForTestingTwoOrMoreParametersPresentOnHandlingMethod $event, mixed $thisParameterUnneeded): void
     {
     }
 
-    public function applyEvent5(EventStubForTestingOptionalParameterOnHandlingMethod $optionalEventIsInvalid = null)
+    public function applyEvent5(EventStubForTestingOptionalParameterOnHandlingMethod $optionalEventIsInvalid = null): void
     {
     }
 
-    public function command1(AggregateRoot\Id $id)
+    public function command1(AggregateRoot\Id $id): void
     {
         $this->apply(new EventStubForTestingApplyingViaCommand());
     }
 
-    public function command2(AggregateRoot\Id $id)
+    public function command2(AggregateRoot\Id $id): void
     {
         $this->apply(new EventStubForTestingApplyingViaCommandResultingInException());
     }
 
-    public function isEventStubForTestingPublicHandlingMethodApplied() : bool
+    public function isEventStubForTestingPublicHandlingMethodApplied(): bool
     {
         return $this->eventStubForTestingPublicHandlingMethodApplied;
     }
 
-    public function isEventStubForTestingNonPublicHandlingMethodApplied() : bool
+    public function isEventStubForTestingNonPublicHandlingMethodApplied(): bool
     {
         return $this->eventStubForTestingNonPublicHandlingMethodApplied;
     }
 
-    public function isEvent8Applied() : bool
+    public function isEvent8Applied(): bool
     {
         return $this->event8Applied;
     }
 
-    public function isEvent8aApplied() : bool
+    public function isEvent8aApplied(): bool
     {
         return $this->event8aApplied;
     }
 
-    public function isEvent9Applied() : bool
+    public function isEvent9Applied(): bool
     {
         return $this->event9Applied;
     }
 
-    public function numberOfAppliesOfEvent7() : int
+    public function numberOfAppliesOfEvent7(): int
     {
         return $this->numberOfAppliesOfEvent7;
     }
 
-    public function id() : Domain\Id
+    public function id(): Domain\Id
     {
         return $this->id;
     }
 
-    private function applyEventStubForTestingNonPublicHandlingMethodApplied(EventStubForTestingNonPublicHandlingMethod $event)
+    private function applyEventStubForTestingNonPublicHandlingMethodApplied(EventStubForTestingNonPublicHandlingMethod $event): void
     {
         $this->eventStubForTestingNonPublicHandlingMethodApplied = true;
     }
 
-    private function applyEvent7(Event7 $event)
+    private function applyEvent7(Event7 $event): void
     {
         ++$this->numberOfAppliesOfEvent7;
     }
 
-    private function applyEvent8(Event8 $event)
+    private function applyEvent8(Event8 $event): void
     {
         $this->event8Applied = true;
     }
 
-    private function applyEvent8a(EventWhichIsSubclassOfEvent8 $event)
+    private function applyEvent8a(EventWhichIsSubclassOfEvent8 $event): void
     {
         $this->event8aApplied = true;
     }
 
-    private function applyEvent9(EventStubForTestingApplyingViaCommand $event)
+    private function applyEvent9(EventStubForTestingApplyingViaCommand $event): void
     {
         $this->event9Applied = true;
     }
 
-    private function applyEvent10(EventStubForTestingApplyingViaCommandResultingInException $event)
+    private function applyEvent10(EventStubForTestingApplyingViaCommandResultingInException $event): void
     {
         throw new \Exception('Command resulting in an exception');
     }
 
-    private function applyNonEvent(\stdClass $parameter)
+    private function applyNonEvent(\stdClass $parameter): void
     {
     }
 
-    private function applySomethingElse($parameters)
+    private function applySomethingElse($parameters): void
     {
     }
 }
@@ -446,7 +446,7 @@ class EventSourcedNonConsumer
         $this->id = $id;
     }
 
-    public function producerId() : Domain\Id
+    public function producerId(): Domain\Id
     {
         return $this->id;
     }

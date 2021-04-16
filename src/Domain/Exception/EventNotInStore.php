@@ -28,12 +28,12 @@ class EventNotInStore extends \InvalidArgumentException
     {
         $this->event = $event;
 
-        $message = sprintf('Event not in store.');
+        $message = 'Event not in store.';
 
         parent::__construct($message, 0, $previous);
     }
 
-    public function event() : Event\Envelope
+    public function event(): Event\Envelope
     {
         return $this->event;
     }

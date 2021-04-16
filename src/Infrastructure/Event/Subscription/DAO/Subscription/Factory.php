@@ -31,7 +31,7 @@ class Factory implements Event\Subscription\Factory
         $this->clock = $clock;
     }
 
-    public function create(Event\Listener $listener) : Event\Subscription
+    public function create(Event\Listener $listener): Event\Subscription
     {
         return new Subscription($listener, $this->clock);
     }

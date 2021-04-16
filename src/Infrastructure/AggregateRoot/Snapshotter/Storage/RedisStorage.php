@@ -33,7 +33,7 @@ final class RedisStorage implements Storage, Resettable
     /**
      * @throws Exception\SnapshotNotFound
      */
-    public function find(AggregateRoot $aggregate) : string
+    public function find(AggregateRoot $aggregate): string
     {
         $snapshot = $this->redis->get($this->key($aggregate));
 
@@ -44,21 +44,21 @@ final class RedisStorage implements Storage, Resettable
         return $snapshot;
     }
 
-    public function store(AggregateRoot $aggregate, string $snapshot) : void
+    public function store(AggregateRoot $aggregate, string $snapshot): void
     {
         $this->redis->set($this->key($aggregate), (string) $snapshot);
     }
 
-    public function reset() : bool
+    public function reset(): bool
     {
         return $this->redis->flushDB();
     }
 
-    private function key(AggregateRoot $aggregate) : string
+    private function key(AggregateRoot $aggregate): string
     {
         return
-            get_class($aggregate).
-            get_class($aggregate->aggregateRootId()).
+            \get_class($aggregate).
+            \get_class($aggregate->aggregateRootId()).
             $aggregate->aggregateRootId()->toString()
         ;
     }

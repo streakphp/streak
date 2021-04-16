@@ -28,12 +28,12 @@ class EventIgnored extends \RuntimeException
     {
         $this->event = $event;
 
-        $message = sprintf('Event "%s" was ignored.', get_class($event->message()));
+        $message = sprintf('Event "%s" was ignored.', \get_class($event->message()));
 
         parent::__construct($message);
     }
 
-    public function event() : Event\Envelope
+    public function event(): Event\Envelope
     {
         return $this->event;
     }

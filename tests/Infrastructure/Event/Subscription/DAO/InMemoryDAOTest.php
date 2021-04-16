@@ -23,25 +23,25 @@ use Streak\Infrastructure\Event\Subscription\DAO;
  */
 class InMemoryDAOTest extends DAOTestCase
 {
-    public function newDAO(Subscription\Factory $subscriptions, Event\Listener\Factory $listeners) : DAO
+    public function newDAO(Subscription\Factory $subscriptions, Event\Listener\Factory $listeners): DAO
     {
         return new InMemoryDAO();
     }
 
-    public function testDAO()
+    public function testDAO(): void
     {
         parent::testDAO();
 
         $all = $this->dao->all();
         $all = iterator_to_array($all);
 
-        $this->assertNotEmpty($all);
+        self::assertNotEmpty($all);
 
         $this->dao->clear();
 
         $all = $this->dao->all();
         $all = iterator_to_array($all);
 
-        $this->assertEmpty($all);
+        self::assertEmpty($all);
     }
 }

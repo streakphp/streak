@@ -43,7 +43,7 @@ class SnapshottingUnitOfWork implements UnitOfWork
         $this->interval = $interval;
     }
 
-    public function add(object $producer) : void
+    public function add(object $producer): void
     {
         $this->uow->add($producer);
 
@@ -54,7 +54,7 @@ class SnapshottingUnitOfWork implements UnitOfWork
         }
     }
 
-    public function remove(object $producer) : void
+    public function remove(object $producer): void
     {
         if ($producer instanceof Event\Sourced\AggregateRoot) {
             $id = $producer->producerId();
@@ -64,7 +64,7 @@ class SnapshottingUnitOfWork implements UnitOfWork
         $this->uow->remove($producer);
     }
 
-    public function has(object $producer) : bool
+    public function has(object $producer): bool
     {
         return $this->uow->has($producer);
     }
@@ -72,19 +72,17 @@ class SnapshottingUnitOfWork implements UnitOfWork
     /**
      * @return Event\Producer[]
      */
-    public function uncommitted() : array
+    public function uncommitted(): array
     {
-        $uncommitted = $this->uow->uncommitted();
-
-        return $uncommitted;
+        return $this->uow->uncommitted();
     }
 
-    public function count() : int
+    public function count(): int
     {
         return $this->uow->count();
     }
 
-    public function commit() : \Generator
+    public function commit(): \Generator
     {
         if (false === $this->committing) {
             $this->committing = true;
@@ -93,6 +91,7 @@ class SnapshottingUnitOfWork implements UnitOfWork
                 foreach ($this->uow->commit() as $committed) {
                     if (!$committed instanceof Event\Sourced\AggregateRoot) {
                         yield $committed;
+
                         continue;
                     }
 
@@ -103,6 +102,7 @@ class SnapshottingUnitOfWork implements UnitOfWork
 
                     if (!$this->isReadyForSnapshot($versionBeforeCommit, $versionAfterCommit)) {
                         yield $committed;
+
                         continue;
                     }
 
@@ -118,13 +118,13 @@ class SnapshottingUnitOfWork implements UnitOfWork
         }
     }
 
-    public function clear() : void
+    public function clear(): void
     {
         $this->versions = new \SplObjectStorage(); // clear
         $this->uow->clear();
     }
 
-    private function isReadyForSnapshot(int $before, int $after) : bool
+    private function isReadyForSnapshot(int $before, int $after): bool
     {
         if ((int) ($before / $this->interval) !== (int) ($after / $this->interval)) {
             return true;

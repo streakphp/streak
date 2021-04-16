@@ -40,7 +40,7 @@ class DbalPostgresEventStore implements \Iterator, EventStore, Event\Stream, Sch
     private Connection $connection;
     private Event\Converter $converter;
 
-    private ?array $current;
+    private ?array $current = null;
     private int $key = 0;
 
     private ?Statement $statement = null;
@@ -70,7 +70,7 @@ class DbalPostgresEventStore implements \Iterator, EventStore, Event\Stream, Sch
      * @throws \Doctrine\DBAL\DBALException
      * @throws \RuntimeException
      */
-    public function checkPlatform()
+    public function checkPlatform(): void
     {
         $platform = $this->connection->getDatabasePlatform();
 
@@ -84,28 +84,28 @@ class DbalPostgresEventStore implements \Iterator, EventStore, Event\Stream, Sch
      * @throws \Doctrine\DBAL\DBALException
      * @throws \RuntimeException
      */
-    public function create() : void
+    public function create(): void
     {
         $this->checkPlatform();
         $this->connection->beginTransaction();
 
-        $sqls[] = <<<SQL
-CREATE TABLE IF NOT EXISTS events (
-  number BIGSERIAL,
-  uuid UUID NOT NULL,
-  type VARCHAR(256) NOT NULL,
-  body JSONB NOT NULL,
-  metadata JSONB NOT NULL,
-  producer_type VARCHAR(256) NOT NULL,
-  producer_id VARCHAR(256) NOT NULL,
-  producer_version INT,
-  appended_at timestamp NOT NULL DEFAULT clock_timestamp(),
-  PRIMARY KEY(number),
-  UNIQUE (number),
-  UNIQUE (uuid),
-  UNIQUE (producer_type, producer_id, producer_version)
-);
-SQL;
+        $sqls[] = <<<'SQL'
+            CREATE TABLE IF NOT EXISTS events (
+              number BIGSERIAL,
+              uuid UUID NOT NULL,
+              type VARCHAR(256) NOT NULL,
+              body JSONB NOT NULL,
+              metadata JSONB NOT NULL,
+              producer_type VARCHAR(256) NOT NULL,
+              producer_id VARCHAR(256) NOT NULL,
+              producer_version INT,
+              appended_at timestamp NOT NULL DEFAULT clock_timestamp(),
+              PRIMARY KEY(number),
+              UNIQUE (number),
+              UNIQUE (uuid),
+              UNIQUE (producer_type, producer_id, producer_version)
+            );
+            SQL;
         $sqls[] = 'CREATE INDEX ON events (producer_type, producer_id);';
         $sqls[] = 'CREATE INDEX ON events (type, producer_type, producer_id);';
         $sqls[] = 'CREATE INDEX ON events (number, type, producer_type, producer_id);';
@@ -122,7 +122,7 @@ SQL;
      * @throws \Doctrine\DBAL\DBALException
      * @throws \RuntimeException
      */
-    public function drop() : void
+    public function drop(): void
     {
         $this->checkPlatform();
         $this->connection->beginTransaction();
@@ -138,14 +138,14 @@ SQL;
         $this->connection->commit();
     }
 
-    public function schema() : ?Schema
+    public function schema(): ?Schema
     {
         return $this;
     }
 
-    public function add(Event\Envelope ...$events) : array
+    public function add(Event\Envelope ...$events): array
     {
-        if (0 === count($events)) {
+        if (0 === \count($events)) {
             return [];
         }
 
@@ -169,8 +169,8 @@ SQL;
 
         $values = implode(',', $values);
 
-        $sql = "$sql VALUES $values";
-        $sql = "$sql RETURNING number, uuid";
+        $sql = "{$sql} VALUES {$values}";
+        $sql = "{$sql} RETURNING number, uuid";
 
         try {
             $this->connection->beginTransaction();
@@ -181,20 +181,24 @@ SQL;
         } catch (UniqueConstraintViolationException $e) {
             if ($id = $this->extractIdForConcurrentWrite($e)) {
                 $this->connection->rollBack();
+
                 throw new Exception\ConcurrentWriteDetected($id); // maybe supplement version as well?
             }
             if ($uuid = $this->extractIdForEventAlreadyInStore($e)) {
                 foreach ($events as $event) {
                     if ($event->uuid()->equals($uuid)) {
                         $this->connection->rollBack();
+
                         throw new Exception\EventAlreadyInStore($event);
                     }
                 }
             }
             $this->connection->rollBack(); // @codeCoverageIgnore
+
             throw $e; // @codeCoverageIgnore
         } catch (\Throwable $e) {
             $this->connection->rollBack();
+
             throw $e;
         }
 
@@ -216,7 +220,7 @@ SQL;
         return $events;
     }
 
-    public function from(Event\Envelope $event) : Event\Stream
+    public function from(Event\Envelope $event): Event\Stream
     {
         $stream = $this->copy();
         $stream->from = $event;
@@ -225,7 +229,7 @@ SQL;
         return $stream;
     }
 
-    public function to(Event\Envelope $event) : Event\Stream
+    public function to(Event\Envelope $event): Event\Stream
     {
         $stream = $this->copy();
         $stream->to = $event;
@@ -234,7 +238,7 @@ SQL;
         return $stream;
     }
 
-    public function after(Event\Envelope $event) : Event\Stream
+    public function after(Event\Envelope $event): Event\Stream
     {
         $stream = $this->copy();
         $stream->from = null;
@@ -243,7 +247,7 @@ SQL;
         return $stream;
     }
 
-    public function before(Event\Envelope $event) : Event\Stream
+    public function before(Event\Envelope $event): Event\Stream
     {
         $stream = $this->copy();
         $stream->to = null;
@@ -252,7 +256,7 @@ SQL;
         return $stream;
     }
 
-    public function stream(?EventStore\Filter $filter = null) : Event\Stream
+    public function stream(?EventStore\Filter $filter = null): Event\Stream
     {
         $stream = $this->copy();
         if (null !== $filter) {
@@ -262,7 +266,7 @@ SQL;
         return $stream;
     }
 
-    public function only(string ...$types) : Event\Stream
+    public function only(string ...$types): Event\Stream
     {
         $stream = $this->copy();
         $stream->only = $types;
@@ -273,7 +277,7 @@ SQL;
         return $stream;
     }
 
-    public function without(string ...$types) : Event\Stream
+    public function without(string ...$types): Event\Stream
     {
         $stream = $this->copy();
         $stream->without = $types;
@@ -284,7 +288,7 @@ SQL;
         return $stream;
     }
 
-    public function limit(int $limit) : Stream
+    public function limit(int $limit): Stream
     {
         $count = $this->count();
 
@@ -298,7 +302,7 @@ SQL;
         return $stream;
     }
 
-    public function first() : ?Event\Envelope
+    public function first(): ?Event\Envelope
     {
         $statement = $this->select(
             $this->filter,
@@ -320,12 +324,10 @@ SQL;
             return null;
         }
 
-        $event = $this->fromRow($row);
-
-        return $event;
+        return $this->fromRow($row);
     }
 
-    public function last() : ?Event\Envelope
+    public function last(): ?Event\Envelope
     {
         $direction = self::DIRECTION_BACKWARD;
         $limit = 1;
@@ -357,12 +359,10 @@ SQL;
             return null;
         }
 
-        $event = $this->fromRow($row);
-
-        return $event;
+        return $this->fromRow($row);
     }
 
-    public function empty() : bool
+    public function empty(): bool
     {
         $statement = $this->select(
             $this->filter,
@@ -387,14 +387,12 @@ SQL;
         return false;
     }
 
-    public function current() : Event\Envelope
+    public function current(): Event\Envelope
     {
-        $event = $this->fromRow($this->current);
-
-        return $event;
+        return $this->fromRow($this->current);
     }
 
-    public function next()
+    public function next(): void
     {
         $row = $this->statement->fetch(\PDO::FETCH_ASSOC);
 
@@ -416,7 +414,7 @@ SQL;
         return null !== $this->current;
     }
 
-    public function rewind()
+    public function rewind(): void
     {
         $this->statement = $this->select(
             $this->filter,
@@ -442,7 +440,7 @@ SQL;
         $this->key = 0;
     }
 
-    public function event(UUID $uuid) : ?Event\Envelope
+    public function event(UUID $uuid): ?Event\Envelope
     {
         $sql = 'SELECT * FROM events WHERE uuid = :uuid';
 
@@ -458,7 +456,7 @@ SQL;
         return $this->fromRow($row);
     }
 
-    public function producerId($class, $id) : Domain\Id
+    public function producerId($class, $id): Domain\Id
     {
         $reflection = new \ReflectionClass($class);
 
@@ -473,7 +471,7 @@ SQL;
         return $method->invoke(null, $id);
     }
 
-    private function count() : int
+    private function count(): int
     {
         $statement = $this->select(
             $this->filter,
@@ -494,7 +492,7 @@ SQL;
         return (int) $count;
     }
 
-    private function copy() : self
+    private function copy(): self
     {
         $stream = new self($this->connection, $this->converter);
         $stream->from = $this->from;
@@ -522,7 +520,7 @@ SQL;
         ?array $without,
         ?int $limit,
         ?int $offset
-    ) : Statement {
+    ): Statement {
         $columns = implode(' , ', $columns);
 
         if (!$columns) {
@@ -533,43 +531,43 @@ SQL;
         $where = [];
         $parameters = [];
 
-        if (count($filter->producerIds()) > 0) {
-            /* @var $filter Domain\Id[] */
+        if (\count($filter->producerIds()) > 0) {
+            // @var $filter Domain\Id[]
             $sub = [];
             foreach ($filter->producerIds() as $key => $id) {
-                $sub[] = " (producer_type = :producer_type_$key AND producer_id = :producer_id_$key) ";
-                $parameters["producer_type_$key"] = get_class($id);
-                $parameters["producer_id_$key"] = $id->toString();
+                $sub[] = " (producer_type = :producer_type_{$key} AND producer_id = :producer_id_{$key}) ";
+                $parameters["producer_type_{$key}"] = \get_class($id);
+                $parameters["producer_id_{$key}"] = $id->toString();
             }
             $where[] = '('.implode(' OR ', $sub).')';
         }
 
-        if (count($filter->producerTypes()) > 0) {
-            /* @var $filter Domain\Id[] */
+        if (\count($filter->producerTypes()) > 0) {
+            // @var $filter Domain\Id[]
             $sub = [];
             foreach ($filter->producerTypes() as $key => $type) {
-                $sub[] = " (producer_type = :only_producer_type_$key) ";
-                $parameters["only_producer_type_$key"] = $type;
+                $sub[] = " (producer_type = :only_producer_type_{$key}) ";
+                $parameters["only_producer_type_{$key}"] = $type;
             }
             $where[] = '('.implode(' OR ', $sub).')';
         }
 
         if ($only) {
-            /* @var $only string[] */
+            // @var $only string[]
             $sub = [];
             foreach ($only as $key => $type) {
-                $sub[] = " (type = :include_type_$key) ";
-                $parameters["include_type_$key"] = $type;
+                $sub[] = " (type = :include_type_{$key}) ";
+                $parameters["include_type_{$key}"] = $type;
             }
             $where[] = '('.implode(' OR ', $sub).')';
         }
 
         if ($without) {
-            /* @var $without string[] */
+            // @var $without string[]
             $sub = [];
             foreach ($without as $key => $type) {
-                $sub[] = " (type != :exclude_type_$key) ";
-                $parameters["exclude_type_$key"] = $type;
+                $sub[] = " (type != :exclude_type_{$key}) ";
+                $parameters["exclude_type_{$key}"] = $type;
             }
             $where[] = '('.implode(' AND ', $sub).')';
         }
@@ -613,7 +611,7 @@ SQL;
         $where = implode(' AND ', $where);
 
         if ($where) {
-            $sql = "$sql WHERE $where ";
+            $sql = "{$sql} WHERE {$where} ";
         }
 
         if (self::DIRECTION_FORWARD === $direction) {
@@ -642,7 +640,7 @@ SQL;
         return $statement;
     }
 
-    private function fromRow(array $row) : Event\Envelope
+    private function fromRow(array $row): Event\Envelope
     {
         $uuid = new UUID($row['uuid']);
 
@@ -673,19 +671,17 @@ SQL;
         return $event;
     }
 
-    private function toRow(Event\Envelope $event) : array
+    private function toRow(Event\Envelope $event): array
     {
-        $row = [
+        return [
             'uuid' => $event->uuid()->toString(),
             'type' => $event->name(),
             'body' => json_encode($this->converter->objectToArray($event->message())),
             'metadata' => json_encode($event->metadata()),
-            'producer_type' => get_class($event->producerId()),
+            'producer_type' => \get_class($event->producerId()),
             'producer_id' => $event->producerId()->toString(),
             'producer_version' => $event->version(),
         ];
-
-        return $row;
     }
 
     private function extractIdForConcurrentWrite(UniqueConstraintViolationException $e)
@@ -701,7 +697,7 @@ SQL;
         }
 
         // extract producer type and id from error message
-        preg_match("/\(producer_type, producer_id, producer_version\)=\((?P<type>[\S]+), (?P<id>[\S]+), (?P<version>[0-9]+)\)/", $error, $matches);
+        preg_match('/\\(producer_type, producer_id, producer_version\\)=\\((?P<type>[\\S]+), (?P<id>[\\S]+), (?P<version>[0-9]+)\\)/', $error, $matches);
 
         if (false === isset($matches['type'])) {
             return null; // @codeCoverageIgnore
@@ -727,7 +723,7 @@ SQL;
         }
 
         // extract producer type and id from error message
-        preg_match("/\(uuid\)=\((?P<uuid>[\S]+)\)/", $error, $matches);
+        preg_match('/\\(uuid\\)=\\((?P<uuid>[\\S]+)\\)/', $error, $matches);
 
         if (false === isset($matches['uuid'])) {
             return null; // @codeCoverageIgnore

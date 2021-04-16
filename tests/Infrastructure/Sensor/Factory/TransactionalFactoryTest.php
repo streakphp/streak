@@ -26,46 +26,46 @@ use Streak\Infrastructure\UnitOfWork;
 class TransactionalFactoryTest extends TestCase
 {
     /**
-     * @var Sensor\Factory|MockObject
+     * @var MockObject|Sensor\Factory
      */
     private $factory;
 
     /**
-     * @var UnitOfWork|MockObject
+     * @var MockObject|UnitOfWork
      */
     private $uow;
 
     /**
-     * @var Sensor|MockObject
+     * @var MockObject|Sensor
      */
     private $sensor;
 
-    protected function setUp() : void
+    protected function setUp(): void
     {
         $this->factory = $this->getMockBuilder(Sensor\Factory::class)->getMockForAbstractClass();
         $this->uow = $this->getMockBuilder(UnitOfWork::class)->getMockForAbstractClass();
         $this->sensor = $this->getMockBuilder(Sensor::class)->getMockForAbstractClass();
     }
 
-    public function testFactory()
+    public function testFactory(): void
     {
         $factory = new TransactionalFactory($this->factory, $this->uow);
 
         $this->factory
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('create')
             ->with()
             ->willReturn($this->sensor)
         ;
 
         $this->uow
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('add')
             ->with($this->sensor)
         ;
 
         $sensor = $factory->create();
 
-        $this->assertSame($this->sensor, $sensor);
+        self::assertSame($this->sensor, $sensor);
     }
 }

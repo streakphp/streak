@@ -25,12 +25,12 @@ use Streak\Infrastructure\AggregateRoot\Snapshotter;
  */
 class NullSnapshotter implements Snapshotter
 {
-    public function restoreToSnapshot(AggregateRoot $aggregate) : ?AggregateRoot
+    public function restoreToSnapshot(AggregateRoot $aggregate): ?AggregateRoot
     {
         return null;
     }
 
-    public function takeSnapshot(AggregateRoot $aggregate) : void
+    public function takeSnapshot(AggregateRoot $aggregate): void
     {
     }
 }

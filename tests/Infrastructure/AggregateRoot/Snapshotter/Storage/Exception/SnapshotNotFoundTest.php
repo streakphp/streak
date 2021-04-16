@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Streak\Infrastructure\AggregateRoot\Snapshotter\Storage\Exception;
 
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Streak\Domain\AggregateRoot;
 
@@ -24,38 +23,32 @@ use Streak\Domain\AggregateRoot;
  */
 class SnapshotNotFoundTest extends TestCase
 {
-    /**
-     * @var AggregateRoot|MockObject
-     */
-    private $aggregate;
+    private AggregateRoot $aggregate;
 
-    /**
-     * @var AggregateRoot\Id|MockObject
-     */
-    private $aggregateId;
+    private AggregateRoot\Id $aggregateId;
 
-    protected function setUp() : void
+    protected function setUp(): void
     {
         $this->aggregate = $this->getMockBuilder(AggregateRoot::class)->setMockClassName('streak__aggregate_1')->getMockForAbstractClass();
         $this->aggregateId = $this->getMockBuilder(AggregateRoot\Id::class)->setMockClassName('streak__aggregate_id_1')->getMockForAbstractClass();
     }
 
-    public function testException()
+    public function testException(): void
     {
         $this->aggregate
-            ->expects($this->atLeastOnce())
+            ->expects(self::atLeastOnce())
             ->method('aggregateRootId')
             ->willReturn($this->aggregateId)
         ;
         $this->aggregateId
-            ->expects($this->atLeastOnce())
+            ->expects(self::atLeastOnce())
             ->method('toString')
             ->willReturn('uuid-1')
         ;
 
         $exception = new SnapshotNotFound($this->aggregate);
 
-        $this->assertSame($this->aggregate, $exception->aggregate());
-        $this->assertSame('Snapshot for aggregate "streak__aggregate_id_1#uuid-1" not found.', $exception->getMessage());
+        self::assertSame($this->aggregate, $exception->aggregate());
+        self::assertSame('Snapshot for aggregate "streak__aggregate_id_1#uuid-1" not found.', $exception->getMessage());
     }
 }

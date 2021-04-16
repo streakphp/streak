@@ -21,5 +21,5 @@ use Streak\Domain\Event\Listener;
  */
 interface EventListenerQuery extends Application\Query
 {
-    public function listenerId() : Listener\Id;
+    public function listenerId(): Listener\Id;
 }

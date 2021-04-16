@@ -35,88 +35,88 @@ class TransactionalSensorConsumerTest extends TestCase
     private $consumer;
 
     /**
-     * @var UnitOfWork|MockObject
+     * @var MockObject|UnitOfWork
      */
     private $uow;
 
-    protected function setUp() : void
+    protected function setUp(): void
     {
         $this->consumer = $this->getMockBuilder(ConsumerInterface::class)->getMockForAbstractClass();
         $this->uow = $this->getMockBuilder(UnitOfWork::class)->getMockForAbstractClass();
     }
 
-    public function testAck()
+    public function testAck(): void
     {
         $consumer = new TransactionalSensorConsumer($this->consumer, $this->uow);
 
         $message = new AMQPMessage();
 
         $this->uow
-            ->expects($this->at(0))
+            ->expects(self::at(0))
             ->method('clear')
             ->with()
         ;
 
         $this->consumer
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('execute')
             ->with($message)
             ->willReturn(self::ACK)
         ;
 
         $this->uow
-            ->expects($this->at(1))
+            ->expects(self::at(1))
             ->method('commit')
             ->with()
         ;
 
         $this->uow
-            ->expects($this->at(0))
+            ->expects(self::at(0))
             ->method('clear')
             ->with()
         ;
 
         $result = $consumer->execute($message);
 
-        $this->assertSame(self::ACK, $result);
+        self::assertSame(self::ACK, $result);
     }
 
-    public function testNack()
+    public function testNack(): void
     {
         $consumer = new TransactionalSensorConsumer($this->consumer, $this->uow);
 
         $message = new AMQPMessage();
 
         $this->uow
-            ->expects($this->at(0))
+            ->expects(self::at(0))
             ->method('clear')
             ->with()
         ;
 
         $this->consumer
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('execute')
             ->with($message)
             ->willReturn(self::NACK)
         ;
 
         $this->uow
-            ->expects($this->at(0))
+            ->expects(self::at(0))
             ->method('clear')
             ->with()
         ;
 
         $this->uow
-            ->expects($this->never())
+            ->expects(self::never())
             ->method('commit')
         ;
 
         $result = $consumer->execute($message);
 
-        $this->assertSame(self::NACK, $result);
+        self::assertSame(self::NACK, $result);
     }
 
-    public function testException()
+    public function testException(): void
     {
         $consumer = new TransactionalSensorConsumer($this->consumer, $this->uow);
 
@@ -124,14 +124,14 @@ class TransactionalSensorConsumerTest extends TestCase
         $exception = new \RuntimeException();
 
         $this->consumer
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('execute')
             ->with($message)
             ->willThrowException($exception)
         ;
 
         $this->uow
-            ->expects($this->at(0))
+            ->expects(self::at(0))
             ->method('clear')
             ->with()
         ;
@@ -140,6 +140,6 @@ class TransactionalSensorConsumerTest extends TestCase
 
         $result = $consumer->execute($message);
 
-        $this->assertSame(self::NACK, $result);
+        self::assertSame(self::NACK, $result);
     }
 }

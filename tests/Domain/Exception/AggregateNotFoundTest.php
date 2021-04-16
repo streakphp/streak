@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace Streak\Domain\Exception;
 
 use PHPUnit\Framework\TestCase;
-use Streak\Domain;
+use Streak\Domain\AggregateRoot;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -23,27 +23,24 @@ use Streak\Domain;
  */
 class AggregateNotFoundTest extends TestCase
 {
-    /**
-     * @var Domain\AggregateRoot\Id|\PHPUnit_Framework_MockObject_MockObject
-     */
-    private $aggregateId;
+    private AggregateRoot\Id $aggregateId;
 
-    public function setUp() : void
+    protected function setUp(): void
     {
-        $this->aggregateId = $this->getMockBuilder(Domain\AggregateRoot\Id::class)->setMockClassName('aggregate_id_1')->getMockForAbstractClass();
+        $this->aggregateId = $this->getMockBuilder(AggregateRoot\Id::class)->setMockClassName('aggregate_id_1')->getMockForAbstractClass();
     }
 
-    public function testException()
+    public function testException(): void
     {
         $this->aggregateId
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('toString')
             ->willReturn('8db25a31-45ce-499f-95f7-8b8d4fffc366')
         ;
 
         $exception = new AggregateNotFound($this->aggregateId);
 
-        $this->assertSame('Aggregate "aggregate_id_1@8db25a31-45ce-499f-95f7-8b8d4fffc366" not found.', $exception->getMessage());
-        $this->assertSame($this->aggregateId, $exception->aggregateId());
+        self::assertSame('Aggregate "aggregate_id_1@8db25a31-45ce-499f-95f7-8b8d4fffc366" not found.', $exception->getMessage());
+        self::assertSame($this->aggregateId, $exception->aggregateId());
     }
 }

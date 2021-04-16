@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Streak\Domain\EventStore;
 
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Streak\Domain\Id;
 
@@ -24,26 +23,19 @@ use Streak\Domain\Id;
  */
 class FilterTest extends TestCase
 {
-    /**
-     * @var Id|MockObject
-     */
-    private $id1;
+    private Id $id1;
+    private Id $id2;
 
-    /**
-     * @var Id|MockObject
-     */
-    private $id2;
-
-    protected function setUp() : void
+    protected function setUp(): void
     {
         $this->id1 = $this->getMockBuilder(Id::class)->setMockClassName('id1')->getMock();
         $this->id2 = $this->getMockBuilder(Id::class)->setMockClassName('id2')->getMockForAbstractClass();
     }
 
-    public function testFilter()
+    public function testFilter(): void
     {
         $this->id1
-            ->expects($this->atLeast(1))
+            ->expects(self::atLeast(1))
             ->method('equals')
             ->withConsecutive(
                 [$this->id2],
@@ -57,7 +49,7 @@ class FilterTest extends TestCase
             )
         ;
         $this->id2
-            ->expects($this->atLeast(1))
+            ->expects(self::atLeast(1))
             ->method('equals')
             ->withConsecutive(
                 [$this->id2],
@@ -71,51 +63,51 @@ class FilterTest extends TestCase
 
         $filter = Filter::nothing();
 
-        $this->assertEquals(new Filter(), $filter);
-        $this->assertEmpty($filter->producerIds());
-        $this->assertEmpty($filter->producerTypes());
+        self::assertEquals(new Filter(), $filter);
+        self::assertEmpty($filter->producerIds());
+        self::assertEmpty($filter->producerTypes());
 
         $filter = $filter->filterProducerIds($this->id1);
 
-        $this->assertEquals([$this->id1], $filter->producerIds());
-        $this->assertEmpty($filter->producerTypes());
+        self::assertEquals([$this->id1], $filter->producerIds());
+        self::assertEmpty($filter->producerTypes());
 
         $filter = $filter->filterProducerTypes('type-1');
 
-        $this->assertEquals([$this->id1], $filter->producerIds());
-        $this->assertEquals(['type-1'], $filter->producerTypes());
+        self::assertEquals([$this->id1], $filter->producerIds());
+        self::assertEquals(['type-1'], $filter->producerTypes());
 
         $filter = $filter->filterProducerIds($this->id2);
 
-        $this->assertEquals([$this->id1, $this->id2], $filter->producerIds());
-        $this->assertEquals(['type-1'], $filter->producerTypes());
+        self::assertEquals([$this->id1, $this->id2], $filter->producerIds());
+        self::assertEquals(['type-1'], $filter->producerTypes());
 
         $filter = $filter->filterProducerTypes('type-2');
 
-        $this->assertEquals([$this->id1, $this->id2], $filter->producerIds());
-        $this->assertEquals(['type-1', 'type-2'], $filter->producerTypes());
+        self::assertEquals([$this->id1, $this->id2], $filter->producerIds());
+        self::assertEquals(['type-1', 'type-2'], $filter->producerTypes());
 
         $filter = $filter->filterProducerIds($this->id1);
         $filter = $filter->filterProducerIds($this->id2);
 
-        $this->assertEquals([$this->id1, $this->id2], $filter->producerIds());
-        $this->assertEquals(['type-1', 'type-2'], $filter->producerTypes());
+        self::assertEquals([$this->id1, $this->id2], $filter->producerIds());
+        self::assertEquals(['type-1', 'type-2'], $filter->producerTypes());
 
         $filter = $filter->filterProducerTypes('type-1');
         $filter = $filter->filterProducerTypes('type-2');
 
-        $this->assertEquals([$this->id1, $this->id2], $filter->producerIds());
-        $this->assertEquals(['type-1', 'type-2'], $filter->producerTypes());
+        self::assertEquals([$this->id1, $this->id2], $filter->producerIds());
+        self::assertEquals(['type-1', 'type-2'], $filter->producerTypes());
 
         $filter = $filter->doNotFilterProducerIds();
 
-        $this->assertEmpty($filter->producerIds());
-        $this->assertEquals(['type-1', 'type-2'], $filter->producerTypes());
+        self::assertEmpty($filter->producerIds());
+        self::assertEquals(['type-1', 'type-2'], $filter->producerTypes());
 
         $filter = $filter->doNotFilterProducerTypes();
 
-        $this->assertEquals(new Filter(), $filter);
-        $this->assertEmpty($filter->producerIds());
-        $this->assertEmpty($filter->producerTypes());
+        self::assertEquals(new Filter(), $filter);
+        self::assertEmpty($filter->producerIds());
+        self::assertEmpty($filter->producerTypes());
     }
 }

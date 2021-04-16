@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Streak\Infrastructure\CommandBus;
 
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Streak\Application\Command;
 use Streak\Application\CommandBus;
@@ -28,39 +27,22 @@ use Streak\Domain\Exception;
  */
 class RetryingCommandBusTest extends TestCase
 {
-    /**
-     * @var CommandBus|MockObject
-     */
-    private $bus;
+    private CommandBus $bus;
 
-    /**
-     * @var Command|MockObject
-     */
-    private $command;
+    private Command $command;
 
-    /**
-     * @var Domain\Id|MockObject
-     */
-    private $id;
+    private Domain\Id $id;
 
-    /**
-     * @var CommandHandler|MockObject
-     */
-    private $handler;
+    private CommandHandler $handler;
 
-    private ?Exception\ConcurrentWriteDetected $exception1 = null;
+    private Exception\ConcurrentWriteDetected $exception1;
+    private Exception\ConcurrentWriteDetected $exception2;
+    private Exception\ConcurrentWriteDetected $exception3;
+    private Exception\ConcurrentWriteDetected $exception4;
+    private Exception\ConcurrentWriteDetected $exception5;
+    private Exception\ConcurrentWriteDetected $exception6;
 
-    private ?Exception\ConcurrentWriteDetected $exception2 = null;
-
-    private ?Exception\ConcurrentWriteDetected $exception3 = null;
-
-    private ?Exception\ConcurrentWriteDetected $exception4 = null;
-
-    private ?Exception\ConcurrentWriteDetected $exception5 = null;
-
-    private ?Exception\ConcurrentWriteDetected $exception6 = null;
-
-    protected function setUp() : void
+    protected function setUp(): void
     {
         $this->bus = $this->getMockBuilder(CommandBus::class)->getMockForAbstractClass();
         $this->command = $this->getMockBuilder(Command::class)->getMockForAbstractClass();
@@ -74,12 +56,12 @@ class RetryingCommandBusTest extends TestCase
         $this->exception6 = new Exception\ConcurrentWriteDetected($this->id, $this->exception5);
     }
 
-    public function testRegister()
+    public function testRegister(): void
     {
         $bus = new RetryingCommandBus($this->bus, 6);
 
         $this->bus
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('register')
             ->with($this->handler)
         ;
@@ -87,119 +69,119 @@ class RetryingCommandBusTest extends TestCase
         $bus->register($this->handler);
     }
 
-    public function testSuccess()
+    public function testSuccess(): void
     {
         $bus = new RetryingCommandBus($this->bus, 6);
 
-        $this->assertSame(6, $bus->maxAttemptsAllowed());
-        $this->assertSame(0, $bus->numberOfAttempts());
+        self::assertSame(6, $bus->maxAttemptsAllowed());
+        self::assertSame(0, $bus->numberOfAttempts());
 
         $this->bus
-            ->expects($this->at(0))
+            ->expects(self::at(0))
             ->method('dispatch')
             ->with($this->command)
             ->willThrowException($this->exception1)
         ;
 
         $this->bus
-            ->expects($this->at(1))
+            ->expects(self::at(1))
             ->method('dispatch')
             ->with($this->command)
             ->willThrowException($this->exception2)
         ;
 
         $this->bus
-            ->expects($this->at(2))
+            ->expects(self::at(2))
             ->method('dispatch')
             ->with($this->command)
             ->willThrowException($this->exception3)
         ;
 
         $this->bus
-            ->expects($this->at(3))
+            ->expects(self::at(3))
             ->method('dispatch')
             ->with($this->command)
         ;
 
         $this->bus
-            ->expects($this->at(4))
+            ->expects(self::at(4))
             ->method('dispatch')
             ->with($this->command)
             ->willThrowException($this->exception4)
         ;
 
         $this->bus
-            ->expects($this->at(5))
+            ->expects(self::at(5))
             ->method('dispatch')
             ->with($this->command)
         ;
 
         $this->bus
-            ->expects($this->at(6))
+            ->expects(self::at(6))
             ->method('dispatch')
             ->with($this->command)
         ;
 
         $bus->dispatch($this->command);
 
-        $this->assertSame(6, $bus->maxAttemptsAllowed());
-        $this->assertSame(4, $bus->numberOfAttempts());
+        self::assertSame(6, $bus->maxAttemptsAllowed());
+        self::assertSame(4, $bus->numberOfAttempts());
 
         $bus->dispatch($this->command);
 
-        $this->assertSame(6, $bus->maxAttemptsAllowed());
-        $this->assertSame(2, $bus->numberOfAttempts());
+        self::assertSame(6, $bus->maxAttemptsAllowed());
+        self::assertSame(2, $bus->numberOfAttempts());
 
         $bus->dispatch($this->command);
 
-        $this->assertSame(6, $bus->maxAttemptsAllowed());
-        $this->assertSame(1, $bus->numberOfAttempts());
+        self::assertSame(6, $bus->maxAttemptsAllowed());
+        self::assertSame(1, $bus->numberOfAttempts());
     }
 
-    public function testError()
+    public function testError(): void
     {
         $bus = new RetryingCommandBus($this->bus, 6);
 
-        $this->assertSame(6, $bus->maxAttemptsAllowed());
-        $this->assertSame(0, $bus->numberOfAttempts());
+        self::assertSame(6, $bus->maxAttemptsAllowed());
+        self::assertSame(0, $bus->numberOfAttempts());
 
         $this->bus
-            ->expects($this->at(0))
+            ->expects(self::at(0))
             ->method('dispatch')
             ->with($this->command)
             ->willThrowException($this->exception1)
         ;
 
         $this->bus
-            ->expects($this->at(1))
+            ->expects(self::at(1))
             ->method('dispatch')
             ->with($this->command)
             ->willThrowException($this->exception2)
         ;
 
         $this->bus
-            ->expects($this->at(2))
+            ->expects(self::at(2))
             ->method('dispatch')
             ->with($this->command)
             ->willThrowException($this->exception3)
         ;
 
         $this->bus
-            ->expects($this->at(3))
+            ->expects(self::at(3))
             ->method('dispatch')
             ->with($this->command)
             ->willThrowException($this->exception4)
         ;
 
         $this->bus
-            ->expects($this->at(4))
+            ->expects(self::at(4))
             ->method('dispatch')
             ->with($this->command)
             ->willThrowException($this->exception5)
         ;
 
         $this->bus
-            ->expects($this->at(5))
+            ->expects(self::at(5))
             ->method('dispatch')
             ->with($this->command)
             ->willThrowException($this->exception6)

@@ -34,7 +34,7 @@ final class SnapshottableAggregatesSnapshotter implements Snapshotter
         $this->storage = $storage;
     }
 
-    public function restoreToSnapshot(AggregateRoot $aggregate) : ?AggregateRoot
+    public function restoreToSnapshot(AggregateRoot $aggregate): ?AggregateRoot
     {
         if (!$aggregate instanceof AggregateRoot\Snapshottable) {
             return null;
@@ -52,7 +52,7 @@ final class SnapshottableAggregatesSnapshotter implements Snapshotter
         return $aggregate;
     }
 
-    public function takeSnapshot(AggregateRoot $aggregate) : void
+    public function takeSnapshot(AggregateRoot $aggregate): void
     {
         if (!$aggregate instanceof AggregateRoot\Snapshottable) {
             return;

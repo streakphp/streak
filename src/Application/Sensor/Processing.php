@@ -25,9 +25,9 @@ trait Processing
     private $events = [];
     private $last;
 
-    abstract public function producerId() : Id;
+    abstract public function producerId(): Id;
 
-    final public function last() : ?Event\Envelope
+    final public function last(): ?Event\Envelope
     {
         return $this->last;
     }
@@ -35,7 +35,7 @@ trait Processing
     /**
      * @return Event\Envelope[]
      */
-    final public function events() : array
+    final public function events(): array
     {
         return $this->events;
     }
@@ -43,7 +43,7 @@ trait Processing
     /**
      * @throws \Throwable
      */
-    final public function process(...$messages) : void
+    final public function process(...$messages): void
     {
         $this->pending = [];
 
@@ -63,7 +63,7 @@ trait Processing
                     }
 
                     // ...and its name must start with "process"
-                    if ('process' !== \mb_substr($method->getName(), 0, 7)) {
+                    if ('process' !== mb_substr($method->getName(), 0, 7)) {
                         continue;
                     }
 
@@ -88,7 +88,7 @@ trait Processing
                     $parameterType = $parameterType->getName();
 
                     $messageIsClass = class_exists($parameterType);
-                    $parameterIsClass = is_object($message);
+                    $parameterIsClass = \is_object($message);
 
                     if (true === $messageIsClass && true === $parameterIsClass) {
                         $parameter = $parameter->getClass();
@@ -106,7 +106,7 @@ trait Processing
                         goto route;
                     }
 
-                    $messageType = gettype($message);
+                    $messageType = \gettype($message);
 
                     if ('boolean' === $messageType) {
                         $messageType = 'bool';
@@ -138,6 +138,7 @@ trait Processing
             }
         } catch (\Throwable $e) {
             $this->pending = [];
+
             throw $e;
         }
 
@@ -146,7 +147,7 @@ trait Processing
         $this->pending = [];
     }
 
-    final private function addEvent(Event $event) : void
+    final private function addEvent(Event $event): void
     {
         $this->pending[] = Event\Envelope::new($event, $this->producerId());
     }

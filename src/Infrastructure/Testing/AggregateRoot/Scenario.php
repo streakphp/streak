@@ -47,14 +47,14 @@ class Scenario implements Scenario\Given, Scenario\When, Scenario\Then
         $this->uow = $uow;
     }
 
-    public function for(AggregateRoot\Id $id) : Given
+    public function for(AggregateRoot\Id $id): Given
     {
         $this->id = $id;
 
         return $this;
     }
 
-    public function given(Domain\Event ...$events) : Scenario\When
+    public function given(Domain\Event ...$events): Scenario\When
     {
         $version = 0;
         foreach ($events as $key => $event) {
@@ -66,14 +66,14 @@ class Scenario implements Scenario\Given, Scenario\When, Scenario\Then
         return $this;
     }
 
-    public function when(Application\Command $command) : Scenario\Then
+    public function when(Application\Command $command): Scenario\Then
     {
         $this->handler->handle($command);
 
         return $this;
     }
 
-    public function then(Domain\Event ...$expected) : void
+    public function then(Domain\Event ...$expected): void
     {
         $this->events = array_merge($this->events, $expected);
 

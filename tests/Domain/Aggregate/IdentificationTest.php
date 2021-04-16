@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace Streak\Domain\Aggregate;
 
 use PHPUnit\Framework\TestCase;
-use Streak\Domain;
+use Streak\Domain\Aggregate;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -23,23 +23,19 @@ use Streak\Domain;
  */
 class IdentificationTest extends TestCase
 {
-    /**
-     * @var Domain\Aggregate\Id|\PHPUnit_Framework_MockObject_MockObject
-     */
-    private $id;
+    private Aggregate\Id $id;
 
-    public function setUp() : void
+    protected function setUp(): void
     {
-        $this->id = $this->getMockBuilder(Domain\Aggregate\Id::class)->getMockForAbstractClass();
+        $this->id = $this->getMockBuilder(Aggregate\Id::class)->getMockForAbstractClass();
     }
 
-    public function testObject()
+    public function testObject(): void
     {
-        /* @var $identification Identification */
         $identification = $this->getMockBuilder(Identification::class)->setConstructorArgs([$this->id])->getMockForTrait();
 
-        $this->assertSame($this->id, $identification->aggregateId());
-        $this->assertSame($this->id, $identification->entityId());
-        $this->assertSame($this->id, $identification->id());
+        self::assertSame($this->id, $identification->aggregateId());
+        self::assertSame($this->id, $identification->entityId());
+        self::assertSame($this->id, $identification->id());
     }
 }

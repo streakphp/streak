@@ -20,5 +20,5 @@ use Streak\Domain;
  */
 interface Identifiable
 {
-    public function id() : Domain\Id;
+    public function id(): Domain\Id;
 }

@@ -14,7 +14,6 @@ declare(strict_types=1);
 namespace Streak\Infrastructure\RabbitMQ;
 
 use PhpAmqpLib\Message\AMQPMessage;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Streak\Application\Sensor;
 
@@ -28,84 +27,78 @@ class SensorConsumerTest extends TestCase
     private const ACK = true;
     private const NACK = false;
 
-    /**
-     * @var Sensor\Factory|MockObject
-     */
-    private $factory;
+    private Sensor\Factory $factory;
 
-    /**
-     * @var Sensor|MockObject
-     */
-    private $sensor;
+    private Sensor $sensor;
 
-    protected function setUp() : void
+    protected function setUp(): void
     {
         $this->factory = $this->getMockBuilder(Sensor\Factory::class)->getMockForAbstractClass();
         $this->sensor = $this->getMockBuilder(Sensor::class)->getMockForAbstractClass();
     }
 
-    public function testAckWithJsonMessage()
+    public function testAckWithJsonMessage(): void
     {
         $consumer = new SensorConsumer($this->factory);
 
         $message = new AMQPMessage('{"hello": "world"}');
 
         $this->factory
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('create')
             ->with()
             ->willReturn($this->sensor)
         ;
 
         $this->sensor
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('process')
             ->with(['hello' => 'world'])
         ;
 
         $result = $consumer->execute($message);
 
-        $this->assertSame(self::ACK, $result);
+        self::assertSame(self::ACK, $result);
     }
 
-    public function testAckWithTextMessage()
+    public function testAckWithTextMessage(): void
     {
         $consumer = new SensorConsumer($this->factory);
 
         $message = new AMQPMessage('Hello world!');
 
         $this->factory
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('create')
             ->with()
             ->willReturn($this->sensor)
         ;
 
         $this->sensor
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('process')
             ->with('Hello world!')
         ;
 
         $result = $consumer->execute($message);
 
-        $this->assertSame(self::ACK, $result);
+        self::assertSame(self::ACK, $result);
     }
 
-    public function testNackWithJsonMessage()
+    public function testNackWithJsonMessage(): void
     {
         $consumer = new SensorConsumer($this->factory);
 
         $message = new AMQPMessage('{"hello": "world"}');
 
         $this->factory
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('create')
             ->willReturn($this->sensor)
         ;
 
         $this->sensor
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('process')
             ->with(['hello' => 'world'])
             ->willThrowException(new \RuntimeException())
@@ -113,23 +106,23 @@ class SensorConsumerTest extends TestCase
 
         $result = $consumer->execute($message);
 
-        $this->assertSame(self::NACK, $result);
+        self::assertSame(self::NACK, $result);
     }
 
-    public function testNackWithTextMessage()
+    public function testNackWithTextMessage(): void
     {
         $consumer = new SensorConsumer($this->factory);
 
         $message = new AMQPMessage('Hello world!');
 
         $this->factory
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('create')
             ->willReturn($this->sensor)
         ;
 
         $this->sensor
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('process')
             ->with('Hello world!')
             ->willThrowException(new \RuntimeException())
@@ -137,6 +130,6 @@ class SensorConsumerTest extends TestCase
 
         $result = $consumer->execute($message);
 
-        $this->assertSame(self::NACK, $result);
+        self::assertSame(self::NACK, $result);
     }
 }

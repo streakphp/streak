@@ -14,7 +14,6 @@ declare(strict_types=1);
 namespace Streak\Domain\Event\Listener;
 
 use PHPUnit\Framework\TestCase;
-use Streak\Domain;
 use Streak\Domain\Event\Listener;
 
 /**
@@ -24,21 +23,17 @@ use Streak\Domain\Event\Listener;
  */
 class IdentifyingTest extends TestCase
 {
-    /**
-     * @var Domain\Id|\PHPUnit_Framework_MockObject_MockObject
-     */
-    private $id;
+    private Listener\Id $id;
 
-    public function setUp() : void
+    protected function setUp(): void
     {
         $this->id = $this->getMockBuilder(Listener\Id::class)->getMockForAbstractClass();
     }
 
-    public function testObject()
+    public function testObject(): void
     {
-        /* @var $identification Identifying */
         $identification = $this->getMockBuilder(Identifying::class)->setConstructorArgs([$this->id])->getMockForTrait();
 
-        $this->assertSame($this->id, $identification->id());
+        self::assertSame($this->id, $identification->id());
     }
 }

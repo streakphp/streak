@@ -28,11 +28,11 @@ class CommandHandlerAlreadyRegistered extends \OutOfRangeException
     {
         $this->handler = $handler;
 
-        $message = sprintf('Handler "%s" already registered.', get_class($handler));
+        $message = sprintf('Handler "%s" already registered.', \get_class($handler));
         parent::__construct($message, 0, $previous);
     }
 
-    public function handler() : CommandHandler
+    public function handler(): CommandHandler
     {
         return $this->handler;
     }

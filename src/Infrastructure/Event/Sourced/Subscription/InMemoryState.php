@@ -28,7 +28,7 @@ class InMemoryState implements State
     {
     }
 
-    public function equals(object $state) : bool
+    public function equals(object $state): bool
     {
         if (!$state instanceof State) {
             return false;
@@ -41,9 +41,9 @@ class InMemoryState implements State
         return true;
     }
 
-    public function has(string $name) : bool
+    public function has(string $name): bool
     {
-        return array_key_exists($name, $this->state);
+        return \array_key_exists($name, $this->state);
     }
 
     public function get(string $name)
@@ -55,7 +55,7 @@ class InMemoryState implements State
         return $this->state[$name];
     }
 
-    public function set(string $name, $value) : State
+    public function set(string $name, $value): State
     {
         $this->validate($name, $value);
 
@@ -68,12 +68,12 @@ class InMemoryState implements State
         return $state;
     }
 
-    public function toArray() : array
+    public function toArray(): array
     {
         return $this->state;
     }
 
-    public static function fromArray(array $values) : self
+    public static function fromArray(array $values): self
     {
         $state = new self();
 
@@ -84,43 +84,42 @@ class InMemoryState implements State
         return $state;
     }
 
-    public static function fromState(State $from) : self
+    public static function fromState(State $from): self
     {
-        $state = self::fromArray($from->toArray());
-
-        return $state;
+        return self::fromArray($from->toArray());
     }
 
-    public static function empty() : self
+    public static function empty(): self
     {
         return new self();
     }
 
-    private function validate(string $name, $value)
+    private function validate(string $name, $value): void
     {
         if (true === empty($name)) {
             throw new \OutOfBoundsException('Name of value passed to state object must be non empty string.');
         }
 
         $value = [$name => $value];
-        array_walk_recursive($value, function ($value, $key) {
+        array_walk_recursive($value, function ($value, $key): void {
             if (true === is_scalar($value)) {
                 return;
             }
             if (null === $value) {
                 return;
             }
-            throw new \UnexpectedValueException(sprintf('Values passed to state object can only be nulls & scalar values or recursive arrays of nulls & scalar values. Value of type "%s" given under key "%s".', gettype($value), $key));
+
+            throw new \UnexpectedValueException(sprintf('Values passed to state object can only be nulls & scalar values or recursive arrays of nulls & scalar values. Value of type "%s" given under key "%s".', \gettype($value), $key));
         });
     }
 
     /**
      * Sorts $array by its keys recursively.
      */
-    private static function ksort(array &$array) : void
+    private static function ksort(array &$array): void
     {
         foreach ($array as &$value) {
-            if (true === is_array($value)) {
+            if (true === \is_array($value)) {
                 self::ksort($value);
             }
         }

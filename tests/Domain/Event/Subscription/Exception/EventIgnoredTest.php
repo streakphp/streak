@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Streak\Domain\Event\Subscription\Exception;
 
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Streak\Domain\Event;
 use Streak\Domain\Id\UUID;
@@ -25,22 +24,18 @@ use Streak\Domain\Id\UUID;
  */
 class EventIgnoredTest extends TestCase
 {
-    /**
-     * @var Event\Envelope|MockObject
-     */
-    private $event;
+    private Event\Envelope $event;
 
-    protected function setUp() : void
+    protected function setUp(): void
     {
-        $this->event = $this->getMockBuilder(Event::class)->setMockClassName('event1')->getMockForAbstractClass();
-        $this->event = Event\Envelope::new($this->event, UUID::random());
+        $this->event = Event\Envelope::new($this->getMockBuilder(Event::class)->setMockClassName('event1')->getMockForAbstractClass(), UUID::random());
     }
 
-    public function testException()
+    public function testException(): void
     {
         $exception = new EventIgnored($this->event);
 
-        $this->assertSame('Event "event1" was ignored.', $exception->getMessage());
-        $this->assertSame($this->event, $exception->event());
+        self::assertSame('Event "event1" was ignored.', $exception->getMessage());
+        self::assertSame($this->event, $exception->event());
     }
 }

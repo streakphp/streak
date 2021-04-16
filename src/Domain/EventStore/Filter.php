@@ -36,12 +36,12 @@ final class Filter
     {
     }
 
-    public static function nothing() : Filter
+    public static function nothing(): self
     {
         return new self();
     }
 
-    public function filterProducerIds(Id ...$ids) : Filter
+    public function filterProducerIds(Id ...$ids): self
     {
         $filter = new self();
         $filter->producerTypes = $this->producerTypes;
@@ -60,7 +60,7 @@ final class Filter
         return $filter;
     }
 
-    public function doNotFilterProducerIds() : Filter
+    public function doNotFilterProducerIds(): self
     {
         $filter = new self();
         $filter->producerIds = [];
@@ -69,14 +69,14 @@ final class Filter
         return $filter;
     }
 
-    public function filterProducerTypes(string ...$types) : Filter
+    public function filterProducerTypes(string ...$types): self
     {
         $filter = new self();
         $filter->producerIds = $this->producerIds;
         $filter->producerTypes = $this->producerTypes;
 
         foreach ($types as $type) {
-            if (true === in_array($type, $filter->producerTypes, true)) {
+            if (true === \in_array($type, $filter->producerTypes, true)) {
                 continue;
             }
             $filter->producerTypes[] = $type;
@@ -85,7 +85,7 @@ final class Filter
         return $filter;
     }
 
-    public function doNotFilterProducerTypes() : Filter
+    public function doNotFilterProducerTypes(): self
     {
         $filter = new self();
         $filter->producerIds = $this->producerIds;
@@ -97,7 +97,7 @@ final class Filter
     /**
      * @return Id[]
      */
-    public function producerIds() : array
+    public function producerIds(): array
     {
         return $this->producerIds;
     }
@@ -105,7 +105,7 @@ final class Filter
     /**
      * @return string[]
      */
-    public function producerTypes() : array
+    public function producerTypes(): array
     {
         return $this->producerTypes;
     }

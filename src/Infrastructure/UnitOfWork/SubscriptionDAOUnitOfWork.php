@@ -38,7 +38,7 @@ class SubscriptionDAOUnitOfWork implements UnitOfWork
         $this->dao = $dao;
     }
 
-    public function add(object $subscription) : void
+    public function add(object $subscription): void
     {
         if (false === $this->supports($subscription)) {
             throw new UnitOfWork\Exception\ObjectNotSupported($subscription);
@@ -49,7 +49,7 @@ class SubscriptionDAOUnitOfWork implements UnitOfWork
         }
     }
 
-    public function remove(object $subscription) : void
+    public function remove(object $subscription): void
     {
         if (false === $this->supports($subscription)) {
             throw new UnitOfWork\Exception\ObjectNotSupported($subscription);
@@ -64,7 +64,7 @@ class SubscriptionDAOUnitOfWork implements UnitOfWork
         }
     }
 
-    public function has(object $subscription) : bool
+    public function has(object $subscription): bool
     {
         if (false === $this->supports($subscription)) {
             throw new UnitOfWork\Exception\ObjectNotSupported($subscription);
@@ -82,23 +82,23 @@ class SubscriptionDAOUnitOfWork implements UnitOfWork
     /**
      * @return DAO\Subscription[]
      */
-    public function uncommitted() : array
+    public function uncommitted(): array
     {
         return array_values($this->uncommited);
     }
 
-    public function count() : int
+    public function count(): int
     {
-        return count($this->uncommited);
+        return \count($this->uncommited);
     }
 
-    public function commit() : \Generator
+    public function commit(): \Generator
     {
         if (false === $this->committing) {
             $this->committing = true;
 
             try {
-                /** @var $subscription Subscription */
+                /** @var Subscription $subscription */
                 while ($subscription = array_shift($this->uncommited)) {
                     try {
                         $this->dao->save($subscription);
@@ -107,6 +107,7 @@ class SubscriptionDAOUnitOfWork implements UnitOfWork
                     } catch (\Exception $e) {
                         // something unexpected occurred, so lets leave uow in state from just before it happened - we may like to retry it later...
                         array_unshift($this->uncommited, $subscription);
+
                         throw $e;
                     }
                 }
@@ -118,12 +119,12 @@ class SubscriptionDAOUnitOfWork implements UnitOfWork
         }
     }
 
-    public function clear() : void
+    public function clear(): void
     {
         $this->uncommited = [];
     }
 
-    private function supports(object $subscription) : bool
+    private function supports(object $subscription): bool
     {
         if ($subscription instanceof DAO\Subscription) {
             return true;

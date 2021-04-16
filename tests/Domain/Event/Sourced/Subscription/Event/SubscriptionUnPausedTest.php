@@ -25,15 +25,15 @@ class SubscriptionUnPausedTest extends TestCase
 {
     private $event;
 
-    protected function setUp() : void
+    protected function setUp(): void
     {
         $this->event = $this->getMockBuilder(Event::class)->getMockForAbstractClass();
     }
 
-    public function testObject()
+    public function testObject(): void
     {
         $event = new SubscriptionUnPaused($now = new \DateTimeImmutable());
 
-        $this->assertEquals($now, $event->timestamp());
+        self::assertEquals($now, $event->timestamp());
     }
 }

@@ -29,7 +29,7 @@ class ConversionToArrayNotPossible extends ConversionNotPossible
         parent::__construct($previous);
     }
 
-    public function object() : object
+    public function object(): object
     {
         return $this->object;
     }

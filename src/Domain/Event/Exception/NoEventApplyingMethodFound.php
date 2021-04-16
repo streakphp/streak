@@ -33,12 +33,12 @@ class NoEventApplyingMethodFound extends \BadMethodCallException
         parent::__construct('No event applying method found.', 0, $previous);
     }
 
-    public function consumer() : Event\Consumer
+    public function consumer(): Event\Consumer
     {
         return $this->consumer;
     }
 
-    public function event() : Event\Envelope
+    public function event(): Event\Envelope
     {
         return $this->event;
     }

@@ -35,25 +35,22 @@ use Streak\Application\Sensor\ProcessingTest\StringProcessed;
  */
 class ProcessingTest extends TestCase
 {
-    /**
-     * @var Sensor\Id|\PHPUnit_Framework_MockObject_MockObject
-     */
-    private $id;
+    private Sensor\Id $id;
 
-    public function setUp() : void
+    protected function setUp(): void
     {
         $this->id = $this->getMockBuilder(Sensor\Id::class)->getMockForAbstractClass();
     }
 
-    public function testObject()
+    public function testObject(): void
     {
         $sensor = new SensorStub1($this->id);
 
-        $this->assertSame($this->id, $sensor->id());
-        $this->assertSame($this->id, $sensor->producerId());
-        $this->assertSame($this->id, $sensor->sensorId());
-        $this->assertNull($sensor->last());
-        $this->assertEmpty($sensor->events());
+        self::assertSame($this->id, $sensor->id());
+        self::assertSame($this->id, $sensor->producerId());
+        self::assertSame($this->id, $sensor->sensorId());
+        self::assertNull($sensor->last());
+        self::assertEmpty($sensor->events());
 
         $array = ['example' => 'array'];
         $sensor->process($array);
@@ -70,12 +67,12 @@ class ProcessingTest extends TestCase
         $stdClass = new \stdClass();
         $sensor->process($stdClass);
 
-        $this->assertEquals([new ArrayProcessed($array), new IntegerProcessed(1), new StringProcessed($string), new B1Processed($b1), new B2Processed($b2), new BooleanProcessed($boolean), new StdClassProcessed($stdClass)], $sensor->events());
+        self::assertEquals([new ArrayProcessed($array), new IntegerProcessed(1), new StringProcessed($string), new B1Processed($b1), new B2Processed($b2), new BooleanProcessed($boolean), new StdClassProcessed($stdClass)], $sensor->events());
 
         $sensor = new SensorStub1($this->id);
         $sensor->process($array, $integer, $string, $b1, $b2, $boolean, $stdClass);
 
-        $this->assertEquals([new ArrayProcessed($array), new IntegerProcessed(1), new StringProcessed($string), new B1Processed($b1), new B2Processed($b2), new BooleanProcessed($boolean), new StdClassProcessed($stdClass)], $sensor->events());
+        self::assertEquals([new ArrayProcessed($array), new IntegerProcessed(1), new StringProcessed($string), new B1Processed($b1), new B2Processed($b2), new BooleanProcessed($boolean), new StdClassProcessed($stdClass)], $sensor->events());
 
         $sensor = new SensorStub2($this->id);
 
@@ -84,7 +81,7 @@ class ProcessingTest extends TestCase
         $b2 = new B2();
         $sensor->process($b2);
 
-        $this->assertEquals([new AProcessed($b1), new AProcessed($b2)], $sensor->events());
+        self::assertEquals([new AProcessed($b1), new AProcessed($b2)], $sensor->events());
 
         $sensor = new SensorStub2($this->id);
 
@@ -92,10 +89,10 @@ class ProcessingTest extends TestCase
         $b2 = new B2();
         $sensor->process($b1, $b2);
 
-        $this->assertEquals([new AProcessed($b1), new AProcessed($b2)], $sensor->events());
+        self::assertEquals([new AProcessed($b1), new AProcessed($b2)], $sensor->events());
     }
 
-    public function testMoreThanOneProcessingMethod()
+    public function testMoreThanOneProcessingMethod(): void
     {
         $sensor = new SensorStub2($this->id);
 
@@ -103,14 +100,14 @@ class ProcessingTest extends TestCase
             $integer = 1;
             $sensor->process($integer);
         } catch (\BadMethodCallException $e) {
-            $this->assertSame('Too many processing functions found.', $e->getMessage());
-            $this->assertEmpty($sensor->events());
+            self::assertSame('Too many processing functions found.', $e->getMessage());
+            self::assertEmpty($sensor->events());
         }
 
         // no new assertions here please
     }
 
-    public function testTransactionalityOfProcessMethod()
+    public function testTransactionalityOfProcessMethod(): void
     {
         $sensor = new SensorStub2($this->id);
 
@@ -119,8 +116,8 @@ class ProcessingTest extends TestCase
             $integer = 1;
             $sensor->process($b1, 'string');
         } catch (\RuntimeException $e) {
-            $this->assertSame('Thrown inside processStringAndThrowAnException method.', $e->getMessage());
-            $this->assertEmpty($sensor->events());
+            self::assertSame('Thrown inside processStringAndThrowAnException method.', $e->getMessage());
+            self::assertEmpty($sensor->events());
         }
 
         // no new assertions here please
@@ -137,37 +134,37 @@ class SensorStub1 implements Sensor
     use Sensor\Identification;
     use Sensor\Processing;
 
-    public function processArray(array $message) : void
+    public function processArray(array $message): void
     {
         $this->addEvent(new ArrayProcessed($message));
     }
 
-    public function processInteger(int $integer)
+    public function processInteger(int $integer): void
     {
         $this->addEvent(new IntegerProcessed($integer));
     }
 
-    public function processString(string $string)
+    public function processString(string $string): void
     {
         $this->addEvent(new StringProcessed($string));
     }
 
-    public function processB1(B1 $b1)
+    public function processB1(B1 $b1): void
     {
         $this->addEvent(new B1Processed($b1));
     }
 
-    public function processB2(B2 $b2)
+    public function processB2(B2 $b2): void
     {
         $this->addEvent(new B2Processed($b2));
     }
 
-    public function processBoolean(bool $boolean)
+    public function processBoolean(bool $boolean): void
     {
         $this->addEvent(new BooleanProcessed($boolean));
     }
 
-    public function processStdClass(\stdClass $stdClass)
+    public function processStdClass(\stdClass $stdClass): void
     {
         $this->addEvent(new StdClassProcessed($stdClass));
     }
@@ -178,37 +175,37 @@ class SensorStub2 implements Sensor
     use Sensor\Identification;
     use Sensor\Processing;
 
-    public function processB1(B1 $b1, $notNeededSecondArgument)
+    public function processB1(B1 $b1, $notNeededSecondArgument): void
     {
         $this->addEvent(new B1Processed($b1));
     }
 
-    public function processOptionalB2(?B2 $optionalB1)
+    public function processOptionalB2(?B2 $optionalB1): void
     {
         $this->addEvent(new B1Processed($optionalB1));
     }
 
-    public function processNullableB2(B2 $nullableB1 = null)
+    public function processNullableB2(B2 $nullableB1 = null): void
     {
         $this->addEvent(new B1Processed($nullableB1));
     }
 
-    public function processA(A $a)
+    public function processA(A $a): void
     {
         $this->addEvent(new AProcessed($a));
     }
 
-    public function processInteger(int $integer)
+    public function processInteger(int $integer): void
     {
         $this->addEvent(new IntegerProcessed($integer));
     }
 
-    public function processAnotherInteger(int $integer)
+    public function processAnotherInteger(int $integer): void
     {
         $this->addEvent(new IntegerProcessed($integer));
     }
 
-    public function processStringAndThrowAnException(string $string)
+    public function processStringAndThrowAnException(string $string): void
     {
         throw new \RuntimeException('Thrown inside processStringAndThrowAnException method.');
     }

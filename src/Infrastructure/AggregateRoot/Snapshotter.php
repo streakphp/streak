@@ -23,10 +23,10 @@ interface Snapshotter
     /**
      * Returns $aggregate restored from snapshot or null if snapshot is not found or not supported.
      */
-    public function restoreToSnapshot(AggregateRoot $aggregate) : ?AggregateRoot;
+    public function restoreToSnapshot(AggregateRoot $aggregate): ?AggregateRoot;
 
     /**
      * Takes snapshot if $aggregate snapshotting is supported.
      */
-    public function takeSnapshot(AggregateRoot $aggregate) : void;
+    public function takeSnapshot(AggregateRoot $aggregate): void;
 }

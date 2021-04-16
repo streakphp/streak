@@ -37,7 +37,7 @@ trait Handling
             }
 
             // ...and its name must start with "handle"
-            if ('handle' !== \mb_substr($method->getName(), 0, 6)) {
+            if ('handle' !== mb_substr($method->getName(), 0, 6)) {
                 continue;
             }
 

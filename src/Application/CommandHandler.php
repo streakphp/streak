@@ -23,5 +23,5 @@ interface CommandHandler
      *
      * @TODO: rename to CommandHandler::handleCommand()
      */
-    public function handle(Command $command) : void;
+    public function handle(Command $command): void;
 }

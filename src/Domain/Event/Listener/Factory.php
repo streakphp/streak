@@ -26,10 +26,10 @@ interface Factory
     /**
      * @throws InvalidIdGiven
      */
-    public function create(Listener\Id $id) : Listener;
+    public function create(Listener\Id $id): Listener;
 
     /**
      * @throws InvalidEventGiven
      */
-    public function createFor(Event\Envelope $event) : Event\Listener;
+    public function createFor(Event\Envelope $event): Event\Listener;
 }

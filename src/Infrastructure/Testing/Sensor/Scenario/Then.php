@@ -20,5 +20,5 @@ use Streak\Domain\Event;
  */
 interface Then
 {
-    public function then(Event ...$events) : void;
+    public function then(Event ...$events): void;
 }

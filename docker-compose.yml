@@ -5,19 +5,31 @@ services:
     image: streakphp/php74-cli:latest
     volumes:
       - .:/var/www/project
+      - ./docker/php/etc/php/7.4/cli/php.ini:/etc/php/7.4/cli/php.ini
     working_dir: /var/www/project
     depends_on:
       - postgres
       - redis
     environment:
       COMPOSER_ALLOW_SUPERUSER: 1
+      COMPOSER_NO_INTERACTION: 1
+      COMPOSER_CACHE_DIR: /var/www/project/build/.composer
+      XDEBUG_MODE: 'develop,debug,coverage'
 
   postgres:
-    image: postgres:9.5-alpine
+    image: postgres:13-alpine
+    volumes:
+      - ./docker/postgres/usr/local/share/postgresql/postgresql.conf:/usr/local/share/postgresql/postgresql.conf
     environment:
       POSTGRES_USER: phpunit
       POSTGRES_PASSWORD: phpunit
       POSTGRES_DB: phpunit
+    ports:
+      - 5433:5432
 
   redis:
     image: redis:alpine
+    volumes:
+      - ./docker/redis/usr/local/etc/redis/redis.conf:/usr/local/etc/redis/redis.conf
+    ports:
+      - 6380:6379

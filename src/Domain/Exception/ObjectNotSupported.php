@@ -26,12 +26,12 @@ class ObjectNotSupported extends \RuntimeException
     {
         $this->object = $object;
 
-        $message = sprintf('Object is not supported.');
+        $message = 'Object is not supported.';
 
         parent::__construct($message, 0, $previous);
     }
 
-    public function object() : object
+    public function object(): object
     {
         return $this->object;
     }

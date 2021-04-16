@@ -27,7 +27,7 @@ class ConversionToObjectNotPossible extends ConversionNotPossible
         parent::__construct($previous);
     }
 
-    public function array() : array
+    public function array(): array
     {
         return $this->array;
     }

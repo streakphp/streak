@@ -33,19 +33,17 @@ class Factory implements Event\Listener\Factory
         $this->logger = $logger;
     }
 
-    public function create(Event\Listener\Id $id) : Event\Listener
+    public function create(Event\Listener\Id $id): Event\Listener
     {
         $saga = $this->factory->create($id);
-        $saga = new LoggingListener($saga, $this->logger);
 
-        return $saga;
+        return new LoggingListener($saga, $this->logger);
     }
 
-    public function createFor(Event\Envelope $event) : Event\Listener
+    public function createFor(Event\Envelope $event): Event\Listener
     {
         $listener = $this->factory->createFor($event);
-        $listener = new LoggingListener($listener, $this->logger);
 
-        return $listener;
+        return new LoggingListener($listener, $this->logger);
     }
 }

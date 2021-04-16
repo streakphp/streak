@@ -62,13 +62,13 @@ final class Subscription implements Event\Subscription, Event\Sourced, Versionab
     }
 
     /**
-     * @return iterable|Event\Envelope[]
-     *
      * @throws Exception\SubscriptionAlreadyCompleted
      * @throws Exception\SubscriptionNotStartedYet
      * @throws \Throwable
+     *
+     * @return Event\Envelope[]|iterable
      */
-    public function subscribeTo(EventStore $store, ?int $limit = null) : iterable
+    public function subscribeTo(EventStore $store, ?int $limit = null): iterable
     {
         if (null === $limit) {
             $limit = self::LIMIT_TO_INITIAL_STREAM; // if no $limit was given, we listen to initial stream only
@@ -165,7 +165,7 @@ final class Subscription implements Event\Subscription, Event\Sourced, Versionab
      * @throws Exception\SubscriptionRestartNotPossible
      * @throws \Throwable
      */
-    public function restart() : void
+    public function restart(): void
     {
         if (false === $this->started()) {
             throw new Exception\SubscriptionNotStartedYet($this);
@@ -182,7 +182,7 @@ final class Subscription implements Event\Subscription, Event\Sourced, Versionab
         $this->apply(new SubscriptionRestarted($this->startedBy, $this->clock->now()));
     }
 
-    public function pause() : void
+    public function pause(): void
     {
         if (false === $this->started()) {
             return;
@@ -199,7 +199,7 @@ final class Subscription implements Event\Subscription, Event\Sourced, Versionab
         $this->apply(new SubscriptionPaused($this->clock->now()));
     }
 
-    public function unpause() : void
+    public function unpause(): void
     {
         if (false === $this->started()) {
             return;
@@ -221,7 +221,7 @@ final class Subscription implements Event\Subscription, Event\Sourced, Versionab
      *
      * @throws \Throwable
      */
-    public function startFor(Event\Envelope $event) : void
+    public function startFor(Event\Envelope $event): void
     {
         if (true === $this->started()) {
             throw new Exception\SubscriptionAlreadyStarted($this);
@@ -233,7 +233,7 @@ final class Subscription implements Event\Subscription, Event\Sourced, Versionab
     /**
      * TODO: filter only newer event from $stream if replaying more than once.
      */
-    public function replay(Event\Stream $stream) : void
+    public function replay(Event\Stream $stream): void
     {
         $last = $stream->last();
         $stream = $stream->to($last); // freeze the stream, ignore any events that were stored after replaying process started
@@ -278,7 +278,7 @@ final class Subscription implements Event\Subscription, Event\Sourced, Versionab
         $this->version = $last->version();
     }
 
-    public function equals(object $object) : bool
+    public function equals(object $object): bool
     {
         if (!$object instanceof self) {
             return false;
@@ -291,37 +291,37 @@ final class Subscription implements Event\Subscription, Event\Sourced, Versionab
         return true;
     }
 
-    public function producerId() : Domain\Id
+    public function producerId(): Domain\Id
     {
         return $this->subscriptionId();
     }
 
-    public function subscriptionId() : Event\Listener\Id
+    public function subscriptionId(): Event\Listener\Id
     {
         return $this->listener->listenerId();
     }
 
-    public function listener() : Listener
+    public function listener(): Listener
     {
         return $this->listener;
     }
 
-    public function started() : bool
+    public function started(): bool
     {
         return null !== $this->startedBy;
     }
 
-    public function paused() : bool
+    public function paused(): bool
     {
         return $this->paused;
     }
 
-    public function starting() : bool
+    public function starting(): bool
     {
         return $this->starting;
     }
 
-    public function completed() : bool
+    public function completed(): bool
     {
         return null !== $this->completedBy;
     }
@@ -332,7 +332,7 @@ final class Subscription implements Event\Subscription, Event\Sourced, Versionab
      * @see applySubscriptionListenersStateChanged
      * @see applySubscriptionCompleted
      */
-    private function listenToEvent(Event\Envelope $event) : void
+    private function listenToEvent(Event\Envelope $event): void
     {
         if (true === $this->starting()) {
             // we are (re)starting subscription, lets reset listener if possible
@@ -365,7 +365,7 @@ final class Subscription implements Event\Subscription, Event\Sourced, Versionab
         }
     }
 
-    private function doApplyEvent(Event\Envelope $event) : void
+    private function doApplyEvent(Event\Envelope $event): void
     {
         if ($event->message() instanceof SubscriptionListenedToEvent) {
             $this->applySubscriptionListenedToEvent($event);
@@ -411,42 +411,42 @@ final class Subscription implements Event\Subscription, Event\Sourced, Versionab
         throw new Event\Exception\NoEventApplyingMethodFound($this, $event); // @codeCoverageIgnore
     }
 
-    private function applySubscriptionListenedToEvent(Event\Envelope $event)
+    private function applySubscriptionListenedToEvent(Event\Envelope $event): void
     {
         $this->starting = false;
         $this->lastProcessedEvent = $event->message()->event();
     }
 
-    private function applySubscriptionIgnoredEvent(Event\Envelope $event)
+    private function applySubscriptionIgnoredEvent(Event\Envelope $event): void
     {
         $this->starting = false;
         $this->lastProcessedEvent = $event->message()->event();
     }
 
-    private function applySubscriptionCompleted()
+    private function applySubscriptionCompleted(): void
     {
         $this->completedBy = $this->lastEvent;
         $this->starting = false;
         $this->paused = false;
     }
 
-    private function applySubscriptionStarted(Event\Envelope $event)
+    private function applySubscriptionStarted(Event\Envelope $event): void
     {
         $this->startedBy = $event->message()->startedBy();
         $this->starting = true;
     }
 
-    private function applySubscriptionPaused(Event\Envelope $event)
+    private function applySubscriptionPaused(Event\Envelope $event): void
     {
         $this->paused = true;
     }
 
-    private function applySubscriptionUnPaused(Event\Envelope $event)
+    private function applySubscriptionUnPaused(Event\Envelope $event): void
     {
         $this->paused = false;
     }
 
-    private function applySubscriptionRestarted(Event\Envelope $event)
+    private function applySubscriptionRestarted(Event\Envelope $event): void
     {
         $this->startedBy = $event->message()->originallyStartedBy();
         $this->completedBy = null;
@@ -454,7 +454,7 @@ final class Subscription implements Event\Subscription, Event\Sourced, Versionab
         $this->paused = false;
     }
 
-    private function applySubscriptionListenersStateChanged(Event\Envelope $event)
+    private function applySubscriptionListenersStateChanged(Event\Envelope $event): void
     {
         $state = $event->message()->state();
         $this->lastState = $state;

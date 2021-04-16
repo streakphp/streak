@@ -30,20 +30,20 @@ use Streak\Application\Query\HandlingTest\SupportedQuery4;
  */
 class HandlingTest extends TestCase
 {
-    public function testSuccess()
+    public function testSuccess(): void
     {
         $handler = new HandlingStub();
 
-        $this->assertSame('query1', $handler->handleQuery(new SupportedQuery1()));
-        $this->assertSame(1, $handler->handleQuery(new SupportedQuery2()));
-        $this->assertSame(['query1', 1], $handler->handleQuery(new SupportedQuery3()));
-        $this->assertEquals(new \stdClass(), $handler->handleQuery(new SupportedQuery4()));
+        self::assertSame('query1', $handler->handleQuery(new SupportedQuery1()));
+        self::assertSame(1, $handler->handleQuery(new SupportedQuery2()));
+        self::assertSame(['query1', 1], $handler->handleQuery(new SupportedQuery3()));
+        self::assertEquals(new \stdClass(), $handler->handleQuery(new SupportedQuery4()));
     }
 
     /**
      * @dataProvider failingQueries
      */
-    public function testFailure(Query $query)
+    public function testFailure(Query $query): void
     {
         $this->expectExceptionObject(new QueryNotSupported($query));
 
@@ -51,7 +51,7 @@ class HandlingTest extends TestCase
         $handler->handleQuery($query);
     }
 
-    public function failingQueries() : array
+    public function failingQueries(): array
     {
         return [
             [new NotSupportedQuery1()],

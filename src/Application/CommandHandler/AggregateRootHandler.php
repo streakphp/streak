@@ -33,7 +33,7 @@ class AggregateRootHandler implements CommandHandler
         $this->repository = $repository;
     }
 
-    public function handle(Command $command) : void
+    public function handle(Command $command): void
     {
         if (!$command instanceof Command\AggregateRootCommand) {
             throw new CommandNotSupported($command);

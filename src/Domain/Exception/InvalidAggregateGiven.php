@@ -28,12 +28,12 @@ class InvalidAggregateGiven extends \InvalidArgumentException
     {
         $this->aggregate = $aggregate;
 
-        $message = sprintf('Invalid aggregate given.');
+        $message = 'Invalid aggregate given.';
 
         parent::__construct($message, 0, $previous);
     }
 
-    public function aggregate() : AggregateRoot
+    public function aggregate(): AggregateRoot
     {
         return $this->aggregate;
     }

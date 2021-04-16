@@ -18,5 +18,5 @@ namespace Streak\Infrastructure\EventStore;
  */
 interface Schemable
 {
-    public function schema() : ?Schema;
+    public function schema(): ?Schema;
 }

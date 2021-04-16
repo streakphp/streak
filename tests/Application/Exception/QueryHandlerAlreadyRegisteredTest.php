@@ -26,17 +26,17 @@ class QueryHandlerAlreadyRegisteredTest extends TestCase
     private $handler;
     private ?\Exception $previous = null;
 
-    protected function setUp() : void
+    protected function setUp(): void
     {
         $this->handler = $this->getMockBuilder(Application\QueryHandler::class)->getMockForAbstractClass();
         $this->previous = new \Exception();
     }
 
-    public function testException()
+    public function testException(): void
     {
         $exception = new QueryHandlerAlreadyRegistered($this->handler, $this->previous);
 
-        $this->assertSame($this->handler, $exception->handler());
-        $this->assertSame($this->previous, $exception->getPrevious());
+        self::assertSame($this->handler, $exception->handler());
+        self::assertSame($this->previous, $exception->getPrevious());
     }
 }

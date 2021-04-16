@@ -22,51 +22,51 @@ use PHPUnit\Framework\TestCase;
  */
 class MetadataTest extends TestCase
 {
-    public function testMetadata()
+    public function testMetadata(): void
     {
         $object = new \stdClass();
 
         $metadata1 = Metadata::fromObject($object);
 
-        $this->assertTrue($metadata1->empty());
-        $this->assertSame([], $metadata1->toArray());
+        self::assertTrue($metadata1->empty());
+        self::assertSame([], $metadata1->toArray());
 
         $object = new \stdClass();
         $object->__streak_metadata = 'not-an-array';
 
         $metadata1 = Metadata::fromObject($object);
 
-        $this->assertTrue($metadata1->empty());
-        $this->assertSame([], $metadata1->toArray());
+        self::assertTrue($metadata1->empty());
+        self::assertSame([], $metadata1->toArray());
 
         $metadata1->set('attribute1', 'value1');
 
-        $this->assertTrue($metadata1->has('attribute1'));
-        $this->assertSame('value1', $metadata1->get('attribute1'));
-        $this->assertSame(['attribute1' => 'value1'], $metadata1->toArray());
+        self::assertTrue($metadata1->has('attribute1'));
+        self::assertSame('value1', $metadata1->get('attribute1'));
+        self::assertSame(['attribute1' => 'value1'], $metadata1->toArray());
 
-        $this->assertFalse($metadata1->has('attribute2'));
-        $this->assertNull($metadata1->get('attribute2'));
-        $this->assertSame('default2', $metadata1->get('attribute2', 'default2'));
+        self::assertFalse($metadata1->has('attribute2'));
+        self::assertNull($metadata1->get('attribute2'));
+        self::assertSame('default2', $metadata1->get('attribute2', 'default2'));
 
         $metadata1->toObject($object);
 
         $metadata2 = Metadata::fromObject($object);
 
-        $this->assertNotSame($metadata1, $metadata2);
-        $this->assertEquals($metadata1, $metadata2);
+        self::assertNotSame($metadata1, $metadata2);
+        self::assertEquals($metadata1, $metadata2);
 
         $metadata3 = Metadata::fromArray(['attribute1' => 'value1']);
 
-        $this->assertNotSame($metadata1, $metadata3);
-        $this->assertNotSame($metadata2, $metadata3);
-        $this->assertEquals($metadata1, $metadata3);
-        $this->assertEquals($metadata2, $metadata3);
+        self::assertNotSame($metadata1, $metadata3);
+        self::assertNotSame($metadata2, $metadata3);
+        self::assertEquals($metadata1, $metadata3);
+        self::assertEquals($metadata2, $metadata3);
 
         Metadata::clear($object);
 
         $metadata4 = Metadata::fromObject($object);
 
-        $this->assertTrue($metadata4->empty());
+        self::assertTrue($metadata4->empty());
     }
 }

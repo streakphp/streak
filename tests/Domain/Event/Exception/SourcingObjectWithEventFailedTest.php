@@ -24,28 +24,21 @@ use Streak\Domain\Event;
  */
 class SourcingObjectWithEventFailedTest extends TestCase
 {
-    /**
-     * @var Event\Sourced\Aggregate|\PHPUnit_Framework_MockObject_MockObject
-     */
-    private $aggregate;
+    private Event\Sourced\Aggregate $aggregate;
 
-    /**
-     * @var Domain\Event\Envelope|\PHPUnit_Framework_MockObject_MockObject
-     */
-    private $event;
+    private Event\Envelope $event;
 
-    public function setUp() : void
+    protected function setUp(): void
     {
         $this->aggregate = $this->getMockBuilder(Event\Sourced\Aggregate::class)->getMockForAbstractClass();
-        $event = $this->getMockBuilder(Domain\Event::class)->getMockForAbstractClass();
-        $this->event = Event\Envelope::new($event, Domain\Id\UUID::random());
+        $this->event = Event\Envelope::new($this->getMockBuilder(Domain\Event::class)->getMockForAbstractClass(), Domain\Id\UUID::random());
     }
 
-    public function testException()
+    public function testException(): void
     {
         $exception = new SourcingObjectWithEventFailed($this->aggregate, $this->event);
 
-        $this->assertSame($this->aggregate, $exception->subject());
-        $this->assertSame($this->event, $exception->event());
+        self::assertSame($this->aggregate, $exception->subject());
+        self::assertSame($this->event, $exception->event());
     }
 }

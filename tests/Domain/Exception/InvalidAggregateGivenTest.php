@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace Streak\Domain\Exception;
 
 use PHPUnit\Framework\TestCase;
-use Streak\Domain;
+use Streak\Domain\AggregateRoot;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -23,20 +23,17 @@ use Streak\Domain;
  */
 class InvalidAggregateGivenTest extends TestCase
 {
-    /**
-     * @var Domain\AggregateRoot|\PHPUnit_Framework_MockObject_MockObject
-     */
-    private $aggregate;
+    private AggregateRoot $aggregate;
 
-    public function setUp() : void
+    protected function setUp(): void
     {
-        $this->aggregate = $this->getMockBuilder(Domain\AggregateRoot::class)->getMockForAbstractClass();
+        $this->aggregate = $this->getMockBuilder(AggregateRoot::class)->getMockForAbstractClass();
     }
 
-    public function testException()
+    public function testException(): void
     {
         $exception = new InvalidAggregateGiven($this->aggregate);
 
-        $this->assertSame($this->aggregate, $exception->aggregate());
+        self::assertSame($this->aggregate, $exception->aggregate());
     }
 }

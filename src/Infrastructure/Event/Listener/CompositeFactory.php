@@ -29,7 +29,7 @@ class CompositeFactory implements Event\Listener\Factory
      */
     private array $factories = [];
 
-    public function add(Event\Listener\Factory $factory)
+    public function add(Event\Listener\Factory $factory): void
     {
         $this->factories[] = $factory;
     }
@@ -37,7 +37,7 @@ class CompositeFactory implements Event\Listener\Factory
     /**
      * @throws InvalidIdGiven
      */
-    public function create(Listener\Id $id) : Listener
+    public function create(Listener\Id $id): Listener
     {
         foreach ($this->factories as $factory) {
             try {
@@ -53,7 +53,7 @@ class CompositeFactory implements Event\Listener\Factory
     /**
      * @throws InvalidEventGiven
      */
-    public function createFor(Event\Envelope $event) : Event\Listener
+    public function createFor(Event\Envelope $event): Event\Listener
     {
         throw new \BadMethodCallException();
     }

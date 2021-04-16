@@ -28,17 +28,17 @@ trait Identification
         $this->identifyBy($id);
     }
 
-    public function entityId() : Entity\Id
+    public function entityId(): Entity\Id
     {
         return $this->id;
     }
 
-    public function id() : Domain\Id
+    public function id(): Domain\Id
     {
         return $this->id;
     }
 
-    protected function identifyBy(Entity\Id $id) : void
+    protected function identifyBy(Entity\Id $id): void
     {
         $this->id = $id;
     }

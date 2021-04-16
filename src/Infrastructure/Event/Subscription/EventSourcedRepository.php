@@ -47,7 +47,7 @@ class EventSourcedRepository implements Subscription\Repository
         $this->uow = $uow;
     }
 
-    public function find(Event\Listener\Id $id) : ?Event\Subscription
+    public function find(Event\Listener\Id $id): ?Event\Subscription
     {
         $listener = $this->listeners->create($id);
         $subscription = $this->subscriptions->create($listener);
@@ -73,7 +73,7 @@ class EventSourcedRepository implements Subscription\Repository
     /**
      * @throws Exception\ObjectNotSupported
      */
-    public function has(Event\Subscription $subscription) : bool
+    public function has(Event\Subscription $subscription): bool
     {
         $unwrapped = $this->unwrap($subscription);
 
@@ -92,7 +92,7 @@ class EventSourcedRepository implements Subscription\Repository
     /**
      * @throws Exception\ObjectNotSupported
      */
-    public function add(Event\Subscription $subscription) : void
+    public function add(Event\Subscription $subscription): void
     {
         $unwrapped = $this->unwrap($subscription);
 
@@ -100,9 +100,9 @@ class EventSourcedRepository implements Subscription\Repository
     }
 
     /**
-     * @return iterable|Event\Subscription[]
+     * @return Event\Subscription[]|iterable
      */
-    public function all(?Filter $filter = null) : iterable
+    public function all(?Filter $filter = null): iterable
     {
         if (null === $filter) {
             $filter = Filter::nothing();
@@ -125,6 +125,7 @@ class EventSourcedRepository implements Subscription\Repository
                     foreach ($ids as $key => $id) {
                         if ($event->producerId()->equals($id)) {
                             unset($ids[$key]);
+
                             break;
                         }
                     }
@@ -135,6 +136,7 @@ class EventSourcedRepository implements Subscription\Repository
                 foreach ($ids as $key => $id) {
                     if ($event->producerId()->equals($id)) {
                         unset($ids[$key]);
+
                         break;
                     }
                 }
@@ -152,7 +154,7 @@ class EventSourcedRepository implements Subscription\Repository
      *
      * @return Event\Sourced|Subscription
      */
-    private function unwrap(Event\Subscription $subscription) : Event\Sourced
+    private function unwrap(Event\Subscription $subscription): Event\Sourced
     {
         $exception = new Exception\ObjectNotSupported($subscription);
 

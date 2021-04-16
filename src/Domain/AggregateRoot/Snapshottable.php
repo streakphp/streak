@@ -20,5 +20,5 @@ interface Snapshottable
 {
     public function fromMemento(array $memento);
 
-    public function toMemento() : array;
+    public function toMemento(): array;
 }

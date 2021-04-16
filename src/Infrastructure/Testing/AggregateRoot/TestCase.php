@@ -31,7 +31,7 @@ use Streak\Infrastructure\UnitOfWork\EventStoreUnitOfWork;
  */
 abstract class TestCase extends \PHPUnit\Framework\TestCase
 {
-    public function for(AggregateRoot\Id $id) : Scenario\Given
+    public function for(AggregateRoot\Id $id): Scenario\Given
     {
         $factory = $this->createFactory();
         $store = new InMemoryEventStore();
@@ -48,14 +48,14 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
         ;
     }
 
-    abstract protected function createFactory() : AggregateRoot\Factory;
+    abstract protected function createFactory(): AggregateRoot\Factory;
 
-    protected function createHandler(AggregateRoot\Factory $factory, AggregateRoot\Repository $repository) : Application\CommandHandler
+    protected function createHandler(AggregateRoot\Factory $factory, AggregateRoot\Repository $repository): Application\CommandHandler
     {
         return new CommandHandler\AggregateRootHandler($repository);
     }
 
-    protected function createSnapshotterSerializer() : Serializer
+    protected function createSnapshotterSerializer(): Serializer
     {
         return new PhpSerializer();
     }
@@ -65,12 +65,12 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
         return new Snapshotter\Storage\InMemoryStorage();
     }
 
-    protected function createSnapshotter(Serializer $serializer, Snapshotter\Storage $storage) : Snapshotter
+    protected function createSnapshotter(Serializer $serializer, Snapshotter\Storage $storage): Snapshotter
     {
         return new Snapshotter\SnapshottableAggregatesSnapshotter($serializer, $storage);
     }
 
-    private function createScenario(Application\CommandHandler $handler, InMemoryEventStore $store, AggregateRoot\Factory $factory, Snapshotter $snapshotter, UnitOfWork $uow) : Scenario
+    private function createScenario(Application\CommandHandler $handler, InMemoryEventStore $store, AggregateRoot\Factory $factory, Snapshotter $snapshotter, UnitOfWork $uow): Scenario
     {
         return new Scenario($handler, $store, $factory, $snapshotter, $uow);
     }

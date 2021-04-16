@@ -28,15 +28,15 @@ class InMemoryStateTest extends TestCase
      */
     private ?State $stub = null;
 
-    protected function setUp() : void
+    protected function setUp(): void
     {
         $this->stub = new class() implements State {
-            public function equals(object $object) : bool
+            public function equals(object $object): bool
             {
                 throw new \BadMethodCallException('Do not call method State::equals() on this stub.');
             }
 
-            public function has(string $name) : bool
+            public function has(string $name): bool
             {
                 return 'attribute-1' === $name;
             }
@@ -50,126 +50,126 @@ class InMemoryStateTest extends TestCase
                 throw new \OutOfBoundsException();
             }
 
-            public function toArray() : array
+            public function toArray(): array
             {
                 return ['attribute-1' => 'value-1'];
             }
 
-            public function set(string $name, $value) : State
+            public function set(string $name, $value): State
             {
                 throw new \BadMethodCallException('Do not call method State::set() on this stub.');
             }
         };
     }
 
-    public function testState()
+    public function testState(): void
     {
         $state1a = InMemoryState::empty();
         $state2a = InMemoryState::empty();
 
-        $this->assertFalse($state1a->equals(new \stdClass()));
-        $this->assertFalse($state2a->equals(new \stdClass()));
+        self::assertFalse($state1a->equals(new \stdClass()));
+        self::assertFalse($state2a->equals(new \stdClass()));
 
-        $this->assertFalse($state1a->equals($this->stub));
-        $this->assertFalse($state2a->equals($this->stub));
+        self::assertFalse($state1a->equals($this->stub));
+        self::assertFalse($state2a->equals($this->stub));
 
-        $this->assertTrue($state1a->equals($state1a));
-        $this->assertTrue($state2a->equals($state2a));
-        $this->assertTrue($state1a->equals($state2a));
-        $this->assertTrue($state2a->equals($state1a));
+        self::assertTrue($state1a->equals($state1a));
+        self::assertTrue($state2a->equals($state2a));
+        self::assertTrue($state1a->equals($state2a));
+        self::assertTrue($state2a->equals($state1a));
 
-        $this->assertSame([], $state1a->toArray());
-        $this->assertSame([], $state2a->toArray());
+        self::assertSame([], $state1a->toArray());
+        self::assertSame([], $state2a->toArray());
 
-        $this->assertFalse($state1a->has('attribute-1'));
-        $this->assertFalse($state2a->has('attribute-1'));
-        $this->assertFalse($state1a->has('attribute-2'));
-        $this->assertFalse($state2a->has('attribute-2'));
+        self::assertFalse($state1a->has('attribute-1'));
+        self::assertFalse($state2a->has('attribute-1'));
+        self::assertFalse($state1a->has('attribute-2'));
+        self::assertFalse($state2a->has('attribute-2'));
 
         $state1b = $state1a->set('attribute-1', 'value-1');
 
-        $this->assertTrue($state1b->equals($this->stub)); // although states are both of different types they contain same data.
+        self::assertTrue($state1b->equals($this->stub)); // although states are both of different types they contain same data.
 
-        $this->assertNotSame($state1a, $state1b);
-        $this->assertFalse($state1a->has('attribute-1'));
-        $this->assertSame([], $state1a->toArray());
-        $this->assertTrue($state1b->has('attribute-1'));
-        $this->assertFalse($state1b->has('attribute-2'));
-        $this->assertSame(['attribute-1' => 'value-1'], $state1b->toArray());
-        $this->assertSame('value-1', $state1b->get('attribute-1'));
+        self::assertNotSame($state1a, $state1b);
+        self::assertFalse($state1a->has('attribute-1'));
+        self::assertSame([], $state1a->toArray());
+        self::assertTrue($state1b->has('attribute-1'));
+        self::assertFalse($state1b->has('attribute-2'));
+        self::assertSame(['attribute-1' => 'value-1'], $state1b->toArray());
+        self::assertSame('value-1', $state1b->get('attribute-1'));
 
         $state1c = $state1a->set('attribute-1', 'value-1');
 
-        $this->assertTrue($state1c->equals($this->stub)); // although states are both of different types they contain same data.
+        self::assertTrue($state1c->equals($this->stub)); // although states are both of different types they contain same data.
 
-        $this->assertNotSame($state1a, $state1c);
-        $this->assertFalse($state1a->has('attribute-1'));
-        $this->assertSame([], $state1a->toArray());
-        $this->assertTrue($state1c->has('attribute-1'));
-        $this->assertFalse($state1c->has('attribute-2'));
-        $this->assertSame(['attribute-1' => 'value-1'], $state1c->toArray());
-        $this->assertSame('value-1', $state1c->get('attribute-1'));
+        self::assertNotSame($state1a, $state1c);
+        self::assertFalse($state1a->has('attribute-1'));
+        self::assertSame([], $state1a->toArray());
+        self::assertTrue($state1c->has('attribute-1'));
+        self::assertFalse($state1c->has('attribute-2'));
+        self::assertSame(['attribute-1' => 'value-1'], $state1c->toArray());
+        self::assertSame('value-1', $state1c->get('attribute-1'));
 
         $state1d = $state1c->set('attribute-2', ['attribute-1' => 'value-1', 'attribute-2' => 'value-2']);
 
-        $this->assertFalse($state1d->equals($this->stub)); // although states are both of different types they contain same data.
+        self::assertFalse($state1d->equals($this->stub)); // although states are both of different types they contain same data.
 
-        $this->assertNotSame($state1c, $state1d);
-        $this->assertTrue($state1c->has('attribute-1'));
-        $this->assertTrue($state1c->has('attribute-1'));
-        $this->assertSame(['attribute-1' => 'value-1'], $state1c->toArray());
-        $this->assertTrue($state1d->has('attribute-1'));
-        $this->assertTrue($state1d->has('attribute-2'));
-        $this->assertSame(['attribute-1' => 'value-1', 'attribute-2' => ['attribute-1' => 'value-1', 'attribute-2' => 'value-2']], $state1d->toArray());
-        $this->assertSame('value-1', $state1d->get('attribute-1'));
-        $this->assertSame(['attribute-1' => 'value-1', 'attribute-2' => 'value-2'], $state1d->get('attribute-2'));
+        self::assertNotSame($state1c, $state1d);
+        self::assertTrue($state1c->has('attribute-1'));
+        self::assertTrue($state1c->has('attribute-1'));
+        self::assertSame(['attribute-1' => 'value-1'], $state1c->toArray());
+        self::assertTrue($state1d->has('attribute-1'));
+        self::assertTrue($state1d->has('attribute-2'));
+        self::assertSame(['attribute-1' => 'value-1', 'attribute-2' => ['attribute-1' => 'value-1', 'attribute-2' => 'value-2']], $state1d->toArray());
+        self::assertSame('value-1', $state1d->get('attribute-1'));
+        self::assertSame(['attribute-1' => 'value-1', 'attribute-2' => 'value-2'], $state1d->get('attribute-2'));
 
         $state1e = $state1d->set('attribute-2', 'value-3');
 
-        $this->assertFalse($state1d->equals($this->stub)); // although states are both of different types they contain same data.
+        self::assertFalse($state1d->equals($this->stub)); // although states are both of different types they contain same data.
 
-        $this->assertNotSame($state1c, $state1d);
-        $this->assertFalse($state1e->equals($state1d));
+        self::assertNotSame($state1c, $state1d);
+        self::assertFalse($state1e->equals($state1d));
 
         $state3a = InMemoryState::fromArray(['attribute-2' => ['attribute-2' => 'value-2', 'attribute-1' => 'value-1'], 'attribute-1' => 'value-1']); // notice reverted order of keys
 
-        $this->assertTrue($state3a->has('attribute-1'));
-        $this->assertTrue($state3a->has('attribute-2'));
-        $this->assertSame(['attribute-1' => 'value-1', 'attribute-2' => ['attribute-1' => 'value-1', 'attribute-2' => 'value-2']], $state3a->toArray());
-        $this->assertSame('value-1', $state3a->get('attribute-1'));
-        $this->assertSame(['attribute-1' => 'value-1', 'attribute-2' => 'value-2'], $state3a->get('attribute-2'));
+        self::assertTrue($state3a->has('attribute-1'));
+        self::assertTrue($state3a->has('attribute-2'));
+        self::assertSame(['attribute-1' => 'value-1', 'attribute-2' => ['attribute-1' => 'value-1', 'attribute-2' => 'value-2']], $state3a->toArray());
+        self::assertSame('value-1', $state3a->get('attribute-1'));
+        self::assertSame(['attribute-1' => 'value-1', 'attribute-2' => 'value-2'], $state3a->get('attribute-2'));
 
-        $this->assertTrue($state3a->equals($state1d));
-        $this->assertTrue($state1d->equals($state3a));
+        self::assertTrue($state3a->equals($state1d));
+        self::assertTrue($state1d->equals($state3a));
 
-        $this->assertFalse($state3a->equals($state1a));
-        $this->assertFalse($state3a->equals($state1b));
-        $this->assertFalse($state3a->equals($state1c));
-        $this->assertFalse($state3a->equals($state2a));
-        $this->assertFalse($state1a->equals($state3a));
-        $this->assertFalse($state1b->equals($state3a));
-        $this->assertFalse($state1c->equals($state3a));
-        $this->assertFalse($state2a->equals($state3a));
+        self::assertFalse($state3a->equals($state1a));
+        self::assertFalse($state3a->equals($state1b));
+        self::assertFalse($state3a->equals($state1c));
+        self::assertFalse($state3a->equals($state2a));
+        self::assertFalse($state1a->equals($state3a));
+        self::assertFalse($state1b->equals($state3a));
+        self::assertFalse($state1c->equals($state3a));
+        self::assertFalse($state2a->equals($state3a));
 
         $state4a = InMemoryState::fromState($state3a);
 
-        $this->assertTrue($state4a->equals($state3a));
-        $this->assertTrue($state3a->equals($state4a));
+        self::assertTrue($state4a->equals($state3a));
+        self::assertTrue($state3a->equals($state4a));
 
-        $this->assertTrue($state3a->equals($state1d));
-        $this->assertTrue($state1d->equals($state3a));
+        self::assertTrue($state3a->equals($state1d));
+        self::assertTrue($state1d->equals($state3a));
 
-        $this->assertFalse($state3a->equals($state1a));
-        $this->assertFalse($state3a->equals($state1b));
-        $this->assertFalse($state3a->equals($state1c));
-        $this->assertFalse($state3a->equals($state2a));
-        $this->assertFalse($state1a->equals($state3a));
-        $this->assertFalse($state1b->equals($state3a));
-        $this->assertFalse($state1c->equals($state3a));
-        $this->assertFalse($state2a->equals($state3a));
+        self::assertFalse($state3a->equals($state1a));
+        self::assertFalse($state3a->equals($state1b));
+        self::assertFalse($state3a->equals($state1c));
+        self::assertFalse($state3a->equals($state2a));
+        self::assertFalse($state1a->equals($state3a));
+        self::assertFalse($state1b->equals($state3a));
+        self::assertFalse($state1c->equals($state3a));
+        self::assertFalse($state2a->equals($state3a));
     }
 
-    public function testGettingMissingName()
+    public function testGettingMissingName(): void
     {
         $this->expectException(\OutOfBoundsException::class);
 
@@ -177,7 +177,7 @@ class InMemoryStateTest extends TestCase
         $state->get('missing-name');
     }
 
-    public function testSettingInvalidName()
+    public function testSettingInvalidName(): void
     {
         $this->expectException(\OutOfBoundsException::class);
 
@@ -187,23 +187,27 @@ class InMemoryStateTest extends TestCase
 
     /**
      * @dataProvider validValues
+     *
+     * @param mixed $value
      */
-    public function testSettingValidValues($value)
+    public function testSettingValidValues($value): void
     {
         $state = InMemoryState::empty();
         $result = $state->set('name', $value);
 
-        $this->assertInstanceOf(InMemoryState::class, $result);
-        $this->assertNotEquals($state, $result);
-        $this->assertNotSame($state, $result);
+        self::assertInstanceOf(InMemoryState::class, $result);
+        self::assertNotEquals($state, $result);
+        self::assertNotSame($state, $result);
 
-        $this->assertSame($value, $result->get('name'));
+        self::assertSame($value, $result->get('name'));
     }
 
     /**
      * @dataProvider invalidValues
+     *
+     * @param mixed $value
      */
-    public function testSettingInvalidValue($value)
+    public function testSettingInvalidValue($value): void
     {
         $this->expectException(\UnexpectedValueException::class);
 
@@ -221,11 +225,11 @@ class InMemoryStateTest extends TestCase
             [0.0],
             [1.7976931348623e+308],
             [2.2250738585072e-308],
-            [PHP_INT_MAX],
-            [PHP_INT_MIN],
+            [\PHP_INT_MAX],
+            [\PHP_INT_MIN],
             [''],
             ['value'],
-            [[null, 1, -1, 0, 0.0, 1.7976931348623e+308, 2.2250738585072e-308, PHP_INT_MAX, PHP_INT_MIN, '', 'value']],
+            [[null, 1, -1, 0, 0.0, 1.7976931348623e+308, 2.2250738585072e-308, \PHP_INT_MAX, \PHP_INT_MIN, '', 'value']],
             [[null]],
             [[1]],
             [[-1]],
@@ -233,11 +237,11 @@ class InMemoryStateTest extends TestCase
             [[0.0]],
             [[1.7976931348623e+308]],
             [[2.2250738585072e-308]],
-            [[PHP_INT_MAX]],
-            [[PHP_INT_MIN]],
+            [[\PHP_INT_MAX]],
+            [[\PHP_INT_MIN]],
             [['']],
             [['value']],
-            [[[[null, 1, -1, 0, 0.0, 1.7976931348623e+308, 2.2250738585072e-308, PHP_INT_MAX, PHP_INT_MIN, '', 'value']]]],
+            [[[[null, 1, -1, 0, 0.0, 1.7976931348623e+308, 2.2250738585072e-308, \PHP_INT_MAX, \PHP_INT_MIN, '', 'value']]]],
             [[[[null]]]],
             [[[[1]]]],
             [[[[-1]]]],
@@ -245,8 +249,8 @@ class InMemoryStateTest extends TestCase
             [[[[0.0]]]],
             [[[[1.7976931348623e+308]]]],
             [[[[2.2250738585072e-308]]]],
-            [[[[PHP_INT_MAX]]]],
-            [[[[PHP_INT_MIN]]]],
+            [[[[\PHP_INT_MAX]]]],
+            [[[[\PHP_INT_MIN]]]],
             [[[['']]]],
             [[[['value']]]],
         ];
@@ -258,7 +262,7 @@ class InMemoryStateTest extends TestCase
             [new \stdClass()],
             [[new \stdClass()]],
             [[new \stdClass(), new \stdClass()]],
-            [[null, 1, -1, 0, 0.0, 1.7976931348623e+308, 2.2250738585072e-308, PHP_INT_MAX, PHP_INT_MIN, '', 'value', new \stdClass()]],
+            [[null, 1, -1, 0, 0.0, 1.7976931348623e+308, 2.2250738585072e-308, \PHP_INT_MAX, \PHP_INT_MIN, '', 'value', new \stdClass()]],
             [[null, new \stdClass()]],
             [[1, new \stdClass()]],
             [[-1, new \stdClass()]],
@@ -266,11 +270,11 @@ class InMemoryStateTest extends TestCase
             [[0.0, new \stdClass()]],
             [[1.7976931348623e+308, new \stdClass()]],
             [[2.2250738585072e-308, new \stdClass()]],
-            [[PHP_INT_MAX, new \stdClass()]],
-            [[PHP_INT_MIN, new \stdClass()]],
+            [[\PHP_INT_MAX, new \stdClass()]],
+            [[\PHP_INT_MIN, new \stdClass()]],
             [['', new \stdClass()]],
             [['value', new \stdClass()]],
-            [[[[null, 1, -1, 0, 0.0, 1.7976931348623e+308, 2.2250738585072e-308, PHP_INT_MAX, PHP_INT_MIN, '', 'value', new \stdClass()]]]],
+            [[[[null, 1, -1, 0, 0.0, 1.7976931348623e+308, 2.2250738585072e-308, \PHP_INT_MAX, \PHP_INT_MIN, '', 'value', new \stdClass()]]]],
             [[[[null, new \stdClass()]]]],
             [[[[1, new \stdClass()]]]],
             [[[[-1, new \stdClass()]]]],
@@ -278,8 +282,8 @@ class InMemoryStateTest extends TestCase
             [[[[0.0, new \stdClass()]]]],
             [[[[1.7976931348623e+308, new \stdClass()]]]],
             [[[[2.2250738585072e-308, new \stdClass()]]]],
-            [[[[PHP_INT_MAX, new \stdClass()]]]],
-            [[[[PHP_INT_MIN, new \stdClass()]]]],
+            [[[[\PHP_INT_MAX, new \stdClass()]]]],
+            [[[[\PHP_INT_MIN, new \stdClass()]]]],
             [[[['', new \stdClass()]]]],
             [[[['value', new \stdClass()]]]],
         ];

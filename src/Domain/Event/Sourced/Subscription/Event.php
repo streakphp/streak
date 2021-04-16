@@ -20,5 +20,5 @@ use Streak\Domain;
  */
 interface Event extends Domain\Event
 {
-    public function timestamp() : \DateTimeImmutable;
+    public function timestamp(): \DateTimeImmutable;
 }

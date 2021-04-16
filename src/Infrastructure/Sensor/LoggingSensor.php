@@ -34,29 +34,29 @@ class LoggingSensor implements Application\Sensor
         $this->logger = $logger;
     }
 
-    public function producerId() : Domain\Id
+    public function producerId(): Domain\Id
     {
         return $this->sensor->producerId();
     }
 
-    public function events() : array
+    public function events(): array
     {
         return $this->sensor->events();
     }
 
-    public function sensorId() : Sensor\Id
+    public function sensorId(): Sensor\Id
     {
         return $this->sensor->sensorId();
     }
 
-    public function process(...$messages) : void
+    public function process(...$messages): void
     {
         try {
             $this->sensor->process(...$messages);
         } catch (\Throwable $exception) {
             $this->logger->debug('Sensor "{sensor}" has thrown "{class}" exception with "{message}" message while processing messages.', [
-                'sensor' => get_class($this->sensor),
-                'class' => get_class($exception),
+                'sensor' => \get_class($this->sensor),
+                'class' => \get_class($exception),
                 'message' => $exception->getMessage(),
                 'exception' => $exception,
             ]);

@@ -76,7 +76,7 @@ class SubscriberTest extends TestCase
      */
     private $producer1;
 
-    protected function setUp() : void
+    protected function setUp(): void
     {
         $this->store = $this->getMockBuilder(EventStore::class)->getMockForAbstractClass();
         $this->bus = $this->getMockBuilder(EventBus::class)->getMockForAbstractClass();
@@ -92,18 +92,18 @@ class SubscriberTest extends TestCase
         $this->event1 = Event\Envelope::new($this->event1, $id1);
     }
 
-    public function testSubscriber()
+    public function testSubscriber(): void
     {
         $subscriber = new Subscriber($this->listenerFactory, $this->subscriptionFactory, $this->subscriptionsRepository);
-        $this->assertInstanceOf(UUID::class, $subscriber->id());
+        self::assertInstanceOf(UUID::class, $subscriber->id());
     }
 
-    public function testSubscriberForEventThatSpawnsNoListener()
+    public function testSubscriberForEventThatSpawnsNoListener(): void
     {
         $subscriber = new Subscriber($this->listenerFactory, $this->subscriptionFactory, $this->subscriptionsRepository);
 
         $this->listenerFactory
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('createFor')
             ->with($this->event1)
             ->willThrowException(new Exception\InvalidEventGiven($this->event1))
@@ -111,91 +111,91 @@ class SubscriberTest extends TestCase
 
         $processed = $subscriber->on($this->event1);
 
-        $this->assertFalse($processed);
+        self::assertFalse($processed);
     }
 
-    public function testSubscriberForNewListener()
+    public function testSubscriberForNewListener(): void
     {
         $subscriber = new Subscriber($this->listenerFactory, $this->subscriptionFactory, $this->subscriptionsRepository);
 
         $this->listenerFactory
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('createFor')
             ->with($this->event1)
             ->willReturn($this->listener1)
         ;
 
         $this->subscriptionFactory
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('create')
             ->with($this->listener1)
             ->willReturn($this->subscription1)
         ;
 
         $this->subscriptionsRepository
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('has')
             ->with($this->subscription1)
             ->willReturn(false)
         ;
 
         $this->subscriptionsRepository
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('add')
             ->with($this->subscription1)
         ;
 
         $processed = $subscriber->on($this->event1);
 
-        $this->assertTrue($processed);
+        self::assertTrue($processed);
     }
 
-    public function testSubscriberForExistingListener()
+    public function testSubscriberForExistingListener(): void
     {
         $subscriber = new Subscriber($this->listenerFactory, $this->subscriptionFactory, $this->subscriptionsRepository);
 
         $this->listenerFactory
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('createFor')
             ->with($this->event1)
             ->willReturn($this->listener1)
         ;
 
         $this->subscriptionFactory
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('create')
             ->with($this->listener1)
             ->willReturn($this->subscription1)
         ;
 
         $this->subscriptionsRepository
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('has')
             ->with($this->subscription1)
             ->willReturn(true)
         ;
 
         $this->subscriptionsRepository
-            ->expects($this->never())
+            ->expects(self::never())
             ->method('add')
         ;
 
         $processed = $subscriber->on($this->event1);
 
-        $this->assertTrue($processed);
+        self::assertTrue($processed);
     }
 
-    public function testSubscriberForSubscriptionsEvents()
+    public function testSubscriberForSubscriptionsEvents(): void
     {
         $subscriber = new Subscriber($this->listenerFactory, $this->subscriptionFactory, $this->subscriptionsRepository);
 
         $this->listenerFactory
-            ->expects($this->never())
+            ->expects(self::never())
             ->method('createFor')
         ;
 
         $this->subscriptionFactory
-            ->expects($this->never())
+            ->expects(self::never())
             ->method('create')
         ;
 
@@ -203,27 +203,27 @@ class SubscriberTest extends TestCase
         $event1 = Event\Envelope::new($event1, UUID::random(), 1);
         $processed = $subscriber->on($event1);
 
-        $this->assertFalse($processed);
+        self::assertFalse($processed);
 
         $event2 = new SubscriptionListenedToEvent($this->event1, new \DateTime());
         $event2 = Event\Envelope::new($event2, UUID::random(), 2);
         $processed = $subscriber->on($event2);
 
-        $this->assertFalse($processed);
+        self::assertFalse($processed);
 
         $event3 = new SubscriptionCompleted(new \DateTime());
         $event3 = Event\Envelope::new($event3, UUID::random(), 3);
         $processed = $subscriber->on($event3);
 
-        $this->assertFalse($processed);
+        self::assertFalse($processed);
     }
 
-    public function testListening()
+    public function testListening(): void
     {
         $subscriber = new Subscriber($this->listenerFactory, $this->subscriptionFactory, $this->subscriptionsRepository);
 
         $this->bus
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('add')
             ->with($subscriber)
         ;
@@ -231,7 +231,7 @@ class SubscriberTest extends TestCase
         $subscriber->listenTo($this->bus);
     }
 
-    public function committed(Event\Producer ...$producers) : \Generator
+    public function committed(Event\Producer ...$producers): \Generator
     {
         foreach ($producers as $producer) {
             yield $producer;

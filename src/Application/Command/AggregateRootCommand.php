@@ -21,5 +21,5 @@ use Streak\Domain\AggregateRoot;
  */
 interface AggregateRootCommand extends Application\Command
 {
-    public function aggregateRootId() : AggregateRoot\Id;
+    public function aggregateRootId(): AggregateRoot\Id;
 }

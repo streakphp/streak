@@ -20,5 +20,5 @@ use Streak\Application\Sensor;
  */
 interface Factory
 {
-    public function create() : Sensor;
+    public function create(): Sensor;
 }

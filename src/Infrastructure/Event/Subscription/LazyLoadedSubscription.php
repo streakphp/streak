@@ -35,47 +35,47 @@ class LazyLoadedSubscription implements Subscription, Subscription\Decorator
         $this->repository = $repository;
     }
 
-    public function subscriptionId() : Listener\Id
+    public function subscriptionId(): Listener\Id
     {
         return $this->id;
     }
 
-    public function listener() : Listener
+    public function listener(): Listener
     {
         return $this->subscription()->listener();
     }
 
-    public function subscribeTo(EventStore $store, ?int $limit = null) : iterable
+    public function subscribeTo(EventStore $store, ?int $limit = null): iterable
     {
         yield from $this->subscription()->subscribeTo($store, $limit);
     }
 
-    public function startFor(Event\Envelope $event) : void
+    public function startFor(Event\Envelope $event): void
     {
         $this->subscription()->startFor($event);
     }
 
-    public function restart() : void
+    public function restart(): void
     {
         $this->subscription()->restart();
     }
 
-    public function starting() : bool
+    public function starting(): bool
     {
         return $this->subscription()->starting();
     }
 
-    public function started() : bool
+    public function started(): bool
     {
         return $this->subscription()->started();
     }
 
-    public function completed() : bool
+    public function completed(): bool
     {
         return $this->subscription()->completed();
     }
 
-    public function subscription() : Subscription
+    public function subscription(): Subscription
     {
         if (null === $this->subscription) {
             $this->subscription = $this->repository->find($this->subscriptionId());
@@ -84,22 +84,22 @@ class LazyLoadedSubscription implements Subscription, Subscription\Decorator
         return $this->subscription;
     }
 
-    public function paused() : bool
+    public function paused(): bool
     {
         return $this->subscription->paused();
     }
 
-    public function pause() : void
+    public function pause(): void
     {
         $this->subscription->pause();
     }
 
-    public function unpause() : void
+    public function unpause(): void
     {
         $this->subscription->unpause();
     }
 
-    public function version() : int
+    public function version(): int
     {
         return $this->subscription()->version();
     }

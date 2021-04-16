@@ -33,14 +33,18 @@ class Comparator extends \SebastianBergmann\Comparator\Comparator
             return true;
         }
 
-        if ($expected instanceof Event && $actual instanceof Event\Envelope) {
-            return true;
+        if (!$expected instanceof Event) {
+            return false;
         }
 
-        return false;
+        if (!$actual instanceof Event\Envelope) {
+            return false;
+        }
+
+        return true;
     }
 
-    public function assertEquals($expected, $actual, $delta = 0.0, $canonicalize = false, $ignoreCase = false)
+    public function assertEquals($expected, $actual, $delta = 0.0, $canonicalize = false, $ignoreCase = false): void
     {
         if ($expected instanceof Event\Envelope && $actual instanceof Event\Envelope) {
             if (false === $expected->equals($actual)) {

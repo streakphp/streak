@@ -19,12 +19,12 @@ use Streak\Domain\EventStore;
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  *
- * @covers \Streak\Infrastructure\EventStore\InMemoryEventStore
  * @covers \Streak\Infrastructure\Event\InMemoryStream
+ * @covers \Streak\Infrastructure\EventStore\InMemoryEventStore
  */
 class InMemoryEventStoreTest extends EventStoreTestCase
 {
-    public function testClear()
+    public function testClear(): void
     {
         $store = new InMemoryEventStore();
 
@@ -40,23 +40,21 @@ class InMemoryEventStoreTest extends EventStoreTestCase
         $event4 = new EventStoreTestCase\Event4();
         $event4 = Event\Envelope::new($event4, $producer12, null);
 
-        $this->assertEquals([], iterator_to_array($store->stream()));
+        self::assertEquals([], iterator_to_array($store->stream()));
 
         $store->add($event1, $event2);
-        $this->assertEquals([$event1, $event2], iterator_to_array($store->stream()));
+        self::assertEquals([$event1, $event2], iterator_to_array($store->stream()));
 
         $store->add($event3, $event4);
-        $this->assertEquals([$event1, $event2, $event3, $event4], iterator_to_array($store->stream()));
+        self::assertEquals([$event1, $event2, $event3, $event4], iterator_to_array($store->stream()));
 
         $store->clear();
 
-        $this->assertEquals([], iterator_to_array($store->stream()));
+        self::assertEquals([], iterator_to_array($store->stream()));
     }
 
-    protected function newEventStore() : EventStore
+    protected function newEventStore(): EventStore
     {
-        $store = new InMemoryEventStore();
-
-        return $store;
+        return new InMemoryEventStore();
     }
 }

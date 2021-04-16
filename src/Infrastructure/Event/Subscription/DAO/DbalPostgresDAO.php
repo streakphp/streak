@@ -49,7 +49,7 @@ class DbalPostgresDAO implements DAO
     /**
      * @throws \Doctrine\DBAL\DBALException
      */
-    public function save(Subscription $subscription) : void
+    public function save(Subscription $subscription): void
     {
         $subscription = $this->unwrap($subscription);
 
@@ -62,7 +62,7 @@ class DbalPostgresDAO implements DAO
         }
     }
 
-    public function one(Event\Listener\Id $id) : ?Subscription
+    public function one(Event\Listener\Id $id): ?Subscription
     {
         try {
             return $this->doOne($id);
@@ -71,7 +71,7 @@ class DbalPostgresDAO implements DAO
         }
     }
 
-    public function exists(Listener\Id $id) : bool
+    public function exists(Listener\Id $id): bool
     {
         try {
             return $this->doExists($id);
@@ -83,11 +83,11 @@ class DbalPostgresDAO implements DAO
     /**
      * @param string[] $types
      *
-     * @return Subscription[]
-     *
      * @throws \Doctrine\DBAL\DBALException
+     *
+     * @return Subscription[]
      */
-    public function all(array $types = [], ?bool $completed = null) : iterable
+    public function all(array $types = [], ?bool $completed = null): iterable
     {
         try {
             yield from $this->doAll($types, $completed);
@@ -96,10 +96,10 @@ class DbalPostgresDAO implements DAO
         }
     }
 
-    public function toRow(DAO\Subscription $subscription) : array
+    public function toRow(DAO\Subscription $subscription): array
     {
         // dehydrate
-        $row['subscription_type'] = get_class($subscription->subscriptionId());
+        $row['subscription_type'] = \get_class($subscription->subscriptionId());
         $row['subscription_id'] = $subscription->subscriptionId()->toString();
         $row['subscription_version'] = $subscription->version();
 
@@ -163,25 +163,25 @@ class DbalPostgresDAO implements DAO
         return $row;
     }
 
-    public function create()
+    public function create(): void
     {
-        $sqls[] = <<<SQL
-CREATE TABLE IF NOT EXISTS subscriptions
-(
-  id SERIAL PRIMARY KEY,
-  subscription_type VARCHAR(255) NOT NULL,
-  subscription_id VARCHAR(52) NOT NULL,
-  subscription_version INT NOT NULL,
-  state JSONB DEFAULT NULL,
-  started_by JSONB DEFAULT NULL,
-  started_at TIMESTAMP(6) WITH TIME ZONE DEFAULT NULL, -- microsecond precision
-  last_processed_event JSONB DEFAULT NULL,
-  last_event_processed_at TIMESTAMP(6) WITH TIME ZONE DEFAULT NULL, -- microsecond precision
-  completed BOOLEAN NOT NULL DEFAULT FALSE,
-  paused_at TIMESTAMP(6) WITH TIME ZONE DEFAULT NULL, -- microsecond precision
-  UNIQUE(subscription_type, subscription_id)
-);
-SQL;
+        $sqls[] = <<<'SQL'
+            CREATE TABLE IF NOT EXISTS subscriptions
+            (
+              id SERIAL PRIMARY KEY,
+              subscription_type VARCHAR(255) NOT NULL,
+              subscription_id VARCHAR(52) NOT NULL,
+              subscription_version INT NOT NULL,
+              state JSONB DEFAULT NULL,
+              started_by JSONB DEFAULT NULL,
+              started_at TIMESTAMP(6) WITH TIME ZONE DEFAULT NULL, -- microsecond precision
+              last_processed_event JSONB DEFAULT NULL,
+              last_event_processed_at TIMESTAMP(6) WITH TIME ZONE DEFAULT NULL, -- microsecond precision
+              completed BOOLEAN NOT NULL DEFAULT FALSE,
+              paused_at TIMESTAMP(6) WITH TIME ZONE DEFAULT NULL, -- microsecond precision
+              UNIQUE(subscription_type, subscription_id)
+            );
+            SQL;
         $sqls[] = 'CREATE INDEX ON subscriptions (subscription_type, completed);';
 
         foreach ($sqls as $sql) {
@@ -190,7 +190,7 @@ SQL;
         }
     }
 
-    public function drop()
+    public function drop(): void
     {
         $sql = 'DROP TABLE IF EXISTS subscriptions;';
 
@@ -198,7 +198,7 @@ SQL;
         $statement->execute();
     }
 
-    private function fromRow($row) : Subscription
+    private function fromRow($row): Subscription
     {
         $id = $row['subscription_type'];
         $id = $id::fromString($row['subscription_id']);
@@ -280,14 +280,12 @@ SQL;
         return $subscription;
     }
 
-    private function toTimestamp(\DateTimeInterface $when) : string
+    private function toTimestamp(\DateTimeInterface $when): string
     {
-        $when = $when->format('Y-m-d H:i:s.u P');
-
-        return $when;
+        return $when->format('Y-m-d H:i:s.u P');
     }
 
-    private function fromTimestamp(string $when) : \DateTimeImmutable
+    private function fromTimestamp(string $when): \DateTimeImmutable
     {
         $timestamp = \DateTimeImmutable::createFromFormat('Y-m-d H:i:s.u P', $when);
 
@@ -306,14 +304,14 @@ SQL;
      *
      * @throws \Doctrine\DBAL\DBALException
      */
-    private function doSave(DAO\Subscription $subscription) : void
+    private function doSave(DAO\Subscription $subscription): void
     {
-        $sql = <<<SQL
-INSERT INTO subscriptions (subscription_type, subscription_id, subscription_version, state, started_by, started_at, last_processed_event, last_event_processed_at, completed, paused_at) 
-VALUES (:subscription_type, :subscription_id, :subscription_version, :state, :started_by, :started_at, :last_processed_event, :last_event_processed_at, :completed, :paused_at)
-ON CONFLICT ON CONSTRAINT subscriptions_subscription_type_subscription_id_key
-DO UPDATE SET subscription_version = :subscription_version, state = :state, last_processed_event = :last_processed_event, last_event_processed_at = :last_event_processed_at, completed = :completed, paused_at = :paused_at
-SQL;
+        $sql = <<<'SQL'
+            INSERT INTO subscriptions (subscription_type, subscription_id, subscription_version, state, started_by, started_at, last_processed_event, last_event_processed_at, completed, paused_at)
+            VALUES (:subscription_type, :subscription_id, :subscription_version, :state, :started_by, :started_at, :last_processed_event, :last_event_processed_at, :completed, :paused_at)
+            ON CONFLICT ON CONSTRAINT subscriptions_subscription_type_subscription_id_key
+            DO UPDATE SET subscription_version = :subscription_version, state = :state, last_processed_event = :last_processed_event, last_event_processed_at = :last_event_processed_at, completed = :completed, paused_at = :paused_at
+            SQL;
 
         $row = $this->toRow($subscription);
 
@@ -324,9 +322,9 @@ SQL;
     /**
      * @param Listener\Id $id
      *
-     * @return \Streak\Infrastructure\Event\Subscription\DAO\Subscription|null
-     *
      * @throws \Doctrine\DBAL\DBALException
+     *
+     * @return \Streak\Infrastructure\Event\Subscription\DAO\Subscription|null
      */
     private function doOne(Event\Listener\Id $id)
     {
@@ -334,7 +332,7 @@ SQL;
 
         $statement = $this->connection->prepare($sql);
         $statement->execute([
-            'subscription_type' => get_class($id),
+            'subscription_type' => \get_class($id),
             'subscription_id' => $id->toString(),
         ]);
 
@@ -345,21 +343,19 @@ SQL;
             return null;
         }
 
-        $subscription = $this->fromRow($row);
-
-        return $subscription;
+        return $this->fromRow($row);
     }
 
     /**
      * @throws \Doctrine\DBAL\DBALException
      */
-    private function doExists(Listener\Id $id) : bool
+    private function doExists(Listener\Id $id): bool
     {
         $sql = 'SELECT subscription_type, subscription_id FROM subscriptions WHERE subscription_type = :subscription_type AND subscription_id = :subscription_id LIMIT 1';
 
         $statement = $this->connection->prepare($sql);
         $statement->execute([
-            'subscription_type' => get_class($id),
+            'subscription_type' => \get_class($id),
             'subscription_id' => $id->toString(),
         ]);
 
@@ -376,7 +372,7 @@ SQL;
     /**
      * @throws \Doctrine\DBAL\DBALException
      */
-    private function doAll(array $types, ?bool $completed) : \Generator
+    private function doAll(array $types, ?bool $completed): \Generator
     {
         $sql = 'SELECT subscription_type, subscription_id, subscription_version, state, started_by, started_at, last_processed_event, last_event_processed_at, completed, paused_at FROM subscriptions';
         $where = [];
@@ -385,8 +381,8 @@ SQL;
         if ($types) {
             $sub = [];
             foreach ($types as $key => $type) {
-                $sub[] = " (subscription_type = :subscription_type_$key) ";
-                $parameters["subscription_type_$key"] = $type;
+                $sub[] = " (subscription_type = :subscription_type_{$key}) ";
+                $parameters["subscription_type_{$key}"] = $type;
             }
             $where[] = '('.implode(' OR ', $sub).')';
         }
@@ -401,7 +397,7 @@ SQL;
         $where = implode(' AND ', $where);
 
         if ($where) {
-            $sql = "$sql WHERE $where ";
+            $sql = "{$sql} WHERE {$where} ";
         }
 
         $sql .= ' ORDER BY id';
@@ -418,7 +414,7 @@ SQL;
         $statement->closeCursor();
     }
 
-    private function unwrap(Subscription $subscription) : DAO\Subscription
+    private function unwrap(Subscription $subscription): DAO\Subscription
     {
         $exception = new ObjectNotSupported($subscription);
 

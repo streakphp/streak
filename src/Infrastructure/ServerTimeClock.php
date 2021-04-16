@@ -22,7 +22,7 @@ use Streak\Domain\Clock;
  */
 class ServerTimeClock implements Clock
 {
-    public function now() : \DateTimeImmutable
+    public function now(): \DateTimeImmutable
     {
         return new \DateTimeImmutable();
     }

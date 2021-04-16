@@ -28,15 +28,15 @@ class ObjectNotSupportedTest extends TestCase
      */
     private $object;
 
-    public function setUp() : void
+    protected function setUp(): void
     {
         $this->object = $this->getMockBuilder(Domain\AggregateRoot::class)->getMockForAbstractClass();
     }
 
-    public function testException()
+    public function testException(): void
     {
         $exception = new ObjectNotSupported($this->object);
 
-        $this->assertSame($this->object, $exception->object());
+        self::assertSame($this->object, $exception->object());
     }
 }

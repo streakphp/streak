@@ -20,18 +20,18 @@ use Streak\Domain\Id\UUID;
  */
 interface Envelope extends ValueObject
 {
-    public function uuid() : UUID;
+    public function uuid(): UUID;
 
-    public function name() : string;
+    public function name(): string;
 
     public function message();
 
     /**
      * @param string $name
      *
-     * @return int|float|string|null
+     * @return float|int|string|null
      */
     public function get($name);
 
-    public function metadata() : array;
+    public function metadata(): array;
 }

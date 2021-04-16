@@ -27,26 +27,26 @@ use Streak\Application\QueryHandler;
 class CompositeQueryHandlerTest extends TestCase
 {
     /**
-     * @var QueryHandler|\PHPUnit_Framework_MockObject_MockObject
+     * @var \PHPUnit_Framework_MockObject_MockObject|QueryHandler
      */
     private $handler1;
 
     /**
-     * @var QueryHandler|\PHPUnit_Framework_MockObject_MockObject
+     * @var \PHPUnit_Framework_MockObject_MockObject|QueryHandler
      */
     private $handler2;
 
     /**
-     * @var QueryHandler|\PHPUnit_Framework_MockObject_MockObject
+     * @var \PHPUnit_Framework_MockObject_MockObject|QueryHandler
      */
     private $handler3;
 
     /**
-     * @var Query|\PHPUnit_Framework_MockObject_MockObject
+     * @var \PHPUnit_Framework_MockObject_MockObject|Query
      */
     private $query1;
 
-    public function setUp() : void
+    protected function setUp(): void
     {
         $this->handler1 = $this->getMockBuilder(QueryHandler::class)->setMockClassName('query_handler1')->getMockForAbstractClass();
         $this->handler2 = $this->getMockBuilder(QueryHandler::class)->setMockClassName('query_handler2')->getMockForAbstractClass();
@@ -55,7 +55,7 @@ class CompositeQueryHandlerTest extends TestCase
         $this->query1 = $this->getMockBuilder(Query::class)->setMockClassName('query1')->getMockForAbstractClass();
     }
 
-    public function testAlreadyRegisteredHandler()
+    public function testAlreadyRegisteredHandler(): void
     {
         $handler = new CompositeQueryHandler();
 
@@ -70,7 +70,7 @@ class CompositeQueryHandlerTest extends TestCase
         $handler->registerHandler($this->handler1);
     }
 
-    public function testQueryHandling()
+    public function testQueryHandling(): void
     {
         $expected = new \stdClass();
 
@@ -86,28 +86,28 @@ class CompositeQueryHandlerTest extends TestCase
         $exception = new QueryNotSupported($this->query1);
 
         $this->handler1
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('handleQuery')
             ->with($this->query1)
             ->willThrowException($exception)
         ;
         $this->handler2
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('handleQuery')
             ->with($this->query1)
             ->willReturn($expected)
         ;
         $this->handler3
-            ->expects($this->never())
+            ->expects(self::never())
             ->method('handleQuery')
         ;
 
         $actual = $handler->handleQuery($this->query1);
 
-        $this->assertSame($expected, $actual);
+        self::assertSame($expected, $actual);
     }
 
-    public function testNoHandlers()
+    public function testNoHandlers(): void
     {
         $handler = new CompositeQueryHandler();
 
@@ -118,7 +118,7 @@ class CompositeQueryHandlerTest extends TestCase
         $handler->handleQuery($this->query1);
     }
 
-    public function testNoHandlerForQuery()
+    public function testNoHandlerForQuery(): void
     {
         $handler = new CompositeQueryHandler(
             $this->handler1,
@@ -130,13 +130,13 @@ class CompositeQueryHandlerTest extends TestCase
         $exception = new QueryNotSupported($this->query1);
 
         $this->handler1
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('handleQuery')
             ->with($this->query1)
             ->willThrowException($exception)
         ;
         $this->handler2
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('handleQuery')
             ->with($this->query1)
             ->willThrowException($exception)

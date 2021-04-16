@@ -29,7 +29,7 @@ final class Metadata
         }
     }
 
-    public function set(string $name, string $value)
+    public function set(string $name, string $value): void
     {
         $this->metadata[$name] = $value;
     }
@@ -43,7 +43,7 @@ final class Metadata
         return false;
     }
 
-    public function get(string $name, string $default = null) : ?string
+    public function get(string $name, string $default = null): ?string
     {
         if (!$this->has($name)) {
             return $default;
@@ -52,43 +52,43 @@ final class Metadata
         return $this->metadata[$name];
     }
 
-    public static function fromObject($object) : self
+    public static function fromObject($object): self
     {
         if (!isset($object->__streak_metadata)) {
             return new self([]);
         }
 
-        if (!is_array($object->__streak_metadata)) {
+        if (!\is_array($object->__streak_metadata)) {
             return new self([]);
         }
 
         return new self($object->__streak_metadata);
     }
 
-    public static function clear(...$objects)
+    public static function clear(...$objects): void
     {
         foreach ($objects as $object) {
             unset($object->__streak_metadata);
         }
     }
 
-    public static function fromArray(array $metadata) : self
+    public static function fromArray(array $metadata): self
     {
         return new self($metadata);
     }
 
-    public function toObject($object)
+    public function toObject($object): void
     {
         $object->__streak_metadata = $this->metadata;
     }
 
-    public function toArray() : array
+    public function toArray(): array
     {
         return $this->metadata;
     }
 
-    public function empty() : bool
+    public function empty(): bool
     {
-        return 0 === count($this->metadata);
+        return 0 === \count($this->metadata);
     }
 }

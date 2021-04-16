@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Streak\Domain\Event\Listener;
 
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Streak\Application\CommandBus;
 use Streak\Domain\Event\Listener\CommandingTest\Command1;
@@ -28,20 +27,17 @@ use Streak\Domain\Event\Listener\CommandingTest\CommandingStub;
  */
 class CommandingTest extends TestCase
 {
-    /**
-     * @var CommandBus|MockObject
-     */
-    private $bus;
+    private CommandBus $bus;
 
-    protected function setUp() : void
+    protected function setUp(): void
     {
         $this->bus = $this->getMockBuilder(CommandBus::class)->getMockForAbstractClass();
     }
 
-    public function testReplayingEmptyStream()
+    public function testReplayingEmptyStream(): void
     {
         $this->bus
-            ->expects($this->exactly(2))
+            ->expects(self::exactly(2))
             ->method('dispatch')
             ->withConsecutive(
                 [new Command1()],
@@ -73,7 +69,7 @@ class CommandingStub
 
     private array $listened = [];
 
-    public function dispatch(Command $command) : void
+    public function dispatch(Command $command): void
     {
         $this->bus->dispatch($command);
     }

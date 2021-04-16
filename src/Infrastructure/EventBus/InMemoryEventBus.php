@@ -40,19 +40,19 @@ class InMemoryEventBus implements EventBus
         $this->listeners = new \SplObjectStorage();
     }
 
-    public function add(Event\Listener $listener) : void
+    public function add(Event\Listener $listener): void
     {
         $this->listeners->attach($listener);
     }
 
-    public function remove(Event\Listener $listener) : void
+    public function remove(Event\Listener $listener): void
     {
         $this->listeners->detach($listener);
     }
 
-    public function publish(Event\Envelope ...$events)
+    public function publish(Event\Envelope ...$events): void
     {
-        if (0 === count($events)) {
+        if (0 === \count($events)) {
             return;
         }
 

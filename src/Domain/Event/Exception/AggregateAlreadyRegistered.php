@@ -31,7 +31,7 @@ class AggregateAlreadyRegistered extends \InvalidArgumentException
         parent::__construct('Aggregate already registered.', 0, $previous);
     }
 
-    public function aggregate() : Event\Sourced\Aggregate
+    public function aggregate(): Event\Sourced\Aggregate
     {
         return $this->aggregate;
     }

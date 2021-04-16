@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Streak\Infrastructure\Sensor;
 
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Streak\Application\Sensor;
@@ -26,51 +25,33 @@ use Streak\Domain\Event;
  */
 class LoggingSensorTest extends TestCase
 {
-    /**
-     * @var Sensor|MockObject
-     */
-    private $sensor;
+    private Sensor $sensor;
 
-    /**
-     * @var LoggerInterface|MockObject
-     */
-    private $logger;
+    private LoggerInterface $logger;
 
-    /**
-     * @var Sensor\Id|MockObject
-     */
-    private $sensorId;
+    private Sensor\Id $sensorId;
 
-    /**
-     * @var Event|MockObject
-     */
-    private $event;
+    private Event $event;
 
-    /**
-     * @var Event\Stream|MockObject
-     */
-    private $stream;
-
-    protected function setUp() : void
+    protected function setUp(): void
     {
         $this->sensor = $this->getMockBuilder(Sensor::class)->setMockClassName('SensorMock001')->getMockForAbstractClass();
         $this->logger = $this->getMockBuilder(LoggerInterface::class)->getMockForAbstractClass();
         $this->sensorId = $this->getMockBuilder(Sensor\Id::class)->getMockForAbstractClass();
         $this->event = $this->getMockBuilder(Event::class)->setMockClassName('EventMock001')->getMockForAbstractClass();
-        $this->stream = $this->getMockBuilder(Event\Stream::class)->getMockForAbstractClass();
     }
 
-    public function testObject()
+    public function testObject(): void
     {
         $sensor = new LoggingSensor($this->sensor, $this->logger);
 
         $this->logger
-            ->expects($this->never())
+            ->expects(self::never())
             ->method('debug')
         ;
 
         $this->sensor
-            ->expects($this->exactly(2))
+            ->expects(self::exactly(2))
             ->method('process')
             ->with($this->event)
             ->willReturnOnConsecutiveCalls(true, false)
@@ -80,46 +61,46 @@ class LoggingSensorTest extends TestCase
         $sensor->process($this->event);
 
         $this->sensor
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('sensorId')
             ->willReturn($this->sensorId)
         ;
 
-        $this->assertSame($this->sensorId, $sensor->sensorId());
+        self::assertSame($this->sensorId, $sensor->sensorId());
 
         $this->sensor
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('producerId')
             ->willReturn($this->sensorId)
         ;
 
-        $this->assertSame($this->sensorId, $sensor->producerId());
+        self::assertSame($this->sensorId, $sensor->producerId());
 
         $this->sensor
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('events')
             ->willReturn([$this->event])
         ;
 
-        $this->assertSame([$this->event], $sensor->events());
+        self::assertSame([$this->event], $sensor->events());
     }
 
-    public function testExceptionOnEvent()
+    public function testExceptionOnEvent(): void
     {
         $sensor = new LoggingSensor($this->sensor, $this->logger);
 
         $exception = new \Exception('Exception test message.');
         $this->sensor
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('process')
             ->with($this->event)
             ->willThrowException($exception)
         ;
 
         $this->logger
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('debug')
-            ->with($this->isType('string'), [
+            ->with(self::isType('string'), [
                 'sensor' => 'SensorMock001',
                 'class' => 'Exception',
                 'message' => 'Exception test message.',

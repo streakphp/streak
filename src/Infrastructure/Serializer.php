@@ -18,7 +18,7 @@ namespace Streak\Infrastructure;
  */
 interface Serializer
 {
-    public function serialize($subject) : string;
+    public function serialize($subject): string;
 
     public function unserialize($serialized);
 }
