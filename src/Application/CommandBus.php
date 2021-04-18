@@ -13,18 +13,16 @@ declare(strict_types=1);
 
 namespace Streak\Application;
 
+use Streak\Domain;
+use Streak\Domain\Exception\CommandNotSupported;
+
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
 interface CommandBus
 {
     /**
-     * @throws Exception\CommandHandlerAlreadyRegistered
+     * @throws CommandNotSupported
      */
-    public function register(CommandHandler $handler): void;
-
-    /**
-     * @throws Exception\CommandNotSupported
-     */
-    public function dispatch(Command $command): void;
+    public function dispatch(Domain\Command $command): void;
 }

@@ -23,10 +23,7 @@ use Streak\Domain;
  */
 class InvalidAggregateIdGivenTest extends TestCase
 {
-    /**
-     * @var Domain\AggregateRoot\Id|\PHPUnit_Framework_MockObject_MockObject
-     */
-    private $aggregateId;
+    private Domain\AggregateRoot\Id $aggregateId;
 
     protected function setUp(): void
     {

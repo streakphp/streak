@@ -13,18 +13,16 @@ declare(strict_types=1);
 
 namespace Streak\Application;
 
+use Streak\Domain\Exception\CommandNotSupported;
+use Streak\Domain\Query;
+
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
 interface QueryBus
 {
     /**
-     * @throws Exception\CommandHandlerAlreadyRegistered
-     */
-    public function register(QueryHandler $handler): void;
-
-    /**
-     * @throws Exception\CommandNotSupported
+     * @throws CommandNotSupported
      *
      * @return mixed
      */

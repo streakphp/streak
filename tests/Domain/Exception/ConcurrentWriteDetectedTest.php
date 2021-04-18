@@ -23,10 +23,7 @@ use Streak\Domain;
  */
 class ConcurrentWriteDetectedTest extends TestCase
 {
-    /**
-     * @var Domain\Id|\PHPUnit_Framework_MockObject_MockObject
-     */
-    private $id;
+    private Domain\Id $id;
 
     protected function setUp(): void
     {

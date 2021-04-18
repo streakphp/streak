@@ -1,0 +1,24 @@
+paths:
+  - ./src
+
+layers:
+  - name: Infrastructure layer
+    collectors:
+      - type: className
+        regex: Streak\\Infrastructure\\.*
+  - name: Application layer
+    collectors:
+      - type: className
+        regex: Streak\\Application\\.*
+  - name: Domain layer
+    collectors:
+      - type: className
+        regex: Streak\\Domain\\.*
+
+ruleset:
+  Domain layer: ~
+  Application layer:
+    - Domain layer
+  Infrastructure layer:
+    - Domain layer
+    - Application layer

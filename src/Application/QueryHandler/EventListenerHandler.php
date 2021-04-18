@@ -13,11 +13,11 @@ declare(strict_types=1);
 
 namespace Streak\Application\QueryHandler;
 
-use Streak\Application\Exception\QueryNotSupported;
-use Streak\Application\Query;
-use Streak\Application\QueryHandler;
 use Streak\Domain\Event\Subscription;
 use Streak\Domain\Event\Subscription\Exception\ListenerNotFound;
+use Streak\Domain\Exception\QueryNotSupported;
+use Streak\Domain\Query;
+use Streak\Domain\QueryHandler;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>

@@ -17,7 +17,7 @@ use PHPUnit\Framework\TestCase;
 use Streak\Domain;
 use Streak\Domain\AggregateRoot;
 use Streak\Domain\Event;
-use Streak\Infrastructure\Event\InMemoryStream;
+use Streak\Infrastructure\Domain\Event\InMemoryStream;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -26,13 +26,13 @@ use Streak\Infrastructure\Event\InMemoryStream;
  */
 class SourcingTest extends TestCase
 {
-    private ?AggregateRoot\Id $id1 = null;
+    private AggregateRoot\Id $id1;
 
-    private ?AggregateRoot\Id $id2 = null;
+    private AggregateRoot\Id $id2;
 
-    private ?Event\Envelope $event1 = null;
+    private Event\Envelope $event1;
 
-    private ?Event\Envelope $event2 = null;
+    private Event\Envelope $event2;
 
     protected function setUp(): void
     {

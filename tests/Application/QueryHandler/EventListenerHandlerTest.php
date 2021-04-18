@@ -14,12 +14,12 @@ declare(strict_types=1);
 namespace Streak\Application\QueryHandler;
 
 use PHPUnit\Framework\TestCase;
-use Streak\Application\Exception\QueryNotSupported;
-use Streak\Application\Query;
 use Streak\Application\QueryHandler\EventListenerHandlerTest\QueryHandlingListener;
 use Streak\Domain\Event;
 use Streak\Domain\Event\Subscription\Exception\ListenerNotFound;
 use Streak\Domain\Event\Subscription\Repository;
+use Streak\Domain\Exception\QueryNotSupported;
+use Streak\Domain\Query;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -138,8 +138,8 @@ class EventListenerHandlerTest extends TestCase
 
 namespace Streak\Application\QueryHandler\EventListenerHandlerTest;
 
-use Streak\Application\QueryHandler;
 use Streak\Domain\Event;
+use Streak\Domain\QueryHandler;
 
 abstract class QueryHandlingListener implements QueryHandler, Event\Listener
 {

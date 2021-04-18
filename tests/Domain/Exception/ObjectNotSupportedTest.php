@@ -23,10 +23,7 @@ use Streak\Domain;
  */
 class ObjectNotSupportedTest extends TestCase
 {
-    /**
-     * @var Domain\AggregateRoot|\PHPUnit_Framework_MockObject_MockObject
-     */
-    private $object;
+    private Domain\AggregateRoot $object;
 
     protected function setUp(): void
     {
