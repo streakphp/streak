@@ -15,8 +15,7 @@ namespace Streak\Infrastructure\Testing\Listener;
 
 use Streak\Application;
 use Streak\Domain;
-use Streak\Domain\Event;
-use Streak\Infrastructure\CommandBus\SynchronousCommandBus;
+use Streak\Infrastructure\Application\CommandBus\SynchronousCommandBus;
 use Streak\Infrastructure\Testing\Listener;
 
 /**
@@ -37,9 +36,9 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
         ;
     }
 
-    abstract public function createFactory(Application\CommandBus $bus): Event\Listener\Factory;
+    abstract public function createFactory(Application\CommandBus $bus): Domain\Event\Listener\Factory;
 
-    private function createScenario(Application\CommandBus $bus, Event\Listener\Factory $factory): Listener\Scenario
+    private function createScenario(Application\CommandBus $bus, Domain\Event\Listener\Factory $factory): Listener\Scenario
     {
         return new Listener\Scenario($bus, $factory);
     }

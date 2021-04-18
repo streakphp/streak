@@ -17,8 +17,8 @@ use PHPUnit\Framework\Assert;
 use Streak\Application;
 use Streak\Domain;
 use Streak\Domain\Event;
-use Streak\Infrastructure\Event\InMemoryStream;
-use Streak\Infrastructure\Event\Sourced\Subscription\InMemoryState;
+use Streak\Infrastructure\Domain\Event\InMemoryStream;
+use Streak\Infrastructure\Domain\Event\Sourced\Subscription\InMemoryState;
 use Streak\Infrastructure\Testing\Listener\Scenario\Then;
 
 /**
@@ -26,7 +26,7 @@ use Streak\Infrastructure\Testing\Listener\Scenario\Then;
  *
  * @codeCoverageIgnore
  */
-class Scenario implements Scenario\Given, Scenario\When, Scenario\Then, Application\CommandHandler
+class Scenario implements Scenario\Given, Scenario\When, Scenario\Then, Domain\CommandHandler
 {
     private Application\CommandBus $bus;
 
@@ -42,12 +42,12 @@ class Scenario implements Scenario\Given, Scenario\When, Scenario\Then, Applicat
     private bool $replaying = false;
 
     /**
-     * @var Application\Command[]
+     * @var \Streak\Domain\Command[]
      */
     private array $actualCommands = [];
 
     /**
-     * @var Application\Command[]
+     * @var \Streak\Domain\Command[]
      */
     private array $expectedCommands = [];
 
@@ -77,7 +77,7 @@ class Scenario implements Scenario\Given, Scenario\When, Scenario\Then, Applicat
         return $this;
     }
 
-    public function then(Application\Command $command = null, \Throwable $error = null): Then
+    public function then(Domain\Command $command = null, \Throwable $error = null): Then
     {
         $this->expectedCommands[] = $command;
         $this->expectedErrors[] = $error;
@@ -150,7 +150,7 @@ class Scenario implements Scenario\Given, Scenario\When, Scenario\Then, Applicat
         $constraint($listener);
     }
 
-    public function handle(Application\Command $command): void
+    public function handleCommand(Domain\Command $command): void
     {
         if (true === $this->replaying) {
             return;

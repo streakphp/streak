@@ -13,11 +13,11 @@ declare(strict_types=1);
 
 namespace Streak\Application\CommandHandler;
 
-use Streak\Application\Command;
-use Streak\Application\CommandHandler;
-use Streak\Application\Exception\CommandNotSupported;
 use Streak\Domain\AggregateRoot;
+use Streak\Domain\Command;
+use Streak\Domain\CommandHandler;
 use Streak\Domain\Exception\AggregateNotFound;
+use Streak\Domain\Exception\CommandNotSupported;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -33,7 +33,7 @@ class AggregateRootHandler implements CommandHandler
         $this->repository = $repository;
     }
 
-    public function handle(Command $command): void
+    public function handleCommand(Command $command): void
     {
         if (!$command instanceof Command\AggregateRootCommand) {
             throw new CommandNotSupported($command);
@@ -50,6 +50,6 @@ class AggregateRootHandler implements CommandHandler
             throw new CommandNotSupported($command);
         }
 
-        $aggregate->handle($command);
+        $aggregate->handleCommand($command);
     }
 }

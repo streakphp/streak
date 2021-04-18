@@ -13,16 +13,15 @@ declare(strict_types=1);
 
 namespace Streak\Infrastructure\Testing\AggregateRoot;
 
-use Streak\Application;
-use Streak\Application\CommandHandler;
-use Streak\Domain\AggregateRoot;
-use Streak\Infrastructure\AggregateRoot\Repository\EventSourcedRepository;
-use Streak\Infrastructure\AggregateRoot\Snapshotter;
-use Streak\Infrastructure\EventStore\InMemoryEventStore;
-use Streak\Infrastructure\Serializer;
-use Streak\Infrastructure\Serializer\PhpSerializer;
-use Streak\Infrastructure\UnitOfWork;
-use Streak\Infrastructure\UnitOfWork\EventStoreUnitOfWork;
+use Streak\Application\CommandHandler\AggregateRootHandler;
+use Streak\Domain;
+use Streak\Infrastructure\Domain\AggregateRoot\Repository\EventSourcedRepository;
+use Streak\Infrastructure\Domain\AggregateRoot\Snapshotter;
+use Streak\Infrastructure\Domain\EventStore\InMemoryEventStore;
+use Streak\Infrastructure\Domain\Serializer;
+use Streak\Infrastructure\Domain\Serializer\PhpSerializer;
+use Streak\Infrastructure\Domain\UnitOfWork;
+use Streak\Infrastructure\Domain\UnitOfWork\EventStoreUnitOfWork;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -31,7 +30,7 @@ use Streak\Infrastructure\UnitOfWork\EventStoreUnitOfWork;
  */
 abstract class TestCase extends \PHPUnit\Framework\TestCase
 {
-    public function for(AggregateRoot\Id $id): Scenario\Given
+    public function for(Domain\AggregateRoot\Id $id): Scenario\Given
     {
         $factory = $this->createFactory();
         $store = new InMemoryEventStore();
@@ -48,11 +47,11 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
         ;
     }
 
-    abstract protected function createFactory(): AggregateRoot\Factory;
+    abstract protected function createFactory(): Domain\AggregateRoot\Factory;
 
-    protected function createHandler(AggregateRoot\Factory $factory, AggregateRoot\Repository $repository): Application\CommandHandler
+    protected function createHandler(Domain\AggregateRoot\Factory $factory, Domain\AggregateRoot\Repository $repository): Domain\CommandHandler
     {
-        return new CommandHandler\AggregateRootHandler($repository);
+        return new AggregateRootHandler($repository);
     }
 
     protected function createSnapshotterSerializer(): Serializer
@@ -70,7 +69,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
         return new Snapshotter\SnapshottableAggregatesSnapshotter($serializer, $storage);
     }
 
-    private function createScenario(Application\CommandHandler $handler, InMemoryEventStore $store, AggregateRoot\Factory $factory, Snapshotter $snapshotter, UnitOfWork $uow): Scenario
+    private function createScenario(Domain\CommandHandler $handler, InMemoryEventStore $store, Domain\AggregateRoot\Factory $factory, Snapshotter $snapshotter, UnitOfWork $uow): Scenario
     {
         return new Scenario($handler, $store, $factory, $snapshotter, $uow);
     }

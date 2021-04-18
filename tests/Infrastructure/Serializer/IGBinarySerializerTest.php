@@ -14,11 +14,12 @@ declare(strict_types=1);
 namespace Streak\Infrastructure\Serializer;
 
 use PHPUnit\Framework\TestCase;
+use Streak\Infrastructure\Domain\Serializer\IGBinarySerializer;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  *
- * @covers \Streak\Infrastructure\Serializer\IGBinarySerializer
+ * @covers \Streak\Infrastructure\Domain\Serializer\IGBinarySerializer
  */
 class IGBinarySerializerTest extends TestCase
 {

@@ -14,14 +14,11 @@ declare(strict_types=1);
 namespace Streak\Infrastructure\Testing\AggregateRoot;
 
 use PHPUnit\Framework\Assert;
-use Streak\Application;
 use Streak\Domain;
-use Streak\Domain\AggregateRoot;
-use Streak\Domain\Event;
-use Streak\Infrastructure\AggregateRoot\Snapshotter;
-use Streak\Infrastructure\EventStore\InMemoryEventStore;
+use Streak\Infrastructure\Domain\AggregateRoot\Snapshotter;
+use Streak\Infrastructure\Domain\EventStore\InMemoryEventStore;
+use Streak\Infrastructure\Domain\UnitOfWork;
 use Streak\Infrastructure\Testing\AggregateRoot\Scenario\Given;
-use Streak\Infrastructure\UnitOfWork;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -30,15 +27,18 @@ use Streak\Infrastructure\UnitOfWork;
  */
 class Scenario implements Scenario\Given, Scenario\When, Scenario\Then
 {
-    private Application\CommandHandler $handler;
+    private Domain\CommandHandler $handler;
     private InMemoryEventStore $store;
-    private AggregateRoot\Factory $factory;
+    private Domain\AggregateRoot\Factory $factory;
     private Snapshotter $snapshotter;
     private UnitOfWork $uow;
-    private ?AggregateRoot\Id $id = null;
+    private ?Domain\AggregateRoot\Id $id = null;
+    /**
+     * @var Domain\Event\Envelope[]
+     */
     private array $events = [];
 
-    public function __construct(Application\CommandHandler $handler, InMemoryEventStore $store, AggregateRoot\Factory $factory, Snapshotter $snapshotter, UnitOfWork $uow)
+    public function __construct(Domain\CommandHandler $handler, InMemoryEventStore $store, Domain\AggregateRoot\Factory $factory, Snapshotter $snapshotter, UnitOfWork $uow)
     {
         $this->handler = $handler;
         $this->store = $store;
@@ -47,7 +47,7 @@ class Scenario implements Scenario\Given, Scenario\When, Scenario\Then
         $this->uow = $uow;
     }
 
-    public function for(AggregateRoot\Id $id): Given
+    public function for(Domain\AggregateRoot\Id $id): Given
     {
         $this->id = $id;
 
@@ -58,17 +58,17 @@ class Scenario implements Scenario\Given, Scenario\When, Scenario\Then
     {
         $version = 0;
         foreach ($events as $key => $event) {
-            $events[$key] = Event\Envelope::new($event, $this->id, ++$version);
+            $events[$key] = Domain\Event\Envelope::new($event, $this->id, ++$version);
         }
         $this->events = $events;
-        $this->store->add(...$events);
+        $this->store->add(...$this->events);
 
         return $this;
     }
 
-    public function when(Application\Command $command): Scenario\Then
+    public function when(Domain\Command $command): Scenario\Then
     {
-        $this->handler->handle($command);
+        $this->handler->handleCommand($command);
 
         return $this;
     }
@@ -81,14 +81,14 @@ class Scenario implements Scenario\Given, Scenario\When, Scenario\Then
 
         $this->store->clear();
 
-        /** @var AggregateRoot[] $uncommitted */
+        /** @var Domain\AggregateRoot[] $uncommitted */
         $uncommitted = $this->uow->uncommitted();
 
         Assert::assertCount(1, $uncommitted, 'Only one aggregate root should be used during command execution.');
 
         $uncommitted = array_pop($uncommitted);
 
-        Assert::assertInstanceOf(AggregateRoot::class, $uncommitted, 'Detected event producer is not an aggregate root.');
+        Assert::assertInstanceOf(Domain\AggregateRoot::class, $uncommitted, 'Detected event producer is not an aggregate root.');
 
         $new = $this->factory->create($this->id);
 
@@ -101,7 +101,7 @@ class Scenario implements Scenario\Given, Scenario\When, Scenario\Then
         Domain\Event\Metadata::clear(...$actual);
 
         // unpack events from envelopes
-        $actual = array_map(fn (Event\Envelope $envelope) => $envelope->message(), $actual);
+        $actual = array_map(fn (Domain\Event\Envelope $envelope) => $envelope->message(), $actual);
 
         Assert::assertEquals($expected, $actual, 'Expected events don\'t match produced events.');
 

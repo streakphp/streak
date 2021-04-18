@@ -13,10 +13,12 @@ declare(strict_types=1);
 
 namespace Streak\Infrastructure\Serializer;
 
+use Streak\Infrastructure\Domain\Serializer\PhpSerializer;
+
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  *
- * @covers \Streak\Infrastructure\Serializer\PhpSerializer
+ * @covers \Streak\Infrastructure\Domain\Serializer\PhpSerializer
  */
 class PhpSerializerTest extends \PHPUnit\Framework\TestCase
 {

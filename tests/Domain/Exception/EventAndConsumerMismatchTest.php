@@ -25,21 +25,14 @@ use Streak\Domain\Id\UUID;
  */
 class EventAndConsumerMismatchTest extends TestCase
 {
-    /**
-     * @var Event\Consumer|\PHPUnit_Framework_MockObject_MockObject
-     */
-    private $consumer;
+    private Event\Consumer $consumer;
 
-    /**
-     * @var Domain\Event|\PHPUnit_Framework_MockObject_MockObject
-     */
-    private $event;
+    private Domain\Event\Envelope $event;
 
     protected function setUp(): void
     {
         $this->consumer = $this->getMockBuilder(Event\Consumer::class)->getMockForAbstractClass();
-        $this->event = $this->getMockBuilder(Domain\Event::class)->getMockForAbstractClass();
-        $this->event = Event\Envelope::new($this->event, UUID::random());
+        $this->event = Event\Envelope::new($this->getMockBuilder(Domain\Event::class)->getMockForAbstractClass(), UUID::random());
     }
 
     public function testException(): void

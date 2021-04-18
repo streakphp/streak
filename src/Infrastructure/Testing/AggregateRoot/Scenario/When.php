@@ -13,12 +13,12 @@ declare(strict_types=1);
 
 namespace Streak\Infrastructure\Testing\AggregateRoot\Scenario;
 
-use Streak\Application;
+use Streak\Domain;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
 interface When
 {
-    public function when(Application\Command $command): Then;
+    public function when(Domain\Command $command): Then;
 }

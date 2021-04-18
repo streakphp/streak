@@ -45,7 +45,7 @@ final class Envelope implements Domain\Envelope
         }
     }
 
-    public static function new(Event $event, Domain\Id $producerId, ?int $version = null)
+    public static function new(Event $event, Domain\Id $producerId, ?int $version = null): self
     {
         return new self(UUID::random(), \get_class($event), $event, $producerId, $version);
     }

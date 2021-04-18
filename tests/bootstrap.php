@@ -12,7 +12,7 @@
 declare(strict_types=1);
 
 use SebastianBergmann\Comparator;
-use Streak\Infrastructure\Event;
+use Streak\Infrastructure\Domain\Event;
 
 require_once __DIR__.'/../vendor/autoload.php';
 

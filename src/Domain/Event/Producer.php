@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Streak\Domain\Event;
 
 use Streak\Domain;
+use Streak\Domain\Event;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -23,7 +24,7 @@ interface Producer
     public function producerId(): Domain\Id;
 
     /**
-     * @return Domain\Event[]
+     * @return Event\Envelope[]
      */
     public function events(): array;
 }

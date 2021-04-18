@@ -13,14 +13,14 @@ declare(strict_types=1);
 
 namespace Streak\Infrastructure\Testing\Listener\Scenario;
 
-use Streak\Application;
+use Streak\Domain\Command;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
 interface Then
 {
-    public function then(Application\Command $command = null, \Throwable $error = null): self;
+    public function then(Command $command = null, \Throwable $error = null): self;
 
     public function assert(callable $constraint = null): void;
 }
