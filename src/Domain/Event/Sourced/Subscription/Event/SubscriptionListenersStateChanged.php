@@ -35,12 +35,12 @@ class SubscriptionListenersStateChanged implements Subscription\Event
         $this->timestamp = $timestamp->format(self::DATE_FORMAT);
     }
 
-    public function state() : State
+    public function state(): State
     {
         return InMemoryState::fromArray($this->state);
     }
 
-    public function timestamp() : \DateTimeImmutable
+    public function timestamp(): \DateTimeImmutable
     {
         return \DateTimeImmutable::createFromFormat(self::DATE_FORMAT, $this->timestamp);
     }

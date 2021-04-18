@@ -18,5 +18,5 @@ namespace Streak\Domain\Event\Listener;
  */
 interface Completable
 {
-    public function completed() : bool;
+    public function completed(): bool;
 }

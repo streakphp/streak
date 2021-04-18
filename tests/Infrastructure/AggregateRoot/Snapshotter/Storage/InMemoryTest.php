@@ -23,7 +23,7 @@ use Streak\Infrastructure\AggregateRoot\Snapshotter\Storage;
  */
 class InMemoryTest extends TestCase
 {
-    protected function newStorage() : Storage
+    protected function newStorage(): Storage
     {
         return new InMemoryStorage();
     }

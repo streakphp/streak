@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Streak\Infrastructure\Event\Subscription\DAO;
 
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Streak\Domain\Event\Listener\Id;
 use Streak\Domain\Event\Subscription;
@@ -26,15 +25,13 @@ use Streak\Infrastructure\UnitOfWork;
  */
 class DAORepositoryTest extends TestCase
 {
-    private ?DAORepository $daoRepository = null;
+    private DAORepository $daoRepository;
 
-    /** @var DAO|MockObject */
-    private $dao;
+    private DAO $dao;
 
-    /** @var UnitOfWork */
-    private $uow;
+    private UnitOfWork $uow;
 
-    public function setUp() : void
+    protected function setUp(): void
     {
         parent::setUp();
         $this->dao = $this->getMockBuilder(DAO::class)->getMockForAbstractClass();
@@ -42,53 +39,53 @@ class DAORepositoryTest extends TestCase
         $this->daoRepository = new DAORepository($this->dao, $this->uow);
     }
 
-    public function testItFinds() : void
+    public function testItFinds(): void
     {
         $subscription = $this->createSubscriptionMock();
-        $this->dao->expects($this->once())->method('one')->willReturn($subscription);
-        $this->uow->expects($this->once())->method('add')->with($subscription);
+        $this->dao->expects(self::once())->method('one')->willReturn($subscription);
+        $this->uow->expects(self::once())->method('add')->with($subscription);
         self::assertSame($subscription, $this->daoRepository->find($this->createIdMock()));
     }
 
-    public function testItFindsNoting() : void
+    public function testItFindsNoting(): void
     {
-        $this->dao->expects($this->once())->method('one')->willReturn(null);
-        $this->uow->expects($this->never())->method('add');
+        $this->dao->expects(self::once())->method('one')->willReturn(null);
+        $this->uow->expects(self::never())->method('add');
         self::assertNull($this->daoRepository->find($this->createIdMock()));
     }
 
-    public function testItHas() : void
+    public function testItHas(): void
     {
-        $this->dao->expects($this->at(0))->method('exists')->willReturn(true);
-        $this->dao->expects($this->at(1))->method('exists')->willReturn(false);
+        $this->dao->expects(self::at(0))->method('exists')->willReturn(true);
+        $this->dao->expects(self::at(1))->method('exists')->willReturn(false);
         self::assertTrue($this->daoRepository->has($this->createSubscriptionMock()));
         self::assertFalse($this->daoRepository->has($this->createSubscriptionMock()));
     }
 
-    public function testItAdds() : void
+    public function testItAdds(): void
     {
         $subscription = $this->createSubscriptionMock();
-        $this->uow->expects($this->once())->method('add')->with($subscription);
+        $this->uow->expects(self::once())->method('add')->with($subscription);
         $this->daoRepository->add($subscription);
     }
 
     /** @dataProvider filtersProvider */
-    public function testItAll(?Filter $filter, $daoAllSecondArgument) : void
+    public function testItAll(?Filter $filter, $daoAllSecondArgument): void
     {
         $expectedSubscriptionTypes = [];
         if ($filter) {
             $expectedSubscriptionTypes = $filter->subscriptionTypes();
         }
         $subscription = $this->createSubscriptionMock();
-        $this->dao->expects($this->at(0))->method('all')->willReturnCallback(
-            function () use ($subscription) : iterable {
+        $this->dao->expects(self::at(0))->method('all')->willReturnCallback(
+            function () use ($subscription): iterable {
                 yield $subscription;
             }
         )->with($expectedSubscriptionTypes, $daoAllSecondArgument);
-        $this->uow->expects($this->once())->method('add')->with($subscription);
+        $this->uow->expects(self::once())->method('add')->with($subscription);
 
-        $this->dao->expects($this->at(1))->method('all')->willReturnCallback(
-            function () : iterable {
+        $this->dao->expects(self::at(1))->method('all')->willReturnCallback(
+            function (): iterable {
                 yield from [];
             }
         );
@@ -114,19 +111,13 @@ class DAORepositoryTest extends TestCase
         ];
     }
 
-    private function createSubscriptionMock() : Subscription
+    private function createSubscriptionMock(): Subscription
     {
-        /** @var Subscription|MockObject $result */
-        $result = $this->getMockBuilder(Subscription::class)->getMockForAbstractClass();
-
-        return $result;
+        return $this->getMockBuilder(Subscription::class)->getMockForAbstractClass();
     }
 
-    private function createIdMock() : Id
+    private function createIdMock(): Id
     {
-        /** @var Id|MockObject $result */
-        $result = $this->getMockBuilder(Id::class)->getMockForAbstractClass();
-
-        return $result;
+        return $this->getMockBuilder(Id::class)->getMockForAbstractClass();
     }
 }

@@ -24,6 +24,9 @@ use Streak\Application\Sensor;
  */
 final class SensorConsumer implements ConsumerInterface
 {
+    private const ACK = true;
+    private const NACK = false;
+
     private Sensor\Factory $factory;
 
     public function __construct(Sensor\Factory $factory)
@@ -34,9 +37,9 @@ final class SensorConsumer implements ConsumerInterface
     public function execute(AMQPMessage $message)
     {
         $original = $message->getBody();
-        $message = \json_decode($original, true);
+        $message = json_decode($original, true);
 
-        if (JSON_ERROR_NONE !== json_last_error()) {
+        if (\JSON_ERROR_NONE !== json_last_error()) {
             $message = $original;
         }
 
@@ -44,9 +47,9 @@ final class SensorConsumer implements ConsumerInterface
             $sensor = $this->factory->create();
             $sensor->process($message);
         } catch (\Exception $e) {
-            return false;
+            return self::NACK;
         }
 
-        return true;
+        return self::ACK;
     }
 }

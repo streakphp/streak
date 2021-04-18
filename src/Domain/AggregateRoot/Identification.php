@@ -30,12 +30,12 @@ trait Identification
         $this->identifyBy($id);
     }
 
-    public function aggregateRootId() : AggregateRoot\Id
+    public function aggregateRootId(): AggregateRoot\Id
     {
         return $this->id;
     }
 
-    protected function identifyBy(AggregateRoot\Id $id) : void
+    protected function identifyBy(AggregateRoot\Id $id): void
     {
         $this->identifyAggregateBy($id);
     }

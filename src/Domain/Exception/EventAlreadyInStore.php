@@ -28,12 +28,12 @@ class EventAlreadyInStore extends \InvalidArgumentException
     {
         $this->event = $event;
 
-        $message = sprintf('Event already stored.');
+        $message = 'Event already stored.';
 
         parent::__construct($message, 0, $previous);
     }
 
-    public function event() : Event\Envelope
+    public function event(): Event\Envelope
     {
         return $this->event;
     }

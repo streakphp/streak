@@ -31,7 +31,7 @@ class InvalidEventGiven extends \InvalidArgumentException
         parent::__construct('Invalid event given.', 0, $previous);
     }
 
-    public function event() : Event\Envelope
+    public function event(): Event\Envelope
     {
         return $this->event;
     }

@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Streak\Infrastructure\AggregateRoot\Snapshotter;
 
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Streak\Domain\AggregateRoot;
 use Streak\Infrastructure\AggregateRoot\Snapshotter;
@@ -28,26 +27,15 @@ use Streak\Infrastructure\Serializer;
  */
 class SnapshottableAggregatesSnapshotterTest extends TestCase
 {
-    /**
-     * @var Serializer|MockObject
-     */
-    private $serializer;
-    /**
-     * @var Snapshotter\Storage|MockObject
-     */
-    private $storage;
+    private Serializer $serializer;
 
-    /**
-     * @var AggregateRoot|MockObject
-     */
-    private $nonSnapshottableAggregateRoot;
+    private Snapshotter\Storage $storage;
 
-    /**
-     * @var AggregateRoot|\Serializable|MockObject
-     */
-    private $snapshottableAggregateRoot;
+    private AggregateRoot $nonSnapshottableAggregateRoot;
 
-    protected function setUp() : void
+    private SnapshottableAggregateRoot $snapshottableAggregateRoot;
+
+    protected function setUp(): void
     {
         $this->serializer = $this->getMockBuilder(Serializer::class)->getMockForAbstractClass();
         $this->storage = $this->getMockBuilder(Snapshotter\Storage::class)->getMockForAbstractClass();
@@ -55,28 +43,28 @@ class SnapshottableAggregatesSnapshotterTest extends TestCase
         $this->snapshottableAggregateRoot = $this->getMockBuilder(SnapshottableAggregateRoot::class)->getMock();
     }
 
-    public function testTakingSnapshotOfSnapshottableAggregateRoot()
+    public function testTakingSnapshotOfSnapshottableAggregateRoot(): void
     {
         $this->storage
-            ->expects($this->never())
+            ->expects(self::never())
             ->method('find')
         ;
 
         $this->snapshottableAggregateRoot
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('toMemento')
             ->willReturn(['memento' => 'this'])
         ;
 
         $this->serializer
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('serialize')
             ->with(['memento' => 'this'])
             ->willReturn('serialized')
         ;
 
         $this->storage
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('store')
             ->with($this->snapshottableAggregateRoot, 'serialized')
         ;
@@ -85,25 +73,25 @@ class SnapshottableAggregatesSnapshotterTest extends TestCase
         $snapshotter->takeSnapshot($this->snapshottableAggregateRoot);
     }
 
-    public function testTakingSnapshotOfNonSnapshottableAggregateRoot()
+    public function testTakingSnapshotOfNonSnapshottableAggregateRoot(): void
     {
         $this->storage
-            ->expects($this->never())
+            ->expects(self::never())
             ->method('find')
         ;
 
         $this->snapshottableAggregateRoot
-            ->expects($this->never())
+            ->expects(self::never())
             ->method('toMemento')
         ;
 
         $this->serializer
-            ->expects($this->never())
+            ->expects(self::never())
             ->method('serialize')
         ;
 
         $this->storage
-            ->expects($this->never())
+            ->expects(self::never())
             ->method('store')
         ;
 
@@ -111,64 +99,64 @@ class SnapshottableAggregatesSnapshotterTest extends TestCase
         $snapshotter->takeSnapshot($this->nonSnapshottableAggregateRoot);
     }
 
-    public function testRestoringWhenSnapshotFound()
+    public function testRestoringWhenSnapshotFound(): void
     {
         $this->storage
-            ->expects($this->never())
+            ->expects(self::never())
             ->method('store')
         ;
 
         $snapshotter = new SnapshottableAggregatesSnapshotter($this->serializer, $this->storage);
 
-        $this->assertNull($snapshotter->restoreToSnapshot($this->nonSnapshottableAggregateRoot));
+        self::assertNull($snapshotter->restoreToSnapshot($this->nonSnapshottableAggregateRoot));
 
         $this->storage
-            ->expects($this->at(0))
+            ->expects(self::at(0))
             ->method('find')
             ->with($this->snapshottableAggregateRoot)
             ->willReturn('serialized')
         ;
 
         $this->serializer
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('unserialize')
             ->with('serialized')
             ->willReturn(['unserialize' => 'this'])
         ;
 
         $this->snapshottableAggregateRoot
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('fromMemento')
             ->with(['unserialize' => 'this'])
         ;
 
         $result = $snapshotter->restoreToSnapshot($this->snapshottableAggregateRoot);
 
-        $this->assertSame($this->snapshottableAggregateRoot, $result);
+        self::assertSame($this->snapshottableAggregateRoot, $result);
     }
 
-    public function testRestoringWhenSnapshotNotFound()
+    public function testRestoringWhenSnapshotNotFound(): void
     {
         $snapshotter = new SnapshottableAggregatesSnapshotter($this->serializer, $this->storage);
 
         $this->storage
-            ->expects($this->at(0))
+            ->expects(self::at(0))
             ->method('find')
             ->with($this->snapshottableAggregateRoot)
             ->willThrowException(new SnapshotNotFound($this->snapshottableAggregateRoot))
         ;
 
         $this->serializer
-            ->expects($this->never())
-            ->method($this->anything())
+            ->expects(self::never())
+            ->method(self::anything())
         ;
 
         $this->snapshottableAggregateRoot
-            ->expects($this->never())
+            ->expects(self::never())
             ->method('fromMemento')
         ;
 
-        $this->assertNull($snapshotter->restoreToSnapshot($this->snapshottableAggregateRoot));
+        self::assertNull($snapshotter->restoreToSnapshot($this->snapshottableAggregateRoot));
     }
 }
 

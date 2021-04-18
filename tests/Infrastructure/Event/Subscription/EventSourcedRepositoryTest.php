@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Streak\Infrastructure\Event\Subscription;
 
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Streak\Domain;
 use Streak\Domain\Event;
@@ -27,7 +26,6 @@ use Streak\Domain\Id\UUID;
 use Streak\Infrastructure\Event\Subscription\EventSourcedRepositoryTest\DecoratedSubscription;
 use Streak\Infrastructure\Event\Subscription\EventSourcedRepositoryTest\EventSourcedSubscription;
 use Streak\Infrastructure\EventStore\InMemoryEventStore;
-use Streak\Infrastructure\FixedClock;
 use Streak\Infrastructure\UnitOfWork;
 
 /**
@@ -37,104 +35,35 @@ use Streak\Infrastructure\UnitOfWork;
  */
 class EventSourcedRepositoryTest extends TestCase
 {
-    /**
-     * @var Event\Subscription\Factory|MockObject
-     */
-    private $subscriptions;
+    private Event\Subscription\Factory $subscriptions;
 
-    /**
-     * @var Event\Listener\Factory|MockObject
-     */
-    private $listeners;
+    private Event\Listener\Factory $listeners;
 
-    /**
-     * @var EventStore|MockObject
-     */
-    private $store;
+    private InMemoryEventStore $store;
 
-    /**
-     * @var UnitOfWork|MockObject
-     */
-    private $uow;
+    private UnitOfWork\EventStoreUnitOfWork $uow;
 
-    /**
-     * @var Event\Listener|MockObject
-     */
-    private $listener1;
+    private Event\Listener $listener1;
 
-    /**
-     * @var Event\Subscription|Event\Sourced|MockObject
-     */
-    private $eventSourcedSubscription1;
+    private EventSourcedSubscription $eventSourcedSubscription1;
+    private DecoratedSubscription $eventSourcedSubscription2;
+    private DecoratedSubscription $eventSourcedSubscription3;
 
-    /**
-     * @var Event\Subscription|Event\Subscription\Decorator|MockObject
-     */
-    private $eventSourcedSubscription2;
+    private Event\Subscription $nonEventSourcedSubscription1;
+    private DecoratedSubscription $nonEventSourcedSubscription2;
+    private DecoratedSubscription $nonEventSourcedSubscription3;
 
-    /**
-     * @var Event\Subscription|Event\Subscription\Decorator|MockObject
-     */
-    private $eventSourcedSubscription3;
+    private Listener\Id $id1;
+    private Listener\Id $id2;
+    private Listener\Id $id3;
+    private Listener\Id $id4;
 
-    /**
-     * @var Event\Subscription|MockObject
-     */
-    private $nonEventSourcedSubscription1;
+    private Event\Envelope $event1;
+    private Event\Envelope $event2;
+    private Event\Envelope $event3;
+    private Event\Envelope $event4;
 
-    /**
-     * @var Event\Subscription|Event\Subscription\Decorator|MockObject
-     */
-    private $nonEventSourcedSubscription2;
-
-    /**
-     * @var Event\Subscription|Event\Subscription\Decorator|MockObject
-     */
-    private $nonEventSourcedSubscription3;
-
-    /**
-     * @var Listener\Id|MockObject
-     */
-    private $id1;
-
-    /**
-     * @var Listener\Id|MockObject
-     */
-    private $id2;
-
-    /**
-     * @var Listener\Id|MockObject
-     */
-    private $id3;
-
-    /**
-     * @var Listener\Id|MockObject
-     */
-    private $id4;
-
-    /**
-     * @var Event|MockObject
-     */
-    private $event1;
-
-    /**
-     * @var Event|MockObject
-     */
-    private $event2;
-
-    /**
-     * @var Event|MockObject
-     */
-    private $event3;
-
-    /**
-     * @var Event|MockObject
-     */
-    private $event4;
-
-    private ?Domain\Clock $clock = null;
-
-    protected function setUp() : void
+    protected function setUp(): void
     {
         $this->subscriptions = $this->getMockBuilder(Event\Subscription\Factory::class)->getMockForAbstractClass();
         $this->listeners = $this->getMockBuilder(Event\Listener\Factory::class)->getMockForAbstractClass();
@@ -164,34 +93,29 @@ class EventSourcedRepositoryTest extends TestCase
         $this->id4 = new class('2d40c01d-7aa9-4757-ac28-de3733431cc5') extends Domain\Id\UUID implements Listener\Id {
         };
 
-        $this->event1 = $this->getMockBuilder(Event::class)->setMockClassName('event1')->getMockForAbstractClass();
-        $this->event1 = Event\Envelope::new($this->event1, UUID::random());
-        $this->event2 = $this->getMockBuilder(Event::class)->setMockClassName('event2')->getMockForAbstractClass();
-        $this->event2 = Event\Envelope::new($this->event2, UUID::random());
-        $this->event3 = $this->getMockBuilder(Event::class)->setMockClassName('event3')->getMockForAbstractClass();
-        $this->event3 = Event\Envelope::new($this->event3, UUID::random());
-        $this->event4 = $this->getMockBuilder(Event::class)->setMockClassName('event4')->getMockForAbstractClass();
-        $this->event4 = Event\Envelope::new($this->event4, UUID::random());
-
-        $this->clock = new FixedClock(new \DateTime('2018-09-28 19:12:32.763188 +00:00'));
+        $this->event1 = Event\Envelope::new($this->getMockBuilder(Event::class)->setMockClassName('event1')->getMockForAbstractClass(), UUID::random());
+        $this->event2 = Event\Envelope::new($this->getMockBuilder(Event::class)->setMockClassName('event2')->getMockForAbstractClass(), UUID::random());
+        $this->event3 = Event\Envelope::new($this->getMockBuilder(Event::class)->setMockClassName('event3')->getMockForAbstractClass(), UUID::random());
+        $this->event4 = Event\Envelope::new($this->getMockBuilder(Event::class)->setMockClassName('event4')->getMockForAbstractClass(), UUID::random());
     }
 
-    public function testFindingNonEventSourcedSubscription()
+    public function testFindingNonEventSourcedSubscription(): void
     {
         $repository = new EventSourcedRepository($this->subscriptions, $this->listeners, $this->store, $this->uow);
 
         $this->listeners
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('create')
             ->with($this->id1)
             ->willReturn($this->listener1)
         ;
 
         $this->subscriptions
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('create')
             ->with($this->listener1)
-            ->willReturn($this->nonEventSourcedSubscription1);
+            ->willReturn($this->nonEventSourcedSubscription1)
+        ;
 
         $exception = new Exception\ObjectNotSupported($this->nonEventSourcedSubscription1);
         $this->expectExceptionObject($exception);
@@ -199,7 +123,7 @@ class EventSourcedRepositoryTest extends TestCase
         $repository->find($this->id1);
     }
 
-    public function testCheckingForNonEventSourcedSubscription()
+    public function testCheckingForNonEventSourcedSubscription(): void
     {
         $repository = new EventSourcedRepository($this->subscriptions, $this->listeners, $this->store, $this->uow);
 
@@ -209,36 +133,36 @@ class EventSourcedRepositoryTest extends TestCase
         $repository->has($this->nonEventSourcedSubscription3);
     }
 
-    public function testFindingNotExistingSubscription()
+    public function testFindingNotExistingSubscription(): void
     {
         $repository = new EventSourcedRepository($this->subscriptions, $this->listeners, $this->store, $this->uow);
 
         $this->listeners
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('create')
             ->with($this->id1)
             ->willReturn($this->listener1)
         ;
 
         $this->subscriptions
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('create')
             ->with($this->listener1)
             ->willReturn($this->eventSourcedSubscription1)
         ;
 
         $this->eventSourcedSubscription1
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('producerId')
             ->willReturn($this->id1)
         ;
 
         $found = $repository->find($this->id1);
 
-        $this->assertNull($found);
+        self::assertNull($found);
     }
 
-    public function testCheckingForExistingSubscription()
+    public function testCheckingForExistingSubscription(): void
     {
         $repository = new EventSourcedRepository($this->subscriptions, $this->listeners, $this->store, $this->uow);
 
@@ -252,32 +176,32 @@ class EventSourcedRepositoryTest extends TestCase
         $this->store->add($event1, $event2);
 
         $this->eventSourcedSubscription1
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('producerId')
             ->willReturn($this->id1)
         ;
 
         $has = $repository->has($this->eventSourcedSubscription3);
 
-        $this->assertTrue($has);
+        self::assertTrue($has);
     }
 
-    public function testCheckingForNotExistingSubscription()
+    public function testCheckingForNotExistingSubscription(): void
     {
         $repository = new EventSourcedRepository($this->subscriptions, $this->listeners, $this->store, $this->uow);
 
         $this->eventSourcedSubscription1
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('producerId')
             ->willReturn($this->id1)
         ;
 
         $has = $repository->has($this->eventSourcedSubscription3);
 
-        $this->assertFalse($has);
+        self::assertFalse($has);
     }
 
-    public function testFindingSubscription()
+    public function testFindingSubscription(): void
     {
         $repository = new EventSourcedRepository($this->subscriptions, $this->listeners, $this->store, $this->uow);
 
@@ -293,41 +217,41 @@ class EventSourcedRepositoryTest extends TestCase
         $this->store->add($event1, $event2, $event3);
 
         $this->listeners
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('create')
             ->with($this->id1)
             ->willReturn($this->listener1)
         ;
 
         $this->subscriptions
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('create')
             ->with($this->listener1)
             ->willReturn($this->eventSourcedSubscription1)
         ;
 
         $this->eventSourcedSubscription1
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('producerId')
             ->willReturn($this->id1)
         ;
 
         $this->eventSourcedSubscription1
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('replay')
-            ->with($this->callback(function (Event\Stream $stream) use ($event1, $event2, $event3) {
+            ->with(self::callback(function (Event\Stream $stream) use ($event1, $event2, $event3) {
                 $stream = iterator_to_array($stream);
 
-                return $this->equalTo([$event1, $event2, $event3])->evaluate($stream);
+                return self::equalTo([$event1, $event2, $event3])->evaluate($stream);
             }))
         ;
 
         $subscription = $repository->find($this->id1);
 
-        $this->assertSame($this->eventSourcedSubscription1, $subscription);
+        self::assertSame($this->eventSourcedSubscription1, $subscription);
     }
 
-    public function testFindingPreviouslyRestartedSubscription()
+    public function testFindingPreviouslyRestartedSubscription(): void
     {
         $repository = new EventSourcedRepository($this->subscriptions, $this->listeners, $this->store, $this->uow);
 
@@ -349,42 +273,42 @@ class EventSourcedRepositoryTest extends TestCase
         $this->store->add($event1, $event2, $event3, $event4, $event5, $event6);
 
         $this->listeners
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('create')
             ->with($this->id1)
             ->willReturn($this->listener1)
         ;
 
         $this->subscriptions
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('create')
             ->with($this->listener1)
             ->willReturn($this->eventSourcedSubscription1)
         ;
 
         $this->eventSourcedSubscription1
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('producerId')
             ->willReturn($this->id1)
         ;
 
         $this->eventSourcedSubscription1
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('replay')
-            ->with($this->callback(function (Event\Stream $stream) use ($event1, $event2, $event3, $event4, $event5, $event6) {
+            ->with(self::callback(function (Event\Stream $stream) use ($event1, $event2, $event3, $event4, $event5, $event6) {
                 $stream = iterator_to_array($stream);
 
                 // streaming from SubscriptionRestarted event
-                return $this->equalTo([$event1, $event2, $event3, $event4, $event5, $event6])->evaluate($stream);
+                return self::equalTo([$event1, $event2, $event3, $event4, $event5, $event6])->evaluate($stream);
             }))
         ;
 
         $subscription = $repository->find($this->id1);
 
-        $this->assertSame($this->eventSourcedSubscription1, $subscription);
+        self::assertSame($this->eventSourcedSubscription1, $subscription);
     }
 
-    public function testAddingNonEventSourcedObject()
+    public function testAddingNonEventSourcedObject(): void
     {
         $repository = new EventSourcedRepository($this->subscriptions, $this->listeners, $this->store, $this->uow);
 
@@ -394,47 +318,47 @@ class EventSourcedRepositoryTest extends TestCase
         $repository->add($this->nonEventSourcedSubscription3);
     }
 
-    public function testAddingEventSourcedSubscription()
+    public function testAddingEventSourcedSubscription(): void
     {
         $repository = new EventSourcedRepository($this->subscriptions, $this->listeners, $this->store, $this->uow);
 
         $this->eventSourcedSubscription1
-            ->expects($this->atLeastOnce())
+            ->expects(self::atLeastOnce())
             ->method('producerId')
             ->willReturn($this->id1)
         ;
 
         $repository->add($this->eventSourcedSubscription1);
 
-        $this->assertTrue($this->uow->has($this->eventSourcedSubscription1));
+        self::assertTrue($this->uow->has($this->eventSourcedSubscription1));
     }
 
-    public function testAddingDecoratedEventSourcedSubscription()
+    public function testAddingDecoratedEventSourcedSubscription(): void
     {
         $repository = new EventSourcedRepository($this->subscriptions, $this->listeners, $this->store, $this->uow);
 
         $this->eventSourcedSubscription1
-            ->expects($this->atLeastOnce())
+            ->expects(self::atLeastOnce())
             ->method('producerId')
             ->willReturn($this->id1)
         ;
 
         $repository->add($this->eventSourcedSubscription3);
 
-        $this->assertTrue($this->uow->has($this->eventSourcedSubscription1));
+        self::assertTrue($this->uow->has($this->eventSourcedSubscription1));
     }
 
-    public function testRepositoryOfNoSubscriptions()
+    public function testRepositoryOfNoSubscriptions(): void
     {
         $repository = new EventSourcedRepository($this->subscriptions, $this->listeners, $this->store, $this->uow);
 
         $subscriptions = $repository->all();
 
-        $this->assertTrue(is_iterable($subscriptions));
-        $this->assertEquals([], iterator_to_array($subscriptions));
+        self::assertIsIterable($subscriptions);
+        self::assertEquals([], iterator_to_array($subscriptions));
     }
 
-    public function testFindingSubscriptions()
+    public function testFindingSubscriptions(): void
     {
         $repository = new EventSourcedRepository($this->subscriptions, $this->listeners, $this->store, $this->uow);
         $subscription1 = new LazyLoadedSubscription($this->id1, $repository);
@@ -444,12 +368,12 @@ class EventSourcedRepositoryTest extends TestCase
         $now = new \DateTime('2018-09-28 19:12:32.763188 +00:00');
 
         $this->listeners
-            ->expects($this->never())
-            ->method($this->anything())
+            ->expects(self::never())
+            ->method(self::anything())
         ;
         $this->subscriptions
-            ->expects($this->never())
-            ->method($this->anything())
+            ->expects(self::never())
+            ->method(self::anything())
         ;
 
         $event11 = new SubscriptionStarted($this->event1, $now);
@@ -481,7 +405,7 @@ class EventSourcedRepositoryTest extends TestCase
         $subscriptions = $repository->all();
         $subscriptions = iterator_to_array($subscriptions);
 
-        $this->assertEquals([$subscription3, $subscription1, $subscription4], $subscriptions);
+        self::assertEquals([$subscription3, $subscription1, $subscription4], $subscriptions);
     }
 }
 

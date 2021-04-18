@@ -43,7 +43,7 @@ class CompositeQueryHandler implements QueryHandler
     /**
      * @throws Exception\QueryHandlerAlreadyRegistered
      */
-    public function registerHandler(QueryHandler $handler) : void
+    public function registerHandler(QueryHandler $handler): void
     {
         foreach ($this->handlers as $registered) {
             if ($handler === $registered) {

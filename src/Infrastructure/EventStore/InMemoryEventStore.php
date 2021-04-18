@@ -36,9 +36,9 @@ class InMemoryEventStore implements EventStore
      * @throws Exception\ConcurrentWriteDetected
      * @throws Exception\EventAlreadyInStore
      */
-    public function add(Event\Envelope ...$events) : array
+    public function add(Event\Envelope ...$events): array
     {
-        if (0 === count($events)) {
+        if (0 === \count($events)) {
             return [];
         }
 
@@ -66,10 +66,11 @@ class InMemoryEventStore implements EventStore
                     // rollback
                     $this->all = $backup['all'];
                     $this->streams = $backup['streams'];
+
                     throw new Exception\ConcurrentWriteDetected($producerId);
                 }
             } else {
-                $version = count($this->streams[$streamName]);
+                $version = \count($this->streams[$streamName]);
                 $version = $version + 1;
             }
 
@@ -80,7 +81,7 @@ class InMemoryEventStore implements EventStore
         return $events;
     }
 
-    public function event(UUID $uuid) : ?Event\Envelope
+    public function event(UUID $uuid): ?Event\Envelope
     {
         foreach ($this->all as $event) {
             if ($event->uuid()->equals($uuid)) {
@@ -91,13 +92,13 @@ class InMemoryEventStore implements EventStore
         return null;
     }
 
-    public function stream(?EventStore\Filter $filter = null) : Event\Stream
+    public function stream(?EventStore\Filter $filter = null): Event\Stream
     {
         if (null === $filter) {
             $filter = EventStore\Filter::nothing();
         }
 
-        if (0 === count($filter->producerIds()) && 0 === count($filter->producerTypes())) {
+        if (0 === \count($filter->producerIds()) && 0 === \count($filter->producerTypes())) {
             return new InMemoryStream(...$this->all);
         }
 
@@ -105,7 +106,7 @@ class InMemoryEventStore implements EventStore
         foreach ($filter->producerIds() as $producerId) {
             $streamName = $this->streamName($producerId);
 
-            if (array_key_exists($streamName, $this->streams)) {
+            if (\array_key_exists($streamName, $this->streams)) {
                 $streamNames[] = $streamName;
             }
         }
@@ -125,7 +126,7 @@ class InMemoryEventStore implements EventStore
 
         $events = [];
         foreach ($this->all as $event) {
-            if (in_array($event, $streams, true)) {
+            if (\in_array($event, $streams, true)) {
                 $events[] = $event;
             }
         }
@@ -133,18 +134,17 @@ class InMemoryEventStore implements EventStore
         return new InMemoryStream(...$events);
     }
 
-    public function clear()
+    public function clear(): void
     {
         $this->streams = [];
         $this->all = [];
     }
 
-    private function streamName(Id $producerId) : string
+    private function streamName(Id $producerId): string
     {
-        $type = get_class($producerId);
+        $type = \get_class($producerId);
         $id = $producerId->toString();
-        $name = $type.$id;
 
-        return $name;
+        return $type.$id;
     }
 }

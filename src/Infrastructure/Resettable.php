@@ -18,5 +18,5 @@ namespace Streak\Infrastructure;
  */
 interface Resettable
 {
-    public function reset() : bool;
+    public function reset(): bool;
 }

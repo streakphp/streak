@@ -34,11 +34,10 @@ class Factory implements Subscription\Factory
         $this->uow = $uow;
     }
 
-    public function create(Event\Listener $listener) : Event\Subscription
+    public function create(Event\Listener $listener): Event\Subscription
     {
         $subscription = $this->factory->create($listener);
-        $subscription = new CommittingSubscription($subscription, $this->uow);
 
-        return $subscription;
+        return new CommittingSubscription($subscription, $this->uow);
     }
 }

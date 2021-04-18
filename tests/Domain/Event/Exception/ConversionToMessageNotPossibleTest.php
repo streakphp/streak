@@ -23,15 +23,15 @@ use PHPUnit\Framework\TestCase;
  */
 class ConversionToMessageNotPossibleTest extends TestCase
 {
-    public function testException()
+    public function testException(): void
     {
         $array = ['test' => 'array'];
         $previous = new \Exception();
 
         $exception = new ConversionToObjectNotPossible($array, $previous);
 
-        $this->assertSame($array, $exception->array());
-        $this->assertSame('Conversion not possible.', $exception->getMessage());
-        $this->assertSame($previous, $exception->getPrevious());
+        self::assertSame($array, $exception->array());
+        self::assertSame('Conversion not possible.', $exception->getMessage());
+        self::assertSame($previous, $exception->getPrevious());
     }
 }

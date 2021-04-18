@@ -37,30 +37,31 @@ class DbalTransactionalSubscription implements Subscription, Subscription\Decora
         $this->maxTransactionSize = $maxTransactionSize;
     }
 
-    public function subscription() : Subscription
+    public function subscription(): Subscription
     {
         return $this->subscription;
     }
 
-    public function listener() : Listener
+    public function listener(): Listener
     {
         return $this->subscription->listener();
     }
 
-    public function subscriptionId() : Listener\Id
+    public function subscriptionId(): Listener\Id
     {
         return $this->subscription->subscriptionId();
     }
 
-    public function subscribeTo(EventStore $store, ?int $limit = null) : iterable
+    public function subscribeTo(EventStore $store, ?int $limit = null): iterable
     {
         $this->connection->beginTransaction();
         $transaction = [];
+
         try {
             foreach ($this->subscription->subscribeTo($store, $limit) as $event) {
                 $transaction[] = $event;
 
-                if (count($transaction) === $this->maxTransactionSize) {
+                if (\count($transaction) === $this->maxTransactionSize) {
                     $this->connection->commit();
                     $this->connection->beginTransaction();
                     while ($event = array_shift($transaction)) {
@@ -69,58 +70,59 @@ class DbalTransactionalSubscription implements Subscription, Subscription\Decora
                 }
             }
             $this->connection->commit();
-            if (count($transaction) > 0) {
+            if (\count($transaction) > 0) {
                 while ($event = array_shift($transaction)) {
                     yield $event;
                 }
             }
         } catch (\Throwable $exception) {
             $this->connection->rollBack();
+
             throw $exception;
         }
     }
 
-    public function startFor(Event\Envelope $event) : void
+    public function startFor(Event\Envelope $event): void
     {
         $this->subscription->startFor($event);
     }
 
-    public function restart() : void
+    public function restart(): void
     {
         $this->subscription->restart();
     }
 
-    public function starting() : bool
+    public function starting(): bool
     {
         return $this->subscription->starting();
     }
 
-    public function started() : bool
+    public function started(): bool
     {
         return $this->subscription->started();
     }
 
-    public function completed() : bool
+    public function completed(): bool
     {
         return $this->subscription->completed();
     }
 
-    public function paused() : bool
+    public function paused(): bool
     {
         return $this->subscription->paused();
     }
 
-    public function pause() : void
+    public function pause(): void
     {
         $this->subscription->pause();
     }
 
-    public function unpause() : void
+    public function unpause(): void
     {
         $this->subscription->unpause();
     }
 
-    public function version() : int
+    public function version(): int
     {
         return $this->subscription->version();
     }

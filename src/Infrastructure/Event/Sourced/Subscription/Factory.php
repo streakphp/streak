@@ -34,10 +34,8 @@ class Factory implements Subscription\Factory
     /**
      * @return \Streak\Infrastructure\Event\Sourced\Subscription
      */
-    public function create(Event\Listener $listener) : Event\Subscription
+    public function create(Event\Listener $listener): Event\Subscription
     {
-        $subscription = new \Streak\Infrastructure\Event\Sourced\Subscription($listener, $this->clock);
-
-        return $subscription;
+        return new \Streak\Infrastructure\Event\Sourced\Subscription($listener, $this->clock);
     }
 }

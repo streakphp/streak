@@ -43,7 +43,7 @@ class CompositeCommandHandler implements Application\CommandHandler
     /**
      * @throws Exception\CommandHandlerAlreadyRegistered
      */
-    public function registerHandler(Application\CommandHandler $handler) : void
+    public function registerHandler(Application\CommandHandler $handler): void
     {
         foreach ($this->handlers as $registered) {
             if ($handler === $registered) {
@@ -54,7 +54,7 @@ class CompositeCommandHandler implements Application\CommandHandler
         $this->handlers[] = $handler;
     }
 
-    public function handle(Command $command) : void
+    public function handle(Command $command): void
     {
         $last = null;
         foreach ($this->handlers as $handler) {

@@ -22,11 +22,11 @@ use PHPUnit\Framework\TestCase;
  */
 class FixedClockTest extends TestCase
 {
-    public function testClock()
+    public function testClock(): void
     {
         $clock = new FixedClock(new \DateTime('2018-09-28 19:12:32.763188 +00:00'));
         $now = new \DateTime('2018-09-28 19:12:32.763188 +00:00');
 
-        $this->assertEquals($now, $clock->now());
+        self::assertEquals($now, $clock->now());
     }
 }

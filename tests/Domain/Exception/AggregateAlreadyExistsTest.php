@@ -28,15 +28,15 @@ class AggregateAlreadyExistsTest extends TestCase
      */
     private $aggregate;
 
-    public function setUp() : void
+    protected function setUp(): void
     {
         $this->aggregate = $this->getMockBuilder(Domain\AggregateRoot::class)->getMockForAbstractClass();
     }
 
-    public function testException()
+    public function testException(): void
     {
         $exception = new AggregateAlreadyExists($this->aggregate);
 
-        $this->assertSame($this->aggregate, $exception->aggregate());
+        self::assertSame($this->aggregate, $exception->aggregate());
     }
 }

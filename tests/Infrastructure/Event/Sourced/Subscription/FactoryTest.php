@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Streak\Infrastructure\Event\Sourced\Subscription;
 
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Streak\Domain\Clock;
 use Streak\Domain\Event;
@@ -25,28 +24,22 @@ use Streak\Domain\Event;
  */
 class FactoryTest extends TestCase
 {
-    /**
-     * @var Event\Listener|MockObject
-     */
-    private $listener;
+    private Event\Listener $listener;
 
-    /**
-     * @var Clock|MockObject
-     */
-    private $clock;
+    private Clock $clock;
 
-    public function setUp() : void
+    protected function setUp(): void
     {
         $this->listener = $this->getMockBuilder(Event\Listener::class)->getMockForAbstractClass();
         $this->clock = $this->getMockBuilder(Clock::class)->getMockForAbstractClass();
     }
 
-    public function testFactory()
+    public function testFactory(): void
     {
         $factory = new Factory($this->clock);
 
         $subscription = $factory->create($this->listener);
 
-        $this->assertEquals(new \Streak\Infrastructure\Event\Sourced\Subscription($this->listener, $this->clock), $subscription);
+        self::assertEquals(new \Streak\Infrastructure\Event\Sourced\Subscription($this->listener, $this->clock), $subscription);
     }
 }

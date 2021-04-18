@@ -24,20 +24,20 @@ interface Repository
     /**
      * @throws Exception\ObjectNotSupported
      */
-    public function find(Event\Listener\Id $id) : ?Event\Subscription;
+    public function find(Event\Listener\Id $id): ?Event\Subscription;
 
     /**
      * @throws Exception\ObjectNotSupported
      */
-    public function has(Event\Subscription $subscription) : bool;
+    public function has(Event\Subscription $subscription): bool;
 
     /**
      * @throws Exception\ObjectNotSupported
      */
-    public function add(Event\Subscription $subscription) : void;
+    public function add(Event\Subscription $subscription): void;
 
     /**
-     * @return iterable|Event\Subscription[]
+     * @return Event\Subscription[]|iterable
      */
-    public function all(?Repository\Filter $filter = null) : iterable;
+    public function all(?Repository\Filter $filter = null): iterable;
 }

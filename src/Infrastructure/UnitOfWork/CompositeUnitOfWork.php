@@ -32,7 +32,7 @@ class CompositeUnitOfWork implements UnitOfWork
         $this->uows = $uows;
     }
 
-    public function add(object $object) : void
+    public function add(object $object): void
     {
         foreach ($this->uows as $uow) {
             try {
@@ -47,14 +47,14 @@ class CompositeUnitOfWork implements UnitOfWork
         throw new Exception\ObjectNotSupported($object);
     }
 
-    public function remove(object $object) : void
+    public function remove(object $object): void
     {
         foreach ($this->uows as $uow) {
             $uow->remove($object);
         }
     }
 
-    public function has(object $object) : bool
+    public function has(object $object): bool
     {
         foreach ($this->uows as $uow) {
             if (true === $uow->has($object)) {
@@ -65,7 +65,7 @@ class CompositeUnitOfWork implements UnitOfWork
         return false;
     }
 
-    public function uncommitted() : array
+    public function uncommitted(): array
     {
         $uncommitted = [];
         foreach ($this->uows as $uow) {
@@ -75,7 +75,7 @@ class CompositeUnitOfWork implements UnitOfWork
         return $uncommitted;
     }
 
-    public function count() : int
+    public function count(): int
     {
         $count = 0;
         foreach ($this->uows as $uow) {
@@ -85,7 +85,7 @@ class CompositeUnitOfWork implements UnitOfWork
         return $count;
     }
 
-    public function commit() : \Generator
+    public function commit(): \Generator
     {
         foreach ($this->uows as $uow) {
             foreach ($uow->commit() as $object) {
@@ -94,7 +94,7 @@ class CompositeUnitOfWork implements UnitOfWork
         }
     }
 
-    public function clear() : void
+    public function clear(): void
     {
         foreach ($this->uows as $uow) {
             $uow->clear();

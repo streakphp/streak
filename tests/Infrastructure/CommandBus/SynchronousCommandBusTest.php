@@ -46,7 +46,7 @@ class SynchronousCommandBusTest extends TestCase
      */
     private $command1;
 
-    public function setUp() : void
+    protected function setUp(): void
     {
         $this->handler1 = $this->getMockBuilder(CommandHandler::class)->setMockClassName('handler1')->getMockForAbstractClass();
         $this->handler2 = $this->getMockBuilder(CommandHandler::class)->setMockClassName('handler2')->getMockForAbstractClass();
@@ -55,7 +55,7 @@ class SynchronousCommandBusTest extends TestCase
         $this->command1 = $this->getMockBuilder(Command::class)->setMockClassName('command1')->getMockForAbstractClass();
     }
 
-    public function testAlreadyRegisteredHandler()
+    public function testAlreadyRegisteredHandler(): void
     {
         $bus = new SynchronousCommandBus();
 
@@ -70,7 +70,7 @@ class SynchronousCommandBusTest extends TestCase
         $bus->register($this->handler1);
     }
 
-    public function testCommandHandling()
+    public function testCommandHandling(): void
     {
         $bus = new SynchronousCommandBus();
 
@@ -81,25 +81,25 @@ class SynchronousCommandBusTest extends TestCase
         $exception = new CommandNotSupported($this->command1);
 
         $this->handler1
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('handle')
             ->with($this->command1)
             ->willThrowException($exception)
         ;
         $this->handler2
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('handle')
             ->with($this->command1)
         ;
         $this->handler3
-            ->expects($this->never())
+            ->expects(self::never())
             ->method('handle')
         ;
 
         $bus->dispatch($this->command1);
     }
 
-    public function testNoHandlers()
+    public function testNoHandlers(): void
     {
         $bus = new SynchronousCommandBus();
 
@@ -110,7 +110,7 @@ class SynchronousCommandBusTest extends TestCase
         $bus->dispatch($this->command1);
     }
 
-    public function testNoHandlerForCommand()
+    public function testNoHandlerForCommand(): void
     {
         $bus = new SynchronousCommandBus();
 
@@ -120,13 +120,13 @@ class SynchronousCommandBusTest extends TestCase
         $exception = new CommandNotSupported($this->command1);
 
         $this->handler1
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('handle')
             ->with($this->command1)
             ->willThrowException($exception)
         ;
         $this->handler2
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('handle')
             ->with($this->command1)
             ->willThrowException($exception)

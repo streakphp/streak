@@ -32,12 +32,12 @@ trait Identification // implements Producer
         $this->identifyBy($id);
     }
 
-    public function producerId() : Domain\Id
+    public function producerId(): Domain\Id
     {
         return $this->id;
     }
 
-    protected function identifyBy(Entity\Id $id) : void
+    protected function identifyBy(Entity\Id $id): void
     {
         $this->identifyEntityBy($id);
     }

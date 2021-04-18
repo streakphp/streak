@@ -20,10 +20,10 @@ use Streak\Domain;
  */
 interface Id extends Domain\ValueObject
 {
-    public function toString() : string;
+    public function toString(): string;
 
     /**
      * @return static
      */
-    public static function fromString(string $id) : Domain\Id;
+    public static function fromString(string $id): Domain\Id;
 }

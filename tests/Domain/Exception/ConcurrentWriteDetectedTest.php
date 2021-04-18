@@ -28,15 +28,15 @@ class ConcurrentWriteDetectedTest extends TestCase
      */
     private $id;
 
-    public function setUp() : void
+    protected function setUp(): void
     {
         $this->id = $this->getMockBuilder(Domain\Id::class)->getMockForAbstractClass();
     }
 
-    public function testException()
+    public function testException(): void
     {
         $exception = new ConcurrentWriteDetected($this->id);
 
-        $this->assertSame($this->id, $exception->id());
+        self::assertSame($this->id, $exception->id());
     }
 }

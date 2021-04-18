@@ -29,7 +29,7 @@ class InMemoryDAO implements DAO
      */
     private array $subscriptions = [];
 
-    public function save(Subscription $subscription) : void
+    public function save(Subscription $subscription): void
     {
         foreach ($this->subscriptions as $key => $stored) {
             if ($stored->subscriptionId()->equals($subscription->subscriptionId())) {
@@ -42,7 +42,7 @@ class InMemoryDAO implements DAO
         $this->subscriptions[] = $subscription;
     }
 
-    public function one(Listener\Id $id) : ?Subscription
+    public function one(Listener\Id $id): ?Subscription
     {
         foreach ($this->subscriptions as $key => $stored) {
             if ($stored->subscriptionId()->equals($id)) {
@@ -53,17 +53,17 @@ class InMemoryDAO implements DAO
         return null;
     }
 
-    public function exists(Listener\Id $id) : bool
+    public function exists(Listener\Id $id): bool
     {
         return null !== $this->one($id);
     }
 
-    public function all(array $types = [], ?bool $completed = null) : iterable
+    public function all(array $types = [], ?bool $completed = null): iterable
     {
         foreach ($this->subscriptions as $key => $stored) {
-            if (count($types)) {
-                $type = get_class($stored->subscriptionId());
-                if (false === in_array($type, $types)) {
+            if (\count($types)) {
+                $type = \get_class($stored->subscriptionId());
+                if (false === \in_array($type, $types)) {
                     continue;
                 }
             }
@@ -82,7 +82,7 @@ class InMemoryDAO implements DAO
         }
     }
 
-    public function clear() : void
+    public function clear(): void
     {
         $this->subscriptions = [];
     }

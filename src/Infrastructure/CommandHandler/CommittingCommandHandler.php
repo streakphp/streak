@@ -33,7 +33,7 @@ class CommittingCommandHandler implements Application\CommandHandler
         $this->uow = $uow;
     }
 
-    public function handle(Application\Command $command) : void
+    public function handle(Application\Command $command): void
     {
         $this->handler->handle($command);
 

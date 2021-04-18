@@ -22,12 +22,12 @@ use PHPUnit\Framework\TestCase;
  */
 class ServerTimeClockTest extends TestCase
 {
-    public function testClock()
+    public function testClock(): void
     {
         $clock = new ServerTimeClock();
 
         $now = new \DateTime();
 
-        $this->assertSame($clock->now()->format(\DateTime::ATOM), $now->format(\DateTime::ATOM));
+        self::assertSame($clock->now()->format(\DateTime::ATOM), $now->format(\DateTime::ATOM));
     }
 }

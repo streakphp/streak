@@ -48,7 +48,7 @@ class Stream extends \FilterIterator implements Event\Stream
         return false;
     }
 
-    public function next()
+    public function next(): void
     {
         parent::next();
         ++$this->position;
@@ -61,59 +61,59 @@ class Stream extends \FilterIterator implements Event\Stream
         return $this->position;
     }
 
-    public function empty() : bool
+    public function empty(): bool
     {
         return $this->stream->empty();
     }
 
-    public function current() : Event\Envelope
+    public function current(): Event\Envelope
     {
         $event = $this->getInnerIterator()->current();
 
         return $event->message()->event();
     }
 
-    public function from(Event\Envelope $event) : Event\Stream
+    public function from(Event\Envelope $event): Event\Stream
     {
         throw new \BadMethodCallException('Method not supported.');
     }
 
-    public function to(Event\Envelope $event) : Event\Stream
+    public function to(Event\Envelope $event): Event\Stream
     {
         throw new \BadMethodCallException('Method not supported.');
     }
 
-    public function after(Event\Envelope $event) : Event\Stream
+    public function after(Event\Envelope $event): Event\Stream
     {
         throw new \BadMethodCallException('Method not supported.');
     }
 
-    public function before(Event\Envelope $event) : Event\Stream
+    public function before(Event\Envelope $event): Event\Stream
     {
         throw new \BadMethodCallException('Method not supported.');
     }
 
-    public function limit(int $limit) : Event\Stream
+    public function limit(int $limit): Event\Stream
     {
         throw new \BadMethodCallException('Method not supported.');
     }
 
-    public function only(string ...$types) : Event\Stream
+    public function only(string ...$types): Event\Stream
     {
         throw new \BadMethodCallException('Method not supported.');
     }
 
-    public function without(string ...$types) : Event\Stream
+    public function without(string ...$types): Event\Stream
     {
         throw new \BadMethodCallException('Method not supported.');
     }
 
-    public function first() : ?Event\Envelope
+    public function first(): ?Event\Envelope
     {
         throw new \BadMethodCallException('Method not supported.');
     }
 
-    public function last() : ?Event\Envelope
+    public function last(): ?Event\Envelope
     {
         throw new \BadMethodCallException('Method not supported.');
     }

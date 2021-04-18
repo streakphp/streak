@@ -38,26 +38,26 @@ class LoggingListener implements Event\Listener, Event\Listener\Replayable, Even
         $this->logger = $logger;
     }
 
-    public function id() : Domain\Id
+    public function id(): Domain\Id
     {
         return $this->listenerId();
     }
 
-    public function listenerId() : Listener\Id
+    public function listenerId(): Listener\Id
     {
         return $this->listener->listenerId();
     }
 
-    public function on(Event\Envelope $event) : bool
+    public function on(Event\Envelope $event): bool
     {
         try {
             return $this->listener->on($event);
         } catch (\Throwable $exception) {
             $this->logger->debug('Listener "{listener}" has thrown "{class}" exception with "{message}" message on "{event}" event.', [
-                'listener' => get_class($this->listener),
-                'class' => get_class($exception),
+                'listener' => \get_class($this->listener),
+                'class' => \get_class($exception),
                 'message' => $exception->getMessage(),
-                'event' => get_class($event->message()),
+                'event' => \get_class($event->message()),
                 'exception' => $exception,
             ]);
 
@@ -65,7 +65,7 @@ class LoggingListener implements Event\Listener, Event\Listener\Replayable, Even
         }
     }
 
-    public function replay(Event\Stream $events) : void
+    public function replay(Event\Stream $events): void
     {
         if (!$this->listener instanceof Event\Listener\Replayable) {
             return;
@@ -75,8 +75,8 @@ class LoggingListener implements Event\Listener, Event\Listener\Replayable, Even
             $this->listener->replay($events);
         } catch (\Throwable $exception) {
             $this->logger->debug('Listener "{listener}" has thrown "{class}" exception with "{message}" message while replaying events.', [
-                'listener' => get_class($this->listener),
-                'class' => get_class($exception),
+                'listener' => \get_class($this->listener),
+                'class' => \get_class($exception),
                 'message' => $exception->getMessage(),
                 'exception' => $exception,
             ]);
@@ -85,7 +85,7 @@ class LoggingListener implements Event\Listener, Event\Listener\Replayable, Even
         }
     }
 
-    public function completed() : bool
+    public function completed(): bool
     {
         if ($this->listener instanceof Event\Listener\Completable) {
             return $this->listener->completed();
@@ -94,7 +94,7 @@ class LoggingListener implements Event\Listener, Event\Listener\Replayable, Even
         return false;
     }
 
-    public function reset() : void
+    public function reset(): void
     {
         if (!$this->listener instanceof Event\Listener\Resettable) {
             return;
@@ -104,8 +104,8 @@ class LoggingListener implements Event\Listener, Event\Listener\Replayable, Even
             $this->listener->reset();
         } catch (\Throwable $exception) {
             $this->logger->debug('Listener "{listener}" has thrown "{class}" exception with "{message}" message while resetting.', [
-                'listener' => get_class($this->listener),
-                'class' => get_class($exception),
+                'listener' => \get_class($this->listener),
+                'class' => \get_class($exception),
                 'message' => $exception->getMessage(),
                 'exception' => $exception,
             ]);
@@ -114,7 +114,7 @@ class LoggingListener implements Event\Listener, Event\Listener\Replayable, Even
         }
     }
 
-    public function filter(Event\Stream $stream) : Event\Stream
+    public function filter(Event\Stream $stream): Event\Stream
     {
         if (!$this->listener instanceof Event\Filterer) {
             return $stream;
@@ -132,7 +132,7 @@ class LoggingListener implements Event\Listener, Event\Listener\Replayable, Even
         throw new Exception\QueryNotSupported($query);
     }
 
-    public function toState(State $state) : State
+    public function toState(State $state): State
     {
         if ($this->listener instanceof Listener\Stateful) {
             return $this->listener->toState($state);
@@ -141,7 +141,7 @@ class LoggingListener implements Event\Listener, Event\Listener\Replayable, Even
         return $state;
     }
 
-    public function fromState(State $state)
+    public function fromState(State $state): void
     {
         if ($this->listener instanceof Listener\Stateful) {
             $this->listener->fromState($state);

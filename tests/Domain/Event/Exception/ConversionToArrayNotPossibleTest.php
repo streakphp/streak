@@ -24,15 +24,15 @@ use Streak\Domain\Sensor\Event;
  */
 class ConversionToArrayNotPossibleTest extends TestCase
 {
-    public function testException()
+    public function testException(): void
     {
         $message = $this->getMockBuilder(Event::class)->getMockForAbstractClass();
         $previous = new \Exception();
 
         $exception = new ConversionToArrayNotPossible($message, $previous);
 
-        $this->assertSame($message, $exception->object());
-        $this->assertSame('Conversion not possible.', $exception->getMessage());
-        $this->assertSame($previous, $exception->getPrevious());
+        self::assertSame($message, $exception->object());
+        self::assertSame('Conversion not possible.', $exception->getMessage());
+        self::assertSame($previous, $exception->getPrevious());
     }
 }

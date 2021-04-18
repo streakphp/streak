@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Streak\Domain\Event\Subscription\Exception;
 
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Streak\Domain\Event\Listener;
 use Streak\Domain\Event\Subscription;
@@ -25,39 +24,33 @@ use Streak\Domain\Event\Subscription;
  */
 class SubscriptionRestartNotPossibleTest extends TestCase
 {
-    /**
-     * @var Subscription|MockObject
-     */
-    private $subscription;
+    private Subscription $subscription;
 
-    /**
-     * @var Id|MockObject
-     */
-    private $subscriptionId;
+    private Listener\Id $subscriptionId;
 
-    protected function setUp() : void
+    protected function setUp(): void
     {
         $this->subscription = $this->getMockBuilder(Subscription::class)->getMockForAbstractClass();
         $this->subscriptionId = $this->getMockBuilder(Listener\Id::class)->setMockClassName('test_id')->getMockForAbstractClass();
     }
 
-    public function testException()
+    public function testException(): void
     {
         $this->subscription
-            ->expects($this->atLeastOnce())
+            ->expects(self::atLeastOnce())
             ->method('subscriptionId')
             ->willReturn($this->subscriptionId)
         ;
 
         $this->subscriptionId
-            ->expects($this->atLeastOnce())
+            ->expects(self::atLeastOnce())
             ->method('toString')
             ->willReturn('8c2e12ea-4cb4-4e9a-a840-a3160ca20224')
         ;
 
         $exception = new SubscriptionRestartNotPossible($this->subscription);
 
-        $this->assertSame($this->subscription, $exception->subscription());
-        $this->assertSame('Subscription "test_id#8c2e12ea-4cb4-4e9a-a840-a3160ca20224" restart is not possible.', $exception->getMessage());
+        self::assertSame($this->subscription, $exception->subscription());
+        self::assertSame('Subscription "test_id#8c2e12ea-4cb4-4e9a-a840-a3160ca20224" restart is not possible.', $exception->getMessage());
     }
 }

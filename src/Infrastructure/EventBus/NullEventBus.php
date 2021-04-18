@@ -25,15 +25,15 @@ use Streak\Domain\EventBus;
  */
 class NullEventBus implements EventBus
 {
-    public function add(Event\Listener $listener) : void
+    public function add(Event\Listener $listener): void
     {
     }
 
-    public function remove(Event\Listener $listener) : void
+    public function remove(Event\Listener $listener): void
     {
     }
 
-    public function publish(Event\Envelope ...$messages)
+    public function publish(Event\Envelope ...$messages): void
     {
     }
 }

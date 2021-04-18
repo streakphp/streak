@@ -29,17 +29,14 @@ use Streak\Domain\Id\UUID;
  */
 class ReplayingTest extends TestCase
 {
-    /**
-     * @var Event\Stream|MockObject
-     */
-    private $stream;
+    private IterableStream $stream;
 
-    public function setUp() : void
+    protected function setUp(): void
     {
         $this->stream = $this->getMockBuilder(IterableStream::class)->getMock();
     }
 
-    public function testReplaying()
+    public function testReplaying(): void
     {
         $event1 = new SupportedEvent1();
         $event1 = Event\Envelope::new($event1, UUID::random());
@@ -47,7 +44,7 @@ class ReplayingTest extends TestCase
         $event2 = Event\Envelope::new($event2, UUID::random());
 
         $this->stream
-            ->expects($this->atLeastOnce())
+            ->expects(self::atLeastOnce())
             ->method('empty')
             ->with()
             ->willReturn(false)
@@ -56,27 +53,27 @@ class ReplayingTest extends TestCase
 
         $stub = new ReplayingStub();
 
-        $this->assertEmpty($stub->listened());
-        $this->assertEquals(0, $stub->enableSideEffectsCalled());
-        $this->assertEquals(0, $stub->disableSideEffectsCalled());
+        self::assertEmpty($stub->listened());
+        self::assertEquals(0, $stub->enableSideEffectsCalled());
+        self::assertEquals(0, $stub->disableSideEffectsCalled());
 
         $stub->replay($this->stream);
 
-        $this->assertEquals([$event1, $event2], $stub->listened());
-        $this->assertEquals(1, $stub->enableSideEffectsCalled());
-        $this->assertEquals(1, $stub->disableSideEffectsCalled());
+        self::assertEquals([$event1, $event2], $stub->listened());
+        self::assertEquals(1, $stub->enableSideEffectsCalled());
+        self::assertEquals(1, $stub->disableSideEffectsCalled());
 
         $stub->replay($this->stream);
 
-        $this->assertEquals([$event1, $event2, $event1, $event2], $stub->listened());
-        $this->assertEquals(2, $stub->enableSideEffectsCalled());
-        $this->assertEquals(2, $stub->disableSideEffectsCalled());
+        self::assertEquals([$event1, $event2, $event1, $event2], $stub->listened());
+        self::assertEquals(2, $stub->enableSideEffectsCalled());
+        self::assertEquals(2, $stub->disableSideEffectsCalled());
     }
 
-    public function testReplayingEmptyStream()
+    public function testReplayingEmptyStream(): void
     {
         $this->stream
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('empty')
             ->with()
             ->willReturn(true)
@@ -85,15 +82,15 @@ class ReplayingTest extends TestCase
 
         $stub = new ReplayingStub();
 
-        $this->assertEmpty($stub->listened());
-        $this->assertEquals(0, $stub->enableSideEffectsCalled());
-        $this->assertEquals(0, $stub->disableSideEffectsCalled());
+        self::assertEmpty($stub->listened());
+        self::assertEquals(0, $stub->enableSideEffectsCalled());
+        self::assertEquals(0, $stub->disableSideEffectsCalled());
 
         $stub->replay($this->stream);
 
-        $this->assertEmpty($stub->listened());
-        $this->assertEquals(0, $stub->enableSideEffectsCalled());
-        $this->assertEquals(0, $stub->disableSideEffectsCalled());
+        self::assertEmpty($stub->listened());
+        self::assertEquals(0, $stub->enableSideEffectsCalled());
+        self::assertEquals(0, $stub->disableSideEffectsCalled());
     }
 
     private function isIteratorFor(MockObject $iterator, array $items)
@@ -121,22 +118,22 @@ class ReplayingStub
     private int $disableSideEffectsCalled = 0;
     private ?array $listened = null;
 
-    public function onEvent1(SupportedEvent1 $event1)
+    public function onEvent1(SupportedEvent1 $event1): void
     {
         $this->listened[] = $event1;
     }
 
-    public function onEvent2(SupportedEvent2 $event2)
+    public function onEvent2(SupportedEvent2 $event2): void
     {
         $this->listened[] = $event2;
     }
 
-    public function enableSideEffectsCalled() : int
+    public function enableSideEffectsCalled(): int
     {
         return $this->enableSideEffectsCalled;
     }
 
-    public function disableSideEffectsCalled() : int
+    public function disableSideEffectsCalled(): int
     {
         return $this->disableSideEffectsCalled;
     }
@@ -146,19 +143,19 @@ class ReplayingStub
         return $this->listened;
     }
 
-    protected function on(Event\Envelope $event) : bool
+    protected function on(Event\Envelope $event): bool
     {
         $this->listened[] = $event;
 
         return true;
     }
 
-    protected function disableSideEffects() : void
+    protected function disableSideEffects(): void
     {
         ++$this->disableSideEffectsCalled;
     }
 
-    protected function enableSideEffects() : void
+    protected function enableSideEffects(): void
     {
         ++$this->enableSideEffectsCalled;
     }

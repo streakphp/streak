@@ -27,14 +27,13 @@ class NestedObjectConverter implements Converter
     /**
      * @throws Exception\ConversionToArrayNotPossible
      */
-    public function objectToArray(object $object) : array
+    public function objectToArray(object $object): array
     {
         try {
-            $class = get_class($object);
+            $class = \get_class($object);
             $array = $this->toArray($object);
-            $array = [$class => $array];
 
-            return $array;
+            return [$class => $array];
         } catch (\Exception $exception) {
             throw new Exception\ConversionToArrayNotPossible($object, $exception);
         }
@@ -43,7 +42,7 @@ class NestedObjectConverter implements Converter
     /**
      * @throws Exception\ConversionToObjectNotPossible
      */
-    public function arrayToObject(array $data) : object
+    public function arrayToObject(array $data): object
     {
         try {
             return $this->toObject($data);
@@ -52,10 +51,10 @@ class NestedObjectConverter implements Converter
         }
     }
 
-    private function toArray($event) : array
+    private function toArray($event): array
     {
         $object = $event;
-        if (is_object($object)) { // converts object to array
+        if (\is_object($object)) { // converts object to array
             $reflection = new \ReflectionObject($object);
             $object = [];
             do {
@@ -79,20 +78,22 @@ class NestedObjectConverter implements Converter
             } while ($reflection->getProperties() > 0);
         }
 
-        if (is_array($object)) {
+        if (\is_array($object)) {
             foreach ($object as &$value) {
-                if (is_object($value)) {
+                if (\is_object($value)) {
                     $value = $this->objectToArray($value);
+
                     continue;
                 }
                 if (is_scalar($value)) {
                     continue;
                 }
-                if (is_null($value)) {
+                if (null === $value) {
                     continue;
                 }
-                if (is_array($value)) {
+                if (\is_array($value)) {
                     $value = $this->toArray($value);
+
                     continue;
                 }
 
@@ -103,7 +104,7 @@ class NestedObjectConverter implements Converter
         return $object;
     }
 
-    private function toObject(array $array) : object
+    private function toObject(array $array): object
     {
         $class = array_keys($array)[0];
         $array = $array[$class];
@@ -145,18 +146,18 @@ class NestedObjectConverter implements Converter
 
     private function convertIfEvent($value)
     {
-        if (!is_array($value)) {
+        if (!\is_array($value)) {
             return $value;
         }
 
-        if (1 !== count($value)) {
+        if (1 !== \count($value)) {
             return $value;
         }
 
         reset($value);
         $class = key($value);
 
-        if (!is_string($class)) {
+        if (!\is_string($class)) {
             return $value;
         }
 

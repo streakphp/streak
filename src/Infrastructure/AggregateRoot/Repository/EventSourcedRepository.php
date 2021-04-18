@@ -41,7 +41,7 @@ class EventSourcedRepository implements Domain\AggregateRoot\Repository
         $this->uow = $uow;
     }
 
-    public function find(Domain\AggregateRoot\Id $id) : ?Domain\AggregateRoot
+    public function find(Domain\AggregateRoot\Id $id): ?Domain\AggregateRoot
     {
         $aggregate = $this->factory->create($id);
 
@@ -85,7 +85,7 @@ class EventSourcedRepository implements Domain\AggregateRoot\Repository
         return $aggregate;
     }
 
-    public function add(Domain\AggregateRoot $aggregate) : void
+    public function add(Domain\AggregateRoot $aggregate): void
     {
         if (!$aggregate instanceof Event\Sourced\AggregateRoot) {
             throw new Exception\ObjectNotSupported($aggregate);

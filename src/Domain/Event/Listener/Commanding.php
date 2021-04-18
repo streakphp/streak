@@ -28,17 +28,17 @@ trait Commanding
         $this->dispatchCommandsVia($bus);
     }
 
-    private function muteCommands() : void
+    private function muteCommands(): void
     {
         $this->bus->lock();
     }
 
-    private function unmuteCommands() : void
+    private function unmuteCommands(): void
     {
         $this->bus->unlock();
     }
 
-    private function dispatchCommandsVia(Application\CommandBus $bus) : Application\CommandBus
+    private function dispatchCommandsVia(Application\CommandBus $bus): Application\CommandBus
     {
         $this->bus = new LockableCommandBus($bus);
 

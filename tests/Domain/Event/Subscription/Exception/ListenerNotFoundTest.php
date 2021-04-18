@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Streak\Domain\Event\Subscription\Exception;
 
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Streak\Domain\Event;
 
@@ -24,27 +23,24 @@ use Streak\Domain\Event;
  */
 class ListenerNotFoundTest extends TestCase
 {
-    /**
-     * @var Event\Listener\Id|MockObject
-     */
-    private $listenerId;
+    private Event\Listener\Id $listenerId;
 
-    public function setUp() : void
+    protected function setUp(): void
     {
         $this->listenerId = $this->getMockBuilder(Event\Listener\Id::class)->setMockClassName('listener_id_1')->getMockForAbstractClass();
     }
 
-    public function testException()
+    public function testException(): void
     {
         $this->listenerId
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('toString')
             ->willReturn('8db25a31-45ce-499f-95f7-8b8d4fffc366')
         ;
 
         $exception = new ListenerNotFound($this->listenerId);
 
-        $this->assertSame('Listener "listener_id_1@8db25a31-45ce-499f-95f7-8b8d4fffc366" not found.', $exception->getMessage());
-        $this->assertSame($this->listenerId, $exception->listenerId());
+        self::assertSame('Listener "listener_id_1@8db25a31-45ce-499f-95f7-8b8d4fffc366" not found.', $exception->getMessage());
+        self::assertSame($this->listenerId, $exception->listenerId());
     }
 }

@@ -20,7 +20,7 @@ use Streak\Domain\Event;
  */
 trait Listening
 {
-    public function on(Event\Envelope $event) : bool
+    public function on(Event\Envelope $event): bool
     {
         $reflection = new \ReflectionObject($this);
 
@@ -36,13 +36,13 @@ trait Listening
             }
 
             // ...and its name must start with "on"
-            if ('on' !== \mb_substr($method->getName(), 0, 2)) {
+            if ('on' !== mb_substr($method->getName(), 0, 2)) {
                 continue;
             }
 
             // .. and if it has return type it must be boolean or void...
             if ($method->hasReturnType()) {
-                if (!in_array($method->getReturnType()->getName(), ['bool', 'void'])) {
+                if (!\in_array($method->getReturnType()->getName(), ['bool', 'void'])) {
                     continue;
                 }
             }
@@ -88,8 +88,8 @@ trait Listening
                 return true; // by default, if no confirmation is given, we assume that $event was listened (and processed) by $this listener.
             }
 
-            if (false === is_bool($listenedTo)) {
-                throw new \UnexpectedValueException(sprintf('Value returned by %s::%s($event) expected to be null or boolean, but %s was given.', $reflection->getShortName(), $method->getName(), gettype($listenedTo)));
+            if (false === \is_bool($listenedTo)) {
+                throw new \UnexpectedValueException(sprintf('Value returned by %s::%s($event) expected to be null or boolean, but %s was given.', $reflection->getShortName(), $method->getName(), \gettype($listenedTo)));
             }
 
             return $listenedTo;
@@ -101,21 +101,21 @@ trait Listening
     /**
      * @codeCoverageIgnore
      */
-    private function preEvent(Event $event) : void
+    private function preEvent(Event $event): void
     {
     }
 
     /**
      * @codeCoverageIgnore
      */
-    private function postEvent(Event $event) : void
+    private function postEvent(Event $event): void
     {
     }
 
     /**
      * @codeCoverageIgnore
      */
-    private function onException(\Throwable $exception) : void
+    private function onException(\Throwable $exception): void
     {
     }
 }

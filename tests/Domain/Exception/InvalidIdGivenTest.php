@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace Streak\Domain\Exception;
 
 use PHPUnit\Framework\TestCase;
-use Streak\Domain;
+use Streak\Domain\AggregateRoot;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -23,20 +23,17 @@ use Streak\Domain;
  */
 class InvalidIdGivenTest extends TestCase
 {
-    /**
-     * @var Domain\AggregateRoot\Id|\PHPUnit_Framework_MockObject_MockObject
-     */
-    private $id;
+    private AggregateRoot\Id $id;
 
-    public function setUp() : void
+    protected function setUp(): void
     {
-        $this->id = $this->getMockBuilder(Domain\Id::class)->getMockForAbstractClass();
+        $this->id = $this->getMockBuilder(AggregateRoot\Id::class)->getMockForAbstractClass();
     }
 
-    public function testException()
+    public function testException(): void
     {
         $exception = new InvalidIdGiven($this->id);
 
-        $this->assertSame($this->id, $exception->id());
+        self::assertSame($this->id, $exception->id());
     }
 }

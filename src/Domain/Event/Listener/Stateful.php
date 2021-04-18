@@ -18,7 +18,7 @@ namespace Streak\Domain\Event\Listener;
  */
 interface Stateful
 {
-    public function toState(State $state) : State;
+    public function toState(State $state): State;
 
     public function fromState(State $state);
 }

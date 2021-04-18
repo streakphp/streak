@@ -38,7 +38,7 @@ final class Envelope implements Domain\Envelope
         $this->metadata[self::METADATA_UUID] = $uuid->toString();
         $this->metadata[self::METADATA_NAME] = $name;
         $this->message = $message;
-        $this->metadata[self::METADATA_PRODUCER_TYPE] = get_class($producerId);
+        $this->metadata[self::METADATA_PRODUCER_TYPE] = \get_class($producerId);
         $this->metadata[self::METADATA_PRODUCER_ID] = $producerId->toString();
         if (null !== $version) {
             $this->metadata[self::METADATA_VERSION] = $version;
@@ -47,35 +47,35 @@ final class Envelope implements Domain\Envelope
 
     public static function new(Event $event, Domain\Id $producerId, ?int $version = null)
     {
-        return new self(UUID::random(), get_class($event), $event, $producerId, $version);
+        return new self(UUID::random(), \get_class($event), $event, $producerId, $version);
     }
 
-    public function uuid() : UUID
+    public function uuid(): UUID
     {
         return new UUID($this->get(self::METADATA_UUID));
     }
 
-    public function name() : string
+    public function name(): string
     {
         return $this->get(self::METADATA_NAME);
     }
 
-    public function message() : Event
+    public function message(): Event
     {
         return $this->message;
     }
 
-    public function producerId() : Domain\Id
+    public function producerId(): Domain\Id
     {
         return $this->get(self::METADATA_PRODUCER_TYPE)::fromString($this->get(self::METADATA_PRODUCER_ID));
     }
 
-    public function version() : ?int
+    public function version(): ?int
     {
         return $this->get(self::METADATA_VERSION);
     }
 
-    public function set(string $name, $value) : self
+    public function set(string $name, $value): self
     {
         if (empty($name)) {
             throw new \InvalidArgumentException('Name of the attribute can not be empty.');
@@ -103,12 +103,12 @@ final class Envelope implements Domain\Envelope
         return $this->metadata[$name] ?? null;
     }
 
-    public function metadata() : array
+    public function metadata(): array
     {
         return $this->metadata;
     }
 
-    public function equals(object $envelope) : bool
+    public function equals(object $envelope): bool
     {
         if (!$envelope instanceof static) {
             return false;

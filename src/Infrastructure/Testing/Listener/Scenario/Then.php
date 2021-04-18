@@ -20,7 +20,7 @@ use Streak\Application;
  */
 interface Then
 {
-    public function then(Application\Command $command = null, \Throwable $error = null) : Then;
+    public function then(Application\Command $command = null, \Throwable $error = null): self;
 
-    public function assert(callable $constraint = null) : void;
+    public function assert(callable $constraint = null): void;
 }

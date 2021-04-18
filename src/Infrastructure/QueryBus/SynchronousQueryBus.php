@@ -36,7 +36,7 @@ class SynchronousQueryBus implements Application\QueryBus
     /**
      * @throws Exception\QueryHandlerAlreadyRegistered
      */
-    public function register(QueryHandler $handler) : void
+    public function register(QueryHandler $handler): void
     {
         $this->handler->registerHandler($handler);
     }

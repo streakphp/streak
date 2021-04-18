@@ -27,18 +27,18 @@ class EventNotSupportedTest extends TestCase
 {
     private ?Event\Envelope $event = null;
 
-    protected function setUp() : void
+    protected function setUp(): void
     {
         $producerId = $this->getMockBuilder(Domain\Id::class)->getMockForAbstractClass();
         $event = $this->getMockBuilder(Event::class)->getMockForAbstractClass();
         $this->event = new Event\Envelope(UUID::random(), 'event', $event, $producerId, null);
     }
 
-    public function testException()
+    public function testException(): void
     {
         $exception = new EventNotSupported($this->event);
 
-        $this->assertSame('Event "event" not supported.', $exception->getMessage());
-        $this->assertSame($this->event, $exception->event());
+        self::assertSame('Event "event" not supported.', $exception->getMessage());
+        self::assertSame($this->event, $exception->event());
     }
 }

@@ -24,51 +24,26 @@ use Streak\Domain\Id\UUID;
  */
 class InMemoryEventBusTest extends TestCase
 {
-    /**
-     * @var Event\Listener|\PHPUnit_Framework_MockObject_MockObject
-     */
-    private $listener1;
+    private Event\Listener $listener1;
+    private Event\Listener $listener2;
+    private Event\Listener $listener3;
 
-    /**
-     * @var Event\Listener|\PHPUnit_Framework_MockObject_MockObject
-     */
-    private $listener2;
+    private Event\Envelope $event1;
+    private Event\Envelope $event2;
+    private Event\Envelope $event3;
 
-    /**
-     * @var Event\Listener|\PHPUnit_Framework_MockObject_MockObject
-     */
-    private $listener3;
-
-    /**
-     * @var Event|\PHPUnit_Framework_MockObject_MockObject
-     */
-    private $event1;
-
-    /**
-     * @var Event|\PHPUnit_Framework_MockObject_MockObject
-     */
-    private $event2;
-
-    /**
-     * @var Event|\PHPUnit_Framework_MockObject_MockObject
-     */
-    private $event3;
-
-    protected function setUp() : void
+    protected function setUp(): void
     {
         $this->listener1 = $this->getMockBuilder(Event\Listener::class)->setMockClassName('listener1')->getMockForAbstractClass();
         $this->listener2 = $this->getMockBuilder(Event\Listener::class)->setMockClassName('listener2')->getMockForAbstractClass();
         $this->listener3 = $this->getMockBuilder(Event\Listener::class)->setMockClassName('listener3')->getMockForAbstractClass();
 
-        $this->event1 = $this->getMockBuilder(Event::class)->setMockClassName('event1')->getMockForAbstractClass();
-        $this->event1 = Event\Envelope::new($this->event1, UUID::random());
-        $this->event2 = $this->getMockBuilder(Event::class)->setMockClassName('event2')->getMockForAbstractClass();
-        $this->event2 = Event\Envelope::new($this->event2, UUID::random());
-        $this->event3 = $this->getMockBuilder(Event::class)->setMockClassName('event3')->getMockForAbstractClass();
-        $this->event3 = Event\Envelope::new($this->event3, UUID::random());
+        $this->event1 = Event\Envelope::new($this->getMockBuilder(Event::class)->setMockClassName('event1')->getMockForAbstractClass(), UUID::random());
+        $this->event2 = Event\Envelope::new($this->getMockBuilder(Event::class)->setMockClassName('event2')->getMockForAbstractClass(), UUID::random());
+        $this->event3 = Event\Envelope::new($this->getMockBuilder(Event::class)->setMockClassName('event3')->getMockForAbstractClass(), UUID::random());
     }
 
-    public function testBus()
+    public function testBus(): void
     {
         $bus = new InMemoryEventBus();
 
@@ -76,7 +51,7 @@ class InMemoryEventBusTest extends TestCase
         $bus->add($this->listener1); // should be ignored
 
         $this->listener1
-            ->expects($this->exactly(2))
+            ->expects(self::exactly(2))
             ->method('on')
             ->withConsecutive(
                 [$this->event1],
@@ -91,7 +66,7 @@ class InMemoryEventBusTest extends TestCase
         $bus->publish($this->event1);
 
         $this->listener3
-            ->expects($this->exactly(2))
+            ->expects(self::exactly(2))
             ->method('on')
             ->withConsecutive(
                 [$this->event2],
@@ -104,7 +79,7 @@ class InMemoryEventBusTest extends TestCase
         ;
 
         $this->listener2
-            ->expects($this->at(0))
+            ->expects(self::at(0))
             ->method('on')
             ->with($this->event2)
             ->willReturnCallback(function () use ($bus) {
@@ -117,7 +92,7 @@ class InMemoryEventBusTest extends TestCase
         ;
 
         $this->listener2
-            ->expects($this->at(1))
+            ->expects(self::at(1))
             ->method('on')
             ->with($this->event3)
             ->willReturn(true)

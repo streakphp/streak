@@ -14,7 +14,6 @@ declare(strict_types=1);
 namespace Streak\Infrastructure\Event\Subscription\DbalTransactionalSubscription;
 
 use Doctrine\DBAL\Driver\Connection;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Streak\Domain\Event\Listener;
 use Streak\Domain\Event\Subscription;
@@ -27,27 +26,15 @@ use Streak\Infrastructure\Event\Subscription\DbalTransactionalSubscription;
  */
 class FactoryTest extends TestCase
 {
-    /**
-     * @var Subscription\Factory|MockObject
-     */
-    private $factory;
+    private Subscription\Factory $factory;
 
-    /**
-     * @var Connection|MockObject
-     */
-    private $connection;
+    private Connection $connection;
 
-    /**
-     * @var Listener|MockObject
-     */
-    private $listener;
+    private Listener $listener;
 
-    /**
-     * @var Subscription|MockObject
-     */
-    private $subscription;
+    private Subscription $subscription;
 
-    protected function setUp() : void
+    protected function setUp(): void
     {
         $this->factory = $this->getMockBuilder(Subscription\Factory::class)->getMockForAbstractClass();
         $this->connection = $this->getMockBuilder(Connection::class)->getMockForAbstractClass();
@@ -55,30 +42,30 @@ class FactoryTest extends TestCase
         $this->subscription = $this->getMockBuilder(Subscription::class)->getMockForAbstractClass();
     }
 
-    public function testListener()
+    public function testListener(): void
     {
         $this->factory
-            ->expects($this->exactly(2))
+            ->expects(self::exactly(2))
             ->method('create')
             ->with($this->listener)
             ->willReturn($this->subscription)
         ;
 
         $this->listener
-            ->expects($this->never())
-            ->method($this->anything())
+            ->expects(self::never())
+            ->method(self::anything())
         ;
 
         $factory = new Factory($this->factory, $this->connection, 1);
         $subscription = $factory->create($this->listener);
-        $this->assertEquals(new DbalTransactionalSubscription($this->subscription, $this->connection, 1), $subscription); // decorated
+        self::assertEquals(new DbalTransactionalSubscription($this->subscription, $this->connection, 1), $subscription); // decorated
 
-        $factory = new Factory($this->factory, $this->connection, PHP_INT_MAX);
+        $factory = new Factory($this->factory, $this->connection, \PHP_INT_MAX);
         $subscription = $factory->create($this->listener);
-        $this->assertEquals(new DbalTransactionalSubscription($this->subscription, $this->connection, PHP_INT_MAX), $subscription); // decorated
+        self::assertEquals(new DbalTransactionalSubscription($this->subscription, $this->connection, \PHP_INT_MAX), $subscription); // decorated
     }
 
-    public function testWrongMaximumTransactionSize()
+    public function testWrongMaximumTransactionSize(): void
     {
         $this->expectExceptionObject(new \InvalidArgumentException('Maximum transaction size must be at least "1", but "0" given.'));
 

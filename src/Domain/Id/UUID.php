@@ -54,7 +54,7 @@ class UUID implements Domain\Id
         return new static($uuid);
     }
 
-    public function equals(object $uuid) : bool
+    public function equals(object $uuid): bool
     {
         if (!$uuid instanceof static) {
             return false;
@@ -67,12 +67,12 @@ class UUID implements Domain\Id
         return true;
     }
 
-    public function toString() : string
+    public function toString(): string
     {
         return $this->value;
     }
 
-    public static function fromString(string $uuid) : Domain\Id
+    public static function fromString(string $uuid): Domain\Id
     {
         return new static($uuid);
     }

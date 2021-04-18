@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Streak\Infrastructure\AggregateRoot\Factory;
 
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Streak\Domain\AggregateRoot;
 use Streak\Domain\Exception\InvalidAggregateIdGiven;
@@ -25,27 +24,14 @@ use Streak\Domain\Exception\InvalidAggregateIdGiven;
  */
 class CompositeFactoryTest extends TestCase
 {
-    /**
-     * @var AggregateRoot\Id|MockObject
-     */
-    private $id1;
+    private AggregateRoot\Id $id1;
 
-    /**
-     * @var AggregateRoot\Factory|MockObject
-     */
-    private $factory1;
+    private AggregateRoot\Factory $factory1;
+    private AggregateRoot\Factory $factory2;
 
-    /**
-     * @var AggregateRoot\Factory|MockObject
-     */
-    private $factory2;
+    private AggregateRoot $aggregate1;
 
-    /**
-     * @var AggregateRoot|MockObject
-     */
-    private $aggregate1;
-
-    protected function setUp() : void
+    protected function setUp(): void
     {
         $this->id1 = $this->getMockBuilder(AggregateRoot\Id::class)->getMockForAbstractClass();
         $this->factory1 = $this->getMockBuilder(AggregateRoot\Factory::class)->getMockForAbstractClass();
@@ -53,7 +39,7 @@ class CompositeFactoryTest extends TestCase
         $this->aggregate1 = $this->getMockBuilder(AggregateRoot::class)->getMockForAbstractClass();
     }
 
-    public function testEmptyComposite()
+    public function testEmptyComposite(): void
     {
         $composite = new CompositeFactory();
 
@@ -62,21 +48,21 @@ class CompositeFactoryTest extends TestCase
         $composite->create($this->id1);
     }
 
-    public function testComposite()
+    public function testComposite(): void
     {
         $composite = new CompositeFactory();
         $composite->add($this->factory1);
         $composite->add($this->factory2);
 
         $this->factory1
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('create')
             ->with($this->id1)
             ->willThrowException(new InvalidAggregateIdGiven($this->id1))
         ;
 
         $this->factory2
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('create')
             ->with($this->id1)
             ->willReturn($this->aggregate1)
@@ -84,6 +70,6 @@ class CompositeFactoryTest extends TestCase
 
         $aggregate = $composite->create($this->id1);
 
-        $this->assertSame($this->aggregate1, $aggregate);
+        self::assertSame($this->aggregate1, $aggregate);
     }
 }

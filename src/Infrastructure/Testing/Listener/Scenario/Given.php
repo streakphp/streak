@@ -20,5 +20,5 @@ use Streak\Domain;
  */
 interface Given
 {
-    public function given(Domain\Event ...$events) : When;
+    public function given(Domain\Event ...$events): When;
 }

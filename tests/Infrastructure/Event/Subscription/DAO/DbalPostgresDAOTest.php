@@ -28,7 +28,7 @@ class DbalPostgresDAOTest extends DAOTestCase
 {
     private static ?Connection $connection = null;
 
-    public static function setUpBeforeClass() : void
+    public static function setUpBeforeClass(): void
     {
         self::$connection = DriverManager::getConnection([
             'driver' => 'pdo_pgsql',
@@ -40,7 +40,7 @@ class DbalPostgresDAOTest extends DAOTestCase
         ]);
     }
 
-    public function newDAO(Subscription\Factory $subscriptions, Event\Listener\Factory $listeners) : DAO
+    public function newDAO(Subscription\Factory $subscriptions, Event\Listener\Factory $listeners): DAO
     {
         $dao = new DbalPostgresDAO(new Subscription\Factory($this->clock), $listeners, self::$connection, new NestedObjectConverter());
         $dao->drop();
@@ -49,7 +49,7 @@ class DbalPostgresDAOTest extends DAOTestCase
         return $dao;
     }
 
-    public function testDAO()
+    public function testDAO(): void
     {
         parent::testDAO();
 
@@ -58,7 +58,7 @@ class DbalPostgresDAOTest extends DAOTestCase
 
         $listener3 = $this->getMockBuilder(DAO\DbalPostgresDAOTest\CompletableListener::class)->setMockClassName('listener3')->getMock();
         $listener3
-            ->expects($this->atLeastOnce())
+            ->expects(self::atLeastOnce())
             ->method('listenerId')
             ->willReturn($listenerId3)
         ;
@@ -67,19 +67,19 @@ class DbalPostgresDAOTest extends DAOTestCase
         $all = $this->dao->all();
         $all = iterator_to_array($all);
 
-        $this->assertNotEmpty($all);
-        $this->assertTrue($this->dao->exists($listenerId1));
-        $this->assertNotNull($this->dao->one($listenerId1));
+        self::assertNotEmpty($all);
+        self::assertTrue($this->dao->exists($listenerId1));
+        self::assertNotNull($this->dao->one($listenerId1));
 
         $this->dao->drop();
 
         $all = $this->dao->all();
         $all = iterator_to_array($all);
 
-        $this->assertEmpty($all);
+        self::assertEmpty($all);
 
-        $this->assertFalse($this->dao->exists($listenerId1));
-        $this->assertNull($this->dao->one($listenerId1));
+        self::assertFalse($this->dao->exists($listenerId1));
+        self::assertNull($this->dao->one($listenerId1));
 
         $this->dao->save($subscription3);
 

@@ -20,7 +20,7 @@ use Streak\Domain\Event;
  */
 trait Replaying
 {
-    public function replay(Event\Stream $events) : void
+    public function replay(Event\Stream $events): void
     {
         if ($events->empty()) {
             return;
@@ -36,9 +36,9 @@ trait Replaying
         }
     }
 
-    abstract public function on(Event\Envelope $event) : bool;
+    abstract public function on(Event\Envelope $event): bool;
 
-    abstract protected function disableSideEffects() : void;
+    abstract protected function disableSideEffects(): void;
 
-    abstract protected function enableSideEffects() : void;
+    abstract protected function enableSideEffects(): void;
 }

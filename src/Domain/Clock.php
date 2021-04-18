@@ -18,5 +18,5 @@ namespace Streak\Domain;
  */
 interface Clock
 {
-    public function now() : \DateTimeImmutable;
+    public function now(): \DateTimeImmutable;
 }

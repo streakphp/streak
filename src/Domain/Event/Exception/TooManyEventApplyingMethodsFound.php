@@ -33,12 +33,12 @@ class TooManyEventApplyingMethodsFound extends \BadMethodCallException
         parent::__construct('Too many event applying methods found.', 0, $previous);
     }
 
-    public function consumer() : Event\Consumer
+    public function consumer(): Event\Consumer
     {
         return $this->consumer;
     }
 
-    public function event() : Event\Envelope
+    public function event(): Event\Envelope
     {
         return $this->event;
     }

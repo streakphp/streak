@@ -26,7 +26,7 @@ final class InMemoryStorage implements Snapshotter\Storage
     /**
      * @throws Exception\SnapshotNotFound
      */
-    public function find(AggregateRoot $aggregate) : string
+    public function find(AggregateRoot $aggregate): string
     {
         foreach ($this->snapshots as [$id, $snapshot]) {
             if ($aggregate->aggregateRootId()->equals($id)) {
@@ -37,7 +37,7 @@ final class InMemoryStorage implements Snapshotter\Storage
         throw new Exception\SnapshotNotFound($aggregate);
     }
 
-    public function store(AggregateRoot $aggregate, string $newSnapshot) : void
+    public function store(AggregateRoot $aggregate, string $newSnapshot): void
     {
         foreach ($this->snapshots as $key => [$id, $snapshot]) {
             if ($aggregate->aggregateRootId()->equals($id)) {

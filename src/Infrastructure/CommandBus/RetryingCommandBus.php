@@ -35,24 +35,25 @@ class RetryingCommandBus implements CommandBus
         $this->maxAttemptsAllowed = $maxAttemptsAllowed;
     }
 
-    public function numberOfAttempts() : int
+    public function numberOfAttempts(): int
     {
         return $this->numberOfAttempts;
     }
 
-    public function maxAttemptsAllowed() : int
+    public function maxAttemptsAllowed(): int
     {
         return $this->maxAttemptsAllowed;
     }
 
-    public function register(CommandHandler $handler) : void
+    public function register(CommandHandler $handler): void
     {
         $this->bus->register($handler);
     }
 
-    public function dispatch(Command $command) : void
+    public function dispatch(Command $command): void
     {
         $this->numberOfAttempts = 0;
+
         try {
             dispatch:
                 $this->numberOfAttempts++;
@@ -61,6 +62,7 @@ class RetryingCommandBus implements CommandBus
             if ($this->numberOfAttempts >= $this->maxAttemptsAllowed) {
                 throw $exception;
             }
+
             goto dispatch;
         }
     }

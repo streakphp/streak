@@ -13,11 +13,9 @@ declare(strict_types=1);
 
 namespace Streak\Application\QueryHandler;
 
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Streak\Application\Exception\QueryNotSupported;
 use Streak\Application\Query;
-use Streak\Application\QueryHandler;
 use Streak\Application\QueryHandler\EventListenerHandlerTest\QueryHandlingListener;
 use Streak\Domain\Event;
 use Streak\Domain\Event\Subscription\Exception\ListenerNotFound;
@@ -30,53 +28,32 @@ use Streak\Domain\Event\Subscription\Repository;
  */
 class EventListenerHandlerTest extends TestCase
 {
-    /**
-     * @var Repository|MockObject
-     */
-    private $repository;
+    private Repository $repository;
 
-    /**
-     * @var Query|MockObject
-     */
-    private $query;
+    private Query $query;
 
-    /**
-     * @var Event\Subscription|MockObject
-     */
-    private $subscription;
+    private Event\Subscription $subscription;
 
-    /**
-     * @var Event\Listener|MockObject
-     */
-    private $eventListener;
+    private Event\Listener $eventListener;
 
-    /**
-     * @var Event\Listener|QueryHandler|MockObject
-     */
-    private $eventListenerQueryHandler;
+    private QueryHandlingListener $eventListenerQueryHandler;
 
-    /**
-     * @var Query\EventListenerQuery|MockObject
-     */
-    private $eventListenerQuery;
+    private Query\EventListenerQuery $eventListenerQuery;
 
-    /**
-     * @var Event\Listener\Id|MockObject
-     */
-    private $eventListenerId;
+    private Event\Listener\Id $eventListenerId;
 
-    protected function setUp() : void
+    protected function setUp(): void
     {
         $this->repository = $this->getMockBuilder(Repository::class)->getMockForAbstractClass();
         $this->query = $this->getMockBuilder(Query::class)->getMockForAbstractClass();
         $this->subscription = $this->getMockBuilder(Event\Subscription::class)->getMockForAbstractClass();
         $this->eventListener = $this->getMockBuilder(Event\Listener::class)->getMockForAbstractClass();
-        $this->eventListenerId = $this->getMockBuilder(Event\Listener\Id::class)->getMockForAbstractClass();
-        $this->eventListenerQuery = $this->getMockBuilder(Query\EventListenerQuery::class)->getMockForAbstractClass();
         $this->eventListenerQueryHandler = $this->getMockBuilder(QueryHandlingListener::class)->getMock();
+        $this->eventListenerQuery = $this->getMockBuilder(Query\EventListenerQuery::class)->getMockForAbstractClass();
+        $this->eventListenerId = $this->getMockBuilder(Event\Listener\Id::class)->getMockForAbstractClass();
     }
 
-    public function testQueryNotSupported()
+    public function testQueryNotSupported(): void
     {
         $this->expectExceptionObject(new QueryNotSupported($this->query));
 
@@ -84,18 +61,18 @@ class EventListenerHandlerTest extends TestCase
         $handler->handleQuery($this->query);
     }
 
-    public function testListenerNotFound()
+    public function testListenerNotFound(): void
     {
         $this->expectExceptionObject(new ListenerNotFound($this->eventListenerId));
 
         $this->eventListenerQuery
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('listenerId')
             ->willReturn($this->eventListenerId)
         ;
 
         $this->repository
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('find')
             ->with($this->eventListenerId)
             ->willReturn(null)
@@ -105,23 +82,23 @@ class EventListenerHandlerTest extends TestCase
         $handler->handleQuery($this->eventListenerQuery);
     }
 
-    public function testListenerNotAQueryHandler()
+    public function testListenerNotAQueryHandler(): void
     {
         $this->expectExceptionObject(new QueryNotSupported($this->eventListenerQuery));
 
         $this->eventListenerQuery
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('listenerId')
             ->willReturn($this->eventListenerId)
         ;
         $this->repository
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('find')
             ->with($this->eventListenerId)
             ->willReturn($this->subscription)
         ;
         $this->subscription
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('listener')
             ->willReturn($this->eventListener)
         ;
@@ -130,26 +107,26 @@ class EventListenerHandlerTest extends TestCase
         $handler->handleQuery($this->eventListenerQuery);
     }
 
-    public function testQueryHandlingEventListener()
+    public function testQueryHandlingEventListener(): void
     {
         $this->eventListenerQuery
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('listenerId')
             ->willReturn($this->eventListenerId)
         ;
         $this->repository
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('find')
             ->with($this->eventListenerId)
             ->willReturn($this->subscription)
         ;
         $this->subscription
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('listener')
             ->willReturn($this->eventListenerQueryHandler)
         ;
         $this->eventListenerQueryHandler
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('handleQuery')
             ->with($this->eventListenerQuery)
         ;

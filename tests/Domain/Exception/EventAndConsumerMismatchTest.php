@@ -35,18 +35,18 @@ class EventAndConsumerMismatchTest extends TestCase
      */
     private $event;
 
-    public function setUp() : void
+    protected function setUp(): void
     {
         $this->consumer = $this->getMockBuilder(Event\Consumer::class)->getMockForAbstractClass();
         $this->event = $this->getMockBuilder(Domain\Event::class)->getMockForAbstractClass();
         $this->event = Event\Envelope::new($this->event, UUID::random());
     }
 
-    public function testException()
+    public function testException(): void
     {
         $exception = new EventAndConsumerMismatch($this->consumer, $this->event);
 
-        $this->assertSame($this->consumer, $exception->consumer());
-        $this->assertSame($this->event, $exception->event());
+        self::assertSame($this->consumer, $exception->consumer());
+        self::assertSame($this->event, $exception->event());
     }
 }

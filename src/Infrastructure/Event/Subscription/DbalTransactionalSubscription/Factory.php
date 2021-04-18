@@ -40,11 +40,10 @@ class Factory implements Event\Subscription\Factory
         $this->maxTransactionSize = $maxTransactionSize;
     }
 
-    public function create(Event\Listener $listener) : Event\Subscription
+    public function create(Event\Listener $listener): Event\Subscription
     {
         $subscription = $this->factory->create($listener);
-        $subscription = new DbalTransactionalSubscription($subscription, $this->connection, $this->maxTransactionSize);
 
-        return $subscription;
+        return new DbalTransactionalSubscription($subscription, $this->connection, $this->maxTransactionSize);
     }
 }

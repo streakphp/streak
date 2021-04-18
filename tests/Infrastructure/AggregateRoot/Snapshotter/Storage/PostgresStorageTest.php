@@ -15,7 +15,6 @@ namespace Streak\Infrastructure\AggregateRoot\Snapshotter\Storage;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
-use PHPUnit\Framework\MockObject\MockObject;
 use Streak\Domain;
 use Streak\Domain\AggregateRoot;
 use Streak\Infrastructure\AggregateRoot\Snapshotter\Storage\Exception\SnapshotNotFound;
@@ -25,11 +24,11 @@ use Streak\Infrastructure\AggregateRoot\Snapshotter\Storage\Exception\SnapshotNo
  */
 final class PostgresStorageTest extends \PHPUnit\Framework\TestCase
 {
-    private static ?Connection $connection = null;
+    private static Connection $connection;
 
-    private ?PostgresStorage $storage = null;
+    private PostgresStorage $storage;
 
-    public static function setUpBeforeClass() : void
+    public static function setUpBeforeClass(): void
     {
         self::$connection = DriverManager::getConnection(
             [
@@ -43,14 +42,14 @@ final class PostgresStorageTest extends \PHPUnit\Framework\TestCase
         );
     }
 
-    public function setUp() : void
+    protected function setUp(): void
     {
         parent::setUp();
         $this->storage = new PostgresStorage(self::$connection);
         $this->givenSnapshotsTableDoesNotExists();
     }
 
-    public function testItStoresUsingInsert() : void
+    public function testItStoresUsingInsert(): void
     {
         $id = '3e7c8ffa-6bc6-4070-a6b5-30f9ae1c06fe';
         $stub = $this->createAggregateRootStub($id);
@@ -67,7 +66,7 @@ final class PostgresStorageTest extends \PHPUnit\Framework\TestCase
         );
     }
 
-    public function testItStoresUsingUpdate() : void
+    public function testItStoresUsingUpdate(): void
     {
         $id = '3e7c8ffa-6bc6-4070-a6b5-30f9ae1c06fe';
         $this->storage->reset();
@@ -93,7 +92,7 @@ final class PostgresStorageTest extends \PHPUnit\Framework\TestCase
         );
     }
 
-    public function testIsStoresWhenTableDoesNotExist() : void
+    public function testIsStoresWhenTableDoesNotExist(): void
     {
         $this->givenSnapshotsTableDoesNotExists();
         $id = '3e7c8ffa-6bc6-4070-a6b5-30f9ae1c06fe';
@@ -102,7 +101,7 @@ final class PostgresStorageTest extends \PHPUnit\Framework\TestCase
         self::assertNotEmpty($this->fetchSnapshotRecord($id));
     }
 
-    public function testItFinds() : void
+    public function testItFinds(): void
     {
         $this->givenSnapshotsTableExists();
         $id = '3e7c8ffa-6bc6-4070-a6b5-30f9ae1c06fe';
@@ -119,51 +118,50 @@ final class PostgresStorageTest extends \PHPUnit\Framework\TestCase
         self::assertEquals('snapshot', $snapshot);
     }
 
-    public function testItDoesntFindWhenTableDoesNotExists() : void
+    public function testItDoesntFindWhenTableDoesNotExists(): void
     {
         $this->givenSnapshotsTableDoesNotExists();
         self::expectException(SnapshotNotFound::class);
         $this->storage->find($this->createAggregateRootStub('3e7c8ffa-6bc6-4070-a6b5-30f9ae1c06fe'));
     }
 
-    public function testItDoesntFindWhenRowDoesNotExist() : void
+    public function testItDoesntFindWhenRowDoesNotExist(): void
     {
         $this->givenSnapshotsTableExists();
         self::expectException(SnapshotNotFound::class);
         $this->storage->find($this->createAggregateRootStub('3e7c8ffa-6bc6-4070-a6b5-30f9ae1c06fe'));
     }
 
-    public function testItResets() : void
+    public function testItResets(): void
     {
         self::assertTrue($this->storage->reset());
     }
 
-    private function fetchSnapshotRecord(string $id) : array
+    private function fetchSnapshotRecord(string $id): array
     {
         $sql = 'SELECT id, type, snapshot, snapshot_size, stores_counter FROM snapshots WHERE id = :id';
 
         return self::$connection->fetchAssoc($sql, ['id' => $id]);
     }
 
-    private function givenThereIsSnapshot(array $fixture) : void
+    private function givenThereIsSnapshot(array $fixture): void
     {
         self::$connection->insert('snapshots', $fixture);
     }
 
-    private function givenSnapshotsTableDoesNotExists() : void
+    private function givenSnapshotsTableDoesNotExists(): void
     {
         self::$connection->exec('DROP TABLE IF EXISTS snapshots');
     }
 
-    private function givenSnapshotsTableExists() : void
+    private function givenSnapshotsTableExists(): void
     {
         $this->storage->reset();
     }
 
-    private function createAggregateRootStub(string $id) : AggregateRoot
+    private function createAggregateRootStub(string $id): AggregateRoot
     {
         $id = new IdStub($id);
-        /** @var AggregateRoot|MockObject $stub */
         $stub = $this->getMockBuilder(AggregateRoot::class)->getMock();
         $stub->method('id')->willReturn($id);
 
@@ -185,17 +183,17 @@ class IdStub implements AggregateRoot\Id
         $this->id = $id;
     }
 
-    public function equals(object $object) : bool
+    public function equals(object $object): bool
     {
         return true;
     }
 
-    public function toString() : string
+    public function toString(): string
     {
         return $this->id;
     }
 
-    public static function fromString(string $id) : Domain\Id
+    public static function fromString(string $id): Domain\Id
     {
         return new self($id);
     }

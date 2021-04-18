@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Streak\Infrastructure\Event\Envelope;
 
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use SebastianBergmann\Comparator\ComparisonFailure;
 use SebastianBergmann\Comparator\Factory;
@@ -27,31 +26,21 @@ use Streak\Domain\Id\UUID;
  */
 class ComparatorTest extends TestCase
 {
-    /**
-     * @var Factory|MockObject
-     */
-    private $factory;
+    private Factory $factory;
 
-    private ?Comparator $comparator = null;
-
-    private ?Comparator $subcomparator;
+    private Comparator $comparator;
+    private Comparator $subcomparator;
 
     private UUID $uuid;
 
-    private ?Event $event1 = null;
+    private Event $event1;
+    private Event $event2;
 
-    private ?Event\Envelope $envelope1a = null;
+    private Event\Envelope $envelope1a;
+    private Event\Envelope $envelope1b;
+    private Event\Envelope $envelope2;
 
-    private ?Event\Envelope $envelope1b = null;
-
-    private ?Event $event2 = null;
-
-    /**
-     * @var Event\Envelope|MockObject
-     */
-    private $envelope2;
-
-    protected function setUp() : void
+    protected function setUp(): void
     {
         $this->factory = $this->getMockBuilder(Factory::class)->disableOriginalConstructor()->getMock();
         $this->comparator = new Comparator();
@@ -70,7 +59,7 @@ class ComparatorTest extends TestCase
     {
         return [
             [1, 1],
-            [PHP_INT_MIN, PHP_INT_MAX],
+            [\PHP_INT_MIN, \PHP_INT_MAX],
             [1.1, 1.0],
             [-1.1, 1.0],
             [2.2250738585072e-308, 1.7976931348623e+308],
@@ -96,53 +85,59 @@ class ComparatorTest extends TestCase
 
     /**
      * @dataProvider notAcceptable
+     *
+     * @param mixed $expected
+     * @param mixed $actual
      */
-    public function testNotAccepting($expected, $actual)
+    public function testNotAccepting($expected, $actual): void
     {
         $this->factory
-            ->expects($this->never())
-            ->method($this->anything())
+            ->expects(self::never())
+            ->method(self::anything())
         ;
 
-        $this->assertFalse($this->comparator->accepts($expected, $actual));
+        self::assertFalse($this->comparator->accepts($expected, $actual));
     }
 
     /**
      * @dataProvider acceptable
+     *
+     * @param mixed $expected
+     * @param mixed $actual
      */
-    public function testAccepting($expected, $actual)
+    public function testAccepting($expected, $actual): void
     {
         $this->factory
-            ->expects($this->never())
-            ->method($this->anything())
+            ->expects(self::never())
+            ->method(self::anything())
         ;
 
-        $this->assertTrue($this->comparator->accepts($expected, $actual));
+        self::assertTrue($this->comparator->accepts($expected, $actual));
     }
 
-    public function testEqualEnvelopes()
+    public function testEqualEnvelopes(): void
     {
-        $this->assertNull($this->comparator->assertEquals($this->envelope1a, $this->envelope1b));
+        self::assertNull($this->comparator->assertEquals($this->envelope1a, $this->envelope1b));
     }
 
-    public function testNotEqualEnvelopes()
+    public function testNotEqualEnvelopes(): void
     {
         $this->expectException(ComparisonFailure::class);
 
         $this->comparator->assertEquals($this->envelope1a, $this->envelope2);
     }
 
-    public function testNotEqual1()
+    public function testNotEqual1(): void
     {
         $this->factory
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('getComparatorFor')
             ->with($this->event1, $this->event2)
             ->willReturn($this->subcomparator)
         ;
 
         $this->subcomparator
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('assertEquals')
             ->with($this->event1, $this->event2)
         ;
@@ -150,17 +145,17 @@ class ComparatorTest extends TestCase
         $this->comparator->assertEquals($this->envelope1a, $this->event2);
     }
 
-    public function testNotEqual2()
+    public function testNotEqual2(): void
     {
         $this->factory
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('getComparatorFor')
             ->with($this->event1, $this->event2)
             ->willReturn($this->subcomparator)
         ;
 
         $this->subcomparator
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('assertEquals')
             ->with($this->event1, $this->event2)
         ;

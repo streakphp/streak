@@ -22,13 +22,13 @@ use Streak\Infrastructure\Serializer;
  */
 class IGBinarySerializer implements Serializer
 {
-    public function serialize($subject) : string
+    public function serialize($subject): string
     {
-        return \igbinary_serialize($subject);
+        return igbinary_serialize($subject);
     }
 
     public function unserialize($serialized)
     {
-        return \igbinary_unserialize($serialized);
+        return igbinary_unserialize($serialized);
     }
 }

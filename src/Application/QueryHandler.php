@@ -19,9 +19,9 @@ namespace Streak\Application;
 interface QueryHandler
 {
     /**
-     * @return mixed
-     *
      * @throws Exception\QueryNotSupported
+     *
+     * @return mixed
      */
     public function handleQuery(Query $query);
 }

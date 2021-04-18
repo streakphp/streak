@@ -32,7 +32,7 @@ class TransactionalFactory implements Sensor\Factory
         $this->uow = $uow;
     }
 
-    public function create() : Sensor
+    public function create(): Sensor
     {
         $sensor = $this->factory->create();
 

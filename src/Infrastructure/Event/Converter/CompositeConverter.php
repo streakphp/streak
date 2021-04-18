@@ -33,7 +33,7 @@ class CompositeConverter implements Converter
         $this->converters = $converters;
     }
 
-    public function addConverter(Converter $converter) : void
+    public function addConverter(Converter $converter): void
     {
         $this->converters[] = $converter;
     }
@@ -41,7 +41,7 @@ class CompositeConverter implements Converter
     /**
      * @throws Exception\ConversionToArrayNotPossible
      */
-    public function objectToArray(object $object) : array
+    public function objectToArray(object $object): array
     {
         foreach ($this->converters as $converter) {
             try {
@@ -59,7 +59,7 @@ class CompositeConverter implements Converter
     /**
      * @throws Exception\ConversionToObjectNotPossible
      */
-    public function arrayToObject(array $data) : object
+    public function arrayToObject(array $data): object
     {
         $previous = null;
         foreach ($this->converters as $converter) {

@@ -26,27 +26,13 @@ use Streak\Application\QueryHandler;
  */
 class SynchronousQueryBusTest extends TestCase
 {
-    /**
-     * @var QueryHandler|\PHPUnit_Framework_MockObject_MockObject
-     */
-    private $handler1;
+    private QueryHandler $handler1;
+    private QueryHandler $handler2;
+    private QueryHandler $handler3;
 
-    /**
-     * @var QueryHandler|\PHPUnit_Framework_MockObject_MockObject
-     */
-    private $handler2;
+    private Query $query1;
 
-    /**
-     * @var QueryHandler|\PHPUnit_Framework_MockObject_MockObject
-     */
-    private $handler3;
-
-    /**
-     * @var Query|\PHPUnit_Framework_MockObject_MockObject
-     */
-    private $query1;
-
-    public function setUp() : void
+    protected function setUp(): void
     {
         $this->handler1 = $this->getMockBuilder(QueryHandler::class)->setMockClassName('query_handler1')->getMockForAbstractClass();
         $this->handler2 = $this->getMockBuilder(QueryHandler::class)->setMockClassName('query_handler2')->getMockForAbstractClass();
@@ -55,7 +41,7 @@ class SynchronousQueryBusTest extends TestCase
         $this->query1 = $this->getMockBuilder(Query::class)->setMockClassName('query1')->getMockForAbstractClass();
     }
 
-    public function testAlreadyRegisteredHandler()
+    public function testAlreadyRegisteredHandler(): void
     {
         $bus = new SynchronousQueryBus();
 
@@ -70,7 +56,7 @@ class SynchronousQueryBusTest extends TestCase
         $bus->register($this->handler1);
     }
 
-    public function testQueryHandling()
+    public function testQueryHandling(): void
     {
         $expected = new \stdClass();
         $bus = new SynchronousQueryBus();
@@ -82,28 +68,28 @@ class SynchronousQueryBusTest extends TestCase
         $exception = new QueryNotSupported($this->query1);
 
         $this->handler1
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('handleQuery')
             ->with($this->query1)
             ->willThrowException($exception)
         ;
         $this->handler2
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('handleQuery')
             ->with($this->query1)
             ->willReturn($expected)
         ;
         $this->handler3
-            ->expects($this->never())
+            ->expects(self::never())
             ->method('handleQuery')
         ;
 
         $actual = $bus->dispatch($this->query1);
 
-        $this->assertSame($expected, $actual);
+        self::assertSame($expected, $actual);
     }
 
-    public function testNoHandlers()
+    public function testNoHandlers(): void
     {
         $bus = new SynchronousQueryBus();
 
@@ -114,7 +100,7 @@ class SynchronousQueryBusTest extends TestCase
         $bus->dispatch($this->query1);
     }
 
-    public function testNoHandlerForQuery()
+    public function testNoHandlerForQuery(): void
     {
         $bus = new SynchronousQueryBus();
 
@@ -124,13 +110,13 @@ class SynchronousQueryBusTest extends TestCase
         $exception = new QueryNotSupported($this->query1);
 
         $this->handler1
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('handleQuery')
             ->with($this->query1)
             ->willThrowException($exception)
         ;
         $this->handler2
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('handleQuery')
             ->with($this->query1)
             ->willThrowException($exception)

@@ -27,46 +27,24 @@ use Streak\Domain\Id\UUID;
  */
 class StreamTest extends TestCase
 {
-    /**
-     * @var Event\Stream|\IteratorAggregate|MockObject
-     */
-    private $stream;
+    private IterableStream $stream;
 
-    /**
-     * @var Event|MockObject
-     */
-    private $event1;
+    private Event\Envelope $event1;
+    private Event\Envelope $event2;
+    private Event\Envelope $event3;
+    private Event\Envelope $event4;
 
-    /**
-     * @var Event|MockObject
-     */
-    private $event2;
-
-    /**
-     * @var Event|MockObject
-     */
-    private $event3;
-
-    /**
-     * @var Event|MockObject
-     */
-    private $event4;
-
-    protected function setUp() : void
+    protected function setUp(): void
     {
         $this->stream = $this->getMockBuilder(IterableStream::class)->getMock();
 
-        $this->event1 = $this->getMockBuilder(Event::class)->getMockForAbstractClass();
-        $this->event1 = Event\Envelope::new($this->event1, UUID::random());
-        $this->event2 = $this->getMockBuilder(Event::class)->getMockForAbstractClass();
-        $this->event2 = Event\Envelope::new($this->event2, UUID::random());
-        $this->event3 = $this->getMockBuilder(Event::class)->getMockForAbstractClass();
-        $this->event3 = Event\Envelope::new($this->event3, UUID::random());
-        $this->event4 = $this->getMockBuilder(Event::class)->getMockForAbstractClass();
-        $this->event4 = Event\Envelope::new($this->event4, UUID::random());
+        $this->event1 = Event\Envelope::new($this->getMockBuilder(Event::class)->getMockForAbstractClass(), UUID::random());
+        $this->event2 = Event\Envelope::new($this->getMockBuilder(Event::class)->getMockForAbstractClass(), UUID::random());
+        $this->event3 = Event\Envelope::new($this->getMockBuilder(Event::class)->getMockForAbstractClass(), UUID::random());
+        $this->event4 = Event\Envelope::new($this->getMockBuilder(Event::class)->getMockForAbstractClass(), UUID::random());
     }
 
-    public function testStream()
+    public function testStream(): void
     {
         $event2 = new SubscriptionListenedToEvent($this->event2, new \DateTimeImmutable());
         $event2 = Event\Envelope::new($event2, UUID::random());
@@ -77,15 +55,15 @@ class StreamTest extends TestCase
 
         $stream = new Stream($this->stream);
 
-        $this->assertEquals([$this->event2, $this->event4], iterator_to_array($stream));
+        self::assertEquals([$this->event2, $this->event4], iterator_to_array($stream));
     }
 
-    public function testEmpty()
+    public function testEmpty(): void
     {
         $this->isIteratorFor($this->stream, []);
 
         $this->stream
-            ->expects($this->exactly(2))
+            ->expects(self::exactly(2))
             ->method('empty')
             ->with()
             ->willReturnOnConsecutiveCalls(
@@ -96,20 +74,20 @@ class StreamTest extends TestCase
 
         $stream = new Stream($this->stream);
 
-        $this->assertTrue($stream->empty());
-        $this->assertFalse($stream->empty());
+        self::assertTrue($stream->empty());
+        self::assertFalse($stream->empty());
     }
 
-    public function testEmptyStream()
+    public function testEmptyStream(): void
     {
         $this->isIteratorFor($this->stream, []);
 
         $stream = new Stream($this->stream);
 
-        $this->assertEquals([], iterator_to_array($stream));
+        self::assertEquals([], iterator_to_array($stream));
     }
 
-    public function testFrom()
+    public function testFrom(): void
     {
         $this->isIteratorFor($this->stream, []);
 
@@ -119,7 +97,7 @@ class StreamTest extends TestCase
         $stream->from($this->event1);
     }
 
-    public function testTo()
+    public function testTo(): void
     {
         $this->isIteratorFor($this->stream, []);
 
@@ -129,7 +107,7 @@ class StreamTest extends TestCase
         $stream->to($this->event1);
     }
 
-    public function testAfter()
+    public function testAfter(): void
     {
         $this->isIteratorFor($this->stream, []);
 
@@ -139,7 +117,7 @@ class StreamTest extends TestCase
         $stream->after($this->event1);
     }
 
-    public function testBefore()
+    public function testBefore(): void
     {
         $this->isIteratorFor($this->stream, []);
 
@@ -149,7 +127,7 @@ class StreamTest extends TestCase
         $stream->before($this->event1);
     }
 
-    public function testLimit()
+    public function testLimit(): void
     {
         $this->isIteratorFor($this->stream, []);
 
@@ -159,7 +137,7 @@ class StreamTest extends TestCase
         $stream->limit(1);
     }
 
-    public function testOnly()
+    public function testOnly(): void
     {
         $this->isIteratorFor($this->stream, []);
 
@@ -169,7 +147,7 @@ class StreamTest extends TestCase
         $stream->only('event1', 'event2');
     }
 
-    public function testWithout()
+    public function testWithout(): void
     {
         $this->isIteratorFor($this->stream, []);
 
@@ -179,7 +157,7 @@ class StreamTest extends TestCase
         $stream->without('event1', 'event2');
     }
 
-    public function testFirst()
+    public function testFirst(): void
     {
         $this->isIteratorFor($this->stream, []);
 
@@ -189,7 +167,7 @@ class StreamTest extends TestCase
         $stream->first();
     }
 
-    public function testLast()
+    public function testLast(): void
     {
         $this->isIteratorFor($this->stream, []);
 

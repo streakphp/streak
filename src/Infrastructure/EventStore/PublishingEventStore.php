@@ -38,9 +38,9 @@ class PublishingEventStore implements EventStore, Schemable
         $this->bus = $bus;
     }
 
-    public function add(Event\Envelope ...$events) : array
+    public function add(Event\Envelope ...$events): array
     {
-        if (0 === count($events)) {
+        if (0 === \count($events)) {
             return [];
         }
 
@@ -49,9 +49,10 @@ class PublishingEventStore implements EventStore, Schemable
 
         if (false === $this->working) {
             $this->working = true;
-            while (0 !== count($this->events)) {
+            while (0 !== \count($this->events)) {
                 $events = $this->events;
                 $this->events = [];
+
                 try {
                     $events = $this->store->add(...$events);
                     $this->bus->publish(...$events);
@@ -69,12 +70,12 @@ class PublishingEventStore implements EventStore, Schemable
     /**
      * @throws Exception\InvalidAggregateGiven
      */
-    public function stream(?EventStore\Filter $filter = null) : Event\Stream
+    public function stream(?EventStore\Filter $filter = null): Event\Stream
     {
         return $this->store->stream($filter);
     }
 
-    public function schema() : ?Schema
+    public function schema(): ?Schema
     {
         if ($this->store instanceof Schemable) {
             return $this->store->schema();
@@ -83,7 +84,7 @@ class PublishingEventStore implements EventStore, Schemable
         return null;
     }
 
-    public function event(UUID $uuid) : ?Event\Envelope
+    public function event(UUID $uuid): ?Event\Envelope
     {
         return $this->store->event($uuid);
     }

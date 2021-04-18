@@ -13,11 +13,9 @@ declare(strict_types=1);
 
 namespace Streak\Infrastructure\Event\Event;
 
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Streak\Domain\Event;
 use Streak\Domain\Event\Listener;
-use Streak\Domain\Event\Listener\Factory;
 use Streak\Domain\Exception\InvalidIdGiven;
 use Streak\Domain\Id\UUID;
 use Streak\Infrastructure\Event\Listener\CompositeFactory;
@@ -29,51 +27,30 @@ use Streak\Infrastructure\Event\Listener\CompositeFactory;
  */
 class CompositeFactoryTest extends TestCase
 {
-    /**
-     * @var Listener\Id|MockObject
-     */
-    private $id1;
+    private Listener\Id $id1;
 
-    /**
-     * @var Factory|MockObject
-     */
-    private $factory1;
+    private Listener\Factory $factory1;
+    private Listener\Factory $factory2;
+    private Listener\Factory $factory3;
 
-    /**
-     * @var Factory|MockObject
-     */
-    private $factory2;
+    private Listener $listener1;
 
-    /**
-     * @var Factory|MockObject
-     */
-    private $factory3;
+    private Event\Envelope $event1;
 
-    /**
-     * @var Listener|MockObject
-     */
-    private $listener1;
-
-    /**
-     * @var Event|MockObject
-     */
-    private $event1;
-
-    protected function setUp() : void
+    protected function setUp(): void
     {
         $this->id1 = $this->getMockBuilder(Listener\Id::class)->getMockForAbstractClass();
 
-        $this->factory1 = $this->getMockBuilder(Factory::class)->getMockForAbstractClass();
-        $this->factory2 = $this->getMockBuilder(Factory::class)->getMockForAbstractClass();
-        $this->factory3 = $this->getMockBuilder(Factory::class)->getMockForAbstractClass();
+        $this->factory1 = $this->getMockBuilder(Listener\Factory::class)->getMockForAbstractClass();
+        $this->factory2 = $this->getMockBuilder(Listener\Factory::class)->getMockForAbstractClass();
+        $this->factory3 = $this->getMockBuilder(Listener\Factory::class)->getMockForAbstractClass();
 
         $this->listener1 = $this->getMockBuilder(Listener::class)->setMethods(['replay', 'reset', 'completed'])->getMockForAbstractClass();
 
-        $this->event1 = $this->getMockBuilder(Event::class)->getMockForAbstractClass();
-        $this->event1 = Event\Envelope::new($this->event1, UUID::random(), 1);
+        $this->event1 = Event\Envelope::new($this->getMockBuilder(Event::class)->getMockForAbstractClass(), UUID::random(), 1);
     }
 
-    public function testEmptyComposite()
+    public function testEmptyComposite(): void
     {
         $factory = new CompositeFactory();
 
@@ -83,7 +60,7 @@ class CompositeFactoryTest extends TestCase
         $factory->create($this->id1);
     }
 
-    public function testComposite()
+    public function testComposite(): void
     {
         $factory = new CompositeFactory();
         $factory->add($this->factory1);
@@ -91,28 +68,28 @@ class CompositeFactoryTest extends TestCase
         $factory->add($this->factory3);
 
         $this->factory1
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('create')
             ->with($this->id1)
             ->willThrowException(new InvalidIdGiven($this->id1))
         ;
 
         $this->factory2
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('create')
             ->with($this->id1)
             ->willReturn($this->listener1)
         ;
 
         $this->factory3
-            ->expects($this->never())
+            ->expects(self::never())
             ->method('create')
             ->with($this->id1)
         ;
 
         $listener = $factory->create($this->id1);
 
-        $this->assertSame($listener, $this->listener1);
+        self::assertSame($listener, $this->listener1);
 
         $this->expectExceptionObject(new \BadMethodCallException());
 

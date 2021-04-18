@@ -36,18 +36,18 @@ class FactoryTest extends TestCase
      */
     private $clock;
 
-    protected function setUp() : void
+    protected function setUp(): void
     {
         $this->listener = $this->getMockBuilder(Event\Listener::class)->getMockForAbstractClass();
         $this->clock = $this->getMockBuilder(Clock::class)->getMockForAbstractClass();
     }
 
-    public function testFactory()
+    public function testFactory(): void
     {
         $factory = new Factory($this->clock);
 
         $subscription = $factory->create($this->listener);
 
-        $this->assertEquals(new Subscription($this->listener, $this->clock), $subscription);
+        self::assertEquals(new Subscription($this->listener, $this->clock), $subscription);
     }
 }

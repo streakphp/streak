@@ -15,12 +15,12 @@ namespace Streak\Infrastructure\Event\Subscription;
 
 use Doctrine\DBAL\Driver\Connection;
 use Doctrine\DBAL\DriverManager;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Streak\Domain\Event;
 use Streak\Domain\Event\Listener;
 use Streak\Domain\Event\Subscription;
 use Streak\Domain\EventStore;
+use Streak\Domain\Id\UUID;
 use Streak\Infrastructure\Event\Converter\NestedObjectConverter;
 use Streak\Infrastructure\Event\Subscription\DbalTransactionalSubscriptionTest\Event1;
 use Streak\Infrastructure\Event\Subscription\DbalTransactionalSubscriptionTest\Event2;
@@ -35,43 +35,26 @@ use Streak\Infrastructure\EventStore\DbalPostgresEventStore;
  */
 class DbalTransactionalSubscriptionTest extends TestCase
 {
-    /**
-     * @var Subscription|MockObject
-     */
-    private $subscription;
+    private Subscription $subscription;
 
-    /**
-     * @var Listener|MockObject
-     */
-    private $listener;
+    private Listener $listener;
 
     private ?EventStore $store1 = null;
-
     private ?EventStore $store2 = null;
 
-    /**
-     * @var Listener\Id|MockObject
-     */
-    private $subscriptionId;
+    private Listener\Id $subscriptionId;
 
-    private $producerId1;
+    private UUID $producerId1;
 
     private Event\Envelope $event1;
-
     private Event\Envelope $event2;
-
     private Event\Envelope $event3;
 
-    /**
-     * @var Connection|MockObject
-     */
-    private $connection;
+    private Connection $connection;
+    private static Connection $connection1;
+    private static Connection $connection2;
 
-    private static ?\Doctrine\DBAL\Connection $connection1 = null;
-
-    private static ?\Doctrine\DBAL\Connection $connection2 = null;
-
-    public static function setUpBeforeClass() : void
+    public static function setUpBeforeClass(): void
     {
         self::$connection1 = DriverManager::getConnection(
             [
@@ -95,7 +78,7 @@ class DbalTransactionalSubscriptionTest extends TestCase
         );
     }
 
-    protected function setUp() : void
+    protected function setUp(): void
     {
         $this->subscription = $this->getMockBuilder(Subscription::class)->getMockForAbstractClass();
         $this->listener = $this->getMockBuilder(Listener::class)->getMockForAbstractClass();
@@ -118,42 +101,42 @@ class DbalTransactionalSubscriptionTest extends TestCase
         $this->store2 = new DbalPostgresEventStore(self::$connection2, new NestedObjectConverter());
     }
 
-    public function testObject()
+    public function testObject(): void
     {
         $subscription = new DbalTransactionalSubscription($this->subscription, $this->connection, 1);
 
-        $this->assertSame($this->subscription, $subscription->subscription());
+        self::assertSame($this->subscription, $subscription->subscription());
 
         $this->subscription
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('listener')
             ->with()
             ->willReturn($this->listener)
         ;
 
-        $this->assertSame($this->listener, $subscription->listener());
+        self::assertSame($this->listener, $subscription->listener());
 
         $this->subscription
-            ->expects($this->exactly(2))
+            ->expects(self::exactly(2))
             ->method('version')
             ->with()
             ->willReturnOnConsecutiveCalls(1000, 1001)
         ;
 
-        $this->assertSame(1000, $subscription->version());
-        $this->assertSame(1001, $subscription->version());
+        self::assertSame(1000, $subscription->version());
+        self::assertSame(1001, $subscription->version());
 
         $this->subscription
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('subscriptionId')
             ->with()
             ->willReturn($this->subscriptionId)
         ;
 
-        $this->assertSame($this->subscriptionId, $subscription->subscriptionId());
+        self::assertSame($this->subscriptionId, $subscription->subscriptionId());
 
         $this->subscription
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('startFor')
             ->with($this->event1)
         ;
@@ -161,7 +144,7 @@ class DbalTransactionalSubscriptionTest extends TestCase
         $subscription->startFor($this->event1);
 
         $this->subscription
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('restart')
             ->with()
         ;
@@ -169,47 +152,47 @@ class DbalTransactionalSubscriptionTest extends TestCase
         $subscription->restart();
 
         $this->subscription
-            ->expects($this->exactly(2))
+            ->expects(self::exactly(2))
             ->method('starting')
             ->with()
             ->willReturnOnConsecutiveCalls(true, false)
         ;
 
-        $this->assertTrue($subscription->starting());
-        $this->assertFalse($subscription->starting());
+        self::assertTrue($subscription->starting());
+        self::assertFalse($subscription->starting());
 
         $this->subscription
-            ->expects($this->exactly(2))
+            ->expects(self::exactly(2))
             ->method('started')
             ->with()
             ->willReturnOnConsecutiveCalls(true, false)
         ;
 
-        $this->assertTrue($subscription->started());
-        $this->assertFalse($subscription->started());
+        self::assertTrue($subscription->started());
+        self::assertFalse($subscription->started());
 
         $this->subscription
-            ->expects($this->exactly(2))
+            ->expects(self::exactly(2))
             ->method('completed')
             ->with()
             ->willReturnOnConsecutiveCalls(false, true)
         ;
 
-        $this->assertFalse($subscription->completed());
-        $this->assertTrue($subscription->completed());
+        self::assertFalse($subscription->completed());
+        self::assertTrue($subscription->completed());
 
         $this->subscription
-            ->expects($this->exactly(2))
+            ->expects(self::exactly(2))
             ->method('paused')
             ->with()
             ->willReturnOnConsecutiveCalls(false, true)
         ;
 
-        $this->assertFalse($subscription->paused());
-        $this->assertTrue($subscription->paused());
+        self::assertFalse($subscription->paused());
+        self::assertTrue($subscription->paused());
 
         $this->subscription
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('pause')
             ->with()
         ;
@@ -217,7 +200,7 @@ class DbalTransactionalSubscriptionTest extends TestCase
         $subscription->pause();
 
         $this->subscription
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('unpause')
             ->with()
         ;
@@ -225,326 +208,326 @@ class DbalTransactionalSubscriptionTest extends TestCase
         $subscription->unpause();
     }
 
-    public function testSubscriberForSingleEventTransaction()
+    public function testSubscriberForSingleEventTransaction(): void
     {
         $subscription = new DbalTransactionalSubscription($this->subscription, self::$connection1, 1);
 
         $this->subscription
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('subscribeTo')
             ->with($this->store1, null)
             ->willReturnCallback(function (EventStore $store) {
-                $this->assertTrue($store->stream()->empty());
-                $this->assertTrue($this->store2->stream()->empty());
+                self::assertTrue($store->stream()->empty());
+                self::assertTrue($this->store2->stream()->empty());
 
                 $store->add($this->event1);
 
-                $this->assertFalse($store->stream()->empty());
-                $this->assertEquals([$this->event1], iterator_to_array($store->stream()));
-                $this->assertTrue($this->store2->stream()->empty());
+                self::assertFalse($store->stream()->empty());
+                self::assertEquals([$this->event1], iterator_to_array($store->stream()));
+                self::assertTrue($this->store2->stream()->empty());
 
                 yield $this->event1;
 
-                $this->assertFalse($store->stream()->empty());
-                $this->assertEquals([$this->event1], iterator_to_array($store->stream()));
-                $this->assertFalse($this->store2->stream()->empty());
-                $this->assertEquals([$this->event1], iterator_to_array($this->store2->stream()));
+                self::assertFalse($store->stream()->empty());
+                self::assertEquals([$this->event1], iterator_to_array($store->stream()));
+                self::assertFalse($this->store2->stream()->empty());
+                self::assertEquals([$this->event1], iterator_to_array($this->store2->stream()));
 
                 $store->add($this->event2);
 
-                $this->assertFalse($store->stream()->empty());
-                $this->assertEquals([$this->event1, $this->event2], iterator_to_array($store->stream()));
-                $this->assertFalse($this->store2->stream()->empty());
-                $this->assertEquals([$this->event1], iterator_to_array($this->store2->stream()));
+                self::assertFalse($store->stream()->empty());
+                self::assertEquals([$this->event1, $this->event2], iterator_to_array($store->stream()));
+                self::assertFalse($this->store2->stream()->empty());
+                self::assertEquals([$this->event1], iterator_to_array($this->store2->stream()));
 
                 yield $this->event2;
 
-                $this->assertFalse($store->stream()->empty());
-                $this->assertEquals([$this->event1, $this->event2], iterator_to_array($store->stream()));
-                $this->assertFalse($this->store2->stream()->empty());
-                $this->assertEquals([$this->event1, $this->event2], iterator_to_array($this->store2->stream()));
+                self::assertFalse($store->stream()->empty());
+                self::assertEquals([$this->event1, $this->event2], iterator_to_array($store->stream()));
+                self::assertFalse($this->store2->stream()->empty());
+                self::assertEquals([$this->event1, $this->event2], iterator_to_array($this->store2->stream()));
 
                 $store->add($this->event3);
 
-                $this->assertFalse($store->stream()->empty());
-                $this->assertEquals([$this->event1, $this->event2, $this->event3], iterator_to_array($store->stream()));
-                $this->assertFalse($this->store2->stream()->empty());
-                $this->assertEquals([$this->event1, $this->event2], iterator_to_array($this->store2->stream()));
+                self::assertFalse($store->stream()->empty());
+                self::assertEquals([$this->event1, $this->event2, $this->event3], iterator_to_array($store->stream()));
+                self::assertFalse($this->store2->stream()->empty());
+                self::assertEquals([$this->event1, $this->event2], iterator_to_array($this->store2->stream()));
 
                 yield $this->event3;
 
-                $this->assertFalse($store->stream()->empty());
-                $this->assertEquals([$this->event1, $this->event2, $this->event3], iterator_to_array($store->stream()));
-                $this->assertFalse($this->store2->stream()->empty());
-                $this->assertEquals([$this->event1, $this->event2, $this->event3], iterator_to_array($this->store2->stream()));
+                self::assertFalse($store->stream()->empty());
+                self::assertEquals([$this->event1, $this->event2, $this->event3], iterator_to_array($store->stream()));
+                self::assertFalse($this->store2->stream()->empty());
+                self::assertEquals([$this->event1, $this->event2, $this->event3], iterator_to_array($this->store2->stream()));
             })
         ;
 
-        $this->assertTrue($this->store1->stream()->empty());
-        $this->assertTrue($this->store2->stream()->empty());
+        self::assertTrue($this->store1->stream()->empty());
+        self::assertTrue($this->store2->stream()->empty());
 
         $events = $subscription->subscribeTo($this->store1);
         $events = iterator_to_array($events);
 
-        $this->assertEquals([$this->event1, $this->event2, $this->event3], $events);
-        $this->assertFalse($this->store1->stream()->empty());
-        $this->assertEquals([$this->event1, $this->event2, $this->event3], iterator_to_array($this->store1->stream()));
-        $this->assertFalse($this->store2->stream()->empty());
-        $this->assertEquals([$this->event1, $this->event2, $this->event3], iterator_to_array($this->store2->stream()));
+        self::assertEquals([$this->event1, $this->event2, $this->event3], $events);
+        self::assertFalse($this->store1->stream()->empty());
+        self::assertEquals([$this->event1, $this->event2, $this->event3], iterator_to_array($this->store1->stream()));
+        self::assertFalse($this->store2->stream()->empty());
+        self::assertEquals([$this->event1, $this->event2, $this->event3], iterator_to_array($this->store2->stream()));
     }
 
-    public function testSubscriberForMultipleEventsTransactionLimit1()
+    public function testSubscriberForMultipleEventsTransactionLimit1(): void
     {
         $subscription = new DbalTransactionalSubscription($this->subscription, self::$connection1, 2);
 
         $this->subscription
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('subscribeTo')
             ->with($this->store1, null)
             ->willReturnCallback(function (EventStore $store) {
-                $this->assertTrue($store->stream()->empty());
-                $this->assertTrue($this->store2->stream()->empty());
+                self::assertTrue($store->stream()->empty());
+                self::assertTrue($this->store2->stream()->empty());
 
                 $store->add($this->event1);
 
-                $this->assertFalse($store->stream()->empty());
-                $this->assertEquals([$this->event1], iterator_to_array($store->stream()));
-                $this->assertTrue($this->store2->stream()->empty());
+                self::assertFalse($store->stream()->empty());
+                self::assertEquals([$this->event1], iterator_to_array($store->stream()));
+                self::assertTrue($this->store2->stream()->empty());
 
                 yield $this->event1;
 
-                $this->assertFalse($store->stream()->empty());
-                $this->assertEquals([$this->event1], iterator_to_array($store->stream()));
-                $this->assertTrue($this->store2->stream()->empty());
+                self::assertFalse($store->stream()->empty());
+                self::assertEquals([$this->event1], iterator_to_array($store->stream()));
+                self::assertTrue($this->store2->stream()->empty());
 
                 $store->add($this->event2);
 
-                $this->assertFalse($store->stream()->empty());
-                $this->assertEquals([$this->event1, $this->event2], iterator_to_array($store->stream()));
-                $this->assertTrue($this->store2->stream()->empty());
+                self::assertFalse($store->stream()->empty());
+                self::assertEquals([$this->event1, $this->event2], iterator_to_array($store->stream()));
+                self::assertTrue($this->store2->stream()->empty());
 
                 yield $this->event2;
 
-                $this->assertFalse($store->stream()->empty());
-                $this->assertEquals([$this->event1, $this->event2], iterator_to_array($store->stream()));
-                $this->assertFalse($this->store2->stream()->empty());
-                $this->assertEquals([$this->event1, $this->event2], iterator_to_array($this->store2->stream()));
+                self::assertFalse($store->stream()->empty());
+                self::assertEquals([$this->event1, $this->event2], iterator_to_array($store->stream()));
+                self::assertFalse($this->store2->stream()->empty());
+                self::assertEquals([$this->event1, $this->event2], iterator_to_array($this->store2->stream()));
 
                 $store->add($this->event3);
 
-                $this->assertFalse($store->stream()->empty());
-                $this->assertEquals([$this->event1, $this->event2, $this->event3], iterator_to_array($store->stream()));
-                $this->assertFalse($this->store2->stream()->empty());
-                $this->assertEquals([$this->event1, $this->event2], iterator_to_array($this->store2->stream()));
+                self::assertFalse($store->stream()->empty());
+                self::assertEquals([$this->event1, $this->event2, $this->event3], iterator_to_array($store->stream()));
+                self::assertFalse($this->store2->stream()->empty());
+                self::assertEquals([$this->event1, $this->event2], iterator_to_array($this->store2->stream()));
 
                 yield $this->event3;
 
-                $this->assertFalse($store->stream()->empty());
-                $this->assertEquals([$this->event1, $this->event2, $this->event3], iterator_to_array($store->stream()));
-                $this->assertFalse($this->store2->stream()->empty());
-                $this->assertEquals([$this->event1, $this->event2], iterator_to_array($this->store2->stream()));
+                self::assertFalse($store->stream()->empty());
+                self::assertEquals([$this->event1, $this->event2, $this->event3], iterator_to_array($store->stream()));
+                self::assertFalse($this->store2->stream()->empty());
+                self::assertEquals([$this->event1, $this->event2], iterator_to_array($this->store2->stream()));
             })
         ;
 
-        $this->assertTrue($this->store1->stream()->empty());
-        $this->assertTrue($this->store2->stream()->empty());
+        self::assertTrue($this->store1->stream()->empty());
+        self::assertTrue($this->store2->stream()->empty());
 
         $events = $subscription->subscribeTo($this->store1);
         $events = iterator_to_array($events);
 
-        $this->assertEquals([$this->event1, $this->event2, $this->event3], $events);
-        $this->assertFalse($this->store1->stream()->empty());
-        $this->assertEquals([$this->event1, $this->event2, $this->event3], iterator_to_array($this->store1->stream()));
-        $this->assertFalse($this->store2->stream()->empty());
-        $this->assertEquals([$this->event1, $this->event2, $this->event3], iterator_to_array($this->store2->stream()));
+        self::assertEquals([$this->event1, $this->event2, $this->event3], $events);
+        self::assertFalse($this->store1->stream()->empty());
+        self::assertEquals([$this->event1, $this->event2, $this->event3], iterator_to_array($this->store1->stream()));
+        self::assertFalse($this->store2->stream()->empty());
+        self::assertEquals([$this->event1, $this->event2, $this->event3], iterator_to_array($this->store2->stream()));
     }
 
-    public function testSubscriberForMultipleEventsTransactionLimit2()
+    public function testSubscriberForMultipleEventsTransactionLimit2(): void
     {
         $subscription = new DbalTransactionalSubscription($this->subscription, self::$connection1, 3);
 
         $this->subscription
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('subscribeTo')
             ->with($this->store1, null)
             ->willReturnCallback(function (EventStore $store) {
-                $this->assertTrue($store->stream()->empty());
-                $this->assertTrue($this->store2->stream()->empty());
+                self::assertTrue($store->stream()->empty());
+                self::assertTrue($this->store2->stream()->empty());
 
                 $store->add($this->event1);
 
-                $this->assertFalse($store->stream()->empty());
-                $this->assertEquals([$this->event1], iterator_to_array($store->stream()));
-                $this->assertTrue($this->store2->stream()->empty());
+                self::assertFalse($store->stream()->empty());
+                self::assertEquals([$this->event1], iterator_to_array($store->stream()));
+                self::assertTrue($this->store2->stream()->empty());
 
                 yield $this->event1;
 
-                $this->assertFalse($store->stream()->empty());
-                $this->assertEquals([$this->event1], iterator_to_array($store->stream()));
-                $this->assertTrue($this->store2->stream()->empty());
+                self::assertFalse($store->stream()->empty());
+                self::assertEquals([$this->event1], iterator_to_array($store->stream()));
+                self::assertTrue($this->store2->stream()->empty());
 
                 $store->add($this->event2);
 
-                $this->assertFalse($store->stream()->empty());
-                $this->assertEquals([$this->event1, $this->event2], iterator_to_array($store->stream()));
-                $this->assertTrue($this->store2->stream()->empty());
+                self::assertFalse($store->stream()->empty());
+                self::assertEquals([$this->event1, $this->event2], iterator_to_array($store->stream()));
+                self::assertTrue($this->store2->stream()->empty());
 
                 yield $this->event2;
 
-                $this->assertFalse($store->stream()->empty());
-                $this->assertEquals([$this->event1, $this->event2], iterator_to_array($store->stream()));
-                $this->assertTrue($this->store2->stream()->empty());
+                self::assertFalse($store->stream()->empty());
+                self::assertEquals([$this->event1, $this->event2], iterator_to_array($store->stream()));
+                self::assertTrue($this->store2->stream()->empty());
 
                 $store->add($this->event3);
 
-                $this->assertFalse($store->stream()->empty());
-                $this->assertEquals([$this->event1, $this->event2, $this->event3], iterator_to_array($store->stream()));
-                $this->assertTrue($this->store2->stream()->empty());
+                self::assertFalse($store->stream()->empty());
+                self::assertEquals([$this->event1, $this->event2, $this->event3], iterator_to_array($store->stream()));
+                self::assertTrue($this->store2->stream()->empty());
 
                 yield $this->event3;
 
-                $this->assertFalse($store->stream()->empty());
-                $this->assertEquals([$this->event1, $this->event2, $this->event3], iterator_to_array($store->stream()));
-                $this->assertFalse($this->store2->stream()->empty());
-                $this->assertEquals([$this->event1, $this->event2, $this->event3], iterator_to_array($this->store2->stream()));
+                self::assertFalse($store->stream()->empty());
+                self::assertEquals([$this->event1, $this->event2, $this->event3], iterator_to_array($store->stream()));
+                self::assertFalse($this->store2->stream()->empty());
+                self::assertEquals([$this->event1, $this->event2, $this->event3], iterator_to_array($this->store2->stream()));
             })
         ;
 
-        $this->assertTrue($this->store1->stream()->empty());
-        $this->assertTrue($this->store2->stream()->empty());
+        self::assertTrue($this->store1->stream()->empty());
+        self::assertTrue($this->store2->stream()->empty());
 
         $events = $subscription->subscribeTo($this->store1);
         $events = iterator_to_array($events);
 
-        $this->assertEquals([$this->event1, $this->event2, $this->event3], $events);
-        $this->assertFalse($this->store1->stream()->empty());
-        $this->assertEquals([$this->event1, $this->event2, $this->event3], iterator_to_array($this->store1->stream()));
-        $this->assertFalse($this->store2->stream()->empty());
-        $this->assertEquals([$this->event1, $this->event2, $this->event3], iterator_to_array($this->store2->stream()));
+        self::assertEquals([$this->event1, $this->event2, $this->event3], $events);
+        self::assertFalse($this->store1->stream()->empty());
+        self::assertEquals([$this->event1, $this->event2, $this->event3], iterator_to_array($this->store1->stream()));
+        self::assertFalse($this->store2->stream()->empty());
+        self::assertEquals([$this->event1, $this->event2, $this->event3], iterator_to_array($this->store2->stream()));
     }
 
-    public function testSubscriberForMultipleEventsTransactionLimit3()
+    public function testSubscriberForMultipleEventsTransactionLimit3(): void
     {
         $subscription = new DbalTransactionalSubscription($this->subscription, self::$connection1, 4);
 
         $this->subscription
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('subscribeTo')
             ->with($this->store1, null)
             ->willReturnCallback(function (EventStore $store) {
-                $this->assertTrue($store->stream()->empty());
-                $this->assertTrue($this->store2->stream()->empty());
+                self::assertTrue($store->stream()->empty());
+                self::assertTrue($this->store2->stream()->empty());
 
                 $store->add($this->event1);
 
-                $this->assertFalse($store->stream()->empty());
-                $this->assertEquals([$this->event1], iterator_to_array($store->stream()));
-                $this->assertTrue($this->store2->stream()->empty());
+                self::assertFalse($store->stream()->empty());
+                self::assertEquals([$this->event1], iterator_to_array($store->stream()));
+                self::assertTrue($this->store2->stream()->empty());
 
                 yield $this->event1;
 
-                $this->assertFalse($store->stream()->empty());
-                $this->assertEquals([$this->event1], iterator_to_array($store->stream()));
-                $this->assertTrue($this->store2->stream()->empty());
+                self::assertFalse($store->stream()->empty());
+                self::assertEquals([$this->event1], iterator_to_array($store->stream()));
+                self::assertTrue($this->store2->stream()->empty());
 
                 $store->add($this->event2);
 
-                $this->assertFalse($store->stream()->empty());
-                $this->assertEquals([$this->event1, $this->event2], iterator_to_array($store->stream()));
-                $this->assertTrue($this->store2->stream()->empty());
+                self::assertFalse($store->stream()->empty());
+                self::assertEquals([$this->event1, $this->event2], iterator_to_array($store->stream()));
+                self::assertTrue($this->store2->stream()->empty());
 
                 yield $this->event2;
 
-                $this->assertFalse($store->stream()->empty());
-                $this->assertEquals([$this->event1, $this->event2], iterator_to_array($store->stream()));
-                $this->assertTrue($this->store2->stream()->empty());
+                self::assertFalse($store->stream()->empty());
+                self::assertEquals([$this->event1, $this->event2], iterator_to_array($store->stream()));
+                self::assertTrue($this->store2->stream()->empty());
 
                 $store->add($this->event3);
 
-                $this->assertFalse($store->stream()->empty());
-                $this->assertEquals([$this->event1, $this->event2, $this->event3], iterator_to_array($store->stream()));
-                $this->assertTrue($this->store2->stream()->empty());
+                self::assertFalse($store->stream()->empty());
+                self::assertEquals([$this->event1, $this->event2, $this->event3], iterator_to_array($store->stream()));
+                self::assertTrue($this->store2->stream()->empty());
 
                 yield $this->event3;
 
-                $this->assertFalse($store->stream()->empty());
-                $this->assertEquals([$this->event1, $this->event2, $this->event3], iterator_to_array($store->stream()));
-                $this->assertTrue($this->store2->stream()->empty());
+                self::assertFalse($store->stream()->empty());
+                self::assertEquals([$this->event1, $this->event2, $this->event3], iterator_to_array($store->stream()));
+                self::assertTrue($this->store2->stream()->empty());
             })
         ;
 
-        $this->assertTrue($this->store1->stream()->empty());
-        $this->assertTrue($this->store2->stream()->empty());
+        self::assertTrue($this->store1->stream()->empty());
+        self::assertTrue($this->store2->stream()->empty());
 
         $events = $subscription->subscribeTo($this->store1);
         $events = iterator_to_array($events);
 
-        $this->assertEquals([$this->event1, $this->event2, $this->event3], $events);
-        $this->assertFalse($this->store1->stream()->empty());
-        $this->assertEquals([$this->event1, $this->event2, $this->event3], iterator_to_array($this->store1->stream()));
-        $this->assertFalse($this->store2->stream()->empty());
-        $this->assertEquals([$this->event1, $this->event2, $this->event3], iterator_to_array($this->store2->stream()));
+        self::assertEquals([$this->event1, $this->event2, $this->event3], $events);
+        self::assertFalse($this->store1->stream()->empty());
+        self::assertEquals([$this->event1, $this->event2, $this->event3], iterator_to_array($this->store1->stream()));
+        self::assertFalse($this->store2->stream()->empty());
+        self::assertEquals([$this->event1, $this->event2, $this->event3], iterator_to_array($this->store2->stream()));
     }
 
-    public function testSubscriberForErrorDuringTransaction1()
+    public function testSubscriberForErrorDuringTransaction1(): void
     {
         $subscription = new DbalTransactionalSubscription($this->subscription, self::$connection1, 1);
 
         $this->subscription
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('subscribeTo')
             ->with($this->store1, null)
             ->willReturnCallback(function (EventStore $store) {
-                $this->assertTrue($store->stream()->empty());
-                $this->assertTrue($this->store2->stream()->empty());
+                self::assertTrue($store->stream()->empty());
+                self::assertTrue($this->store2->stream()->empty());
 
                 $store->add($this->event1);
 
-                $this->assertFalse($store->stream()->empty());
-                $this->assertEquals([$this->event1], iterator_to_array($store->stream()));
-                $this->assertTrue($this->store2->stream()->empty());
+                self::assertFalse($store->stream()->empty());
+                self::assertEquals([$this->event1], iterator_to_array($store->stream()));
+                self::assertTrue($this->store2->stream()->empty());
 
                 yield $this->event1;
 
-                $this->assertFalse($store->stream()->empty());
-                $this->assertEquals([$this->event1], iterator_to_array($store->stream()));
-                $this->assertFalse($this->store2->stream()->empty());
-                $this->assertEquals([$this->event1], iterator_to_array($this->store2->stream()));
+                self::assertFalse($store->stream()->empty());
+                self::assertEquals([$this->event1], iterator_to_array($store->stream()));
+                self::assertFalse($this->store2->stream()->empty());
+                self::assertEquals([$this->event1], iterator_to_array($this->store2->stream()));
 
                 $store->add($this->event2);
 
-                $this->assertFalse($store->stream()->empty());
-                $this->assertEquals([$this->event1, $this->event2], iterator_to_array($store->stream()));
-                $this->assertFalse($this->store2->stream()->empty());
-                $this->assertEquals([$this->event1], iterator_to_array($this->store2->stream()));
+                self::assertFalse($store->stream()->empty());
+                self::assertEquals([$this->event1, $this->event2], iterator_to_array($store->stream()));
+                self::assertFalse($this->store2->stream()->empty());
+                self::assertEquals([$this->event1], iterator_to_array($this->store2->stream()));
 
                 yield $this->event2;
 
-                $this->assertFalse($store->stream()->empty());
-                $this->assertEquals([$this->event1, $this->event2], iterator_to_array($store->stream()));
-                $this->assertFalse($this->store2->stream()->empty());
-                $this->assertEquals([$this->event1, $this->event2], iterator_to_array($this->store2->stream()));
+                self::assertFalse($store->stream()->empty());
+                self::assertEquals([$this->event1, $this->event2], iterator_to_array($store->stream()));
+                self::assertFalse($this->store2->stream()->empty());
+                self::assertEquals([$this->event1, $this->event2], iterator_to_array($this->store2->stream()));
 
                 $store->add($this->event3);
 
-                $this->assertFalse($store->stream()->empty());
-                $this->assertEquals([$this->event1, $this->event2, $this->event3], iterator_to_array($store->stream()));
-                $this->assertFalse($this->store2->stream()->empty());
-                $this->assertEquals([$this->event1, $this->event2], iterator_to_array($this->store2->stream()));
+                self::assertFalse($store->stream()->empty());
+                self::assertEquals([$this->event1, $this->event2, $this->event3], iterator_to_array($store->stream()));
+                self::assertFalse($this->store2->stream()->empty());
+                self::assertEquals([$this->event1, $this->event2], iterator_to_array($this->store2->stream()));
 
                 yield $this->event3;
 
-                $this->assertFalse($store->stream()->empty());
-                $this->assertEquals([$this->event1, $this->event2, $this->event3], iterator_to_array($store->stream()));
-                $this->assertFalse($this->store2->stream()->empty());
-                $this->assertEquals([$this->event1, $this->event2, $this->event3], iterator_to_array($this->store2->stream()));
+                self::assertFalse($store->stream()->empty());
+                self::assertEquals([$this->event1, $this->event2, $this->event3], iterator_to_array($store->stream()));
+                self::assertFalse($this->store2->stream()->empty());
+                self::assertEquals([$this->event1, $this->event2, $this->event3], iterator_to_array($this->store2->stream()));
 
                 throw new \RuntimeException('test');
             })
         ;
 
-        $this->assertTrue($this->store1->stream()->empty());
-        $this->assertTrue($this->store2->stream()->empty());
+        self::assertTrue($this->store1->stream()->empty());
+        self::assertTrue($this->store2->stream()->empty());
 
         $this->expectExceptionObject(new \RuntimeException('test'));
 
@@ -552,79 +535,79 @@ class DbalTransactionalSubscriptionTest extends TestCase
             $events = $subscription->subscribeTo($this->store1);
             $events->rewind();
             $event1 = $events->current();
-            $this->assertEquals($this->event1, $event1);
+            self::assertEquals($this->event1, $event1);
             $events->next();
             $event2 = $events->current();
-            $this->assertEquals($this->event2, $event2);
+            self::assertEquals($this->event2, $event2);
             $events->next();
             $event3 = $events->current();
-            $this->assertEquals($this->event3, $event3);
+            self::assertEquals($this->event3, $event3);
             $events->next();
         } finally {
-            $this->assertFalse($this->store1->stream()->empty());
-            $this->assertEquals([$this->event1, $this->event2, $this->event3], iterator_to_array($this->store1->stream()));
-            $this->assertFalse($this->store2->stream()->empty());
-            $this->assertEquals([$this->event1, $this->event2, $this->event3], iterator_to_array($this->store2->stream()));
+            self::assertFalse($this->store1->stream()->empty());
+            self::assertEquals([$this->event1, $this->event2, $this->event3], iterator_to_array($this->store1->stream()));
+            self::assertFalse($this->store2->stream()->empty());
+            self::assertEquals([$this->event1, $this->event2, $this->event3], iterator_to_array($this->store2->stream()));
         }
     }
 
-    public function testSubscriberForErrorDuringTransaction2()
+    public function testSubscriberForErrorDuringTransaction2(): void
     {
         $subscription = new DbalTransactionalSubscription($this->subscription, self::$connection1, 2);
 
         $this->subscription
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('subscribeTo')
             ->with($this->store1, null)
             ->willReturnCallback(function (EventStore $store) {
-                $this->assertTrue($store->stream()->empty());
-                $this->assertTrue($this->store2->stream()->empty());
+                self::assertTrue($store->stream()->empty());
+                self::assertTrue($this->store2->stream()->empty());
 
                 $store->add($this->event1);
 
-                $this->assertFalse($store->stream()->empty());
-                $this->assertEquals([$this->event1], iterator_to_array($store->stream()));
-                $this->assertTrue($this->store2->stream()->empty());
+                self::assertFalse($store->stream()->empty());
+                self::assertEquals([$this->event1], iterator_to_array($store->stream()));
+                self::assertTrue($this->store2->stream()->empty());
 
                 yield $this->event1;
 
-                $this->assertFalse($store->stream()->empty());
-                $this->assertEquals([$this->event1], iterator_to_array($store->stream()));
-                $this->assertTrue($this->store2->stream()->empty());
+                self::assertFalse($store->stream()->empty());
+                self::assertEquals([$this->event1], iterator_to_array($store->stream()));
+                self::assertTrue($this->store2->stream()->empty());
 
                 $store->add($this->event2);
 
-                $this->assertFalse($store->stream()->empty());
-                $this->assertEquals([$this->event1, $this->event2], iterator_to_array($store->stream()));
-                $this->assertTrue($this->store2->stream()->empty());
+                self::assertFalse($store->stream()->empty());
+                self::assertEquals([$this->event1, $this->event2], iterator_to_array($store->stream()));
+                self::assertTrue($this->store2->stream()->empty());
 
                 yield $this->event2;
 
-                $this->assertFalse($store->stream()->empty());
-                $this->assertEquals([$this->event1, $this->event2], iterator_to_array($store->stream()));
-                $this->assertFalse($this->store2->stream()->empty());
-                $this->assertEquals([$this->event1, $this->event2], iterator_to_array($this->store2->stream()));
+                self::assertFalse($store->stream()->empty());
+                self::assertEquals([$this->event1, $this->event2], iterator_to_array($store->stream()));
+                self::assertFalse($this->store2->stream()->empty());
+                self::assertEquals([$this->event1, $this->event2], iterator_to_array($this->store2->stream()));
 
                 $store->add($this->event3);
 
-                $this->assertFalse($store->stream()->empty());
-                $this->assertEquals([$this->event1, $this->event2, $this->event3], iterator_to_array($store->stream()));
-                $this->assertFalse($this->store2->stream()->empty());
-                $this->assertEquals([$this->event1, $this->event2], iterator_to_array($this->store2->stream()));
+                self::assertFalse($store->stream()->empty());
+                self::assertEquals([$this->event1, $this->event2, $this->event3], iterator_to_array($store->stream()));
+                self::assertFalse($this->store2->stream()->empty());
+                self::assertEquals([$this->event1, $this->event2], iterator_to_array($this->store2->stream()));
 
                 yield $this->event3;
 
-                $this->assertFalse($store->stream()->empty());
-                $this->assertEquals([$this->event1, $this->event2, $this->event3], iterator_to_array($store->stream()));
-                $this->assertFalse($this->store2->stream()->empty());
-                $this->assertEquals([$this->event1, $this->event2], iterator_to_array($this->store2->stream()));
+                self::assertFalse($store->stream()->empty());
+                self::assertEquals([$this->event1, $this->event2, $this->event3], iterator_to_array($store->stream()));
+                self::assertFalse($this->store2->stream()->empty());
+                self::assertEquals([$this->event1, $this->event2], iterator_to_array($this->store2->stream()));
 
                 throw new \RuntimeException('test');
             })
         ;
 
-        $this->assertTrue($this->store1->stream()->empty());
-        $this->assertTrue($this->store2->stream()->empty());
+        self::assertTrue($this->store1->stream()->empty());
+        self::assertTrue($this->store2->stream()->empty());
 
         $this->expectExceptionObject(new \RuntimeException('test'));
 
@@ -632,74 +615,74 @@ class DbalTransactionalSubscriptionTest extends TestCase
             $events = $subscription->subscribeTo($this->store1);
             $events->rewind();
             $event1 = $events->current();
-            $this->assertEquals($this->event1, $event1);
+            self::assertEquals($this->event1, $event1);
             $events->next();
             $event2 = $events->current();
-            $this->assertEquals($this->event2, $event2);
+            self::assertEquals($this->event2, $event2);
             $events->next();
         } finally {
-            $this->assertFalse($this->store1->stream()->empty());
-            $this->assertEquals([$this->event1, $this->event2], iterator_to_array($this->store1->stream()));
-            $this->assertFalse($this->store2->stream()->empty());
-            $this->assertEquals([$this->event1, $this->event2], iterator_to_array($this->store2->stream()));
+            self::assertFalse($this->store1->stream()->empty());
+            self::assertEquals([$this->event1, $this->event2], iterator_to_array($this->store1->stream()));
+            self::assertFalse($this->store2->stream()->empty());
+            self::assertEquals([$this->event1, $this->event2], iterator_to_array($this->store2->stream()));
         }
     }
 
-    public function testSubscriberForErrorDuringTransaction3()
+    public function testSubscriberForErrorDuringTransaction3(): void
     {
         $subscription = new DbalTransactionalSubscription($this->subscription, self::$connection1, 3);
 
         $this->subscription
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('subscribeTo')
             ->with($this->store1, null)
             ->willReturnCallback(function (EventStore $store) {
-                $this->assertTrue($store->stream()->empty());
-                $this->assertTrue($this->store2->stream()->empty());
+                self::assertTrue($store->stream()->empty());
+                self::assertTrue($this->store2->stream()->empty());
 
                 $store->add($this->event1);
 
-                $this->assertFalse($store->stream()->empty());
-                $this->assertEquals([$this->event1], iterator_to_array($store->stream()));
-                $this->assertTrue($this->store2->stream()->empty());
+                self::assertFalse($store->stream()->empty());
+                self::assertEquals([$this->event1], iterator_to_array($store->stream()));
+                self::assertTrue($this->store2->stream()->empty());
 
                 yield $this->event1;
 
-                $this->assertFalse($store->stream()->empty());
-                $this->assertEquals([$this->event1], iterator_to_array($store->stream()));
-                $this->assertTrue($this->store2->stream()->empty());
+                self::assertFalse($store->stream()->empty());
+                self::assertEquals([$this->event1], iterator_to_array($store->stream()));
+                self::assertTrue($this->store2->stream()->empty());
 
                 $store->add($this->event2);
 
-                $this->assertFalse($store->stream()->empty());
-                $this->assertEquals([$this->event1, $this->event2], iterator_to_array($store->stream()));
-                $this->assertTrue($this->store2->stream()->empty());
+                self::assertFalse($store->stream()->empty());
+                self::assertEquals([$this->event1, $this->event2], iterator_to_array($store->stream()));
+                self::assertTrue($this->store2->stream()->empty());
 
                 yield $this->event2;
 
-                $this->assertFalse($store->stream()->empty());
-                $this->assertEquals([$this->event1, $this->event2], iterator_to_array($store->stream()));
-                $this->assertTrue($this->store2->stream()->empty());
+                self::assertFalse($store->stream()->empty());
+                self::assertEquals([$this->event1, $this->event2], iterator_to_array($store->stream()));
+                self::assertTrue($this->store2->stream()->empty());
 
                 $store->add($this->event3);
 
-                $this->assertFalse($store->stream()->empty());
-                $this->assertEquals([$this->event1, $this->event2, $this->event3], iterator_to_array($store->stream()));
-                $this->assertTrue($this->store2->stream()->empty());
+                self::assertFalse($store->stream()->empty());
+                self::assertEquals([$this->event1, $this->event2, $this->event3], iterator_to_array($store->stream()));
+                self::assertTrue($this->store2->stream()->empty());
 
                 yield $this->event3;
 
-                $this->assertFalse($store->stream()->empty());
-                $this->assertEquals([$this->event1, $this->event2, $this->event3], iterator_to_array($store->stream()));
-                $this->assertFalse($this->store2->stream()->empty());
-                $this->assertEquals([$this->event1, $this->event2, $this->event3], iterator_to_array($this->store2->stream()));
+                self::assertFalse($store->stream()->empty());
+                self::assertEquals([$this->event1, $this->event2, $this->event3], iterator_to_array($store->stream()));
+                self::assertFalse($this->store2->stream()->empty());
+                self::assertEquals([$this->event1, $this->event2, $this->event3], iterator_to_array($this->store2->stream()));
 
                 throw new \RuntimeException('test');
             })
         ;
 
-        $this->assertTrue($this->store1->stream()->empty());
-        $this->assertTrue($this->store2->stream()->empty());
+        self::assertTrue($this->store1->stream()->empty());
+        self::assertTrue($this->store2->stream()->empty());
 
         $this->expectExceptionObject(new \RuntimeException('test'));
 
@@ -707,76 +690,76 @@ class DbalTransactionalSubscriptionTest extends TestCase
             $events = $subscription->subscribeTo($this->store1);
             $events->rewind();
             $event1 = $events->current();
-            $this->assertEquals($this->event1, $event1);
+            self::assertEquals($this->event1, $event1);
             $events->next();
             $event2 = $events->current();
-            $this->assertEquals($this->event2, $event2);
+            self::assertEquals($this->event2, $event2);
             $events->next();
             $event3 = $events->current();
-            $this->assertEquals($this->event3, $event3);
+            self::assertEquals($this->event3, $event3);
             $events->next();
         } finally {
-            $this->assertFalse($this->store1->stream()->empty());
-            $this->assertEquals([$this->event1, $this->event2, $this->event3], iterator_to_array($this->store1->stream()));
-            $this->assertFalse($this->store2->stream()->empty());
-            $this->assertEquals([$this->event1, $this->event2, $this->event3], iterator_to_array($this->store2->stream()));
+            self::assertFalse($this->store1->stream()->empty());
+            self::assertEquals([$this->event1, $this->event2, $this->event3], iterator_to_array($this->store1->stream()));
+            self::assertFalse($this->store2->stream()->empty());
+            self::assertEquals([$this->event1, $this->event2, $this->event3], iterator_to_array($this->store2->stream()));
         }
     }
 
-    public function testSubscriberForErrorDuringTransaction4()
+    public function testSubscriberForErrorDuringTransaction4(): void
     {
         $subscription = new DbalTransactionalSubscription($this->subscription, self::$connection1, 4);
 
         $this->subscription
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('subscribeTo')
             ->with($this->store1, null)
             ->willReturnCallback(function (EventStore $store) {
-                $this->assertTrue($store->stream()->empty());
-                $this->assertTrue($this->store2->stream()->empty());
+                self::assertTrue($store->stream()->empty());
+                self::assertTrue($this->store2->stream()->empty());
 
                 $store->add($this->event1);
 
-                $this->assertFalse($store->stream()->empty());
-                $this->assertEquals([$this->event1], iterator_to_array($store->stream()));
-                $this->assertTrue($this->store2->stream()->empty());
+                self::assertFalse($store->stream()->empty());
+                self::assertEquals([$this->event1], iterator_to_array($store->stream()));
+                self::assertTrue($this->store2->stream()->empty());
 
                 yield $this->event1;
 
-                $this->assertFalse($store->stream()->empty());
-                $this->assertEquals([$this->event1], iterator_to_array($store->stream()));
-                $this->assertTrue($this->store2->stream()->empty());
+                self::assertFalse($store->stream()->empty());
+                self::assertEquals([$this->event1], iterator_to_array($store->stream()));
+                self::assertTrue($this->store2->stream()->empty());
 
                 $store->add($this->event2);
 
-                $this->assertFalse($store->stream()->empty());
-                $this->assertEquals([$this->event1, $this->event2], iterator_to_array($store->stream()));
-                $this->assertTrue($this->store2->stream()->empty());
+                self::assertFalse($store->stream()->empty());
+                self::assertEquals([$this->event1, $this->event2], iterator_to_array($store->stream()));
+                self::assertTrue($this->store2->stream()->empty());
 
                 yield $this->event2;
 
-                $this->assertFalse($store->stream()->empty());
-                $this->assertEquals([$this->event1, $this->event2], iterator_to_array($store->stream()));
-                $this->assertTrue($this->store2->stream()->empty());
+                self::assertFalse($store->stream()->empty());
+                self::assertEquals([$this->event1, $this->event2], iterator_to_array($store->stream()));
+                self::assertTrue($this->store2->stream()->empty());
 
                 $store->add($this->event3);
 
-                $this->assertFalse($store->stream()->empty());
-                $this->assertEquals([$this->event1, $this->event2, $this->event3], iterator_to_array($store->stream()));
-                $this->assertTrue($this->store2->stream()->empty());
+                self::assertFalse($store->stream()->empty());
+                self::assertEquals([$this->event1, $this->event2, $this->event3], iterator_to_array($store->stream()));
+                self::assertTrue($this->store2->stream()->empty());
 
                 yield $this->event3;
 
-                $this->assertFalse($store->stream()->empty());
-                $this->assertEquals([$this->event1, $this->event2, $this->event3], iterator_to_array($store->stream()));
-                $this->assertTrue($this->store2->stream()->empty());
+                self::assertFalse($store->stream()->empty());
+                self::assertEquals([$this->event1, $this->event2, $this->event3], iterator_to_array($store->stream()));
+                self::assertTrue($this->store2->stream()->empty());
 
                 throw new \RuntimeException('test');
             })
         ;
 
-        $this->assertTrue($this->store1->stream()->empty());
-        $this->assertTrue($this->store2->stream()->empty());
+        self::assertTrue($this->store1->stream()->empty());
+        self::assertTrue($this->store2->stream()->empty());
 
         $this->expectExceptionObject(new \RuntimeException('test'));
 
@@ -784,8 +767,8 @@ class DbalTransactionalSubscriptionTest extends TestCase
             $events = $subscription->subscribeTo($this->store1);
             $events->rewind();
         } finally {
-            $this->assertTrue($this->store1->stream()->empty());
-            $this->assertTrue($this->store2->stream()->empty());
+            self::assertTrue($this->store1->stream()->empty());
+            self::assertTrue($this->store2->stream()->empty());
         }
     }
 }

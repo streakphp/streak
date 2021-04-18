@@ -42,7 +42,7 @@ class EventStoreUnitOfWork implements UnitOfWork
         $this->uncommited = [];
     }
 
-    public function add(object $producer) : void
+    public function add(object $producer): void
     {
         if (!$producer instanceof Event\Producer) {
             throw new Exception\ObjectNotSupported($producer);
@@ -53,14 +53,14 @@ class EventStoreUnitOfWork implements UnitOfWork
         }
     }
 
-    public function remove(object $producer) : void
+    public function remove(object $producer): void
     {
         if (!$producer instanceof Event\Producer) {
             return;
         }
 
         foreach ($this->uncommited as $key => $current) {
-            /* @var $current Event\Producer */
+            // @var $current Event\Producer
             if ($current->producerId()->equals($producer->producerId())) {
                 unset($this->uncommited[$key]);
 
@@ -69,14 +69,14 @@ class EventStoreUnitOfWork implements UnitOfWork
         }
     }
 
-    public function has(object $producer) : bool
+    public function has(object $producer): bool
     {
         if (!$producer instanceof Event\Producer) {
             return false;
         }
 
         foreach ($this->uncommited as $current) {
-            /* @var $current Event\Producer */
+            // @var $current Event\Producer
             if ($current->producerId()->equals($producer->producerId())) {
                 return true;
             }
@@ -88,27 +88,27 @@ class EventStoreUnitOfWork implements UnitOfWork
     /**
      * @return Event\Producer[]
      */
-    public function uncommitted() : array
+    public function uncommitted(): array
     {
         return array_values($this->uncommited);
     }
 
-    public function count() : int
+    public function count(): int
     {
-        return count($this->uncommited);
+        return \count($this->uncommited);
     }
 
     /**
      * @throws ConcurrentWriteDetected
      * @throws \Exception
      */
-    public function commit() : \Generator
+    public function commit(): \Generator
     {
         if (false === $this->committing) {
             $this->committing = true;
 
             try {
-                /** @var $producer Event\Producer */
+                /** @var Event\Producer $producer */
                 while ($producer = array_shift($this->uncommited)) {
                     try {
                         $this->store->add(...$producer->events()); // maybe gather all events and send them in one single EventStore:add() call?
@@ -124,6 +124,7 @@ class EventStoreUnitOfWork implements UnitOfWork
                     } catch (\Exception $e) {
                         // something unexpected occurred, so lets leave uow in state from just before it happened - we may like to retry it later...
                         array_unshift($this->uncommited, $producer);
+
                         throw $e;
                     }
                 }
@@ -135,7 +136,7 @@ class EventStoreUnitOfWork implements UnitOfWork
         }
     }
 
-    public function clear() : void
+    public function clear(): void
     {
         $this->uncommited = [];
     }

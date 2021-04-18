@@ -32,7 +32,7 @@ class IdentityMappingDao implements DAO
         $this->dao = $dao;
     }
 
-    public function save(Subscription $subscription) : void
+    public function save(Subscription $subscription): void
     {
         if ($this->shouldSave($subscription)) {
             $this->dao->save($subscription);
@@ -40,7 +40,7 @@ class IdentityMappingDao implements DAO
         }
     }
 
-    public function one(Listener\Id $id) : ?Subscription
+    public function one(Listener\Id $id): ?Subscription
     {
         $subscription = $this->dao->one($id);
 
@@ -51,7 +51,7 @@ class IdentityMappingDao implements DAO
         return $subscription;
     }
 
-    public function exists(Listener\Id $id) : bool
+    public function exists(Listener\Id $id): bool
     {
         return $this->dao->exists($id);
     }
@@ -59,7 +59,7 @@ class IdentityMappingDao implements DAO
     /**
      * {@inheritdoc}
      */
-    public function all(array $types = [], ?bool $completed = null) : iterable
+    public function all(array $types = [], ?bool $completed = null): iterable
     {
         foreach ($this->dao->all($types, $completed) as $subscription) {
             $this->rememberVersion($subscription);
@@ -68,7 +68,7 @@ class IdentityMappingDao implements DAO
         }
     }
 
-    public function shouldSave(Subscription $subscription) : bool
+    public function shouldSave(Subscription $subscription): bool
     {
         if (false === $this->isVersionRemembered($subscription)) {
             return true;
@@ -84,24 +84,22 @@ class IdentityMappingDao implements DAO
         return false;
     }
 
-    private function key(Subscription $subscription) : string
+    private function key(Subscription $subscription): string
     {
-        $key = sprintf('%s_%s', get_class($subscription->subscriptionId()), $subscription->subscriptionId()->toString());
-
-        return $key;
+        return sprintf('%s_%s', \get_class($subscription->subscriptionId()), $subscription->subscriptionId()->toString());
     }
 
-    private function rememberVersion(Subscription $subscription)
+    private function rememberVersion(Subscription $subscription): void
     {
         $this->versions[$this->key($subscription)] = $subscription->version();
     }
 
-    private function isVersionRemembered(Subscription $subscription) : bool
+    private function isVersionRemembered(Subscription $subscription): bool
     {
-        return array_key_exists($this->key($subscription), $this->versions);
+        return \array_key_exists($this->key($subscription), $this->versions);
     }
 
-    private function rememberedVersion(Subscription $subscription) : int
+    private function rememberedVersion(Subscription $subscription): int
     {
         return $this->versions[$this->key($subscription)];
     }

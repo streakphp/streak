@@ -28,12 +28,12 @@ class InvalidAggregateIdGiven extends \InvalidArgumentException
     {
         $this->aggregateId = $aggregateId;
 
-        $message = sprintf('Invalid aggregate id given.');
+        $message = 'Invalid aggregate id given.';
 
         parent::__construct($message, 0, $previous);
     }
 
-    public function aggregateId() : AggregateRoot\Id
+    public function aggregateId(): AggregateRoot\Id
     {
         return $this->aggregateId;
     }

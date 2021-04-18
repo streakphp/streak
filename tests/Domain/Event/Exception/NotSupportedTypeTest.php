@@ -22,18 +22,21 @@ class NotSupportedTypeTest extends TestCase
 {
     /**
      * @dataProvider typesProvider
+     *
+     * @param mixed $value
      */
-    public function testItCreates(string $expectedMessage, $value) : void
+    public function testItCreates(string $expectedMessage, $value): void
     {
         $exception = new NotSupportedType($value);
         self::assertEquals($value, $exception->value());
         self::assertEquals($expectedMessage, $exception->getMessage());
     }
 
-    public function typesProvider() : array
+    public function typesProvider(): array
     {
         return [
-            ['Type callable is not supported for conversion!', function () {}],
+            ['Type callable is not supported for conversion!', function (): void {
+            }],
             ['Type integer is not supported for conversion!', 1],
             ['Type double is not supported for conversion!', 2.5],
             ['Type boolean is not supported for conversion!', true],

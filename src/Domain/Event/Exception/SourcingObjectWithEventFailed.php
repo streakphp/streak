@@ -41,7 +41,7 @@ class SourcingObjectWithEventFailed extends \BadMethodCallException
         return $this->subject;
     }
 
-    public function event() : Event\Envelope
+    public function event(): Event\Envelope
     {
         return $this->event;
     }

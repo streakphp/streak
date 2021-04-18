@@ -21,9 +21,9 @@ use Streak\Domain\Entity;
  */
 trait Comparison
 {
-    abstract public function entityId() : Entity\Id;
+    abstract public function entityId(): Entity\Id;
 
-    final public function equals(object $entity) : bool
+    final public function equals(object $entity): bool
     {
         if (!$this instanceof Domain\Entity) {
             return false;

@@ -20,10 +20,10 @@ use Streak\Domain;
  */
 interface Producer
 {
-    public function producerId() : Domain\Id;
+    public function producerId(): Domain\Id;
 
     /**
      * @return Domain\Event[]
      */
-    public function events() : array;
+    public function events(): array;
 }

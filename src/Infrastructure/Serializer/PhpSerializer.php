@@ -22,13 +22,13 @@ use Streak\Infrastructure\Serializer;
  */
 class PhpSerializer implements Serializer
 {
-    public function serialize($subject) : string
+    public function serialize($subject): string
     {
-        return \serialize($subject);
+        return serialize($subject);
     }
 
     public function unserialize($serialized)
     {
-        return \unserialize($serialized);
+        return unserialize($serialized);
     }
 }

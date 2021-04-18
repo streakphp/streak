@@ -30,12 +30,12 @@ class ConcurrentWriteDetected extends \RuntimeException
 
         $id ??= Domain\Id\UUID::random(); // TODO: fix it, remove weak dependency
 
-        $message = sprintf('Concurrent write detected when tried to persist "%s#%s" aggregate.', get_class($id), $id->toString());
+        $message = sprintf('Concurrent write detected when tried to persist "%s#%s" aggregate.', \get_class($id), $id->toString());
 
         parent::__construct($message, 0, $previous);
     }
 
-    public function id() : ?Domain\Id
+    public function id(): ?Domain\Id
     {
         return $this->id;
     }

@@ -28,12 +28,12 @@ class SubscriptionNotStartedYet extends \RuntimeException implements Subscriptio
     {
         $this->subscription = $subscription;
 
-        $message = sprintf('Subscription "%s#%s" is not started yet.', get_class($this->subscription->subscriptionId()), $this->subscription->subscriptionId()->toString());
+        $message = sprintf('Subscription "%s#%s" is not started yet.', \get_class($this->subscription->subscriptionId()), $this->subscription->subscriptionId()->toString());
 
         parent::__construct($message);
     }
 
-    public function subscription() : Subscription
+    public function subscription(): Subscription
     {
         return $this->subscription;
     }

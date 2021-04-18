@@ -32,7 +32,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
 
     protected ?AggregateRoot\Id $aggregateId2 = null;
 
-    protected function setUp() : void
+    protected function setUp(): void
     {
         $this->storage = $this->newStorage();
 
@@ -45,34 +45,34 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
         $this->aggregate2->method('aggregateRootId')->with()->willReturn($this->aggregateId2);
     }
 
-    public function testObject()
+    public function testObject(): void
     {
         $this->storage->store($this->aggregate1, 'snapshot-1');
 
         $result = $this->storage->find($this->aggregate1);
 
-        $this->assertSame('snapshot-1', $result);
+        self::assertSame('snapshot-1', $result);
 
         $result = $this->storage->find($this->aggregate1);
 
-        $this->assertSame('snapshot-1', $result);
+        self::assertSame('snapshot-1', $result);
 
         $this->storage->store($this->aggregate1, 'snapshot-2');
 
         $result = $this->storage->find($this->aggregate1);
 
-        $this->assertSame('snapshot-2', $result);
+        self::assertSame('snapshot-2', $result);
 
         $result = $this->storage->find($this->aggregate1);
 
-        $this->assertSame('snapshot-2', $result);
+        self::assertSame('snapshot-2', $result);
 
         $this->expectExceptionObject(new SnapshotNotFound($this->aggregate2));
 
         $this->storage->find($this->aggregate2);
     }
 
-    abstract protected function newStorage() : Storage;
+    abstract protected function newStorage(): Storage;
 }
 
 namespace Streak\Infrastructure\AggregateRoot\Snapshotter\Storage\StorageTestCase;

@@ -18,5 +18,5 @@ namespace Streak\Infrastructure\Testing\Sensor\Scenario;
  */
 interface Given
 {
-    public function given(...$messages) : Then;
+    public function given(...$messages): Then;
 }

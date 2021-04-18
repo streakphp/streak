@@ -54,7 +54,7 @@ class NullCommandBusTest extends TestCase
      */
     private $command3;
 
-    public function setUp() : void
+    protected function setUp(): void
     {
         $this->handler1 = $this->getMockBuilder(CommandHandler::class)->setMockClassName('handler1')->getMockForAbstractClass();
         $this->handler2 = $this->getMockBuilder(CommandHandler::class)->setMockClassName('handler2')->getMockForAbstractClass();
@@ -65,20 +65,20 @@ class NullCommandBusTest extends TestCase
         $this->command3 = $this->getMockBuilder(Command::class)->setMockClassName('command3')->getMockForAbstractClass();
     }
 
-    public function testBus()
+    public function testBus(): void
     {
         $this->handler1
-            ->expects($this->never())
+            ->expects(self::never())
             ->method('handle')
         ;
 
         $this->handler2
-            ->expects($this->never())
+            ->expects(self::never())
             ->method('handle')
         ;
 
         $this->handler3
-            ->expects($this->never())
+            ->expects(self::never())
             ->method('handle')
         ;
 

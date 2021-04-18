@@ -36,7 +36,7 @@ class SynchronousCommandBus implements Application\CommandBus
     /**
      * @throws Exception\CommandHandlerAlreadyRegistered
      */
-    public function register(CommandHandler $handler) : void
+    public function register(CommandHandler $handler): void
     {
         $this->handler->registerHandler($handler);
     }
@@ -44,7 +44,7 @@ class SynchronousCommandBus implements Application\CommandBus
     /**
      * @throws Exception\CommandNotSupported
      */
-    public function dispatch(Command $command) : void
+    public function dispatch(Command $command): void
     {
         try {
             $this->handler->handle($command);

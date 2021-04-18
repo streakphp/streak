@@ -24,9 +24,9 @@ trait Comparison
 {
     use Entity\Comparison;
 
-    abstract public function aggregateId() : Aggregate\Id;
+    abstract public function aggregateId(): Aggregate\Id;
 
-    final public function equals(object $aggregate) : bool
+    final public function equals(object $aggregate): bool
     {
         if (!$this instanceof Domain\Aggregate) {
             return false;

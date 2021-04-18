@@ -34,22 +34,22 @@ class CommittingSubscription implements Subscription, Subscription\Decorator
         $this->uow = $uow;
     }
 
-    public function subscription() : Subscription
+    public function subscription(): Subscription
     {
         return $this->subscription;
     }
 
-    public function subscriptionId() : Event\Listener\Id
+    public function subscriptionId(): Event\Listener\Id
     {
         return $this->subscription->subscriptionId();
     }
 
-    public function listener() : Event\Listener
+    public function listener(): Event\Listener
     {
         return $this->subscription->listener();
     }
 
-    public function subscribeTo(EventStore $store, ?int $limit = null) : iterable
+    public function subscribeTo(EventStore $store, ?int $limit = null): iterable
     {
         try {
             $this->uow->add($this->subscription);
@@ -68,7 +68,7 @@ class CommittingSubscription implements Subscription, Subscription\Decorator
         }
     }
 
-    public function startFor(Event\Envelope $event) : void
+    public function startFor(Event\Envelope $event): void
     {
         try {
             $this->uow->add($this->subscription);
@@ -81,7 +81,7 @@ class CommittingSubscription implements Subscription, Subscription\Decorator
         }
     }
 
-    public function restart() : void
+    public function restart(): void
     {
         try {
             $this->uow->add($this->subscription);
@@ -94,27 +94,27 @@ class CommittingSubscription implements Subscription, Subscription\Decorator
         }
     }
 
-    public function starting() : bool
+    public function starting(): bool
     {
         return $this->subscription->starting();
     }
 
-    public function started() : bool
+    public function started(): bool
     {
         return $this->subscription->started();
     }
 
-    public function completed() : bool
+    public function completed(): bool
     {
         return $this->subscription->completed();
     }
 
-    public function paused() : bool
+    public function paused(): bool
     {
         return $this->subscription->paused();
     }
 
-    public function pause() : void
+    public function pause(): void
     {
         try {
             $this->uow->add($this->subscription);
@@ -127,7 +127,7 @@ class CommittingSubscription implements Subscription, Subscription\Decorator
         }
     }
 
-    public function unpause() : void
+    public function unpause(): void
     {
         try {
             $this->uow->add($this->subscription);
@@ -140,7 +140,7 @@ class CommittingSubscription implements Subscription, Subscription\Decorator
         }
     }
 
-    public function version() : int
+    public function version(): int
     {
         return $this->subscription->version();
     }

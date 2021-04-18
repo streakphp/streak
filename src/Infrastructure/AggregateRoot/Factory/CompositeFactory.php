@@ -30,12 +30,12 @@ class CompositeFactory implements AggregateRoot\Factory
         $this->factories = $factories;
     }
 
-    public function add(AggregateRoot\Factory $factory)
+    public function add(AggregateRoot\Factory $factory): void
     {
         $this->factories[] = $factory;
     }
 
-    public function create(AggregateRoot\Id $id) : AggregateRoot
+    public function create(AggregateRoot\Id $id): AggregateRoot
     {
         $last = null;
         foreach ($this->factories as $factory) {

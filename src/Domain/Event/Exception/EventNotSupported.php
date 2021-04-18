@@ -31,7 +31,7 @@ class EventNotSupported extends \InvalidArgumentException
         parent::__construct(sprintf('Event "%s" not supported.', $event->name()), 0, $previous);
     }
 
-    public function event() : Event\Envelope
+    public function event(): Event\Envelope
     {
         return $this->event;
     }

@@ -42,12 +42,12 @@ class Subscriber implements Event\Listener
         $this->subscriptionsRepository = $subscriptionsRepository;
     }
 
-    public function listenTo(EventBus $bus)
+    public function listenTo(EventBus $bus): void
     {
         $bus->add($this);
     }
 
-    public function on(Event\Envelope $event) : bool
+    public function on(Event\Envelope $event): bool
     {
         // TODO: move filtering subscription-events to subscriber decorator or listener factory decorator.
         if ($event->message() instanceof SubscriptionStarted) {

@@ -24,20 +24,22 @@ class IGBinarySerializerTest extends TestCase
 {
     /**
      * @dataProvider values
+     *
+     * @param mixed $value
      */
-    public function testSerialize($value)
+    public function testSerialize($value): void
     {
         $serializer = new IGBinarySerializer();
 
         $serialized = $serializer->serialize($value);
         $unserialized = $serializer->unserialize($serialized);
 
-        $this->assertEquals(\igbinary_serialize($value), $serialized);
-        $this->assertEquals(\igbinary_unserialize($serialized), $unserialized);
-        $this->assertEquals($value, $unserialized);
+        self::assertEquals(igbinary_serialize($value), $serialized);
+        self::assertEquals(igbinary_unserialize($serialized), $unserialized);
+        self::assertEquals($value, $unserialized);
     }
 
-    public function values() : array
+    public function values(): array
     {
         return [
             ['string'],

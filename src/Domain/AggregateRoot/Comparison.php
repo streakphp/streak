@@ -24,9 +24,9 @@ trait Comparison
 {
     use Aggregate\Comparison;
 
-    abstract public function aggregateRootId() : AggregateRoot\Id;
+    abstract public function aggregateRootId(): AggregateRoot\Id;
 
-    final public function equals(object $root) : bool
+    final public function equals(object $root): bool
     {
         if (!$this instanceof Domain\AggregateRoot) {
             return false;

@@ -23,21 +23,18 @@ use Streak\Domain\Event;
  */
 class AggregateAlreadyRegisteredTest extends TestCase
 {
-    /**
-     * @var Event\Sourced\Aggregate|\PHPUnit_Framework_MockObject_MockObject
-     */
-    private $aggregate;
+    private Event\Sourced\Aggregate $aggregate;
 
-    public function setUp() : void
+    protected function setUp(): void
     {
         $this->aggregate = $this->getMockBuilder(Event\Sourced\Aggregate::class)->getMockForAbstractClass();
     }
 
-    public function testException()
+    public function testException(): void
     {
         $exception = new AggregateAlreadyRegistered($this->aggregate);
 
-        $this->assertEquals('Aggregate already registered.', $exception->getMessage());
-        $this->assertSame($this->aggregate, $exception->aggregate());
+        self::assertEquals('Aggregate already registered.', $exception->getMessage());
+        self::assertSame($this->aggregate, $exception->aggregate());
     }
 }

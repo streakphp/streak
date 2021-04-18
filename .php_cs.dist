@@ -1,50 +1,37 @@
 <?php
-//https://github.com/FriendsOfPHP/PHP-CS-Fixer#usage
-$config = PhpCsFixer\Config::create()
+
+$config = new PhpCsFixer\Config();
+$finder = PhpCsFixer\Finder::create();
+$finder
+    ->exclude('.github')
+    ->exclude('bin')
+    ->exclude('build')
+    ->exclude('docker')
+    ->in(__DIR__)
+;
+$config
     ->setRiskyAllowed(true)
-    ->setCacheFile('build/php_cs.json')
-    ->setRules([
-        '@PSR2' => true,
-        'no_unused_imports' => true,
-        'single_blank_line_before_namespace' => true,
-        'concat_space' => ['spacing' => 'one'],
-        'array_syntax' => ['syntax' => 'short'],
-        'strict_comparison' => true,
-        'combine_consecutive_issets' => true,
-        'combine_consecutive_unsets' => true,
-        'compact_nullable_typehint' => true,
-        'list_syntax' => ['syntax' => 'short'],
-        'no_useless_else' => true,
-        'no_useless_return' => true,
-        'no_superfluous_elseif' => true,
-        'no_unneeded_curly_braces' => true,
-        'no_unneeded_final_method' => true,
-        'no_unreachable_default_argument_value' => true,
-        'no_null_property_initialization' => true,
-        'semicolon_after_instruction' => true,
-        'blank_line_before_statement' => true,
-        'no_extra_consecutive_blank_lines' => [
-            'tokens' => [
-                'break', 'continue', 'extra', 'return', 'throw', 'use', 'parenthesis_brace_block', 'square_brace_block', 'curly_brace_block'
-            ]
-        ],
-        'ordered_imports' => true,
-        'ordered_class_elements' => true,
-        'php_unit_test_class_requires_covers' => true,
-        'yoda_style' => true,
-        '@Symfony' => true,
-        'mb_str_functions' => true,
-        'psr4' => true,
-        'linebreak_after_opening_tag' => false,
-        'blank_line_before_return' => true,
-        'return_type_declaration' => ['space_before' => 'one'],
-        'declare_strict_types' => true,
-        'no_blank_lines_after_phpdoc' => false,
-        'header_comment' => [
-            'commentType' => 'PHPDoc',
-            'location' => 'after_open',
-            'separate' => 'both',
-            'header' => <<<HEADER
+    ->setCacheFile('build/.php-cs-fixer/php_cs.json')
+    ->setRules(
+        [
+            '@PSR12' => true,
+            '@PSR12:risky' => true,
+            '@PHP70Migration' => true,
+            '@PHP70Migration:risky' => true,
+            '@Symfony:risky' => true,
+            'no_unused_imports' => true,
+            'ordered_imports' => true,
+            'ordered_class_elements' => true,
+            'strict_comparison' => true,
+            'php_unit_test_class_requires_covers' => true,
+            'php_unit_dedicate_assert_internal_type' => true,
+            'php_unit_mock' => true,
+            'php_unit_test_case_static_method_calls' => ['call_type' => 'self'],
+            'header_comment' => [
+                'commentType' => 'PHPDoc',
+                'location' => 'after_open',
+                'separate' => 'both',
+                'header' => <<<'HEADER'
 This file is part of the streak package.
 
 (C) Alan Gabriel Bem <alan.bem@gmail.com>
@@ -52,13 +39,12 @@ This file is part of the streak package.
 For the full copyright and license information, please view the LICENSE
 file that was distributed with this source code.
 HEADER
-        ],
-    ])
+                ,
+            ],
+        ]
+    )
     //The vendor directory is excluded by default.
-    ->setFinder(
-        PhpCsFixer\Finder::create()
-            ->exclude('build')
-            ->in(__DIR__)
-    );
+    ->setFinder($finder)
+;
 
 return $config;

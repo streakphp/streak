@@ -21,10 +21,10 @@ use Streak\Domain\Identifiable;
  */
 interface Listener extends Identifiable
 {
-    public function listenerId() : Listener\Id;
+    public function listenerId(): Listener\Id;
 
     /**
      * @return bool whether event was processed/is supported
      */
-    public function on(Event\Envelope $event) : bool;
+    public function on(Event\Envelope $event): bool;
 }

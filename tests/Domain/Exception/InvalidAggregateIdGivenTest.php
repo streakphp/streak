@@ -28,15 +28,15 @@ class InvalidAggregateIdGivenTest extends TestCase
      */
     private $aggregateId;
 
-    public function setUp() : void
+    protected function setUp(): void
     {
         $this->aggregateId = $this->getMockBuilder(Domain\AggregateRoot\Id::class)->getMockForAbstractClass();
     }
 
-    public function testException()
+    public function testException(): void
     {
         $exception = new InvalidAggregateIdGiven($this->aggregateId);
 
-        $this->assertSame($this->aggregateId, $exception->aggregateId());
+        self::assertSame($this->aggregateId, $exception->aggregateId());
     }
 }

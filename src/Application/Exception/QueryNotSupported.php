@@ -28,11 +28,11 @@ class QueryNotSupported extends \RuntimeException
     {
         $this->query = $query;
 
-        $message = sprintf('Query "%s" is not supported.', get_class($query));
+        $message = sprintf('Query "%s" is not supported.', \get_class($query));
         parent::__construct($message, 0, $previous);
     }
 
-    public function query() : Application\Query
+    public function query(): Application\Query
     {
         return $this->query;
     }

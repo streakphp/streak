@@ -20,5 +20,5 @@ use Streak\Domain\Event\Subscription;
  */
 interface Decorator
 {
-    public function subscription() : Subscription;
+    public function subscription(): Subscription;
 }

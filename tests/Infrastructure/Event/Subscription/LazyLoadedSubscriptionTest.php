@@ -38,12 +38,12 @@ class LazyLoadedSubscriptionTest extends TestCase
     private $listener;
 
     /**
-     * @var Subscription|\PHPUnit\Framework\MockObject\MockObject
+     * @var \PHPUnit\Framework\MockObject\MockObject|Subscription
      */
     private $subscription;
 
     /**
-     * @var Subscription\Repository|\PHPUnit\Framework\MockObject\MockObject
+     * @var \PHPUnit\Framework\MockObject\MockObject|Subscription\Repository
      */
     private $repository;
 
@@ -67,7 +67,7 @@ class LazyLoadedSubscriptionTest extends TestCase
      */
     private $store;
 
-    protected function setUp() : void
+    protected function setUp(): void
     {
         $this->id = $this->getMockBuilder(Listener\Id::class)->getMockForAbstractClass();
         $this->listener = $this->getMockBuilder(Listener::class)->getMockForAbstractClass();
@@ -82,70 +82,70 @@ class LazyLoadedSubscriptionTest extends TestCase
         $this->store = $this->getMockBuilder(EventStore::class)->getMockForAbstractClass();
     }
 
-    public function testObject()
+    public function testObject(): void
     {
         $subscription = new LazyLoadedSubscription($this->id, $this->repository);
 
         $this->repository
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('find')
             ->with($this->id)
             ->willReturn($this->subscription)
         ;
 
-        $this->assertSame($this->id, $subscription->subscriptionId());
+        self::assertSame($this->id, $subscription->subscriptionId());
 
         $this->subscription
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('listener')
             ->willReturn($this->listener)
         ;
 
-        $this->assertSame($this->listener, $subscription->listener());
+        self::assertSame($this->listener, $subscription->listener());
 
         $this->subscription
-            ->expects($this->exactly(2))
+            ->expects(self::exactly(2))
             ->method('version')
             ->with()
             ->willReturnOnConsecutiveCalls(1000, 1001)
         ;
 
-        $this->assertSame(1000, $subscription->version());
-        $this->assertSame(1001, $subscription->version());
+        self::assertSame(1000, $subscription->version());
+        self::assertSame(1001, $subscription->version());
 
         $this->subscription
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('completed')
             ->willReturn(false)
         ;
 
-        $this->assertFalse($subscription->completed());
+        self::assertFalse($subscription->completed());
 
         $this->subscription
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('started')
             ->willReturn(true)
         ;
 
-        $this->assertTrue($subscription->started());
+        self::assertTrue($subscription->started());
 
         $this->subscription
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('starting')
             ->willReturn(true)
         ;
 
-        $this->assertTrue($subscription->starting());
+        self::assertTrue($subscription->starting());
 
         $this->subscription
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('restart')
         ;
 
         $subscription->restart();
 
         $this->subscription
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('startFor')
             ->with($this->event1)
         ;
@@ -153,7 +153,7 @@ class LazyLoadedSubscriptionTest extends TestCase
         $subscription->startFor($this->event1);
 
         $this->subscription
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('subscribeTo')
             ->with($this->store, 94_857_623)
             ->willReturn([$this->event2, $this->event3])
@@ -162,22 +162,22 @@ class LazyLoadedSubscriptionTest extends TestCase
         $result = $subscription->subscribeTo($this->store, 94_857_623);
         $result = iterator_to_array($result);
 
-        $this->assertSame([$this->event2, $this->event3], $result);
+        self::assertSame([$this->event2, $this->event3], $result);
 
-        $this->assertSame($this->subscription, $subscription->subscription());
+        self::assertSame($this->subscription, $subscription->subscription());
 
         $this->subscription
-            ->expects($this->exactly(2))
+            ->expects(self::exactly(2))
             ->method('paused')
             ->with()
             ->willReturnOnConsecutiveCalls(false, true)
         ;
 
-        $this->assertFalse($subscription->paused());
-        $this->assertTrue($subscription->paused());
+        self::assertFalse($subscription->paused());
+        self::assertTrue($subscription->paused());
 
         $this->subscription
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('pause')
             ->with()
         ;
@@ -185,7 +185,7 @@ class LazyLoadedSubscriptionTest extends TestCase
         $subscription->pause();
 
         $this->subscription
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('unpause')
             ->with()
         ;

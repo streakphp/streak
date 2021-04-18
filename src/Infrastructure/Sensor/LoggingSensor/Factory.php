@@ -33,11 +33,10 @@ class Factory implements Sensor\Factory
         $this->logger = $logger;
     }
 
-    public function create() : Sensor
+    public function create(): Sensor
     {
         $sensor = $this->factory->create();
-        $sensor = new LoggingSensor($sensor, $this->logger);
 
-        return $sensor;
+        return new LoggingSensor($sensor, $this->logger);
     }
 }

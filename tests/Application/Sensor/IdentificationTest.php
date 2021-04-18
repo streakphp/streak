@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Streak\Application\Sensor;
 
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Streak\Application\Sensor;
 
@@ -24,23 +23,19 @@ use Streak\Application\Sensor;
  */
 class IdentificationTest extends TestCase
 {
-    /**
-     * @var Sensor\Id|MockObject
-     */
-    private $id;
+    private Sensor\Id $id;
 
-    public function setUp() : void
+    protected function setUp(): void
     {
         $this->id = $this->getMockBuilder(Sensor\Id::class)->getMockForAbstractClass();
     }
 
-    public function testObject()
+    public function testObject(): void
     {
-        /* @var $identification Identification */
         $identification = $this->getMockBuilder(Identification::class)->setConstructorArgs([$this->id])->getMockForTrait();
 
-        $this->assertSame($this->id, $identification->sensorId());
-        $this->assertSame($this->id, $identification->producerId());
-        $this->assertSame($this->id, $identification->id());
+        self::assertSame($this->id, $identification->sensorId());
+        self::assertSame($this->id, $identification->producerId());
+        self::assertSame($this->id, $identification->id());
     }
 }

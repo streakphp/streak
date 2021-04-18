@@ -30,12 +30,12 @@ trait Sourcing //implements Event\Consumer, Event\Producer, Domain\Identifiable,
     private $lastReplayed;
     private int $version = 0;
 
-    abstract public function producerId() : Domain\Id;
+    abstract public function producerId(): Domain\Id;
 
     /**
      * @throws \Throwable
      */
-    final public function replay(Event\Stream $stream) : void
+    final public function replay(Event\Stream $stream): void
     {
         try {
             $this->replaying = true;
@@ -52,17 +52,17 @@ trait Sourcing //implements Event\Consumer, Event\Producer, Domain\Identifiable,
         }
     }
 
-    final public function lastReplayed() : ?Event\Envelope
+    final public function lastReplayed(): ?Event\Envelope
     {
         return $this->lastReplayed;
     }
 
-    final public function lastEvent() : ?Event\Envelope
+    final public function lastEvent(): ?Event\Envelope
     {
         return $this->lastEvent;
     }
 
-    final public function version() : int
+    final public function version(): int
     {
         return $this->version;
     }
@@ -70,14 +70,14 @@ trait Sourcing //implements Event\Consumer, Event\Producer, Domain\Identifiable,
     /**
      * @return Event\Envelope[]
      */
-    final public function events() : array
+    final public function events(): array
     {
         return $this->events;
     }
 
-    public function commit() : void
+    public function commit(): void
     {
-        $this->version = $this->version + count($this->events);
+        $this->version = $this->version + \count($this->events);
         $this->events = [];
     }
 
@@ -86,12 +86,12 @@ trait Sourcing //implements Event\Consumer, Event\Producer, Domain\Identifiable,
      * @throws Event\Exception\TooManyEventApplyingMethodsFound
      * @throws \Throwable
      */
-    final private function apply(Event $event) : void
+    final private function apply(Event $event): void
     {
         $event = Event\Envelope::new(
             $event,
             $this->producerId(),
-            $this->version + count($this->events) + 1 // current version + number of not committed events + 1
+            $this->version + \count($this->events) + 1 // current version + number of not committed events + 1
         );
 
         $this->applyEvent($event);
@@ -102,7 +102,7 @@ trait Sourcing //implements Event\Consumer, Event\Producer, Domain\Identifiable,
      * @throws Event\Exception\TooManyEventApplyingMethodsFound
      * @throws \Throwable
      */
-    final private function applyEvent(Event\Envelope $event) : void
+    final private function applyEvent(Event\Envelope $event): void
     {
         if (!$this instanceof Event\Consumer) {
             throw new Exception\SourcingObjectWithEventFailed($this, $event);
@@ -147,7 +147,7 @@ trait Sourcing //implements Event\Consumer, Event\Producer, Domain\Identifiable,
      * @throws Event\Exception\TooManyEventApplyingMethodsFound
      * @throws \Throwable
      */
-    private function doApplyEvent(Event\Envelope $event) : void
+    private function doApplyEvent(Event\Envelope $event): void
     {
         $reflection = new \ReflectionObject($this);
 
@@ -159,7 +159,7 @@ trait Sourcing //implements Event\Consumer, Event\Producer, Domain\Identifiable,
             }
 
             // ...and its name must start with "apply"
-            if ('apply' !== \mb_substr($method->getName(), 0, 5)) {
+            if ('apply' !== mb_substr($method->getName(), 0, 5)) {
                 continue;
             }
 

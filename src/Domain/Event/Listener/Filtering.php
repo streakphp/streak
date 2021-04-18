@@ -20,7 +20,7 @@ use Streak\Domain\Event;
  */
 trait Filtering
 {
-    public function filter(Event\Stream $stream) : Event\Stream
+    public function filter(Event\Stream $stream): Event\Stream
     {
         $reflection = new \ReflectionObject($this);
         $types = [];
@@ -37,7 +37,7 @@ trait Filtering
             }
 
             // ...and its name must start with "on"
-            if ('on' !== \mb_substr($method->getName(), 0, 2)) {
+            if ('on' !== mb_substr($method->getName(), 0, 2)) {
                 continue;
             }
 

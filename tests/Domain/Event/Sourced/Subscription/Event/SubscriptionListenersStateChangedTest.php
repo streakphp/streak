@@ -25,19 +25,19 @@ class SubscriptionListenersStateChangedTest extends TestCase
 {
     private ?InMemoryState $state = null;
 
-    protected function setUp() : void
+    protected function setUp(): void
     {
         $this->state = InMemoryState::empty();
         $this->state = $this->state->set('name', 'value');
     }
 
-    public function testObject()
+    public function testObject(): void
     {
         $event = new SubscriptionListenersStateChanged($this->state, $now = new \DateTimeImmutable());
 
-        $this->assertEquals($now, $event->timestamp());
-        $this->assertNotSame($event->state(), $event->state());
-        $this->assertTrue($event->state()->equals($this->state));
-        $this->assertTrue($event->state()->equals($event->state()));
+        self::assertEquals($now, $event->timestamp());
+        self::assertNotSame($event->state(), $event->state());
+        self::assertTrue($event->state()->equals($this->state));
+        self::assertTrue($event->state()->equals($event->state()));
     }
 }

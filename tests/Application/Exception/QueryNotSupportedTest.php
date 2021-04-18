@@ -26,17 +26,17 @@ class QueryNotSupportedTest extends TestCase
     private $query;
     private ?\Exception $previous = null;
 
-    protected function setUp() : void
+    protected function setUp(): void
     {
         $this->query = $this->getMockBuilder(Application\Query::class)->getMockForAbstractClass();
         $this->previous = new \Exception();
     }
 
-    public function testException()
+    public function testException(): void
     {
         $exception = new QueryNotSupported($this->query, $this->previous);
 
-        $this->assertSame($this->query, $exception->query());
-        $this->assertSame($this->previous, $exception->getPrevious());
+        self::assertSame($this->query, $exception->query());
+        self::assertSame($this->previous, $exception->getPrevious());
     }
 }

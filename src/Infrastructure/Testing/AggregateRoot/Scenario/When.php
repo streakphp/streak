@@ -20,5 +20,5 @@ use Streak\Application;
  */
 interface When
 {
-    public function when(Application\Command $command) : Then;
+    public function when(Application\Command $command): Then;
 }

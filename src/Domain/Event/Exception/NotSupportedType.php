@@ -25,10 +25,10 @@ final class NotSupportedType extends InvalidArgumentException
 
     public function __construct($value)
     {
-        if (is_callable($value)) {
+        if (\is_callable($value)) {
             $type = 'callable';
         } else {
-            $type = gettype($value);
+            $type = \gettype($value);
         }
         parent::__construct(sprintf('Type %s is not supported for conversion!', $type));
         $this->value = $value;

@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Streak\Infrastructure\CommandBus;
 
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Streak\Application\CommandBus;
 use Streak\Application\CommandHandler;
@@ -28,27 +27,12 @@ use Streak\Infrastructure\CommandBus\LockableCommandBusTest\Command3;
  */
 class LockableCommandBusTest extends TestCase
 {
-    /**
-     * @var CommandBus|MockObject
-     */
-    private $bus;
+    private CommandBus $bus;
+    private CommandHandler $handler1;
+    private CommandHandler $handler2;
+    private CommandHandler $handler3;
 
-    /**
-     * @var CommandHandler|MockObject
-     */
-    private $handler1;
-
-    /**
-     * @var CommandHandler|MockObject
-     */
-    private $handler2;
-
-    /**
-     * @var CommandHandler|MockObject
-     */
-    private $handler3;
-
-    protected function setUp() : void
+    protected function setUp(): void
     {
         $this->bus = $this->getMockBuilder(CommandBus::class)->getMockForAbstractClass();
         $this->handler1 = $this->getMockBuilder(CommandHandler::class)->getMockForAbstractClass();
@@ -56,10 +40,10 @@ class LockableCommandBusTest extends TestCase
         $this->handler3 = $this->getMockBuilder(CommandHandler::class)->getMockForAbstractClass();
     }
 
-    public function testBus()
+    public function testBus(): void
     {
         $this->bus
-            ->expects($this->exactly(3))
+            ->expects(self::exactly(3))
             ->method('dispatch')
             ->withConsecutive(
                 [new Command1()],
@@ -68,7 +52,7 @@ class LockableCommandBusTest extends TestCase
             )
         ;
         $this->bus
-            ->expects($this->exactly(3))
+            ->expects(self::exactly(3))
             ->method('register')
             ->withConsecutive(
                 [$this->handler1],

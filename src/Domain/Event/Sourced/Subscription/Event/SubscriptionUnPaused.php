@@ -22,7 +22,7 @@ use Streak\Domain\Event\Sourced\Subscription;
  */
 class SubscriptionUnPaused implements Subscription\Event
 {
-    const DATE_FORMAT = 'U.u';
+    private const DATE_FORMAT = 'U.u';
 
     private string $timestamp;
 
@@ -31,7 +31,7 @@ class SubscriptionUnPaused implements Subscription\Event
         $this->timestamp = $timestamp->format(self::DATE_FORMAT);
     }
 
-    public function timestamp() : \DateTimeImmutable
+    public function timestamp(): \DateTimeImmutable
     {
         return \DateTimeImmutable::createFromFormat(self::DATE_FORMAT, $this->timestamp);
     }

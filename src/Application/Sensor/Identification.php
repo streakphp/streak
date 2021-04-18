@@ -28,22 +28,22 @@ trait Identification
         $this->identifyBy($id);
     }
 
-    public function sensorId() : Sensor\Id
+    public function sensorId(): Sensor\Id
     {
         return $this->id;
     }
 
-    public function producerId() : Domain\Id
+    public function producerId(): Domain\Id
     {
         return $this->sensorId();
     }
 
-    public function id() : Domain\Id
+    public function id(): Domain\Id
     {
         return $this->sensorId();
     }
 
-    protected function identifyBy(Sensor\Id $id) : void
+    protected function identifyBy(Sensor\Id $id): void
     {
         $this->id = $id;
     }

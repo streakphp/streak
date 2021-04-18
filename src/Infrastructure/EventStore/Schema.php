@@ -21,10 +21,10 @@ interface Schema
     /**
      * @throws \Throwable
      */
-    public function create() : void;
+    public function create(): void;
 
     /**
      * @throws \Throwable
      */
-    public function drop() : void;
+    public function drop(): void;
 }

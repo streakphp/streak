@@ -18,5 +18,5 @@ namespace Streak\Domain;
  */
 interface Resettable
 {
-    public function reset() : void;
+    public function reset(): void;
 }

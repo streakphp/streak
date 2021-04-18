@@ -63,21 +63,21 @@ class Scenario implements Scenario\Given, Scenario\When, Scenario\Then, Applicat
         $this->factory = $factory;
     }
 
-    public function given(Domain\Event ...$events) : Scenario\When
+    public function given(Domain\Event ...$events): Scenario\When
     {
         $this->given = array_map(fn (Domain\Event $event) => Event\Envelope::new($event, Domain\Id\UUID::random()), $events);
 
         return $this;
     }
 
-    public function when(Domain\Event $event) : Scenario\Then
+    public function when(Domain\Event $event): Scenario\Then
     {
         $this->when = Event\Envelope::new($event, Domain\Id\UUID::random());
 
         return $this;
     }
 
-    public function then(Application\Command $command = null, \Throwable $error = null) : Then
+    public function then(Application\Command $command = null, \Throwable $error = null): Then
     {
         $this->expectedCommands[] = $command;
         $this->expectedErrors[] = $error;
@@ -85,7 +85,7 @@ class Scenario implements Scenario\Given, Scenario\When, Scenario\Then, Applicat
         return $this;
     }
 
-    public function assert(callable $constraint = null) : void
+    public function assert(callable $constraint = null): void
     {
         $first = array_shift($this->given);
 
@@ -113,7 +113,7 @@ class Scenario implements Scenario\Given, Scenario\When, Scenario\Then, Applicat
                     $listener = $this->factory->create($previousListener->listenerId());
                     $listener->fromState($currentState);
 
-                    Assert::assertEquals($previousListener, $listener, sprintf('Listener "%s" that listened to %s" and generated incomplete state. Please review your Listener\Stateful::toState() and Listener\Stateful::fromState() methods.', get_class($listener), get_class($event)));
+                    Assert::assertEquals($previousListener, $listener, sprintf('Listener "%s" that listened to %s" and generated incomplete state. Please review your Listener\Stateful::toState() and Listener\Stateful::fromState() methods.', \get_class($listener), \get_class($event)));
                 }
                 $this->replaying = false;
             }
@@ -128,7 +128,7 @@ class Scenario implements Scenario\Given, Scenario\When, Scenario\Then, Applicat
             $stream = $listener->filter($stream);
             $stream = iterator_to_array($stream);
 
-            Assert::assertEquals([$this->when], $stream, sprintf('Listener is not listening to %s event.', get_class($this->when)));
+            Assert::assertEquals([$this->when], $stream, sprintf('Listener is not listening to %s event.', \get_class($this->when)));
         }
 
         Assert::assertNotEmpty($this->expectedCommands, 'At least one then() clause is required.');
@@ -137,19 +137,20 @@ class Scenario implements Scenario\Given, Scenario\When, Scenario\Then, Applicat
         $listener->on($this->when);
 
         if (!$listener instanceof Event\Listener\Stateful) {
-            Assert::assertEquals($listener, $new, sprintf('State introduced when listener "%s" listened to "%s" event, but listener is not implementing "%s" interface.', get_class($listener), get_class($this->when), Event\Listener\Stateful::class));
+            Assert::assertEquals($listener, $new, sprintf('State introduced when listener "%s" listened to "%s" event, but listener is not implementing "%s" interface.', \get_class($listener), \get_class($this->when), Event\Listener\Stateful::class));
         }
 
         Assert::assertEquals($this->expectedCommands, $this->actualCommands, 'Expected commands do not match actual commands dispatched by the listener.');
 
         if (null === $constraint) {
-            $constraint = function (Event\Listener $listener) {};
+            $constraint = function (Event\Listener $listener): void {
+            };
         }
 
         $constraint($listener);
     }
 
-    public function handle(Application\Command $command) : void
+    public function handle(Application\Command $command): void
     {
         if (true === $this->replaying) {
             return;
