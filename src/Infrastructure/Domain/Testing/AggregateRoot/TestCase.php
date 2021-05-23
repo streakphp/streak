@@ -11,7 +11,7 @@
 
 declare(strict_types=1);
 
-namespace Streak\Infrastructure\Testing\AggregateRoot;
+namespace Streak\Infrastructure\Domain\Testing\AggregateRoot;
 
 use Streak\Application\CommandHandler\AggregateRootHandler;
 use Streak\Domain;

@@ -11,7 +11,7 @@
 
 declare(strict_types=1);
 
-namespace Streak\Infrastructure\Testing\Sensor\Scenario;
+namespace Streak\Infrastructure\Application\Testing\Sensor\Scenario;
 
 use Streak\Domain\Event;
 

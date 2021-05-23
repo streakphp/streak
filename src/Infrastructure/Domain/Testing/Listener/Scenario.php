@@ -11,7 +11,7 @@
 
 declare(strict_types=1);
 
-namespace Streak\Infrastructure\Testing\Listener;
+namespace Streak\Infrastructure\Domain\Testing\Listener;
 
 use PHPUnit\Framework\Assert;
 use Streak\Application;
@@ -19,7 +19,7 @@ use Streak\Domain;
 use Streak\Domain\Event;
 use Streak\Infrastructure\Domain\Event\InMemoryStream;
 use Streak\Infrastructure\Domain\Event\Sourced\Subscription\InMemoryState;
-use Streak\Infrastructure\Testing\Listener\Scenario\Then;
+use Streak\Infrastructure\Domain\Testing\Listener\Scenario\Then;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>

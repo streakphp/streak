@@ -11,7 +11,7 @@
 
 declare(strict_types=1);
 
-namespace Streak\Infrastructure\Testing\Event;
+namespace Streak\Infrastructure\Domain\Testing\Event;
 
 use Streak\Domain\Event;
 
@@ -30,7 +30,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
     public function testConverting(Event $message): void
     {
         $array = $this->createConverter()->objectToArray($message);
-        $object = $this->createConverter()->arrayToObject(\get_class($message), $array);
+        $object = $this->createConverter()->arrayToObject($array);
 
         self::assertEquals($message, $object);
     }

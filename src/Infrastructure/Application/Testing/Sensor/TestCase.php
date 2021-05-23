@@ -11,7 +11,7 @@
 
 declare(strict_types=1);
 
-namespace Streak\Infrastructure\Testing\Sensor;
+namespace Streak\Infrastructure\Application\Testing\Sensor;
 
 use Streak\Application\Sensor;
 

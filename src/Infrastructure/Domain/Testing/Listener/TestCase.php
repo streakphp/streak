@@ -11,12 +11,12 @@
 
 declare(strict_types=1);
 
-namespace Streak\Infrastructure\Testing\Listener;
+namespace Streak\Infrastructure\Domain\Testing\Listener;
 
 use Streak\Application;
 use Streak\Domain;
 use Streak\Infrastructure\Application\CommandBus\SynchronousCommandBus;
-use Streak\Infrastructure\Testing\Listener;
+use Streak\Infrastructure\Domain\Testing\Listener;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>

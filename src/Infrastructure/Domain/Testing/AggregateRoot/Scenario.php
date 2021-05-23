@@ -11,14 +11,14 @@
 
 declare(strict_types=1);
 
-namespace Streak\Infrastructure\Testing\AggregateRoot;
+namespace Streak\Infrastructure\Domain\Testing\AggregateRoot;
 
 use PHPUnit\Framework\Assert;
 use Streak\Domain;
 use Streak\Infrastructure\Domain\AggregateRoot\Snapshotter;
 use Streak\Infrastructure\Domain\EventStore\InMemoryEventStore;
+use Streak\Infrastructure\Domain\Testing\AggregateRoot\Scenario\Given;
 use Streak\Infrastructure\Domain\UnitOfWork;
-use Streak\Infrastructure\Testing\AggregateRoot\Scenario\Given;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>

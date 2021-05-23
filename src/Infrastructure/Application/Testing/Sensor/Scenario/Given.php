@@ -11,14 +11,12 @@
 
 declare(strict_types=1);
 
-namespace Streak\Infrastructure\Testing\AggregateRoot\Scenario;
-
-use Streak\Domain;
+namespace Streak\Infrastructure\Application\Testing\Sensor\Scenario;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-interface When
+interface Given
 {
-    public function when(Domain\Command $command): Then;
+    public function given(...$messages): Then;
 }

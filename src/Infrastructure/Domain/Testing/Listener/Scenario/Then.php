@@ -11,7 +11,7 @@
 
 declare(strict_types=1);
 
-namespace Streak\Infrastructure\Testing\Listener\Scenario;
+namespace Streak\Infrastructure\Domain\Testing\Listener\Scenario;
 
 use Streak\Domain\Command;
 
