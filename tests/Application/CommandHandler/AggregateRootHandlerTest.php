@@ -14,11 +14,11 @@ declare(strict_types=1);
 namespace Streak\Application\CommandHandler;
 
 use PHPUnit\Framework\TestCase;
-use Streak\Application\Command;
-use Streak\Application\CommandHandler\AggregateRootHandlerTest\CommandHandlingAggregateRoot;
-use Streak\Application\Exception\CommandNotSupported;
 use Streak\Domain\AggregateRoot;
+use Streak\Domain\Command;
+use Streak\Domain\CommandHandler\AggregateRootHandlerTest\CommandHandlingAggregateRoot;
 use Streak\Domain\Exception\AggregateNotFound;
+use Streak\Domain\Exception\CommandNotSupported;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -49,7 +49,7 @@ class AggregateRootHandlerTest extends TestCase
         $this->expectExceptionObject(new CommandNotSupported($this->command));
 
         $handler = new AggregateRootHandler($this->repository);
-        $handler->handle($this->command);
+        $handler->handleCommand($this->command);
     }
 
     public function testAggregateNotFound(): void
@@ -75,7 +75,7 @@ class AggregateRootHandlerTest extends TestCase
         ;
 
         $handler = new AggregateRootHandler($this->repository);
-        $handler->handle($this->aggregateRootCommand);
+        $handler->handleCommand($this->aggregateRootCommand);
     }
 
     public function testAggregateNotACommandHandler(): void
@@ -100,7 +100,7 @@ class AggregateRootHandlerTest extends TestCase
         ;
 
         $handler = new AggregateRootHandler($this->repository);
-        $handler->handle($this->aggregateRootCommand);
+        $handler->handleCommand($this->aggregateRootCommand);
     }
 
     public function testCommandHandlingAggregateRoot(): void
@@ -118,19 +118,19 @@ class AggregateRootHandlerTest extends TestCase
         ;
         $this->aggregateRootCommandHandler
             ->expects(self::once())
-            ->method('handle')
+            ->method('handleCommand')
             ->with($this->aggregateRootCommand)
         ;
 
         $handler = new AggregateRootHandler($this->repository);
-        $handler->handle($this->aggregateRootCommand);
+        $handler->handleCommand($this->aggregateRootCommand);
     }
 }
 
-namespace Streak\Application\CommandHandler\AggregateRootHandlerTest;
+namespace Streak\Domain\CommandHandler\AggregateRootHandlerTest;
 
-use Streak\Application\CommandHandler;
 use Streak\Domain\AggregateRoot;
+use Streak\Domain\CommandHandler;
 
 abstract class CommandHandlingAggregateRoot implements AggregateRoot, CommandHandler
 {

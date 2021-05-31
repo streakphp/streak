@@ -24,20 +24,9 @@ use Streak\Domain\Aggregate;
  */
 class ComparisonTest extends TestCase
 {
-    /**
-     * @var Aggregate\Id|\PHPUnit_Framework_MockObject_MockObject
-     */
-    private $id1;
-
-    /**
-     * @var Aggregate\Id|\PHPUnit_Framework_MockObject_MockObject
-     */
-    private $id2;
-
-    /**
-     * @var Aggregate\Id|\PHPUnit_Framework_MockObject_MockObject
-     */
-    private $id3;
+    private Aggregate\Id $id1;
+    private Aggregate\Id $id2;
+    private Aggregate\Id $id3;
 
     protected function setUp(): void
     {

@@ -23,10 +23,7 @@ use Streak\Domain;
  */
 class AggregateAlreadyExistsTest extends TestCase
 {
-    /**
-     * @var Domain\AggregateRoot|\PHPUnit_Framework_MockObject_MockObject
-     */
-    private $aggregate;
+    private Domain\AggregateRoot $aggregate;
 
     protected function setUp(): void
     {

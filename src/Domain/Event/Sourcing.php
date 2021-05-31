@@ -26,8 +26,8 @@ trait Sourcing //implements Event\Consumer, Event\Producer, Domain\Identifiable,
      */
     private array $events = [];
     private ?Event\Envelope $lastEvent = null;
-    private $replaying = false;
-    private $lastReplayed;
+    private bool $replaying = false;
+    private ?Event\Envelope $lastReplayed = null;
     private int $version = 0;
 
     abstract public function producerId(): Domain\Id;
@@ -77,7 +77,7 @@ trait Sourcing //implements Event\Consumer, Event\Producer, Domain\Identifiable,
 
     public function commit(): void
     {
-        $this->version = $this->version + \count($this->events);
+        $this->version += \count($this->events);
         $this->events = [];
     }
 
@@ -119,7 +119,7 @@ trait Sourcing //implements Event\Consumer, Event\Producer, Domain\Identifiable,
 
             if ($this->replaying) {
                 $this->lastEvent = $event;
-                $this->version = $event->version();
+                $this->version = (int) $event->version();
                 $this->lastReplayed = $event;
             } else {
                 $this->lastEvent = $event;

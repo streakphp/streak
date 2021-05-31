@@ -23,17 +23,16 @@ return static function (ContainerConfigurator $configurator): void {
     $parameters = $configurator->parameters();
 
     // Define what rule sets will be applied
-    $parameters->set(Option::SETS, [
-        PHPUnitSetList::PHPUNIT_91,
-        PHPUnitSetList::PHPUNIT_CODE_QUALITY,
-        PHPUnitSetList::PHPUNIT_EXCEPTION,
-        PHPUnitSetList::PHPUNIT_SPECIFIC_METHOD,
-        PHPUnitSetList::PHPUNIT_SPECIFIC_METHOD,
-        PHPUnitSetList::PHPUNIT_YIELD_DATA_PROVIDER,
-        PHPUnitSetList::PHPUNIT_MOCK,
-        SetList::EARLY_RETURN,
-        SetList::PHP_74,
-    ]);
+    $configurator->import(PHPUnitSetList::PHPUNIT_91);
+    $configurator->import(PHPUnitSetList::PHPUNIT_CODE_QUALITY);
+    $configurator->import(PHPUnitSetList::PHPUNIT_EXCEPTION);
+    $configurator->import(PHPUnitSetList::PHPUNIT_MOCK);
+    $configurator->import(PHPUnitSetList::PHPUNIT_SPECIFIC_METHOD);
+    $configurator->import(PHPUnitSetList::PHPUNIT_YIELD_DATA_PROVIDER);
+//    $configurator->import(SetList::CODE_QUALITY);
+    $configurator->import(SetList::EARLY_RETURN);
+    $configurator->import(SetList::PHP_74);
+//    $configurator->import(SetList::PRIVATIZATION);
 
     $parameters->set(Option::SKIP, [
     ]);
