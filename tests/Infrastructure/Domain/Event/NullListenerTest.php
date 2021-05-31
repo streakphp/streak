@@ -24,16 +24,16 @@ use Streak\Domain\Id\UUID;
  */
 class NullListenerTest extends TestCase
 {
-    private Event\Listener $listener;
+    private \Streak\Application\Event\Listener $listener;
 
-    private Event\Listener\Id $id;
+    private \Streak\Application\Event\Listener\Id $id;
 
     private Event\Envelope $event;
 
     protected function setUp(): void
     {
-        $this->listener = $this->getMockBuilder(Event\Listener::class)->addMethods(['replay', 'reset', 'completed'])->getMockForAbstractClass();
-        $this->id = $this->getMockBuilder(Event\Listener\Id::class)->getMockForAbstractClass();
+        $this->listener = $this->getMockBuilder(\Streak\Application\Event\Listener::class)->addMethods(['replay', 'reset', 'completed'])->getMockForAbstractClass();
+        $this->id = $this->getMockBuilder(\Streak\Application\Event\Listener\Id::class)->getMockForAbstractClass();
         $this->event = Event\Envelope::new($this->getMockBuilder(Event::class)->getMockForAbstractClass(), UUID::random());
     }
 

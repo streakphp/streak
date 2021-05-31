@@ -24,9 +24,9 @@ use Streak\Domain\Id\UUID;
  */
 class NullEventBusTest extends TestCase
 {
-    private Event\Listener $listener1;
-    private Event\Listener $listener2;
-    private Event\Listener $listener3;
+    private \Streak\Application\Event\Listener $listener1;
+    private \Streak\Application\Event\Listener $listener2;
+    private \Streak\Application\Event\Listener $listener3;
 
     private Event\Envelope $event1;
     private Event\Envelope  $event2;
@@ -34,9 +34,9 @@ class NullEventBusTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->listener1 = $this->getMockBuilder(Event\Listener::class)->setMockClassName('listener1')->getMockForAbstractClass();
-        $this->listener2 = $this->getMockBuilder(Event\Listener::class)->setMockClassName('listener2')->getMockForAbstractClass();
-        $this->listener3 = $this->getMockBuilder(Event\Listener::class)->setMockClassName('listener3')->getMockForAbstractClass();
+        $this->listener1 = $this->getMockBuilder(\Streak\Application\Event\Listener::class)->setMockClassName('listener1')->getMockForAbstractClass();
+        $this->listener2 = $this->getMockBuilder(\Streak\Application\Event\Listener::class)->setMockClassName('listener2')->getMockForAbstractClass();
+        $this->listener3 = $this->getMockBuilder(\Streak\Application\Event\Listener::class)->setMockClassName('listener3')->getMockForAbstractClass();
 
         $this->event1 = Event\Envelope::new($this->getMockBuilder(Event::class)->setMockClassName('event1')->getMockForAbstractClass(), UUID::random());
         $this->event2 = Event\Envelope::new($this->getMockBuilder(Event::class)->setMockClassName('event2')->getMockForAbstractClass(), UUID::random());

@@ -19,7 +19,7 @@ use Streak\Domain\Event;
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  *
- * @covers \Streak\Domain\Event\Listener\Filtering
+ * @covers \Streak\Application\Event\Listener\Filtering
  */
 class FilteringTest extends TestCase
 {
@@ -51,7 +51,7 @@ class FilteringTest extends TestCase
 
     public function testFilteringWithEventThaIsNotFinal(): void
     {
-        $this->expectExceptionObject(new \InvalidArgumentException('Event class "Streak\Domain\Event\Listener\FilteringTest\NotSupportedEvent1" must be final in order to be used for stream filtering.'));
+        $this->expectExceptionObject(new \InvalidArgumentException('Event class "Streak\Application\Event\Listener\FilteringTest\NotSupportedEvent1" must be final in order to be used for stream filtering.'));
 
         $filterer = new FilteringTest\ListeningStub2();
         $filterer->filter($this->stream);
@@ -64,7 +64,7 @@ use Streak\Domain\Event;
 
 class ListeningStub1
 {
-    use Event\Listener\Filtering;
+    use \Streak\Application\Event\Listener\Filtering;
 
     public function notStartingWithOn(SupportedEvent1 $event): void
     {
@@ -97,7 +97,7 @@ class ListeningStub1
 
 class ListeningStub2
 {
-    use Event\Listener\Filtering;
+    use \Streak\Application\Event\Listener\Filtering;
 
     public function onNotSupportedEvent1(NotSupportedEvent1 $event): void
     {

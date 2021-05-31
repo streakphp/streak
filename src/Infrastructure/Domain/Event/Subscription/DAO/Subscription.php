@@ -15,7 +15,7 @@ namespace Streak\Infrastructure\Domain\Event\Subscription\DAO;
 
 use Streak\Domain\Clock;
 use Streak\Domain\Event;
-use Streak\Domain\Event\Listener;
+use Streak\Application\Event\Listener;
 use Streak\Domain\Event\Subscription\Exception;
 use Streak\Domain\EventStore;
 use Streak\Infrastructure\Domain\Event\Sourced\Subscription\InMemoryState;
@@ -25,11 +25,11 @@ use Streak\Infrastructure\Domain\Event\Sourced\Subscription\InMemoryState;
  *
  * @see \Streak\Infrastructure\Domain\Event\Subscription\DAO\SubscriptionTest
  */
-class Subscription implements Event\Subscription
+class Subscription implements Listener\Subscription
 {
     private const LIMIT_TO_INITIAL_STREAM = 0;
 
-    private Event\Listener $listener;
+    private \Streak\Application\Event\Listener $listener;
     private Clock $clock;
     private InMemoryState $state;
     private ?Event\Envelope $startedBy = null;
@@ -40,7 +40,7 @@ class Subscription implements Event\Subscription
     private int $version = 0;
     private bool $completed = false;
 
-    public function __construct(Event\Listener $listener, Clock $clock)
+    public function __construct(\Streak\Application\Event\Listener $listener, Clock $clock)
     {
         $this->listener = $listener;
         $this->clock = $clock;
@@ -255,7 +255,7 @@ class Subscription implements Event\Subscription
     {
         if (true === $this->starting()) {
             // we are (re)starting subscription, lets reset listener if possible
-            if ($this->listener instanceof Event\Listener\Resettable) {
+            if ($this->listener instanceof Listener\Resettable) {
                 $this->listener->reset();
             }
         }
@@ -271,7 +271,7 @@ class Subscription implements Event\Subscription
             $this->state = InMemoryState::fromState($this->state);
         }
 
-        if ($this->listener instanceof Event\Listener\Completable) {
+        if ($this->listener instanceof Listener\Completable) {
             if ($this->listener->completed()) {
                 $this->completed = true;
             }

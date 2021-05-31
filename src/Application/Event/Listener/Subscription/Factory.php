@@ -11,12 +11,14 @@
 
 declare(strict_types=1);
 
-namespace Streak\Domain\Event\Listener;
+namespace Streak\Application\Event\Listener\Subscription;
+
+use Streak\Domain\Event;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-interface Completable
+interface Factory
 {
-    public function completed(): bool;
+    public function create(\Streak\Application\Event\Listener $listener): \Streak\Application\Event\Listener\Subscription;
 }

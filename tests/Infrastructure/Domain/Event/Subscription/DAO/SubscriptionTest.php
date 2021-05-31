@@ -16,7 +16,7 @@ namespace Streak\Infrastructure\Domain\Event\Subscription\DAO;
 use PHPUnit\Framework\TestCase;
 use Streak\Domain\Clock;
 use Streak\Domain\Event;
-use Streak\Domain\Event\Listener;
+use Streak\Application\Event\Listener;
 use Streak\Domain\EventStore;
 use Streak\Domain\Id\UUID;
 use Streak\Infrastructure\Domain\Clock\FixedClock;
@@ -1333,7 +1333,7 @@ class SubscriptionTest extends TestCase
 namespace Streak\Infrastructure\Domain\Event\Subscription\DAO\SubscriptionTest;
 
 use Streak\Domain\Event;
-use Streak\Domain\Event\Listener;
+use Streak\Application\Event\Listener;
 
 abstract class CompletableListener implements Listener, Listener\Completable
 {

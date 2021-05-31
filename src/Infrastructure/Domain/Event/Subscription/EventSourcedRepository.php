@@ -15,7 +15,7 @@ namespace Streak\Infrastructure\Domain\Event\Subscription;
 
 use Streak\Domain;
 use Streak\Domain\Event;
-use Streak\Domain\Event\Subscription;
+use Streak\Application\Event\Listener\Subscription;
 use Streak\Domain\Event\Subscription\Repository\Filter;
 use Streak\Domain\EventStore;
 use Streak\Domain\Exception;
@@ -33,13 +33,13 @@ class EventSourcedRepository implements Subscription\Repository
 {
     private Subscription\Factory $subscriptions;
 
-    private Event\Listener\Factory $listeners;
+    private \Streak\Application\Event\Listener\Factory $listeners;
 
     private Domain\EventStore $store;
 
     private Infrastructure\Domain\UnitOfWork $uow;
 
-    public function __construct(Subscription\Factory $subscriptions, Event\Listener\Factory $listeners, Domain\EventStore $store, Infrastructure\Domain\UnitOfWork $uow)
+    public function __construct(Subscription\Factory $subscriptions, \Streak\Application\Event\Listener\Factory $listeners, Domain\EventStore $store, Infrastructure\Domain\UnitOfWork $uow)
     {
         $this->subscriptions = $subscriptions;
         $this->listeners = $listeners;
@@ -47,7 +47,7 @@ class EventSourcedRepository implements Subscription\Repository
         $this->uow = $uow;
     }
 
-    public function find(Event\Listener\Id $id): ?Event\Subscription
+    public function find(\Streak\Application\Event\Listener\Id $id): ?\Streak\Application\Event\Listener\Subscription
     {
         $listener = $this->listeners->create($id);
         $subscription = $this->subscriptions->create($listener);
@@ -73,7 +73,7 @@ class EventSourcedRepository implements Subscription\Repository
     /**
      * @throws Exception\ObjectNotSupported
      */
-    public function has(Event\Subscription $subscription): bool
+    public function has(\Streak\Application\Event\Listener\Subscription $subscription): bool
     {
         $unwrapped = $this->unwrap($subscription);
 
@@ -92,7 +92,7 @@ class EventSourcedRepository implements Subscription\Repository
     /**
      * @throws Exception\ObjectNotSupported
      */
-    public function add(Event\Subscription $subscription): void
+    public function add(\Streak\Application\Event\Listener\Subscription $subscription): void
     {
         $unwrapped = $this->unwrap($subscription);
 
@@ -100,7 +100,7 @@ class EventSourcedRepository implements Subscription\Repository
     }
 
     /**
-     * @return Event\Subscription[]|iterable
+     * @return \Streak\Application\Event\Listener\Subscription[]|iterable
      */
     public function all(?Filter $filter = null): iterable
     {
@@ -150,11 +150,11 @@ class EventSourcedRepository implements Subscription\Repository
     }
 
     /**
-     * @param Subscription $subscription
+     * @param \Streak\Application\Event\Listener\Subscription $subscription
      *
-     * @return Event\Sourced|Subscription
+     * @return Event\Sourced|\Streak\Application\Event\Listener\Subscription
      */
-    private function unwrap(Event\Subscription $subscription): Event\Sourced
+    private function unwrap(\Streak\Application\Event\Listener\Subscription $subscription): Event\Sourced
     {
         $exception = new Exception\ObjectNotSupported($subscription);
 

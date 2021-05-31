@@ -14,8 +14,8 @@ declare(strict_types=1);
 namespace Streak\Domain\Event\Subscription\Exception;
 
 use PHPUnit\Framework\TestCase;
-use Streak\Domain\Event\Listener;
-use Streak\Domain\Event\Subscription;
+use Streak\Application\Event\Listener;
+use Streak\Application\Event\Listener\Subscription;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>

@@ -31,26 +31,27 @@ class SubscriberTest extends TestCase
 {
     private EventBus $bus;
 
-    private Event\Listener\Factory $listenerFactory;
+    private \Streak\Application\Event\Listener\Factory $listenerFactory;
 
-    private Event\Subscription\Factory $subscriptionFactory;
+    private \Streak\Application\Event\Listener\Subscription\Factory $subscriptionFactory;
 
-    private Event\Subscription\Repository $subscriptionsRepository;
+    private \Streak\Application\Event\Listener\Subscription\Repository $subscriptionsRepository;
 
-    private Event\Listener $listener1;
+    private \Streak\Application\Event\Listener $listener1;
 
-    private Event\Subscription $subscription1;
+    private \Streak\Application\Event\Listener\Subscription $subscription1;
 
     private Event\Envelope $event1;
 
     protected function setUp(): void
     {
         $this->bus = $this->getMockBuilder(EventBus::class)->getMockForAbstractClass();
-        $this->listenerFactory = $this->getMockBuilder(Event\Listener\Factory::class)->getMockForAbstractClass();
-        $this->subscriptionFactory = $this->getMockBuilder(Event\Subscription\Factory::class)->getMockForAbstractClass();
-        $this->subscriptionsRepository = $this->getMockBuilder(Event\Subscription\Repository::class)->getMockForAbstractClass();
-        $this->listener1 = $this->getMockBuilder(Event\Listener::class)->getMockForAbstractClass();
-        $this->subscription1 = $this->getMockBuilder(Event\Subscription::class)->getMockForAbstractClass();
+        $this->listenerFactory = $this->getMockBuilder(\Streak\Application\Event\Listener\Factory::class)->getMockForAbstractClass();
+        $this->subscriptionFactory = $this->getMockBuilder(\Streak\Application\Event\Listener\Subscription\Factory::class)->getMockForAbstractClass();
+        $this->subscriptionsRepository = $this->getMockBuilder(
+            \Streak\Application\Event\Listener\Subscription\Repository::class)->getMockForAbstractClass();
+        $this->listener1 = $this->getMockBuilder(\Streak\Application\Event\Listener::class)->getMockForAbstractClass();
+        $this->subscription1 = $this->getMockBuilder(\Streak\Application\Event\Listener\Subscription::class)->getMockForAbstractClass();
 
         $id1 = $this->getMockBuilder(Id::class)->getMockForAbstractClass();
         $this->event1 = Event\Envelope::new($this->getMockBuilder(Event::class)->getMockForAbstractClass(), $id1);

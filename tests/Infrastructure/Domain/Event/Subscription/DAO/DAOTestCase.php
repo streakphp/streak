@@ -30,13 +30,13 @@ abstract class DAOTestCase extends TestCase
 {
     protected ?DAO $dao = null;
 
-    protected Event\Subscription\Factory $subscriptions;
+    protected \Streak\Application\Event\Listener\Subscription\Factory $subscriptions;
 
-    protected Event\Listener\Factory $listeners;
+    protected \Streak\Application\Event\Listener\Factory $listeners;
 
-    protected Event\Listener $listener1;
+    protected \Streak\Application\Event\Listener $listener1;
 
-    protected Event\Listener $listener2;
+    protected \Streak\Application\Event\Listener $listener2;
 
     protected ?Event\Envelope $event = null;
 
@@ -44,8 +44,8 @@ abstract class DAOTestCase extends TestCase
 
     protected function setUp(): void
     {
-        $this->subscriptions = $this->getMockBuilder(Event\Subscription\Factory::class)->getMockForAbstractClass();
-        $this->listeners = $this->getMockBuilder(Event\Listener\Factory::class)->getMockForAbstractClass();
+        $this->subscriptions = $this->getMockBuilder(\Streak\Application\Event\Listener\Subscription\Factory::class)->getMockForAbstractClass();
+        $this->listeners = $this->getMockBuilder(\Streak\Application\Event\Listener\Factory::class)->getMockForAbstractClass();
         $this->listener1 = $this->getMockBuilder(CompletableListener::class)->setMockClassName('listener1')->getMock();
         $this->listener2 = $this->getMockBuilder(CompletableListener::class)->setMockClassName('listener2')->getMock();
         $this->event = Event\Envelope::new(new EventStub(), UUID::random());
@@ -213,7 +213,7 @@ abstract class DAOTestCase extends TestCase
         self::assertFalse($subscription2b->paused());
     }
 
-    abstract public function newDAO(Subscription\Factory $subscriptions, Event\Listener\Factory $listeners): DAO;
+    abstract public function newDAO(Subscription\Factory $subscriptions, \Streak\Application\Event\Listener\Factory $listeners): DAO;
 }
 
 namespace Streak\Infrastructure\Domain\Event\Subscription\DAO\DAOTestCase;
@@ -225,10 +225,10 @@ class EventStub implements Event
 {
 }
 
-class ListenerId extends UUID implements Event\Listener\Id
+class ListenerId extends UUID implements \Streak\Application\Event\Listener\Id
 {
 }
 
-abstract class CompletableListener implements Event\Listener, Event\Listener\Completable
+abstract class CompletableListener implements \Streak\Application\Event\Listener, \Streak\Application\Event\Listener\Completable
 {
 }

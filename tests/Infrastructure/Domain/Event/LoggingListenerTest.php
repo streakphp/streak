@@ -16,7 +16,7 @@ namespace Streak\Infrastructure\Domain\Event;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Streak\Domain\Event;
-use Streak\Domain\Event\Listener;
+use Streak\Application\Event\Listener;
 use Streak\Domain\Exception\QueryNotSupported;
 use Streak\Domain\Id\UUID;
 use Streak\Domain\Query;
@@ -29,7 +29,7 @@ use Streak\Infrastructure\Domain\Event\LoggingListenerTest\ListenerWithAllPossib
  */
 class LoggingListenerTest extends TestCase
 {
-    private Event\Listener $listener1;
+    private \Streak\Application\Event\Listener $listener1;
 
     private ListenerWithAllPossibleFeatures $listener2;
 
@@ -49,7 +49,7 @@ class LoggingListenerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->listener1 = $this->getMockBuilder(Listener::class)->addMethods(['replay', 'reset', 'completed'])->setMockClassName('ListenerMock001')->getMockForAbstractClass();
+        $this->listener1 = $this->getMockBuilder(\Streak\Application\Event\Listener::class)->addMethods(['replay', 'reset', 'completed'])->setMockClassName('ListenerMock001')->getMockForAbstractClass();
         $this->listener2 = $this->getMockBuilder(ListenerWithAllPossibleFeatures::class)->setMockClassName('ListenerMock002')->getMock();
         $this->logger = $this->getMockBuilder(LoggerInterface::class)->getMockForAbstractClass();
         $this->listenerId = $this->getMockBuilder(Listener\Id::class)->getMockForAbstractClass();
@@ -269,6 +269,6 @@ namespace Streak\Infrastructure\Domain\Event\LoggingListenerTest;
 use Streak\Domain\Event;
 use Streak\Domain\QueryHandler;
 
-abstract class ListenerWithAllPossibleFeatures implements Event\Listener, Event\Listener\Completable, Event\Listener\Resettable, Event\Filterer, QueryHandler, Event\Listener\Stateful
+abstract class ListenerWithAllPossibleFeatures implements \Streak\Application\Event\Listener, \Streak\Application\Event\Listener\Completable, \Streak\Application\Event\Listener\Resettable, Event\Filterer, QueryHandler, \Streak\Application\Event\Listener\Stateful
 {
 }

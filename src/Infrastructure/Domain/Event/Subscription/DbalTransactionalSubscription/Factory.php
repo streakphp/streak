@@ -22,13 +22,13 @@ use Streak\Infrastructure\Domain\Event\Subscription\DbalTransactionalSubscriptio
  *
  * @see \Streak\Infrastructure\Domain\Event\Subscription\DbalTransactionalSubscription\FactoryTest
  */
-class Factory implements Event\Subscription\Factory
+class Factory implements \Streak\Application\Event\Listener\Subscription\Factory
 {
-    private Event\Subscription\Factory $factory;
+    private \Streak\Application\Event\Listener\Subscription\Factory $factory;
     private Connection $connection;
     private $maxTransactionSize;
 
-    public function __construct(Event\Subscription\Factory $factory, Connection $connection, int $maxTransactionSize = 1)
+    public function __construct(\Streak\Application\Event\Listener\Subscription\Factory $factory, Connection $connection, int $maxTransactionSize = 1)
     {
         $this->factory = $factory;
         $this->connection = $connection;
@@ -40,7 +40,7 @@ class Factory implements Event\Subscription\Factory
         $this->maxTransactionSize = $maxTransactionSize;
     }
 
-    public function create(Event\Listener $listener): Event\Subscription
+    public function create(\Streak\Application\Event\Listener $listener): \Streak\Application\Event\Listener\Subscription
     {
         $subscription = $this->factory->create($listener);
 

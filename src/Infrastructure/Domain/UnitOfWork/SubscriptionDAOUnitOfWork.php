@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace Streak\Infrastructure\Domain\UnitOfWork;
 
-use Streak\Domain\Event\Subscription;
+use Streak\Application\Event\Listener\Subscription;
 use Streak\Infrastructure\Domain\Event\Subscription\DAO;
 use Streak\Infrastructure\Domain\UnitOfWork;
 
@@ -27,7 +27,7 @@ class SubscriptionDAOUnitOfWork implements UnitOfWork
     private DAO $dao;
 
     /**
-     * @var Subscription[]
+     * @var \Streak\Application\Event\Listener\Subscription[]
      */
     private array $uncommited = [];
 

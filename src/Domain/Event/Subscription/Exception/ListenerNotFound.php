@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace Streak\Domain\Event\Subscription\Exception;
 
-use Streak\Domain\Event\Listener;
+use Streak\Application\Event\Listener;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>

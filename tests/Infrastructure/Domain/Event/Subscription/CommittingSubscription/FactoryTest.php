@@ -27,7 +27,7 @@ use Streak\Infrastructure\Domain\UnitOfWork;
  */
 class FactoryTest extends TestCase
 {
-    private Event\Listener $listener;
+    private \Streak\Application\Event\Listener $listener;
 
     private Clock $clock;
 
@@ -35,7 +35,7 @@ class FactoryTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->listener = $this->getMockBuilder(Event\Listener::class)->getMockForAbstractClass();
+        $this->listener = $this->getMockBuilder(\Streak\Application\Event\Listener::class)->getMockForAbstractClass();
         $this->clock = $this->getMockBuilder(Clock::class)->getMockForAbstractClass();
         $this->uow = $this->getMockBuilder(UnitOfWork::class)->getMockForAbstractClass();
     }

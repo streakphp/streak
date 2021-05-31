@@ -14,8 +14,8 @@ declare(strict_types=1);
 namespace Streak\Infrastructure\Domain\Event\Subscription;
 
 use Streak\Domain\Event;
-use Streak\Domain\Event\Listener;
-use Streak\Domain\Event\Subscription;
+use Streak\Application\Event\Listener;
+use Streak\Application\Event\Listener\Subscription;
 use Streak\Domain\EventStore;
 
 /**

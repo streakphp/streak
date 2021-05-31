@@ -11,11 +11,11 @@
 
 declare(strict_types=1);
 
-namespace Streak\Domain\Event\Listener;
+namespace Streak\Application\Event\Listener;
 
 use Streak\Domain\Event;
 use Streak\Domain\Event\Exception\InvalidEventGiven;
-use Streak\Domain\Event\Listener;
+use Streak\Application\Event\Listener;
 use Streak\Domain\Exception\InvalidIdGiven;
 
 /**
@@ -31,5 +31,5 @@ interface Factory
     /**
      * @throws InvalidEventGiven
      */
-    public function createFor(Event\Envelope $event): Event\Listener;
+    public function createFor(Event\Envelope $event): \Streak\Application\Event\Listener;
 }

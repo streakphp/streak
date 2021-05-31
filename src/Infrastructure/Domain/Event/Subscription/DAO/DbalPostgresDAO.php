@@ -17,8 +17,8 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\TableNotFoundException;
 use Doctrine\DBAL\Types\Type;
 use Streak\Domain\Event;
-use Streak\Domain\Event\Listener;
-use Streak\Domain\Event\Subscription;
+use Streak\Application\Event\Listener;
+use Streak\Application\Event\Listener\Subscription;
 use Streak\Domain\Exception\ObjectNotSupported;
 use Streak\Infrastructure\Domain\Event\Sourced\Subscription\InMemoryState;
 use Streak\Infrastructure\Domain\Event\Subscription\DAO;
@@ -30,15 +30,15 @@ use Streak\Infrastructure\Domain\Event\Subscription\DAO;
  */
 class DbalPostgresDAO implements DAO
 {
-    private Event\Subscription\Factory $subscriptions;
+    private Subscription\Factory $subscriptions;
 
-    private Event\Listener\Factory $listeners;
+    private Listener\Factory $listeners;
 
     private Connection $connection;
 
     private Event\Converter $converter;
 
-    public function __construct(Subscription\Factory $subscriptions, Event\Listener\Factory $listeners, Connection $connection, Event\Converter $converter)
+    public function __construct(Subscription\Factory $subscriptions, Listener\Factory $listeners, Connection $connection, Event\Converter $converter)
     {
         $this->subscriptions = $subscriptions;
         $this->listeners = $listeners;
@@ -62,7 +62,7 @@ class DbalPostgresDAO implements DAO
         }
     }
 
-    public function one(Event\Listener\Id $id): ?Subscription
+    public function one(Listener\Id $id): ?Subscription
     {
         try {
             return $this->doOne($id);
@@ -326,7 +326,7 @@ class DbalPostgresDAO implements DAO
      *
      * @return \Streak\Infrastructure\Domain\Event\Subscription\DAO\Subscription|null
      */
-    private function doOne(Event\Listener\Id $id)
+    private function doOne(Listener\Id $id)
     {
         $sql = 'SELECT subscription_type, subscription_id, subscription_version, state, started_by, started_at, last_processed_event, last_event_processed_at, completed, paused_at FROM subscriptions WHERE subscription_type = :subscription_type AND subscription_id = :subscription_id LIMIT 1';
 

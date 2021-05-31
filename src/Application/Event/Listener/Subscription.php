@@ -11,7 +11,7 @@
 
 declare(strict_types=1);
 
-namespace Streak\Domain\Event;
+namespace Streak\Application\Event\Listener;
 
 use Streak\Domain\Event;
 use Streak\Domain\Event\Subscription\Exception;
@@ -20,13 +20,13 @@ use Streak\Domain\EventStore;
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  *
- * TODO: move under Streak\Domain\Event\Listener
+ * TODO: move under Streak\Application\Event\Listener
  */
 interface Subscription
 {
-    public function listener(): Event\Listener;
+    public function listener(): \Streak\Application\Event\Listener;
 
-    public function subscriptionId(): Event\Listener\Id;
+    public function subscriptionId(): \Streak\Application\Event\Listener\Id;
 
     /**
      * @throws Exception\SubscriptionAlreadyCompleted

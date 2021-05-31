@@ -14,14 +14,14 @@ declare(strict_types=1);
 namespace Streak\Infrastructure\Domain\Event;
 
 use Streak\Domain\Event;
-use Streak\Domain\Event\Listener;
+use Streak\Application\Event\Listener;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  *
  * @see \Streak\Infrastructure\Domain\Event\NullListenerTest
  */
-class NullListener implements Event\Listener
+class NullListener implements \Streak\Application\Event\Listener
 {
     use Listener\Identifying;
 
@@ -30,7 +30,7 @@ class NullListener implements Event\Listener
         return true;
     }
 
-    public static function from(Event\Listener $listener)
+    public static function from(\Streak\Application\Event\Listener $listener)
     {
         return new self($listener->listenerId());
     }

@@ -11,14 +11,16 @@
 
 declare(strict_types=1);
 
-namespace Streak\Domain\Event\Subscription;
+namespace Streak\Application\Event\Listener;
 
-use Streak\Domain\Event;
+use Streak\Application\Event\Listener\State;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-interface Factory
+interface Stateful
 {
-    public function create(Event\Listener $listener): Event\Subscription;
+    public function toState(State $state): State;
+
+    public function fromState(State $state);
 }

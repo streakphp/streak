@@ -27,7 +27,7 @@ use Streak\Domain\Id;
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  *
- * @covers \Streak\Domain\Event\Listener\Listening
+ * @covers \Streak\Application\Event\Listener\Listening
  */
 class ListeningTest extends TestCase
 {
@@ -165,7 +165,7 @@ use Streak\Domain\Event;
 
 class ListeningStub
 {
-    use Event\Listener\Listening;
+    use \Streak\Application\Event\Listener\Listening;
 
     private array $preEvents = [];
     private array $listened = [];

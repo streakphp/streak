@@ -24,7 +24,7 @@ use Streak\Domain\EventBus;
 class InMemoryEventBus implements EventBus
 {
     /**
-     * @var Event\Listener[]
+     * @var \Streak\Application\Event\Listener[]
      */
     private \SplObjectStorage $listeners;
 
@@ -40,12 +40,12 @@ class InMemoryEventBus implements EventBus
         $this->listeners = new \SplObjectStorage();
     }
 
-    public function add(Event\Listener $listener): void
+    public function add(\Streak\Application\Event\Listener $listener): void
     {
         $this->listeners->attach($listener);
     }
 
-    public function remove(Event\Listener $listener): void
+    public function remove(\Streak\Application\Event\Listener $listener): void
     {
         $this->listeners->detach($listener);
     }

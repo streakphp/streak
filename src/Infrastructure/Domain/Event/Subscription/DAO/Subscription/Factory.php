@@ -22,7 +22,7 @@ use Streak\Infrastructure\Domain\Event\Subscription\DAO\Subscription;
  *
  * @see \Streak\Infrastructure\Domain\Event\Subscription\DAO\Subscription\FactoryTest
  */
-class Factory implements Event\Subscription\Factory
+class Factory implements \Streak\Application\Event\Listener\Subscription\Factory
 {
     private Clock $clock;
 
@@ -31,7 +31,7 @@ class Factory implements Event\Subscription\Factory
         $this->clock = $clock;
     }
 
-    public function create(Event\Listener $listener): Event\Subscription
+    public function create(\Streak\Application\Event\Listener $listener): \Streak\Application\Event\Listener\Subscription
     {
         return new Subscription($listener, $this->clock);
     }

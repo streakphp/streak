@@ -15,8 +15,8 @@ namespace Streak\Infrastructure\Domain\Event\Subscription\DbalTransactionalSubsc
 
 use Doctrine\DBAL\Driver\Connection;
 use PHPUnit\Framework\TestCase;
-use Streak\Domain\Event\Listener;
-use Streak\Domain\Event\Subscription;
+use Streak\Application\Event\Listener;
+use Streak\Application\Event\Listener\Subscription;
 use Streak\Infrastructure\Domain\Event\Subscription\DbalTransactionalSubscription;
 
 /**

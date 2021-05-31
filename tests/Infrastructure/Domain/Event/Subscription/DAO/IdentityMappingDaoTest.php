@@ -17,7 +17,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Streak\Domain\Event;
 use Streak\Domain\Event\Envelope;
-use Streak\Domain\Event\Listener\Id;
+use Streak\Application\Event\Listener\Id;
 use Streak\Domain\Id\UUID;
 use Streak\Infrastructure\Domain\Event\Subscription\DAO;
 

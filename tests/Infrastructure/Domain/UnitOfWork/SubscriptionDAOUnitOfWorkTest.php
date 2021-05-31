@@ -15,8 +15,8 @@ namespace Streak\Infrastructure\Domain\UnitOfWork;
 
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Streak\Domain\Event\Listener\Id;
-use Streak\Domain\Event\Subscription;
+use Streak\Application\Event\Listener\Id;
+use Streak\Application\Event\Listener\Subscription;
 use Streak\Infrastructure\Domain\Event\Subscription\DAO;
 use Streak\Infrastructure\Domain\UnitOfWork\Exception\ObjectNotSupported;
 use Streak\Infrastructure\Domain\UnitOfWork\SubscriptionDAOUnitOfWorkTest\DecoratedSubscription;
@@ -148,7 +148,7 @@ class SubscriptionDAOUnitOfWorkTest extends TestCase
 
 namespace Streak\Infrastructure\Domain\UnitOfWork\SubscriptionDAOUnitOfWorkTest;
 
-use Streak\Domain\Event\Subscription;
+use Streak\Application\Event\Listener\Subscription;
 
 abstract class DecoratedSubscription implements Subscription\Decorator, Subscription
 {

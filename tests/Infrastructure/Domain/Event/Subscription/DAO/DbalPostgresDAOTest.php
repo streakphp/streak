@@ -40,7 +40,7 @@ class DbalPostgresDAOTest extends DAOTestCase
         ]);
     }
 
-    public function newDAO(Subscription\Factory $subscriptions, Event\Listener\Factory $listeners): DAO
+    public function newDAO(Subscription\Factory $subscriptions, \Streak\Application\Event\Listener\Factory $listeners): DAO
     {
         $dao = new DbalPostgresDAO(new Subscription\Factory($this->clock), $listeners, self::$connection, new NestedObjectConverter());
         $dao->drop();
@@ -94,10 +94,10 @@ namespace Streak\Infrastructure\Domain\Event\Subscription\DAO\DbalPostgresDAOTes
 
 use Streak\Domain\Event;
 
-abstract class DecoratedSubscription implements Event\Subscription, Event\Subscription\Decorator
+abstract class DecoratedSubscription implements \Streak\Application\Event\Listener\Subscription, Event\Subscription\Decorator
 {
 }
 
-abstract class CompletableListener implements Event\Listener, Event\Listener\Completable
+abstract class CompletableListener implements \Streak\Application\Event\Listener, \Streak\Application\Event\Listener\Completable
 {
 }

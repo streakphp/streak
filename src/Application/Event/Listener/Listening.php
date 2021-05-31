@@ -11,7 +11,7 @@
 
 declare(strict_types=1);
 
-namespace Streak\Domain\Event\Listener;
+namespace Streak\Application\Event\Listener;
 
 use Streak\Domain\Event;
 
@@ -36,7 +36,7 @@ trait Listening
             }
 
             // ...and its name must start with "on"
-            if ('on' !== mb_substr($method->getName(), 0, 2)) {
+            if ('on' !== \mb_substr($method->getName(), 0, 2)) {
                 continue;
             }
 

@@ -22,25 +22,25 @@ use Streak\Infrastructure\Domain\Event\LoggingListener;
  *
  * @see \Streak\Infrastructure\Domain\Event\LoggingListener\FactoryTest
  */
-class Factory implements Event\Listener\Factory
+class Factory implements \Streak\Application\Event\Listener\Factory
 {
-    private Event\Listener\Factory $factory;
+    private \Streak\Application\Event\Listener\Factory $factory;
     private LoggerInterface $logger;
 
-    public function __construct(Event\Listener\Factory $factory, LoggerInterface $logger)
+    public function __construct(\Streak\Application\Event\Listener\Factory $factory, LoggerInterface $logger)
     {
         $this->factory = $factory;
         $this->logger = $logger;
     }
 
-    public function create(Event\Listener\Id $id): Event\Listener
+    public function create(\Streak\Application\Event\Listener\Id $id): \Streak\Application\Event\Listener
     {
         $saga = $this->factory->create($id);
 
         return new LoggingListener($saga, $this->logger);
     }
 
-    public function createFor(Event\Envelope $event): Event\Listener
+    public function createFor(Event\Envelope $event): \Streak\Application\Event\Listener
     {
         $listener = $this->factory->createFor($event);
 

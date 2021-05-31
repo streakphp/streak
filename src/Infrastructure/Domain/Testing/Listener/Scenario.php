@@ -30,7 +30,7 @@ class Scenario implements Scenario\Given, Scenario\When, Scenario\Then, Domain\C
 {
     private Application\CommandBus $bus;
 
-    private Event\Listener\Factory $factory;
+    private Application\Event\Listener\Factory $factory;
 
     /**
      * @var Event\Envelope[]
@@ -56,7 +56,7 @@ class Scenario implements Scenario\Given, Scenario\When, Scenario\Then, Domain\C
      */
     private array $expectedErrors = [];
 
-    public function __construct(Application\CommandBus $bus, Event\Listener\Factory $factory)
+    public function __construct(Application\CommandBus $bus, Application\Event\Listener\Factory $factory)
     {
         $this->bus = $bus;
         $this->bus->register($this);
@@ -95,7 +95,7 @@ class Scenario implements Scenario\Given, Scenario\When, Scenario\Then, Domain\C
             $this->given = array_merge([$first], $this->given);
 
             $previousState = null;
-            if ($listener instanceof Event\Listener\Stateful) {
+            if ($listener instanceof Application\Event\Listener\Stateful) {
                 $this->replaying = true;
                 foreach ($this->given as $event) {
                     $listener->on($event);
@@ -136,14 +136,14 @@ class Scenario implements Scenario\Given, Scenario\When, Scenario\Then, Domain\C
         $this->expectedCommands = array_filter($this->expectedCommands); // cleanup
         $listener->on($this->when);
 
-        if (!$listener instanceof Event\Listener\Stateful) {
-            Assert::assertEquals($listener, $new, sprintf('State introduced when listener "%s" listened to "%s" event, but listener is not implementing "%s" interface.', \get_class($listener), \get_class($this->when), Event\Listener\Stateful::class));
+        if (!$listener instanceof Application\Event\Listener\Stateful) {
+            Assert::assertEquals($listener, $new, sprintf('State introduced when listener "%s" listened to "%s" event, but listener is not implementing "%s" interface.', \get_class($listener), \get_class($this->when), Application\Event\Listener\Stateful::class));
         }
 
         Assert::assertEquals($this->expectedCommands, $this->actualCommands, 'Expected commands do not match actual commands dispatched by the listener.');
 
         if (null === $constraint) {
-            $constraint = function (Event\Listener $listener): void {
+            $constraint = function (Application\Event\Listener $listener): void {
             };
         }
 

@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace Streak\Infrastructure\Domain\Event\Subscription\CommittingSubscription;
 
 use Streak\Domain\Event;
-use Streak\Domain\Event\Subscription;
+use Streak\Application\Event\Listener\Subscription;
 use Streak\Infrastructure\Domain\Event\Subscription\CommittingSubscription;
 use Streak\Infrastructure\Domain\UnitOfWork;
 
@@ -34,7 +34,7 @@ class Factory implements Subscription\Factory
         $this->uow = $uow;
     }
 
-    public function create(Event\Listener $listener): Event\Subscription
+    public function create(\Streak\Application\Event\Listener $listener): \Streak\Application\Event\Listener\Subscription
     {
         $subscription = $this->factory->create($listener);
 

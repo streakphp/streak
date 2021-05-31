@@ -11,7 +11,7 @@
 
 declare(strict_types=1);
 
-namespace Streak\Domain\Event\Subscription;
+namespace Streak\Application\Event\Listener\Subscription;
 
 use Streak\Domain\Event;
 use Streak\Domain\Exception;
@@ -24,20 +24,20 @@ interface Repository
     /**
      * @throws Exception\ObjectNotSupported
      */
-    public function find(Event\Listener\Id $id): ?Event\Subscription;
+    public function find(\Streak\Application\Event\Listener\Id $id): ?\Streak\Application\Event\Listener\Subscription;
 
     /**
      * @throws Exception\ObjectNotSupported
      */
-    public function has(Event\Subscription $subscription): bool;
+    public function has(\Streak\Application\Event\Listener\Subscription $subscription): bool;
 
     /**
      * @throws Exception\ObjectNotSupported
      */
-    public function add(Event\Subscription $subscription): void;
+    public function add(\Streak\Application\Event\Listener\Subscription $subscription): void;
 
     /**
-     * @return Event\Subscription[]|iterable
+     * @return \Streak\Application\Event\Listener\Subscription[]|iterable
      */
     public function all(?Repository\Filter $filter = null): iterable;
 }

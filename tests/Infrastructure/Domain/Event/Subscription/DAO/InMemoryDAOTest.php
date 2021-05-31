@@ -23,7 +23,7 @@ use Streak\Infrastructure\Domain\Event\Subscription\DAO;
  */
 class InMemoryDAOTest extends DAOTestCase
 {
-    public function newDAO(Subscription\Factory $subscriptions, Event\Listener\Factory $listeners): DAO
+    public function newDAO(Subscription\Factory $subscriptions, \Streak\Application\Event\Listener\Factory $listeners): DAO
     {
         return new InMemoryDAO();
     }

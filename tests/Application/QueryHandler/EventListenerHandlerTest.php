@@ -17,7 +17,7 @@ use PHPUnit\Framework\TestCase;
 use Streak\Application\QueryHandler\EventListenerHandlerTest\QueryHandlingListener;
 use Streak\Domain\Event;
 use Streak\Domain\Event\Subscription\Exception\ListenerNotFound;
-use Streak\Domain\Event\Subscription\Repository;
+use Streak\Application\Event\Listener\Subscription\Repository;
 use Streak\Domain\Exception\QueryNotSupported;
 use Streak\Domain\Query;
 
@@ -32,25 +32,25 @@ class EventListenerHandlerTest extends TestCase
 
     private Query $query;
 
-    private Event\Subscription $subscription;
+    private \Streak\Application\Event\Listener\Subscription $subscription;
 
-    private Event\Listener $eventListener;
+    private \Streak\Application\Event\Listener $eventListener;
 
     private QueryHandlingListener $eventListenerQueryHandler;
 
     private Query\EventListenerQuery $eventListenerQuery;
 
-    private Event\Listener\Id $eventListenerId;
+    private \Streak\Application\Event\Listener\Id $eventListenerId;
 
     protected function setUp(): void
     {
         $this->repository = $this->getMockBuilder(Repository::class)->getMockForAbstractClass();
         $this->query = $this->getMockBuilder(Query::class)->getMockForAbstractClass();
-        $this->subscription = $this->getMockBuilder(Event\Subscription::class)->getMockForAbstractClass();
-        $this->eventListener = $this->getMockBuilder(Event\Listener::class)->getMockForAbstractClass();
+        $this->subscription = $this->getMockBuilder(\Streak\Application\Event\Listener\Subscription::class)->getMockForAbstractClass();
+        $this->eventListener = $this->getMockBuilder(\Streak\Application\Event\Listener::class)->getMockForAbstractClass();
         $this->eventListenerQueryHandler = $this->getMockBuilder(QueryHandlingListener::class)->getMock();
         $this->eventListenerQuery = $this->getMockBuilder(Query\EventListenerQuery::class)->getMockForAbstractClass();
-        $this->eventListenerId = $this->getMockBuilder(Event\Listener\Id::class)->getMockForAbstractClass();
+        $this->eventListenerId = $this->getMockBuilder(\Streak\Application\Event\Listener\Id::class)->getMockForAbstractClass();
     }
 
     public function testQueryNotSupported(): void
@@ -141,6 +141,6 @@ namespace Streak\Application\QueryHandler\EventListenerHandlerTest;
 use Streak\Domain\Event;
 use Streak\Domain\QueryHandler;
 
-abstract class QueryHandlingListener implements QueryHandler, Event\Listener
+abstract class QueryHandlingListener implements QueryHandler, \Streak\Application\Event\Listener
 {
 }

@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace Streak\Infrastructure\Domain\Event\Subscription;
 
 use Streak\Domain\Event;
-use Streak\Domain\Event\Subscription;
+use Streak\Application\Event\Listener\Subscription;
 use Streak\Domain\EventStore;
 use Streak\Infrastructure\Domain\UnitOfWork;
 
@@ -39,12 +39,12 @@ class CommittingSubscription implements Subscription, Subscription\Decorator
         return $this->subscription;
     }
 
-    public function subscriptionId(): Event\Listener\Id
+    public function subscriptionId(): \Streak\Application\Event\Listener\Id
     {
         return $this->subscription->subscriptionId();
     }
 
-    public function listener(): Event\Listener
+    public function listener(): \Streak\Application\Event\Listener
     {
         return $this->subscription->listener();
     }

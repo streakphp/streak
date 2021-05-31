@@ -11,14 +11,20 @@
 
 declare(strict_types=1);
 
-namespace Streak\Domain\Event\Sourced\Subscription;
+namespace Streak\Application\Event;
 
-use Streak\Domain\Event\Subscription;
-use Streak\Domain\Id\UUID;
+use Streak\Domain\Event;
+use Streak\Domain\Identifiable;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-class Id extends UUID implements Subscription\Id
+interface Listener extends Identifiable
 {
+    public function listenerId(): Listener\Id;
+
+    /**
+     * @return bool whether event was processed/is supported
+     */
+    public function on(Event\Envelope $event): bool;
 }

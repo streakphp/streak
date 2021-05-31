@@ -23,7 +23,7 @@ interface Id extends Domain\ValueObject
     public function toString(): string;
 
     /**
-     * @return static
+     * @return \Streak\Application\Event\Listener\static
      */
     public static function fromString(string $id): Domain\Id;
 }

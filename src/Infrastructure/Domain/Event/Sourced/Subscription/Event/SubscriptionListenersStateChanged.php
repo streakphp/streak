@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace Streak\Infrastructure\Domain\Event\Sourced\Subscription\Event;
 
-use Streak\Domain\Event\Listener\State;
+use Streak\Application\Event\Listener\State;
 use Streak\Domain\Event\Sourced\Subscription;
 use Streak\Infrastructure\Domain\Event\Sourced\Subscription\InMemoryState;
 

@@ -11,13 +11,12 @@
 
 declare(strict_types=1);
 
-namespace Streak\Domain\Event\Listener;
-
-use Streak\Domain;
+namespace Streak\Application\Event\Listener;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-interface Id extends Domain\Id
+interface Completable
 {
+    public function completed(): bool;
 }

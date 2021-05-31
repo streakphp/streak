@@ -16,7 +16,7 @@ namespace Streak\Infrastructure\Domain\Event\Subscription;
 use PHPUnit\Framework\TestCase;
 use Streak\Domain;
 use Streak\Domain\Event;
-use Streak\Domain\Event\Listener;
+use Streak\Application\Event\Listener;
 use Streak\Domain\Exception;
 use Streak\Domain\Id\UUID;
 use Streak\Infrastructure\Domain\Event\Sourced\Subscription\Event\SubscriptionCompleted;
@@ -35,21 +35,21 @@ use Streak\Infrastructure\Domain\UnitOfWork;
  */
 class EventSourcedRepositoryTest extends TestCase
 {
-    private Event\Subscription\Factory $subscriptions;
+    private Listener\Subscription\Factory $subscriptions;
 
-    private Event\Listener\Factory $listeners;
+    private Listener\Factory $listeners;
 
     private InMemoryEventStore $store;
 
     private UnitOfWork\EventStoreUnitOfWork $uow;
 
-    private Event\Listener $listener1;
+    private \Streak\Application\Event\Listener $listener1;
 
     private EventSourcedSubscription $eventSourcedSubscription1;
     private DecoratedSubscription $eventSourcedSubscription2;
     private DecoratedSubscription $eventSourcedSubscription3;
 
-    private Event\Subscription $nonEventSourcedSubscription1;
+    private Listener\Subscription $nonEventSourcedSubscription1;
     private DecoratedSubscription $nonEventSourcedSubscription2;
     private DecoratedSubscription $nonEventSourcedSubscription3;
 
@@ -65,12 +65,12 @@ class EventSourcedRepositoryTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->subscriptions = $this->getMockBuilder(Event\Subscription\Factory::class)->getMockForAbstractClass();
-        $this->listeners = $this->getMockBuilder(Event\Listener\Factory::class)->getMockForAbstractClass();
+        $this->subscriptions = $this->getMockBuilder(Listener\Subscription\Factory::class)->getMockForAbstractClass();
+        $this->listeners = $this->getMockBuilder(Listener\Factory::class)->getMockForAbstractClass();
         $this->store = new InMemoryEventStore();
         $this->uow = new UnitOfWork\EventStoreUnitOfWork($this->store);
 
-        $this->listener1 = $this->getMockBuilder(Event\Listener::class)->setMockClassName('listener1')->getMockForAbstractClass();
+        $this->listener1 = $this->getMockBuilder(\Streak\Application\Event\Listener::class)->setMockClassName('listener1')->getMockForAbstractClass();
 
         $this->eventSourcedSubscription1 = $this->getMockBuilder(EventSourcedSubscription::class)->setMockClassName('eventSourcedSubscription1')->getMock();
         $this->eventSourcedSubscription2 = $this->getMockBuilder(DecoratedSubscription::class)->setMockClassName('eventSourcedSubscription2')->getMock();
@@ -78,7 +78,7 @@ class EventSourcedRepositoryTest extends TestCase
         $this->eventSourcedSubscription3 = $this->getMockBuilder(DecoratedSubscription::class)->setMockClassName('eventSourcedSubscription3')->getMock();
         $this->eventSourcedSubscription3->method('subscription')->willReturn($this->eventSourcedSubscription2);
 
-        $this->nonEventSourcedSubscription1 = $this->getMockBuilder(Event\Subscription::class)->setMockClassName('nonEventSourcedSubscription1')->getMockForAbstractClass();
+        $this->nonEventSourcedSubscription1 = $this->getMockBuilder(Listener\Subscription::class)->setMockClassName('nonEventSourcedSubscription1')->getMockForAbstractClass();
         $this->nonEventSourcedSubscription2 = $this->getMockBuilder(DecoratedSubscription::class)->setMockClassName('nonEventSourcedSubscription2')->getMock();
         $this->nonEventSourcedSubscription2->method('subscription')->willReturn($this->nonEventSourcedSubscription1);
         $this->nonEventSourcedSubscription3 = $this->getMockBuilder(DecoratedSubscription::class)->setMockClassName('nonEventSourcedSubscription3')->getMock();
@@ -413,10 +413,10 @@ namespace Streak\Infrastructure\Domain\Event\Subscription\EventSourcedRepository
 
 use Streak\Domain\Event;
 
-abstract class EventSourcedSubscription implements Event\Subscription, Event\Sourced
+abstract class EventSourcedSubscription implements \Streak\Application\Event\Listener\Subscription, Event\Sourced
 {
 }
 
-abstract class DecoratedSubscription implements Event\Subscription, Event\Subscription\Decorator
+abstract class DecoratedSubscription implements \Streak\Application\Event\Listener\Subscription, Event\Subscription\Decorator
 {
 }

@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace Streak\Infrastructure\Domain\Event\Subscription\DAO;
 
 use Streak\Domain\Event;
-use Streak\Domain\Event\Subscription;
+use Streak\Application\Event\Listener\Subscription;
 use Streak\Infrastructure\Domain\Event\Subscription\DAO;
 use Streak\Infrastructure\Domain\UnitOfWork;
 
@@ -35,7 +35,7 @@ class DAORepository implements Subscription\Repository
         $this->uow = $uow;
     }
 
-    public function find(Event\Listener\Id $id): ?Event\Subscription
+    public function find(\Streak\Application\Event\Listener\Id $id): ?\Streak\Application\Event\Listener\Subscription
     {
         $subscription = $this->dao->one($id);
 
@@ -48,12 +48,12 @@ class DAORepository implements Subscription\Repository
         return $subscription;
     }
 
-    public function has(Event\Subscription $subscription): bool
+    public function has(\Streak\Application\Event\Listener\Subscription $subscription): bool
     {
         return $this->dao->exists($subscription->subscriptionId());
     }
 
-    public function add(Event\Subscription $subscription): void
+    public function add(\Streak\Application\Event\Listener\Subscription $subscription): void
     {
         $this->uow->add($subscription);
     }

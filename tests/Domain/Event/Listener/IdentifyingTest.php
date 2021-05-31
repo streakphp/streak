@@ -14,12 +14,13 @@ declare(strict_types=1);
 namespace Streak\Domain\Event\Listener;
 
 use PHPUnit\Framework\TestCase;
-use Streak\Domain\Event\Listener;
+use Streak\Application\Event\Listener;
+use Streak\Application\Event\Listener\Identifying;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  *
- * @covers \Streak\Domain\Event\Listener\Identifying
+ * @covers \Streak\Application\Event\Listener\Identifying
  */
 class IdentifyingTest extends TestCase
 {

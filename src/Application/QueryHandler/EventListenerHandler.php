@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace Streak\Application\QueryHandler;
 
-use Streak\Domain\Event\Subscription;
+use Streak\Application\Event\Listener\Subscription;
 use Streak\Domain\Event\Subscription\Exception\ListenerNotFound;
 use Streak\Domain\Exception\QueryNotSupported;
 use Streak\Domain\Query;

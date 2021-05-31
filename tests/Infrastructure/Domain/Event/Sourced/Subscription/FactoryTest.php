@@ -24,13 +24,13 @@ use Streak\Domain\Event;
  */
 class FactoryTest extends TestCase
 {
-    private Event\Listener $listener;
+    private \Streak\Application\Event\Listener $listener;
 
     private Clock $clock;
 
     protected function setUp(): void
     {
-        $this->listener = $this->getMockBuilder(Event\Listener::class)->getMockForAbstractClass();
+        $this->listener = $this->getMockBuilder(\Streak\Application\Event\Listener::class)->getMockForAbstractClass();
         $this->clock = $this->getMockBuilder(Clock::class)->getMockForAbstractClass();
     }
 

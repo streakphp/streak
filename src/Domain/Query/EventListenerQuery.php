@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace Streak\Domain\Query;
 
-use Streak\Domain\Event\Listener;
+use Streak\Application\Event\Listener;
 use Streak\Domain\Query;
 
 /**

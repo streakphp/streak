@@ -15,8 +15,8 @@ namespace Streak\Infrastructure\Domain\Event\Sourced;
 
 use Streak\Domain;
 use Streak\Domain\Event;
-use Streak\Domain\Event\Listener;
-use Streak\Domain\Event\Listener\State;
+use Streak\Application\Event\Listener;
+use Streak\Application\Event\Listener\State;
 use Streak\Domain\Event\Subscription\Exception;
 use Streak\Domain\EventStore;
 use Streak\Domain\Versionable;
@@ -36,7 +36,7 @@ use Streak\Infrastructure\Domain\Event\Sourced\Subscription\InMemoryState;
  *
  * @see \Streak\Infrastructure\Domain\Event\Sourced\SubscriptionTest
  */
-final class Subscription implements Event\Subscription, Event\Sourced, Versionable
+final class Subscription implements Listener\Subscription, Event\Sourced, Versionable
 {
     use Event\Sourcing {
         Event\Sourcing::replay as private doReplay;
@@ -44,7 +44,7 @@ final class Subscription implements Event\Subscription, Event\Sourced, Versionab
 
     private const LIMIT_TO_INITIAL_STREAM = 0;
 
-    private Event\Listener $listener;
+    private \Streak\Application\Event\Listener $listener;
     private State  $lastState;
     private Domain\Clock $clock;
     private ?Event\Envelope $completedBy = null;
@@ -53,7 +53,7 @@ final class Subscription implements Event\Subscription, Event\Sourced, Versionab
     private bool $starting = false;
     private $lastProcessedEvent;
 
-    public function __construct(Event\Listener $listener, Domain\Clock $clock)
+    public function __construct(\Streak\Application\Event\Listener $listener, Domain\Clock $clock)
     {
         $this->listener = $listener;
         $this->clock = $clock;
@@ -170,7 +170,7 @@ final class Subscription implements Event\Subscription, Event\Sourced, Versionab
             throw new Exception\SubscriptionNotStartedYet($this);
         }
 
-        if (!$this->listener instanceof Event\Listener\Resettable) {
+        if (!$this->listener instanceof Listener\Resettable) {
             throw new Exception\SubscriptionRestartNotPossible($this);
         }
 
@@ -295,7 +295,7 @@ final class Subscription implements Event\Subscription, Event\Sourced, Versionab
         return $this->subscriptionId();
     }
 
-    public function subscriptionId(): Event\Listener\Id
+    public function subscriptionId(): Listener\Id
     {
         return $this->listener->listenerId();
     }
@@ -335,7 +335,7 @@ final class Subscription implements Event\Subscription, Event\Sourced, Versionab
     {
         if (true === $this->starting()) {
             // we are (re)starting subscription, lets reset listener if possible
-            if ($this->listener instanceof Event\Listener\Resettable) {
+            if ($this->listener instanceof Listener\Resettable) {
                 $this->listener->reset();
             }
         }
@@ -357,7 +357,7 @@ final class Subscription implements Event\Subscription, Event\Sourced, Versionab
             }
         }
 
-        if ($this->listener instanceof Event\Listener\Completable) {
+        if ($this->listener instanceof Listener\Completable) {
             if ($this->listener->completed()) {
                 $this->apply(new SubscriptionCompleted($this->clock->now()));
             }

@@ -11,7 +11,7 @@
 
 declare(strict_types=1);
 
-namespace Streak\Domain\Event\Listener;
+namespace Streak\Application\Event\Listener;
 
 use Streak\Domain\ValueObject;
 

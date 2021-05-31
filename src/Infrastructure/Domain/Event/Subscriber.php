@@ -25,15 +25,15 @@ use Streak\Infrastructure\Domain\Event\Sourced\Subscription\Event\SubscriptionSt
  *
  * @see \Streak\Infrastructure\Domain\Event\SubscriberTest
  */
-class Subscriber implements Event\Listener
+class Subscriber implements \Streak\Application\Event\Listener
 {
-    use Event\Listener\Identifying;
+    use \Streak\Application\Event\Listener\Identifying;
 
-    private Event\Listener\Factory $listenerFactory;
-    private Event\Subscription\Factory $subscriptionFactory;
-    private Event\Subscription\Repository $subscriptionsRepository;
+    private \Streak\Application\Event\Listener\Factory $listenerFactory;
+    private \Streak\Application\Event\Listener\Subscription\Factory $subscriptionFactory;
+    private \Streak\Application\Event\Listener\Subscription\Repository $subscriptionsRepository;
 
-    public function __construct(Event\Listener\Factory $listenerFactory, Event\Subscription\Factory $subscriptionFactory, Event\Subscription\Repository $subscriptionsRepository)
+    public function __construct(\Streak\Application\Event\Listener\Factory $listenerFactory, \Streak\Application\Event\Listener\Subscription\Factory $subscriptionFactory, \Streak\Application\Event\Listener\Subscription\Repository $subscriptionsRepository)
     {
         $this->identifyBy(Subscriber\Id::random());
         $this->listenerFactory = $listenerFactory;

@@ -15,7 +15,7 @@ namespace Streak\Infrastructure\Domain\Event\Sourced\Subscription;
 
 use Streak\Domain\Clock;
 use Streak\Domain\Event;
-use Streak\Domain\Event\Subscription;
+use Streak\Application\Event\Listener\Subscription;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -34,7 +34,7 @@ class Factory implements Subscription\Factory
     /**
      * @return \Streak\Infrastructure\Domain\Event\Sourced\Subscription
      */
-    public function create(Event\Listener $listener): Event\Subscription
+    public function create(\Streak\Application\Event\Listener $listener): \Streak\Application\Event\Listener\Subscription
     {
         return new \Streak\Infrastructure\Domain\Event\Sourced\Subscription($listener, $this->clock);
     }

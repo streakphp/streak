@@ -23,11 +23,11 @@ use Streak\Domain\Event;
  */
 class ListenerNotFoundTest extends TestCase
 {
-    private Event\Listener\Id $listenerId;
+    private \Streak\Application\Event\Listener\Id $listenerId;
 
     protected function setUp(): void
     {
-        $this->listenerId = $this->getMockBuilder(Event\Listener\Id::class)->setMockClassName('listener_id_1')->getMockForAbstractClass();
+        $this->listenerId = $this->getMockBuilder(\Streak\Application\Event\Listener\Id::class)->setMockClassName('listener_id_1')->getMockForAbstractClass();
     }
 
     public function testException(): void

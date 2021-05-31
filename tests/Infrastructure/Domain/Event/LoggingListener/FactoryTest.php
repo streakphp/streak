@@ -16,7 +16,7 @@ namespace Streak\Infrastructure\Domain\Event\LoggingListener;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Streak\Domain\Event;
-use Streak\Domain\Event\Listener;
+use Streak\Application\Event\Listener;
 use Streak\Infrastructure\Domain\Event\LoggingListener;
 
 /**

@@ -16,8 +16,8 @@ namespace Streak\Infrastructure\Domain\Event;
 use Psr\Log\LoggerInterface;
 use Streak\Domain;
 use Streak\Domain\Event;
-use Streak\Domain\Event\Listener;
-use Streak\Domain\Event\Listener\State;
+use Streak\Application\Event\Listener;
+use Streak\Application\Event\Listener\State;
 use Streak\Domain\Query;
 use Streak\Domain\QueryHandler;
 
@@ -26,12 +26,12 @@ use Streak\Domain\QueryHandler;
  *
  * @see \Streak\Infrastructure\Domain\Event\LoggingListenerTest
  */
-class LoggingListener implements Event\Listener, Event\Listener\Completable, Listener\Resettable, Listener\Stateful, Event\Filterer, QueryHandler
+class LoggingListener implements \Streak\Application\Event\Listener, Listener\Completable, Listener\Resettable, Listener\Stateful, Event\Filterer, QueryHandler
 {
-    private Event\Listener $listener;
+    private \Streak\Application\Event\Listener $listener;
     private LoggerInterface $logger;
 
-    public function __construct(Event\Listener $listener, LoggerInterface $logger)
+    public function __construct(\Streak\Application\Event\Listener $listener, LoggerInterface $logger)
     {
         $this->listener = $listener;
         $this->logger = $logger;
@@ -66,7 +66,7 @@ class LoggingListener implements Event\Listener, Event\Listener\Completable, Lis
 
     public function completed(): bool
     {
-        if ($this->listener instanceof Event\Listener\Completable) {
+        if ($this->listener instanceof Listener\Completable) {
             return $this->listener->completed();
         }
 
@@ -75,7 +75,7 @@ class LoggingListener implements Event\Listener, Event\Listener\Completable, Lis
 
     public function reset(): void
     {
-        if (!$this->listener instanceof Event\Listener\Resettable) {
+        if (!$this->listener instanceof Listener\Resettable) {
             return;
         }
 

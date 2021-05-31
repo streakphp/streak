@@ -11,9 +11,10 @@
 
 declare(strict_types=1);
 
-namespace Streak\Domain\Event\Listener;
+namespace Streak\Application\Event\Listener;
 
 use Streak\Domain\Event;
+use function Streak\Domain\Event\Listener\mb_substr;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>

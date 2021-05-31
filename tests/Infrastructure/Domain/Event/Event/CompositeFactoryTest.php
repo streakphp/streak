@@ -15,7 +15,7 @@ namespace Streak\Infrastructure\Domain\Event\Event;
 
 use PHPUnit\Framework\TestCase;
 use Streak\Domain\Event;
-use Streak\Domain\Event\Listener;
+use Streak\Application\Event\Listener;
 use Streak\Domain\Exception\InvalidIdGiven;
 use Streak\Domain\Id\UUID;
 use Streak\Infrastructure\Domain\Event\Listener\CompositeFactory;

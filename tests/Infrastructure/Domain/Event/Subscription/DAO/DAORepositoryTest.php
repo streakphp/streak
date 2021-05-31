@@ -14,8 +14,8 @@ declare(strict_types=1);
 namespace Streak\Infrastructure\Domain\Event\Subscription\DAO;
 
 use PHPUnit\Framework\TestCase;
-use Streak\Domain\Event\Listener\Id;
-use Streak\Domain\Event\Subscription;
+use Streak\Application\Event\Listener\Id;
+use Streak\Application\Event\Listener\Subscription;
 use Streak\Domain\Event\Subscription\Repository\Filter;
 use Streak\Infrastructure\Domain\Event\Subscription\DAO;
 use Streak\Infrastructure\Domain\UnitOfWork;

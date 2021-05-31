@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace Streak\Infrastructure\Domain\Event\Sourced\Subscription\Event;
 
 use PHPUnit\Framework\TestCase;
-use Streak\Domain\Event\Listener\State;
+use Streak\Application\Event\Listener\State;
 use Streak\Infrastructure\Domain\Event\Sourced\Subscription\InMemoryState;
 
 /**

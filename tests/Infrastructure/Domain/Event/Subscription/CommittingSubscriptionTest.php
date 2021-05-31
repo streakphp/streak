@@ -15,7 +15,7 @@ namespace Streak\Infrastructure\Domain\Event\Subscription;
 
 use PHPUnit\Framework\TestCase;
 use Streak\Domain\Event;
-use Streak\Domain\Event\Listener;
+use Streak\Application\Event\Listener;
 use Streak\Domain\EventStore;
 use Streak\Domain\Id\UUID;
 use Streak\Infrastructure\Domain\UnitOfWork;
@@ -27,7 +27,7 @@ use Streak\Infrastructure\Domain\UnitOfWork;
  */
 class CommittingSubscriptionTest extends TestCase
 {
-    private Event\Subscription $subscription;
+    private Listener\Subscription $subscription;
 
     private Listener $listener;
 
@@ -52,7 +52,7 @@ class CommittingSubscriptionTest extends TestCase
 
         $this->uow = $this->getMockBuilder(UnitOfWork::class)->getMockForAbstractClass();
 
-        $this->subscription = $this->getMockBuilder(Event\Subscription::class)->getMock();
+        $this->subscription = $this->getMockBuilder(Listener\Subscription::class)->getMock();
     }
 
     public function testListener(): void
