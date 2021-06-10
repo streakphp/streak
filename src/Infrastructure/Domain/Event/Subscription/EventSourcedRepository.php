@@ -31,20 +31,8 @@ use Streak\Infrastructure\Domain\Event\Sourced\Subscription\Event\SubscriptionSt
  */
 class EventSourcedRepository implements Subscription\Repository
 {
-    private Subscription\Factory $subscriptions;
-
-    private Event\Listener\Factory $listeners;
-
-    private Domain\EventStore $store;
-
-    private Infrastructure\Domain\UnitOfWork $uow;
-
-    public function __construct(Subscription\Factory $subscriptions, Event\Listener\Factory $listeners, Domain\EventStore $store, Infrastructure\Domain\UnitOfWork $uow)
+    public function __construct(private Subscription\Factory $subscriptions, private Event\Listener\Factory $listeners, private Domain\EventStore $store, private Infrastructure\Domain\UnitOfWork $uow)
     {
-        $this->subscriptions = $subscriptions;
-        $this->listeners = $listeners;
-        $this->store = $store;
-        $this->uow = $uow;
     }
 
     public function find(Event\Listener\Id $id): ?Event\Subscription
@@ -150,8 +138,6 @@ class EventSourcedRepository implements Subscription\Repository
     }
 
     /**
-     * @param Subscription $subscription
-     *
      * @return Event\Sourced|Subscription
      */
     private function unwrap(Event\Subscription $subscription): Event\Sourced

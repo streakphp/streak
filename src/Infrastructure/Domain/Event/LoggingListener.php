@@ -28,13 +28,8 @@ use Streak\Domain\QueryHandler;
  */
 class LoggingListener implements Event\Listener, Event\Listener\Completable, Listener\Resettable, Listener\Stateful, Event\Filterer, QueryHandler
 {
-    private Event\Listener $listener;
-    private LoggerInterface $logger;
-
-    public function __construct(Event\Listener $listener, LoggerInterface $logger)
+    public function __construct(private Event\Listener $listener, private LoggerInterface $logger)
     {
-        $this->listener = $listener;
-        $this->logger = $logger;
     }
 
     public function id(): Domain\Id
@@ -53,10 +48,10 @@ class LoggingListener implements Event\Listener, Event\Listener\Completable, Lis
             return $this->listener->on($event);
         } catch (\Throwable $exception) {
             $this->logger->debug('Listener "{listener}" has thrown "{class}" exception with "{message}" message on "{event}" event.', [
-                'listener' => \get_class($this->listener),
-                'class' => \get_class($exception),
+                'listener' => $this->listener::class,
+                'class' => $exception::class,
                 'message' => $exception->getMessage(),
-                'event' => \get_class($event->message()),
+                'event' => $event->message()::class,
                 'exception' => $exception,
             ]);
 
@@ -83,8 +78,8 @@ class LoggingListener implements Event\Listener, Event\Listener\Completable, Lis
             $this->listener->reset();
         } catch (\Throwable $exception) {
             $this->logger->debug('Listener "{listener}" has thrown "{class}" exception with "{message}" message while resetting.', [
-                'listener' => \get_class($this->listener),
-                'class' => \get_class($exception),
+                'listener' => $this->listener::class,
+                'class' => $exception::class,
                 'message' => $exception->getMessage(),
                 'exception' => $exception,
             ]);

@@ -24,11 +24,8 @@ use Streak\Infrastructure\Domain\Resettable;
  */
 class PostgresStorage implements Storage, Resettable
 {
-    private Connection $connection;
-
-    public function __construct(Connection $connection)
+    public function __construct(private Connection $connection)
     {
-        $this->connection = $connection;
     }
 
     public function reset(): bool
@@ -46,7 +43,7 @@ class PostgresStorage implements Storage, Resettable
     {
         try {
             return $this->doFind($aggregate);
-        } catch (TableNotFoundException $e) {
+        } catch (TableNotFoundException) {
             throw new Storage\Exception\SnapshotNotFound($aggregate);
         }
     }
@@ -55,7 +52,7 @@ class PostgresStorage implements Storage, Resettable
     {
         try {
             $this->doStore($aggregate, $snapshot);
-        } catch (TableNotFoundException $e) {
+        } catch (TableNotFoundException) {
             $this->createTable();
             $this->doStore($aggregate, $snapshot);
         }
@@ -65,7 +62,7 @@ class PostgresStorage implements Storage, Resettable
     {
         $sql = 'SELECT snapshot FROM snapshots WHERE type = :type AND id = :id';
         $statement = $this->connection->prepare($sql);
-        $statement->bindValue('type', \get_class($aggregate->id()));
+        $statement->bindValue('type', $aggregate->id()::class);
         $statement->bindValue('id', $aggregate->id()->toString());
         $statement->execute();
         $row = $statement->fetch();
@@ -104,7 +101,7 @@ class PostgresStorage implements Storage, Resettable
 
         $statement = $this->connection->prepare($sql);
         $statement->bindValue('id', $aggregate->id()->toString());
-        $statement->bindValue('type', \get_class($aggregate->id()));
+        $statement->bindValue('type', $aggregate->id()::class);
         $statement->bindValue('snapshot', $snapshot);
         $statement->bindValue('snapshot_size', mb_strlen($snapshot));
         $statement->bindValue('stores_counter', 1);

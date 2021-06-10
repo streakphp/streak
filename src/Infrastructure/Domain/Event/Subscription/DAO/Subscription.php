@@ -28,9 +28,6 @@ use Streak\Infrastructure\Domain\Event\Sourced\Subscription\InMemoryState;
 class Subscription implements Event\Subscription
 {
     private const LIMIT_TO_INITIAL_STREAM = 0;
-
-    private Event\Listener $listener;
-    private Clock $clock;
     private InMemoryState $state;
     private ?Event\Envelope $startedBy = null;
     private ?\DateTimeImmutable $startedAt = null;
@@ -40,10 +37,8 @@ class Subscription implements Event\Subscription
     private int $version = 0;
     private bool $completed = false;
 
-    public function __construct(Event\Listener $listener, Clock $clock)
+    public function __construct(private Event\Listener $listener, private Clock $clock)
     {
-        $this->listener = $listener;
-        $this->clock = $clock;
         $this->state = InMemoryState::empty();
     }
 

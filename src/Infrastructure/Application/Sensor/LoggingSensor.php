@@ -25,13 +25,8 @@ use Streak\Domain;
  */
 class LoggingSensor implements Application\Sensor
 {
-    private Sensor $sensor;
-    private LoggerInterface $logger;
-
-    public function __construct(Application\Sensor $sensor, LoggerInterface $logger)
+    public function __construct(private Application\Sensor $sensor, private LoggerInterface $logger)
     {
-        $this->sensor = $sensor;
-        $this->logger = $logger;
     }
 
     public function producerId(): Domain\Id
@@ -55,8 +50,8 @@ class LoggingSensor implements Application\Sensor
             $this->sensor->process(...$messages);
         } catch (\Throwable $exception) {
             $this->logger->debug('Sensor "{sensor}" has thrown "{class}" exception with "{message}" message while processing messages.', [
-                'sensor' => \get_class($this->sensor),
-                'class' => \get_class($exception),
+                'sensor' => $this->sensor::class,
+                'class' => $exception::class,
                 'message' => $exception->getMessage(),
                 'exception' => $exception,
             ]);

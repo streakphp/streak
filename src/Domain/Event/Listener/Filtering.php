@@ -17,6 +17,8 @@ use Streak\Domain\Event;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @see \Streak\Domain\Event\Listener\FilteringTest
  */
 trait Filtering
 {
@@ -53,7 +55,14 @@ trait Filtering
             }
 
             // ..and it is an event...
-            $parameter = $parameter->getClass();
+            $parameter = $parameter->getType();
+
+            if (!$parameter instanceof \ReflectionNamedType) {
+                continue;
+            }
+
+            $parameter = new \ReflectionClass($parameter->getName());
+
             if (false === $parameter->isSubclassOf(Event::class)) {
                 continue;
             }

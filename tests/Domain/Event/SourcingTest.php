@@ -214,23 +214,19 @@ class SourcingTest extends TestCase
     {
         $sourcing = new SourcingTest\EventSourcedAggregateRootStub($this->id1);
 
-        $exception = new \Exception('Command resulting in an exception');
-        $this->expectExceptionObject($exception);
-
         try {
             self::assertEmpty($sourcing->events());
             self::assertNull($sourcing->lastEvent());
             self::assertNull($sourcing->lastReplayed());
 
             $sourcing->command2($this->id1);
+
+            self::fail();
         } catch (\Exception $thrown) {
+            self::assertEquals(new \Exception('Command resulting in an exception'), $thrown);
             self::assertEmpty($sourcing->events());
             self::assertNull($sourcing->lastEvent());
             self::assertNull($sourcing->lastReplayed());
-        } finally {
-            self::assertTrue(isset($thrown));
-
-            throw $thrown;
         }
     }
 

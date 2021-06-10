@@ -24,15 +24,10 @@ use Streak\Infrastructure\Domain\Event\Subscription\DbalTransactionalSubscriptio
  */
 class Factory implements Event\Subscription\Factory
 {
-    private Event\Subscription\Factory $factory;
-    private Connection $connection;
-    private $maxTransactionSize;
+    private int $maxTransactionSize;
 
-    public function __construct(Event\Subscription\Factory $factory, Connection $connection, int $maxTransactionSize = 1)
+    public function __construct(private Event\Subscription\Factory $factory, private Connection $connection, int $maxTransactionSize = 1)
     {
-        $this->factory = $factory;
-        $this->connection = $connection;
-
         if ($maxTransactionSize < 1) {
             throw new \InvalidArgumentException(sprintf('Maximum transaction size must be at least "1", but "%d" given.', $maxTransactionSize));
         }

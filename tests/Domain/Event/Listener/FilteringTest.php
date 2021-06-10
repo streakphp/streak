@@ -90,6 +90,10 @@ class ListeningStub1
     {
     }
 
+    public function onSupportedEvent2WithUnion(SupportedEvent1|SupportedEvent2 $event): void
+    {
+    }
+
     private function onSupportedEvent1ButPrivate(SupportedEvent1 $event): void
     {
     }

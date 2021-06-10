@@ -22,12 +22,8 @@ use Streak\Domain\Event;
  */
 class EventNotInStore extends \InvalidArgumentException
 {
-    private Event\Envelope $event;
-
-    public function __construct(Event\Envelope $event, \Throwable $previous = null)
+    public function __construct(private Event\Envelope $event, \Throwable $previous = null)
     {
-        $this->event = $event;
-
         $message = 'Event not in store.';
 
         parent::__construct($message, 0, $previous);

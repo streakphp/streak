@@ -43,7 +43,7 @@ class SynchronousCommandBus implements Application\CommandBus
                 $handler->handleCommand($command);
 
                 return;
-            } catch (Domain\Exception\CommandNotSupported $exception) {
+            } catch (Domain\Exception\CommandNotSupported) {
                 continue;
             }
         }

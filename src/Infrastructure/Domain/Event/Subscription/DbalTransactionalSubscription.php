@@ -26,15 +26,8 @@ use Streak\Domain\EventStore;
  */
 class DbalTransactionalSubscription implements Subscription, Subscription\Decorator
 {
-    private Subscription $subscription;
-    private Connection $connection;
-    private int $maxTransactionSize;
-
-    public function __construct(Subscription $subscription, Connection $connection, int $maxTransactionSize = 1)
+    public function __construct(private Subscription $subscription, private Connection $connection, private int $maxTransactionSize = 1)
     {
-        $this->subscription = $subscription;
-        $this->connection = $connection;
-        $this->maxTransactionSize = $maxTransactionSize;
     }
 
     public function subscription(): Subscription

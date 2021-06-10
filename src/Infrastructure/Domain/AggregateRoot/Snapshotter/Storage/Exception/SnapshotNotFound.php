@@ -22,13 +22,9 @@ use Streak\Domain\AggregateRoot;
  */
 class SnapshotNotFound extends \RuntimeException
 {
-    private AggregateRoot $aggregate;
-
-    public function __construct(AggregateRoot $aggregate)
+    public function __construct(private AggregateRoot $aggregate)
     {
-        $this->aggregate = $aggregate;
-
-        parent::__construct(sprintf('Snapshot for aggregate "%s#%s" not found.', \get_class($this->aggregate->aggregateRootId()), $this->aggregate->aggregateRootId()->toString()));
+        parent::__construct(sprintf('Snapshot for aggregate "%s#%s" not found.', $this->aggregate->aggregateRootId()::class, $this->aggregate->aggregateRootId()->toString()));
     }
 
     public function aggregate(): AggregateRoot

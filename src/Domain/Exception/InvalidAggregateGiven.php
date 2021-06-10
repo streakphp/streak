@@ -22,12 +22,8 @@ use Streak\Domain\AggregateRoot;
  */
 class InvalidAggregateGiven extends \InvalidArgumentException
 {
-    private AggregateRoot $aggregate;
-
-    public function __construct(AggregateRoot $aggregate, \Throwable $previous = null)
+    public function __construct(private AggregateRoot $aggregate, \Throwable $previous = null)
     {
-        $this->aggregate = $aggregate;
-
         $message = 'Invalid aggregate given.';
 
         parent::__construct($message, 0, $previous);

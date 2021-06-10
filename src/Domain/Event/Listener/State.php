@@ -39,8 +39,6 @@ interface State extends ValueObject
     /**
      * @param string            $name  must be non empty string
      * @param array|string|null $value must be null, scalar of recursive array of null & scalar values
-     *
-     * @return static
      */
     public function set(string $name, $value): self;
 }

@@ -18,6 +18,8 @@ use Streak\Domain\Query;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @see \Streak\Domain\Query\HandlingTest
  */
 trait Handling
 {
@@ -53,7 +55,14 @@ trait Handling
             }
 
             // ..and it is a query...
-            $parameter = $parameter->getClass();
+            $parameter = $parameter->getType();
+
+            if (!$parameter instanceof \ReflectionNamedType) {
+                continue;
+            }
+
+            $parameter = new \ReflectionClass($parameter->getName());
+
             if (false === $parameter->isSubclassOf(Query::class)) {
                 continue;
             }

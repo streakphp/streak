@@ -27,11 +27,8 @@ final class SensorConsumer implements ConsumerInterface
     private const ACK = true;
     private const NACK = false;
 
-    private Sensor\Factory $factory;
-
-    public function __construct(Sensor\Factory $factory)
+    public function __construct(private Sensor\Factory $factory)
     {
-        $this->factory = $factory;
     }
 
     public function execute(AMQPMessage $message)
@@ -46,7 +43,7 @@ final class SensorConsumer implements ConsumerInterface
         try {
             $sensor = $this->factory->create();
             $sensor->process($message);
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             return self::NACK;
         }
 

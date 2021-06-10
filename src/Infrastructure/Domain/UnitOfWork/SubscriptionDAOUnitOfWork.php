@@ -24,8 +24,6 @@ use Streak\Infrastructure\Domain\UnitOfWork;
  */
 class SubscriptionDAOUnitOfWork implements UnitOfWork
 {
-    private DAO $dao;
-
     /**
      * @var Subscription[]
      */
@@ -33,9 +31,8 @@ class SubscriptionDAOUnitOfWork implements UnitOfWork
 
     private bool $committing = false;
 
-    public function __construct(DAO $dao)
+    public function __construct(private DAO $dao)
     {
-        $this->dao = $dao;
     }
 
     public function add(object $subscription): void

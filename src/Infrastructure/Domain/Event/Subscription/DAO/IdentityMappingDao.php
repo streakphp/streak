@@ -22,14 +22,11 @@ use Streak\Infrastructure\Domain\Event\Subscription\DAO;
  */
 class IdentityMappingDao implements DAO
 {
-    private DAO $dao;
-
     /** @var int[] */
     private array $versions = [];
 
-    public function __construct(DAO $dao)
+    public function __construct(private DAO $dao)
     {
-        $this->dao = $dao;
     }
 
     public function save(Subscription $subscription): void
@@ -86,7 +83,7 @@ class IdentityMappingDao implements DAO
 
     private function key(Subscription $subscription): string
     {
-        return sprintf('%s_%s', \get_class($subscription->subscriptionId()), $subscription->subscriptionId()->toString());
+        return sprintf('%s_%s', $subscription->subscriptionId()::class, $subscription->subscriptionId()->toString());
     }
 
     private function rememberVersion(Subscription $subscription): void

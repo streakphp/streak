@@ -22,14 +22,8 @@ use Streak\Domain\Event;
  */
 class NoEventApplyingMethodFound extends \BadMethodCallException
 {
-    private Event\Consumer $consumer;
-    private Event\Envelope $event;
-
-    public function __construct(Event\Consumer $consumer, Event\Envelope $event, \Throwable $previous = null)
+    public function __construct(private Event\Consumer $consumer, private Event\Envelope $event, \Throwable $previous = null)
     {
-        $this->consumer = $consumer;
-        $this->event = $event;
-
         parent::__construct('No event applying method found.', 0, $previous);
     }
 

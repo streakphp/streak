@@ -30,7 +30,7 @@ class NestedObjectConverter implements Converter
     public function objectToArray(object $object): array
     {
         try {
-            $class = \get_class($object);
+            $class = $object::class;
             $array = $this->toArray($object);
 
             return [$class => $array];

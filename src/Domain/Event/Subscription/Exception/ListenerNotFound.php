@@ -22,13 +22,9 @@ use Streak\Domain\Event\Listener;
  */
 class ListenerNotFound extends \RuntimeException
 {
-    private Listener\Id $listenerId;
-
-    public function __construct(Listener\Id $listenerId, \Throwable $previous = null)
+    public function __construct(private Listener\Id $listenerId, \Throwable $previous = null)
     {
-        $this->listenerId = $listenerId;
-
-        $message = sprintf('Listener "%s@%s" not found.', \get_class($this->listenerId), $this->listenerId->toString());
+        $message = sprintf('Listener "%s@%s" not found.', $this->listenerId::class, $this->listenerId->toString());
 
         parent::__construct($message, 0, $previous);
     }

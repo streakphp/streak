@@ -22,14 +22,8 @@ use Streak\Domain\Event;
  */
 class EventAndConsumerMismatch extends \LogicException
 {
-    private Event\Consumer $consumer;
-    private Event\Envelope $event;
-
-    public function __construct(Event\Consumer $consumer, Event\Envelope $event, \Throwable $previous = null)
+    public function __construct(private Event\Consumer $consumer, private Event\Envelope $event, \Throwable $previous = null)
     {
-        $this->consumer = $consumer;
-        $this->event = $event;
-
         parent::__construct('Event mismatched when applying on consumer.', 0, $previous);
     }
 

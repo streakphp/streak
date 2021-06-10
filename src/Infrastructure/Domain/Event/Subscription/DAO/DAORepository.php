@@ -25,14 +25,8 @@ use Streak\Infrastructure\Domain\UnitOfWork;
  */
 class DAORepository implements Subscription\Repository
 {
-    private DAO $dao;
-
-    private UnitOfWork $uow;
-
-    public function __construct(DAO $dao, UnitOfWork $uow)
+    public function __construct(private DAO $dao, private UnitOfWork $uow)
     {
-        $this->dao = $dao;
-        $this->uow = $uow;
     }
 
     public function find(Event\Listener\Id $id): ?Event\Subscription

@@ -18,6 +18,8 @@ use Streak\Domain\Id;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @see \Streak\Application\Sensor\ProcessingTest
  */
 trait Processing
 {
@@ -85,17 +87,22 @@ trait Processing
                     }
 
                     $parameterType = $parameter->getType();
+
+                    // ...is not an union...
+                    if (!$parameterType instanceof \ReflectionNamedType) {
+                        continue;
+                    }
+
                     $parameterType = $parameterType->getName();
 
                     $messageIsClass = class_exists($parameterType);
                     $parameterIsClass = \is_object($message);
 
                     if (true === $messageIsClass && true === $parameterIsClass) {
-                        $parameter = $parameter->getClass();
                         $target = new \ReflectionClass($message);
 
                         // .. and $message is type or subtype of defined $parameter
-                        while ($parameter->getName() !== $target->getName()) {
+                        while ($parameterType !== $target->getName()) {
                             $target = $target->getParentClass();
 
                             if (false === $target) {
@@ -147,7 +154,7 @@ trait Processing
         $this->pending = [];
     }
 
-    final private function addEvent(Event $event): void
+    private function addEvent(Event $event): void
     {
         $this->pending[] = Event\Envelope::new($event, $this->producerId());
     }

@@ -121,7 +121,7 @@ class InMemoryEventStore implements EventStore
 
         $streams = [];
         foreach ($streamNames as $streamName) {
-            $streams = array_merge($streams, $this->streams[$streamName]);
+            $streams = [...$streams, ...$this->streams[$streamName]];
         }
 
         $events = [];
@@ -142,7 +142,7 @@ class InMemoryEventStore implements EventStore
 
     private function streamName(Id $producerId): string
     {
-        $type = \get_class($producerId);
+        $type = $producerId::class;
         $id = $producerId->toString();
 
         return $type.$id;

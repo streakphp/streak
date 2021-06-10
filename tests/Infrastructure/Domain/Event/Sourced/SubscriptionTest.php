@@ -244,13 +244,12 @@ class SubscriptionTest extends TestCase
         try {
             $events = $subscription->subscribeTo($this->store);
             iterator_to_array($events);
+            self::fail();
         } catch (Event\Subscription\Exception\SubscriptionPaused $exception) {
             self::assertSame($subscription, $exception->subscription());
             self::assertEquals([], $subscription->events());
             self::assertSame(6, $subscription->version());
             self::assertTrue($subscription->paused());
-        } finally {
-            self::assertTrue(isset($exception));
         }
 
         $subscription->unpause();
@@ -909,6 +908,41 @@ class SubscriptionTest extends TestCase
 
         self::assertEquals([], $subscription->events());
         self::assertSame(9, $subscription->version());
+    }
+
+    public function testReplayingListenerWithAnEmptyStream(): void
+    {
+        $this->listener1
+            ->expects(self::atLeastOnce())
+            ->method('listenerId')
+            ->willReturn($this->id1)
+        ;
+        $this->listener1
+            ->expects(self::never())
+            ->method('replay')
+        ;
+
+        $subscription = new Subscription($this->listener1, $this->clock);
+
+        self::assertSame($subscription->listener(), $this->listener1);
+        self::assertSame($this->id1, $subscription->subscriptionId());
+        self::assertSame($this->id1, $subscription->producerId());
+        self::assertNull($subscription->lastReplayed());
+        self::assertNull($subscription->lastEvent());
+        self::assertEmpty($subscription->events());
+        self::assertSame(0, $subscription->version());
+
+        $this->stream1 = new InMemoryStream();
+
+        $subscription->replay($this->stream1);
+
+        self::assertSame($subscription->listener(), $this->listener1);
+        self::assertSame($this->id1, $subscription->subscriptionId());
+        self::assertSame($this->id1, $subscription->producerId());
+        self::assertNull($subscription->lastReplayed());
+        self::assertNull($subscription->lastEvent());
+        self::assertEmpty($subscription->events());
+        self::assertSame(0, $subscription->version());
     }
 
     public function testCompletingListener(): void

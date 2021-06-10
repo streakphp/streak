@@ -22,16 +22,9 @@ use Streak\Domain\Event;
  */
 class SourcingObjectWithEventFailed extends \BadMethodCallException
 {
-    private object $subject;
-
-    private Event\Envelope $event;
-
-    public function __construct(object $object, Event\Envelope $event, \Throwable $previous = null)
+    public function __construct(private object $subject, private Event\Envelope $event, \Throwable $previous = null)
     {
-        $this->subject = $object;
-        $this->event = $event;
-
-        $message = sprintf('Sourcing "%s" object with "%s" event failed.', \get_class($object), $event->name());
+        $message = sprintf('Sourcing "%s" object with "%s" event failed.', $subject::class, $event->name());
 
         parent::__construct($message, 0, $previous);
     }

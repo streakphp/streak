@@ -2,10 +2,10 @@ version: '3'
 services:
 
   php:
-    image: streakphp/php74-cli:latest
+    image: streakphp/php80-cli:latest
     volumes:
       - .:/var/www/project
-      - ./docker/php/etc/php/7.4/cli/php.ini:/etc/php/7.4/cli/php.ini
+      - ./docker/php/etc/php/8.0/cli/php.ini:/etc/php/8.0/cli/php.ini
     working_dir: /var/www/project
     depends_on:
       - postgres

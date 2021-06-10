@@ -22,8 +22,5 @@ interface Id extends Domain\ValueObject
 {
     public function toString(): string;
 
-    /**
-     * @return static
-     */
     public static function fromString(string $id): Domain\Id;
 }

@@ -24,13 +24,8 @@ use Streak\Domain;
  */
 class DbalTransactionalCommandBus implements CommandBus
 {
-    private CommandBus $bus;
-    private Connection $connection;
-
-    public function __construct(CommandBus $bus, Connection $connection)
+    public function __construct(private CommandBus $bus, private Connection $connection)
     {
-        $this->bus = $bus;
-        $this->connection = $connection;
     }
 
     public function dispatch(Domain\Command $command): void

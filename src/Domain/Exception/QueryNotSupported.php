@@ -22,13 +22,9 @@ use Streak\Domain\Query;
  */
 class QueryNotSupported extends \RuntimeException
 {
-    private Query $query;
-
-    public function __construct(Query $query)
+    public function __construct(private Query $query)
     {
-        $this->query = $query;
-
-        $message = sprintf('Query "%s" is not supported.', \get_class($query));
+        $message = sprintf('Query "%s" is not supported.', $query::class);
         parent::__construct($message);
     }
 

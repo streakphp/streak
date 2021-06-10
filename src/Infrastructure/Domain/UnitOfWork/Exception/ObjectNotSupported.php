@@ -20,12 +20,8 @@ namespace Streak\Infrastructure\Domain\UnitOfWork\Exception;
  */
 class ObjectNotSupported extends \RuntimeException
 {
-    private object $object;
-
-    public function __construct(object $object, \Throwable $previous = null)
+    public function __construct(private object $object, \Throwable $previous = null)
     {
-        $this->object = $object;
-
         $message = 'Object is not supported.';
 
         parent::__construct($message, 0, $previous);

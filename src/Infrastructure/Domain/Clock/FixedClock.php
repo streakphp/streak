@@ -24,7 +24,7 @@ class FixedClock implements Clock
 {
     private const DATE_FORMAT = 'U.u';
 
-    private $now;
+    private \DateTimeImmutable $now;
 
     public function __construct(\DateTimeInterface $time)
     {

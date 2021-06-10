@@ -24,11 +24,8 @@ use Streak\Domain\Event\Subscription;
  */
 class Factory implements Subscription\Factory
 {
-    private Clock $clock;
-
-    public function __construct(Clock $clock)
+    public function __construct(private Clock $clock)
     {
-        $this->clock = $clock;
     }
 
     /**

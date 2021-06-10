@@ -22,13 +22,9 @@ use Streak\Domain\Event\Subscription;
  */
 class SubscriptionAlreadyCompleted extends \RuntimeException implements Subscription\Exception
 {
-    private Subscription $subscription;
-
-    public function __construct(Subscription $subscription)
+    public function __construct(private Subscription $subscription)
     {
-        $this->subscription = $subscription;
-
-        $message = sprintf('Subscription "%s#%s" is already completed.', \get_class($this->subscription->subscriptionId()), $this->subscription->subscriptionId()->toString());
+        $message = sprintf('Subscription "%s#%s" is already completed.', $this->subscription->subscriptionId()::class, $this->subscription->subscriptionId()->toString());
 
         parent::__construct($message);
     }

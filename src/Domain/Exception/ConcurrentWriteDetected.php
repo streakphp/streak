@@ -22,15 +22,11 @@ use Streak\Domain;
  */
 class ConcurrentWriteDetected extends \RuntimeException
 {
-    private ?Domain\Id $id = null;
-
-    public function __construct(?Domain\Id $id, \Throwable $previous = null)
+    public function __construct(private ?Domain\Id $id, \Throwable $previous = null)
     {
-        $this->id = $id;
-
         $id ??= Domain\Id\UUID::random(); // TODO: fix it, remove weak dependency
 
-        $message = sprintf('Concurrent write detected when tried to persist "%s#%s" aggregate.', \get_class($id), $id->toString());
+        $message = sprintf('Concurrent write detected when tried to persist "%s#%s" aggregate.', $id::class, $id->toString());
 
         parent::__construct($message, 0, $previous);
     }

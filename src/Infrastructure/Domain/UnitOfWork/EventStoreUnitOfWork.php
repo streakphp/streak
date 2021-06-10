@@ -27,8 +27,6 @@ use Streak\Infrastructure\Domain\UnitOfWork;
  */
 class EventStoreUnitOfWork implements UnitOfWork
 {
-    private Domain\EventStore $store;
-
     /**
      * @var Event\Producer[]
      */
@@ -36,9 +34,8 @@ class EventStoreUnitOfWork implements UnitOfWork
 
     private bool $committing = false;
 
-    public function __construct(Domain\EventStore $store)
+    public function __construct(private Domain\EventStore $store)
     {
-        $this->store = $store;
     }
 
     public function add(object $producer): void

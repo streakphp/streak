@@ -30,20 +30,8 @@ use Streak\Infrastructure\Domain\Event\Subscription\DAO;
  */
 class DbalPostgresDAO implements DAO
 {
-    private Event\Subscription\Factory $subscriptions;
-
-    private Event\Listener\Factory $listeners;
-
-    private Connection $connection;
-
-    private Event\Converter $converter;
-
-    public function __construct(Subscription\Factory $subscriptions, Event\Listener\Factory $listeners, Connection $connection, Event\Converter $converter)
+    public function __construct(private Subscription\Factory $subscriptions, private Event\Listener\Factory $listeners, private Connection $connection, private Event\Converter $converter)
     {
-        $this->subscriptions = $subscriptions;
-        $this->listeners = $listeners;
-        $this->connection = $connection;
-        $this->converter = $converter;
     }
 
     /**
@@ -55,7 +43,7 @@ class DbalPostgresDAO implements DAO
 
         try {
             $this->doSave($subscription);
-        } catch (TableNotFoundException $e) {
+        } catch (TableNotFoundException) {
             $this->create();
 
             $this->doSave($subscription);
@@ -66,7 +54,7 @@ class DbalPostgresDAO implements DAO
     {
         try {
             return $this->doOne($id);
-        } catch (TableNotFoundException $e) {
+        } catch (TableNotFoundException) {
             return null;
         }
     }
@@ -75,7 +63,7 @@ class DbalPostgresDAO implements DAO
     {
         try {
             return $this->doExists($id);
-        } catch (TableNotFoundException $e) {
+        } catch (TableNotFoundException) {
             return false;
         }
     }
@@ -91,7 +79,7 @@ class DbalPostgresDAO implements DAO
     {
         try {
             yield from $this->doAll($types, $completed);
-        } catch (TableNotFoundException $e) {
+        } catch (TableNotFoundException) {
             yield from [];
         }
     }
@@ -99,7 +87,7 @@ class DbalPostgresDAO implements DAO
     public function toRow(DAO\Subscription $subscription): array
     {
         // dehydrate
-        $row['subscription_type'] = \get_class($subscription->subscriptionId());
+        $row['subscription_type'] = $subscription->subscriptionId()::class;
         $row['subscription_id'] = $subscription->subscriptionId()->toString();
         $row['subscription_version'] = $subscription->version();
 
@@ -300,8 +288,6 @@ class DbalPostgresDAO implements DAO
     }
 
     /**
-     * @param \Streak\Infrastructure\Domain\Event\Subscription\DAO\Subscription $subscription
-     *
      * @throws \Doctrine\DBAL\DBALException
      */
     private function doSave(DAO\Subscription $subscription): void
@@ -320,10 +306,8 @@ class DbalPostgresDAO implements DAO
     }
 
     /**
-     * @param Listener\Id $id
      *
      * @throws \Doctrine\DBAL\DBALException
-     *
      * @return \Streak\Infrastructure\Domain\Event\Subscription\DAO\Subscription|null
      */
     private function doOne(Event\Listener\Id $id)
@@ -332,7 +316,7 @@ class DbalPostgresDAO implements DAO
 
         $statement = $this->connection->prepare($sql);
         $statement->execute([
-            'subscription_type' => \get_class($id),
+            'subscription_type' => $id::class,
             'subscription_id' => $id->toString(),
         ]);
 
@@ -355,7 +339,7 @@ class DbalPostgresDAO implements DAO
 
         $statement = $this->connection->prepare($sql);
         $statement->execute([
-            'subscription_type' => \get_class($id),
+            'subscription_type' => $id::class,
             'subscription_id' => $id->toString(),
         ]);
 
