@@ -41,7 +41,7 @@ class SynchronousQueryBus implements Application\QueryBus
         foreach ($this->handlers as $handler) {
             try {
                 return $handler->handleQuery($query);
-            } catch (Domain\Exception\QueryNotSupported $exception) {
+            } catch (Domain\Exception\QueryNotSupported) {
                 continue;
             }
         }

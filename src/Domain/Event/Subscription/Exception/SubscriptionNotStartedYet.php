@@ -22,13 +22,9 @@ use Streak\Domain\Event\Subscription;
  */
 class SubscriptionNotStartedYet extends \RuntimeException implements Subscription\Exception
 {
-    private Subscription $subscription;
-
-    public function __construct(Subscription $subscription)
+    public function __construct(private Subscription $subscription)
     {
-        $this->subscription = $subscription;
-
-        $message = sprintf('Subscription "%s#%s" is not started yet.', \get_class($this->subscription->subscriptionId()), $this->subscription->subscriptionId()->toString());
+        $message = sprintf('Subscription "%s#%s" is not started yet.', $this->subscription->subscriptionId()::class, $this->subscription->subscriptionId()->toString());
 
         parent::__construct($message);
     }

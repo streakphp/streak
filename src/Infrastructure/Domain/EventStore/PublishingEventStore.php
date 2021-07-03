@@ -26,16 +26,12 @@ use Streak\Domain\Id\UUID;
  */
 class PublishingEventStore implements EventStore, Schemable
 {
-    private EventStore $store;
-    private EventBus $bus;
     private bool $working = false;
 
     private array $events = [];
 
-    public function __construct(EventStore $store, EventBus $bus)
+    public function __construct(private EventStore $store, private EventBus $bus)
     {
-        $this->store = $store;
-        $this->bus = $bus;
     }
 
     public function add(Event\Envelope ...$events): array
@@ -57,7 +53,7 @@ class PublishingEventStore implements EventStore, Schemable
                     $events = $this->store->add(...$events);
                     $this->bus->publish(...$events);
 
-                    $published = array_merge($published, $events);
+                    $published = [...$published, ...$events];
                 } finally {
                     $this->working = false;
                 }

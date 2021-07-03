@@ -25,13 +25,8 @@ use Streak\Infrastructure\Domain\UnitOfWork;
  */
 class CommittingSubscription implements Subscription, Subscription\Decorator
 {
-    private Subscription $subscription;
-    private UnitOfWork $uow;
-
-    public function __construct(Subscription $subscription, UnitOfWork $uow)
+    public function __construct(private Subscription $subscription, private UnitOfWork $uow)
     {
-        $this->subscription = $subscription;
-        $this->uow = $uow;
     }
 
     public function subscription(): Subscription

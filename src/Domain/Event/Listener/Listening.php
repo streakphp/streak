@@ -17,6 +17,8 @@ use Streak\Domain\Event;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @see \Streak\Domain\Event\Listener\ListeningTest
  */
 trait Listening
 {
@@ -42,7 +44,13 @@ trait Listening
 
             // .. and if it has return type it must be boolean or void...
             if ($method->hasReturnType()) {
-                if (!\in_array($method->getReturnType()->getName(), ['bool', 'void'])) {
+                $type = $method->getReturnType();
+
+                if (!$type instanceof \ReflectionNamedType) { // union type
+                    continue;
+                }
+
+                if (!\in_array($type->getName(), ['bool', 'void'])) {
                     continue;
                 }
             }
@@ -59,7 +67,14 @@ trait Listening
             }
 
             // ..and it is an event...
-            $parameter = $parameter->getClass();
+            $parameter = $parameter->getType();
+
+            if (!$parameter instanceof \ReflectionNamedType) { // union type
+                continue;
+            }
+
+            $parameter = new \ReflectionClass($parameter->getName());
+
             if (false === $parameter->isSubclassOf(Event::class)) {
                 continue;
             }

@@ -32,6 +32,7 @@ return static function (ContainerConfigurator $configurator): void {
 //    $configurator->import(SetList::CODE_QUALITY);
     $configurator->import(SetList::EARLY_RETURN);
     $configurator->import(SetList::PHP_74);
+    $configurator->import(SetList::PHP_80);
 //    $configurator->import(SetList::PRIVATIZATION);
 
     $parameters->set(Option::SKIP, [

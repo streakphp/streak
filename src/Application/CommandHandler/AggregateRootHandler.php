@@ -26,11 +26,8 @@ use Streak\Domain\Exception\CommandNotSupported;
  */
 class AggregateRootHandler implements CommandHandler
 {
-    private AggregateRoot\Repository $repository;
-
-    public function __construct(AggregateRoot\Repository $repository)
+    public function __construct(private AggregateRoot\Repository $repository)
     {
-        $this->repository = $repository;
     }
 
     public function handleCommand(Command $command): void

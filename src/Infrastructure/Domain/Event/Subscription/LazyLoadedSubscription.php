@@ -25,14 +25,10 @@ use Streak\Domain\EventStore;
  */
 class LazyLoadedSubscription implements Subscription, Subscription\Decorator
 {
-    private Listener\Id $id;
     private ?Subscription $subscription = null;
-    private Subscription\Repository $repository;
 
-    public function __construct(Listener\Id $id, Subscription\Repository $repository)
+    public function __construct(private Listener\Id $id, private Subscription\Repository $repository)
     {
-        $this->id = $id;
-        $this->repository = $repository;
     }
 
     public function subscriptionId(): Listener\Id

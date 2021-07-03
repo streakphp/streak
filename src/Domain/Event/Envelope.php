@@ -29,16 +29,13 @@ final class Envelope implements Domain\Envelope
     public const METADATA_VERSION = 'version';
     public const METADATA_PRODUCER_TYPE = 'producer_type';
     public const METADATA_PRODUCER_ID = 'producer_id';
-
-    private Event $message;
     private array $metadata = [];
 
-    public function __construct(UUID $uuid, string $name, Event $message, Domain\Id $producerId, ?int $version = null)
+    public function __construct(UUID $uuid, string $name, private Event $message, Domain\Id $producerId, ?int $version = null)
     {
         $this->metadata[self::METADATA_UUID] = $uuid->toString();
         $this->metadata[self::METADATA_NAME] = $name;
-        $this->message = $message;
-        $this->metadata[self::METADATA_PRODUCER_TYPE] = \get_class($producerId);
+        $this->metadata[self::METADATA_PRODUCER_TYPE] = $producerId::class;
         $this->metadata[self::METADATA_PRODUCER_ID] = $producerId->toString();
         if (null !== $version) {
             $this->metadata[self::METADATA_VERSION] = $version;
@@ -47,7 +44,7 @@ final class Envelope implements Domain\Envelope
 
     public static function new(Event $event, Domain\Id $producerId, ?int $version = null): self
     {
-        return new self(UUID::random(), \get_class($event), $event, $producerId, $version);
+        return new self(UUID::random(), $event::class, $event, $producerId, $version);
     }
 
     public function uuid(): UUID

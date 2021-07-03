@@ -23,12 +23,10 @@ use Streak\Domain;
  */
 class LockableCommandBus implements Application\CommandBus
 {
-    private Application\CommandBus $bus;
     private bool $locked = false;
 
-    public function __construct(Application\CommandBus $bus)
+    public function __construct(private Application\CommandBus $bus)
     {
-        $this->bus = $bus;
     }
 
     public function dispatch(Domain\Command $command): void

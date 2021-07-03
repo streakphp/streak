@@ -112,6 +112,11 @@ class HandlingStub
         return 'notsupported';
     }
 
+    public function handleUnionParameter(\stdClass|\ArrayAccess $query1)
+    {
+        return 'notsupported';
+    }
+
     private function handlePrivateMethodHandlingMethod(NotSupportedQuery1 $query)
     {
         return 'notsupported';

@@ -24,13 +24,8 @@ use Streak\Infrastructure\Application\Sensor\LoggingSensor;
  */
 class Factory implements Sensor\Factory
 {
-    private Sensor\Factory $factory;
-    private LoggerInterface $logger;
-
-    public function __construct(Sensor\Factory $factory, LoggerInterface $logger)
+    public function __construct(private Sensor\Factory $factory, private LoggerInterface $logger)
     {
-        $this->factory = $factory;
-        $this->logger = $logger;
     }
 
     public function create(): Sensor

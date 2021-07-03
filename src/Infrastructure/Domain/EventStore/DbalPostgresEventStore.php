@@ -37,9 +37,6 @@ class DbalPostgresEventStore implements \Iterator, EventStore, Event\Stream, Sch
     private const DIRECTION_FORWARD = 'forward';
     private const DIRECTION_BACKWARD = 'backward';
 
-    private Connection $connection;
-    private Event\Converter $converter;
-
     private ?array $current = null;
     private int $key = 0;
 
@@ -59,10 +56,8 @@ class DbalPostgresEventStore implements \Iterator, EventStore, Event\Stream, Sch
      */
     private array $session = [];
 
-    public function __construct(Connection $connection, Event\Converter $converter)
+    public function __construct(private Connection $connection, private Event\Converter $converter)
     {
-        $this->connection = $connection;
-        $this->converter = $converter;
         $this->filter = new EventStore\Filter();
     }
 
@@ -536,7 +531,7 @@ class DbalPostgresEventStore implements \Iterator, EventStore, Event\Stream, Sch
             $sub = [];
             foreach ($filter->producerIds() as $key => $id) {
                 $sub[] = " (producer_type = :producer_type_{$key} AND producer_id = :producer_id_{$key}) ";
-                $parameters["producer_type_{$key}"] = \get_class($id);
+                $parameters["producer_type_{$key}"] = $id::class;
                 $parameters["producer_id_{$key}"] = $id->toString();
             }
             $where[] = '('.implode(' OR ', $sub).')';
@@ -678,7 +673,7 @@ class DbalPostgresEventStore implements \Iterator, EventStore, Event\Stream, Sch
             'type' => $event->name(),
             'body' => json_encode($this->converter->objectToArray($event->message())),
             'metadata' => json_encode($event->metadata()),
-            'producer_type' => \get_class($event->producerId()),
+            'producer_type' => $event->producerId()::class,
             'producer_id' => $event->producerId()->toString(),
             'producer_version' => $event->version(),
         ];

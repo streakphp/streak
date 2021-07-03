@@ -43,20 +43,15 @@ final class Subscription implements Event\Subscription, Event\Sourced, Versionab
     }
 
     private const LIMIT_TO_INITIAL_STREAM = 0;
-
-    private Event\Listener $listener;
     private State  $lastState;
-    private Domain\Clock $clock;
     private ?Event\Envelope $completedBy = null;
     private $startedBy;
     private bool $paused = false;
     private bool $starting = false;
     private $lastProcessedEvent;
 
-    public function __construct(Event\Listener $listener, Domain\Clock $clock)
+    public function __construct(private Event\Listener $listener, private Domain\Clock $clock)
     {
-        $this->listener = $listener;
-        $this->clock = $clock;
         $this->lastState = InMemoryState::empty();
     }
 

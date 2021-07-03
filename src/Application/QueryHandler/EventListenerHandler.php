@@ -26,11 +26,8 @@ use Streak\Domain\QueryHandler;
  */
 class EventListenerHandler implements QueryHandler
 {
-    private Subscription\Repository $repository;
-
-    public function __construct(Subscription\Repository $repository)
+    public function __construct(private Subscription\Repository $repository)
     {
-        $this->repository = $repository;
     }
 
     public function handleQuery(Query $query)

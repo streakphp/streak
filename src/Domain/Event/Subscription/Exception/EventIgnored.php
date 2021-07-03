@@ -22,13 +22,9 @@ use Streak\Domain\Event;
  */
 class EventIgnored extends \RuntimeException
 {
-    private Event\Envelope $event;
-
-    public function __construct(Event\Envelope $event)
+    public function __construct(private Event\Envelope $event)
     {
-        $this->event = $event;
-
-        $message = sprintf('Event "%s" was ignored.', \get_class($event->message()));
+        $message = sprintf('Event "%s" was ignored.', $event->message()::class);
 
         parent::__construct($message);
     }

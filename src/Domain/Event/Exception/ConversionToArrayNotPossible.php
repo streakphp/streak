@@ -20,12 +20,8 @@ namespace Streak\Domain\Event\Exception;
  */
 class ConversionToArrayNotPossible extends ConversionNotPossible
 {
-    private object $object;
-
-    public function __construct($object, \Throwable $previous = null)
+    public function __construct(private $object, \Throwable $previous = null)
     {
-        $this->object = $object;
-
         parent::__construct($previous);
     }
 

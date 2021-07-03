@@ -24,13 +24,8 @@ use Streak\Infrastructure\Domain\UnitOfWork;
  */
 class CommittingSensorConsumer implements ConsumerInterface
 {
-    private ConsumerInterface $consumer;
-    private UnitOfWork $uow;
-
-    public function __construct(ConsumerInterface $consumer, UnitOfWork $uow)
+    public function __construct(private ConsumerInterface $consumer, private UnitOfWork $uow)
     {
-        $this->consumer = $consumer;
-        $this->uow = $uow;
     }
 
     public function execute(AMQPMessage $message)

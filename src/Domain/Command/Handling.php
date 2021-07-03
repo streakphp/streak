@@ -18,6 +18,8 @@ use Streak\Domain\Exception\CommandNotSupported;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @see \Streak\Domain\Command\HandlingTest
  */
 trait Handling
 {
@@ -43,7 +45,13 @@ trait Handling
 
             // .. and if it has return type it must be void...
             if ($method->hasReturnType()) {
-                if ('void' !== $method->getReturnType()->getName()) {
+                $type = $method->getReturnType();
+
+                if (!$type instanceof \ReflectionNamedType) {
+                    continue;
+                }
+
+                if ('void' !== $type->getName()) {
                     continue;
                 }
             }
@@ -60,7 +68,14 @@ trait Handling
             }
 
             // ..and it is a command...
-            $parameter = $parameter->getClass();
+            $parameter = $parameter->getType();
+
+            if (!$parameter instanceof \ReflectionNamedType) {
+                continue;
+            }
+
+            $parameter = new \ReflectionClass($parameter->getName());
+
             if (false === $parameter->isSubclassOf(Command::class)) {
                 continue;
             }

@@ -25,15 +25,10 @@ class RetryingCommandBus implements Application\CommandBus
 {
     private const DEFAULT_MAX_ATTEMPTS = 10;
 
-    private Application\CommandBus $bus;
-
     private int $numberOfAttempts = 0;
-    private int $maxAttemptsAllowed;
 
-    public function __construct(Application\CommandBus $bus, int $maxAttemptsAllowed = self::DEFAULT_MAX_ATTEMPTS)
+    public function __construct(private Application\CommandBus $bus, private int $maxAttemptsAllowed = self::DEFAULT_MAX_ATTEMPTS)
     {
-        $this->bus = $bus;
-        $this->maxAttemptsAllowed = $maxAttemptsAllowed;
     }
 
     public function numberOfAttempts(): int

@@ -22,12 +22,8 @@ use Streak\Domain\Event;
  */
 class AggregateAlreadyRegistered extends \InvalidArgumentException
 {
-    private Event\Sourced\Aggregate $aggregate;
-
-    public function __construct(Event\Sourced\Aggregate $aggregate, \Throwable $previous = null)
+    public function __construct(private Event\Sourced\Aggregate $aggregate, \Throwable $previous = null)
     {
-        $this->aggregate = $aggregate;
-
         parent::__construct('Aggregate already registered.', 0, $previous);
     }
 

@@ -22,14 +22,11 @@ use Streak\Domain\Event\Subscription;
  */
 class SubscriptionAlreadyStarted extends \RuntimeException implements Subscription\Exception
 {
-    private Subscription $subscription;
-
-    public function __construct(Subscription $subscription)
+    public function __construct(private Subscription $subscription)
     {
-        $this->subscription = $subscription;
         $id = $this->subscription->subscriptionId();
 
-        $message = sprintf('Subscription "%s#%s" is already started.', \get_class($id), $id->toString());
+        $message = sprintf('Subscription "%s#%s" is already started.', $id::class, $id->toString());
 
         parent::__construct($message);
     }

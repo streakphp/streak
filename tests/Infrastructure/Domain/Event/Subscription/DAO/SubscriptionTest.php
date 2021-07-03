@@ -177,10 +177,9 @@ class SubscriptionTest extends TestCase
         try {
             $events = $subscription->subscribeTo($this->store);
             iterator_to_array($events);
+            self::fail();
         } catch (Event\Subscription\Exception\SubscriptionPaused $exception) {
             self::assertSame($subscription, $exception->subscription());
-        } finally {
-            self::assertTrue(isset($exception));
         }
 
         $subscription->unpause();

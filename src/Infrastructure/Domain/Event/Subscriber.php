@@ -29,16 +29,9 @@ class Subscriber implements Event\Listener
 {
     use Event\Listener\Identifying;
 
-    private Event\Listener\Factory $listenerFactory;
-    private Event\Subscription\Factory $subscriptionFactory;
-    private Event\Subscription\Repository $subscriptionsRepository;
-
-    public function __construct(Event\Listener\Factory $listenerFactory, Event\Subscription\Factory $subscriptionFactory, Event\Subscription\Repository $subscriptionsRepository)
+    public function __construct(private Event\Listener\Factory $listenerFactory, private Event\Subscription\Factory $subscriptionFactory, private Event\Subscription\Repository $subscriptionsRepository)
     {
         $this->identifyBy(Subscriber\Id::random());
-        $this->listenerFactory = $listenerFactory;
-        $this->subscriptionFactory = $subscriptionFactory;
-        $this->subscriptionsRepository = $subscriptionsRepository;
     }
 
     public function listenTo(EventBus $bus): void
@@ -63,7 +56,7 @@ class Subscriber implements Event\Listener
 
         try {
             $listener = $this->listenerFactory->createFor($event);
-        } catch (Exception\InvalidEventGiven $e) {
+        } catch (Exception\InvalidEventGiven) {
             return false;
         }
 

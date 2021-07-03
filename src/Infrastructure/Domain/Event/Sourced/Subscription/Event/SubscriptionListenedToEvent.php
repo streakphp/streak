@@ -24,13 +24,10 @@ use Streak\Domain\Event\Sourced\Subscription;
 class SubscriptionListenedToEvent implements Subscription\Event
 {
     private const DATE_FORMAT = 'U.u';
-
-    private Event\Envelope $event;
     private string $timestamp;
 
-    public function __construct(Event\Envelope $event, \DateTimeInterface $timestamp)
+    public function __construct(private Event\Envelope $event, \DateTimeInterface $timestamp)
     {
-        $this->event = $event;
         $this->timestamp = $timestamp->format(self::DATE_FORMAT);
     }
 

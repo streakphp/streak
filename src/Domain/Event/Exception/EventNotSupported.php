@@ -22,12 +22,8 @@ use Streak\Domain\Event;
  */
 class EventNotSupported extends \InvalidArgumentException
 {
-    private Event\Envelope $event;
-
-    public function __construct(Event\Envelope $event, \Throwable $previous = null)
+    public function __construct(private Event\Envelope $event, \Throwable $previous = null)
     {
-        $this->event = $event;
-
         parent::__construct(sprintf('Event "%s" not supported.', $event->name()), 0, $previous);
     }
 

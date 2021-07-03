@@ -39,7 +39,7 @@ class CompositeUnitOfWork implements UnitOfWork
                 $uow->add($object);
 
                 return;
-            } catch (Exception\ObjectNotSupported $e) {
+            } catch (Exception\ObjectNotSupported) {
                 continue;
             }
         }
@@ -69,7 +69,7 @@ class CompositeUnitOfWork implements UnitOfWork
     {
         $uncommitted = [];
         foreach ($this->uows as $uow) {
-            $uncommitted = array_merge($uncommitted, $uow->uncommitted());
+            $uncommitted = [...$uncommitted, ...$uow->uncommitted()];
         }
 
         return $uncommitted;

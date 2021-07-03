@@ -223,51 +223,47 @@ class EventStoreUnitOfWorkTest extends TestCase
         ;
 
         try {
-            $commited = iterator_to_array($uow->commit());
+            iterator_to_array($uow->commit());
+            self::fail();
         } catch (\RuntimeException $exception1) {
             self::assertSame($unknownError, $exception1);
             self::assertSame(2, $uow->count());
             self::assertTrue($uow->has($object1));
             self::assertTrue($uow->has($object2));
-        } finally {
-            self::assertTrue(isset($exception1));
         }
 
         // retry
         try {
-            $commited = iterator_to_array($uow->commit());
+            iterator_to_array($uow->commit());
+            self::fail();
         } catch (\RuntimeException $exception2) {
             self::assertSame($unknownError, $exception2);
             self::assertSame(1, $uow->count());
             self::assertFalse($uow->has($object1));
             self::assertTrue($uow->has($object2));
-        } finally {
-            self::assertTrue(isset($exception2));
         }
 
         // retry
         try {
-            $commited = iterator_to_array($uow->commit());
+            iterator_to_array($uow->commit());
         } catch (\RuntimeException $exception3) {
-            self::assertSame([$object1], $commited);
+            self::fail();
         } finally {
             self::assertSame(0, $uow->count());
             self::assertFalse($uow->has($object1));
             self::assertFalse($uow->has($object2));
-            self::assertFalse(isset($exception3));
         }
 
         $uow->add($object3);
 
         try {
             iterator_to_array($uow->commit());
+            self::fail();
         } catch (ConcurrentWriteDetected $exception4) {
             self::assertSame(0, $uow->count());
             self::assertFalse($uow->has($object1));
             self::assertFalse($uow->has($object2));
             self::assertFalse($uow->has($object3)); // object was removed instead of saved for later retry
-        } finally {
-            self::assertTrue(isset($exception4));
         }
     }
 

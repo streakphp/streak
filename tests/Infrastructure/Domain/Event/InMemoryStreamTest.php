@@ -173,6 +173,7 @@ class InMemoryStreamTest extends TestCase
         self::assertEmpty(iterator_to_array($empty7));
 
         $filtered8 = $stream->limit(2);
+
         self::assertFalse($filtered8->empty());
         self::assertSame($this->event1, $filtered8->first());
         self::assertSame($this->event2, $filtered8->last());
@@ -180,6 +181,7 @@ class InMemoryStreamTest extends TestCase
         self::assertEquals([$this->event1, $this->event2], iterator_to_array($filtered8));
 
         $filtered9 = $stream->limit(100);
+
         self::assertFalse($filtered9->empty());
         self::assertSame($this->event1, $filtered9->first());
         self::assertSame($this->event4, $filtered9->last());

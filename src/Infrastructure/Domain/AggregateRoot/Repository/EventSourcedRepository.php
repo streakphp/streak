@@ -26,20 +26,8 @@ use Streak\Infrastructure\Domain\UnitOfWork;
  */
 class EventSourcedRepository implements Domain\AggregateRoot\Repository
 {
-    private Domain\AggregateRoot\Factory $factory;
-
-    private Domain\EventStore $store;
-
-    private AggregateRoot\Snapshotter $snapshotter;
-
-    private UnitOfWork $uow;
-
-    public function __construct(Domain\AggregateRoot\Factory $factory, Domain\EventStore $store, AggregateRoot\Snapshotter $snapshotter, UnitOfWork $uow)
+    public function __construct(private Domain\AggregateRoot\Factory $factory, private Domain\EventStore $store, private AggregateRoot\Snapshotter $snapshotter, private UnitOfWork $uow)
     {
-        $this->factory = $factory;
-        $this->store = $store;
-        $this->snapshotter = $snapshotter;
-        $this->uow = $uow;
     }
 
     public function find(Domain\AggregateRoot\Id $id): ?Domain\AggregateRoot

@@ -24,11 +24,8 @@ use Streak\Infrastructure\Domain\Event\Subscription\DAO\Subscription;
  */
 class Factory implements Event\Subscription\Factory
 {
-    private Clock $clock;
-
-    public function __construct(Clock $clock)
+    public function __construct(private Clock $clock)
     {
-        $this->clock = $clock;
     }
 
     public function create(Event\Listener $listener): Event\Subscription

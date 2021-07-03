@@ -131,15 +131,13 @@ class DbalPostgresEventStoreTest extends EventStoreTestCase
 
         $store2 = new DbalPostgresEventStore(self::$connection1, new NestedObjectConverter());
 
-        $this->expectExceptionObject(new ConcurrentWriteDetected($producerId1));
-
         try {
             $store2->add($event3, $event4);
+            self::fail();
         } catch (ConcurrentWriteDetected $e) {
             // test that no events were added
+            self::assertEquals(new ConcurrentWriteDetected($producerId1), $e);
             self::assertEquals([$event1, $event2], iterator_to_array($store2->stream()));
-
-            throw $e;
         }
     }
 

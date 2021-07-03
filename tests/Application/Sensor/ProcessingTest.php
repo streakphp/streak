@@ -99,6 +99,7 @@ class ProcessingTest extends TestCase
         try {
             $integer = 1;
             $sensor->process($integer);
+            self::fail();
         } catch (\BadMethodCallException $e) {
             self::assertSame('Too many processing functions found.', $e->getMessage());
             self::assertEmpty($sensor->events());
@@ -113,8 +114,8 @@ class ProcessingTest extends TestCase
 
         try {
             $b1 = new B1();
-            $integer = 1;
             $sensor->process($b1, 'string');
+            self::fail();
         } catch (\RuntimeException $e) {
             self::assertSame('Thrown inside processStringAndThrowAnException method.', $e->getMessage());
             self::assertEmpty($sensor->events());
@@ -167,6 +168,11 @@ class SensorStub1 implements Sensor
     public function processStdClass(\stdClass $stdClass): void
     {
         $this->addEvent(new StdClassProcessed($stdClass));
+    }
+
+    public function processUnionWithStdClass(\JsonSerializable|\ArrayAccess|\stdClass $union): void
+    {
+        $this->addEvent(new StdClassProcessed($union));
     }
 }
 

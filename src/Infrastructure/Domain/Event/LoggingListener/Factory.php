@@ -24,13 +24,8 @@ use Streak\Infrastructure\Domain\Event\LoggingListener;
  */
 class Factory implements Event\Listener\Factory
 {
-    private Event\Listener\Factory $factory;
-    private LoggerInterface $logger;
-
-    public function __construct(Event\Listener\Factory $factory, LoggerInterface $logger)
+    public function __construct(private Event\Listener\Factory $factory, private LoggerInterface $logger)
     {
-        $this->factory = $factory;
-        $this->logger = $logger;
     }
 
     public function create(Event\Listener\Id $id): Event\Listener

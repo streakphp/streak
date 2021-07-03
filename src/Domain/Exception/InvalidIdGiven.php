@@ -22,12 +22,8 @@ use Streak\Domain;
  */
 class InvalidIdGiven extends \InvalidArgumentException
 {
-    private Domain\Id $id;
-
-    public function __construct(Domain\Id $id, \Throwable $previous = null)
+    public function __construct(private Domain\Id $id, \Throwable $previous = null)
     {
-        $this->id = $id;
-
         $message = 'Invalid aggregate id given.';
 
         parent::__construct($message, 0, $previous);

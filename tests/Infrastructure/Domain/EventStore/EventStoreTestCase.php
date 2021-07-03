@@ -261,15 +261,13 @@ abstract class EventStoreTestCase extends TestCase
 
         $this->store->add($event1, $event2);
 
-        $this->expectExceptionObject(new ConcurrentWriteDetected($producerId1));
-
         try {
             $this->store->add($event3, $event4);
+            self::fail();
         } catch (ConcurrentWriteDetected $e) {
+            self::assertEquals(new ConcurrentWriteDetected($producerId1), $e);
             // test that no events were added
             self::assertEquals([$event1, $event2], iterator_to_array($this->store->stream()));
-
-            throw $e;
         }
     }
 
@@ -303,15 +301,13 @@ abstract class EventStoreTestCase extends TestCase
 
         $this->store->add($event1, $event2);
 
-        $this->expectExceptionObject(new EventAlreadyInStore($event2));
-
         try {
             $this->store->add($event2, $event3);
+            self::fail();
         } catch (EventAlreadyInStore $e) {
+            self::assertEquals(new EventAlreadyInStore($event2), $e);
             // test that no events were added
             self::assertEquals([$event1, $event2], iterator_to_array($this->store->stream()));
-
-            throw $e;
         }
     }
 

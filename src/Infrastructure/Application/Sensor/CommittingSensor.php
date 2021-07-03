@@ -25,13 +25,8 @@ use Streak\Infrastructure\Domain\UnitOfWork;
  */
 class CommittingSensor implements Sensor
 {
-    private Sensor $sensor;
-    private UnitOfWork $uow;
-
-    public function __construct(Sensor $sensor, UnitOfWork $uow)
+    public function __construct(private Sensor $sensor, private UnitOfWork $uow)
     {
-        $this->sensor = $sensor;
-        $this->uow = $uow;
     }
 
     public function producerId(): Domain\Id

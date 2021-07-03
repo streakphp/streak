@@ -25,20 +25,15 @@ use Streak\Infrastructure\Domain\UnitOfWork;
  */
 class SnapshottingUnitOfWork implements UnitOfWork
 {
-    private UnitOfWork $uow;
-    private Snapshotter $snapshotter;
     private \SplObjectStorage $versions;
     private bool $committing = false;
     private int $interval = 1;
 
-    public function __construct(UnitOfWork $uow, Snapshotter $snapshotter, int $interval = 1)
+    public function __construct(private UnitOfWork $uow, private Snapshotter $snapshotter, int $interval = 1)
     {
         if ($interval < 1) {
             throw new InvalidArgumentException('Interval must be positive!');
         }
-
-        $this->uow = $uow;
-        $this->snapshotter = $snapshotter;
         $this->versions = new \SplObjectStorage();
         $this->interval = $interval;
     }

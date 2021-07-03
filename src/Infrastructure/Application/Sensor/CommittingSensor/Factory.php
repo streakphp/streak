@@ -24,13 +24,8 @@ use Streak\Infrastructure\Domain\UnitOfWork;
  */
 class Factory implements Sensor\Factory
 {
-    private Sensor\Factory $factory;
-    private UnitOfWork $uow;
-
-    public function __construct(Sensor\Factory $factory, UnitOfWork $uow)
+    public function __construct(private Sensor\Factory $factory, private UnitOfWork $uow)
     {
-        $this->factory = $factory;
-        $this->uow = $uow;
     }
 
     public function create(): Sensor

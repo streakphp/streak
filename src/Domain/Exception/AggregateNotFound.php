@@ -22,13 +22,9 @@ use Streak\Domain\Aggregate;
  */
 class AggregateNotFound extends \RuntimeException
 {
-    private Aggregate\Id $aggregateId;
-
-    public function __construct(Aggregate\Id $aggregateId, \Throwable $previous = null)
+    public function __construct(private Aggregate\Id $aggregateId, \Throwable $previous = null)
     {
-        $this->aggregateId = $aggregateId;
-
-        $message = sprintf('Aggregate "%s@%s" not found.', \get_class($aggregateId), $this->aggregateId->toString());
+        $message = sprintf('Aggregate "%s@%s" not found.', $aggregateId::class, $this->aggregateId->toString());
 
         parent::__construct($message, 0, $previous);
     }

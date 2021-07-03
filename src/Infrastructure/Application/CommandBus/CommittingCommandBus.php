@@ -24,15 +24,10 @@ use Streak\Infrastructure\Domain\UnitOfWork;
  */
 class CommittingCommandBus implements CommandBus
 {
-    private CommandBus $bus;
-    private UnitOfWork $uow;
-
     private int $transactions = 0;
 
-    public function __construct(CommandBus $bus, UnitOfWork $uow)
+    public function __construct(private CommandBus $bus, private UnitOfWork $uow)
     {
-        $this->bus = $bus;
-        $this->uow = $uow;
     }
 
     public function dispatch(Domain\Command $command): void

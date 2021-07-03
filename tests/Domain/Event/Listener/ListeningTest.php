@@ -48,6 +48,8 @@ class ListeningTest extends TestCase
         self::assertFalse($listener->listenerMethodMoreThanOneParameterInMethodActivated());
         self::assertFalse($listener->listenerMethodWithNullableEventActivated());
         self::assertFalse($listener->listenerMethodWithParameterThatIsNotSubclassOfEventActivated());
+        self::assertFalse($listener->listenerMethodWithUnionReturnTypeActivated());
+        self::assertFalse($listener->listenerMethodWithObjectWhichIsUnionType());
 
         self::assertTrue($listener->on($event1));
         self::assertEquals([$event1->message()], $listener->preEvents());
@@ -57,6 +59,8 @@ class ListeningTest extends TestCase
         self::assertFalse($listener->listenerMethodMoreThanOneParameterInMethodActivated());
         self::assertFalse($listener->listenerMethodWithNullableEventActivated());
         self::assertFalse($listener->listenerMethodWithParameterThatIsNotSubclassOfEventActivated());
+        self::assertFalse($listener->listenerMethodWithUnionReturnTypeActivated());
+        self::assertFalse($listener->listenerMethodWithObjectWhichIsUnionType());
 
         self::assertFalse($listener->on($event2));
         self::assertEquals([$event1->message()], $listener->preEvents());
@@ -66,6 +70,8 @@ class ListeningTest extends TestCase
         self::assertFalse($listener->listenerMethodMoreThanOneParameterInMethodActivated());
         self::assertFalse($listener->listenerMethodWithNullableEventActivated());
         self::assertFalse($listener->listenerMethodWithParameterThatIsNotSubclassOfEventActivated());
+        self::assertFalse($listener->listenerMethodWithUnionReturnTypeActivated());
+        self::assertFalse($listener->listenerMethodWithObjectWhichIsUnionType());
 
         self::assertTrue($listener->on($event3));
         self::assertEquals([$event1->message(), $event3->message()], $listener->preEvents());
@@ -75,6 +81,8 @@ class ListeningTest extends TestCase
         self::assertFalse($listener->listenerMethodMoreThanOneParameterInMethodActivated());
         self::assertFalse($listener->listenerMethodWithNullableEventActivated());
         self::assertFalse($listener->listenerMethodWithParameterThatIsNotSubclassOfEventActivated());
+        self::assertFalse($listener->listenerMethodWithUnionReturnTypeActivated());
+        self::assertFalse($listener->listenerMethodWithObjectWhichIsUnionType());
 
         self::assertFalse($listener->on($event4));
         self::assertEquals([$event1->message(), $event3->message()], $listener->preEvents());
@@ -84,13 +92,14 @@ class ListeningTest extends TestCase
         self::assertFalse($listener->listenerMethodMoreThanOneParameterInMethodActivated());
         self::assertFalse($listener->listenerMethodWithNullableEventActivated());
         self::assertFalse($listener->listenerMethodWithParameterThatIsNotSubclassOfEventActivated());
-
-        $exception = new \InvalidArgumentException('SupportedEvent3ThatCausesException');
-        $this->expectExceptionObject($exception);
+        self::assertFalse($listener->listenerMethodWithUnionReturnTypeActivated());
+        self::assertFalse($listener->listenerMethodWithObjectWhichIsUnionType());
 
         try {
             $listener->on($event5);
+            self::fail();
         } catch (\Throwable $actual) {
+            self::assertEquals(new \InvalidArgumentException('SupportedEvent3ThatCausesException'), $actual);
             self::assertEquals([$event1->message(), $event3->message(), $event5->message()], $listener->preEvents());
             self::assertEquals([$event1->message(), $event3->message()], $listener->listened());
             self::assertEquals([$event1->message(), $event3->message()], $listener->postEvents());
@@ -98,8 +107,9 @@ class ListeningTest extends TestCase
             self::assertFalse($listener->listenerMethodMoreThanOneParameterInMethodActivated());
             self::assertFalse($listener->listenerMethodWithNullableEventActivated());
             self::assertFalse($listener->listenerMethodWithParameterThatIsNotSubclassOfEventActivated());
-
-            throw $actual;
+            self::assertFalse($listener->listenerMethodWithObjectWhichIsUnionType());
+            self::assertFalse($listener->listenerMethodWithUnionReturnTypeActivated());
+            self::assertFalse($listener->listenerMethodWithObjectWhichIsUnionType());
         }
     }
 
@@ -173,6 +183,8 @@ class ListeningStub
     private array $exceptions = [];
     private bool $listenerMethodMoreThanOneParameterInMethodActivated = false;
     private bool $listenerMethodWithNullableEventActivated = false;
+    private bool $listenerMethodWithUnionReturnTypeActivated = false;
+    private bool $listenerMethodWithObjectWhichIsUnionType = false;
     private bool $listenerMethodWithParameterThatIsNotSubclassOfEventActivated = false;
 
     public function onEvent1(SupportedEvent1 $event1): void
@@ -205,6 +217,16 @@ class ListeningStub
         $this->listenerMethodWithNullableEventActivated = true;
     }
 
+    public function onObjectWhichIsUnionType(\stdClass|SupportedEvent4 $event): void
+    {
+        $this->listenerMethodWithObjectWhichIsUnionType = true;
+    }
+
+    public function onObjectWhenReturnTypeIsUnion(\stdClass $event): SupportedEvent1|SupportedEvent4
+    {
+        $this->listenerMethodWithUnionReturnTypeActivated = true;
+    }
+
     public function onSupportedEvent3ThatCausesException(SupportedEvent3ThatCausesException $event3): void
     {
         throw new \InvalidArgumentException('SupportedEvent3ThatCausesException');
@@ -233,6 +255,16 @@ class ListeningStub
     public function listenerMethodWithParameterThatIsNotSubclassOfEventActivated(): bool
     {
         return $this->listenerMethodWithParameterThatIsNotSubclassOfEventActivated;
+    }
+
+    public function listenerMethodWithUnionReturnTypeActivated(): bool
+    {
+        return $this->listenerMethodWithUnionReturnTypeActivated;
+    }
+
+    public function listenerMethodWithObjectWhichIsUnionType(): bool
+    {
+        return $this->listenerMethodWithObjectWhichIsUnionType;
     }
 
     public function preEvents(): array

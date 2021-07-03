@@ -124,6 +124,21 @@ class CommandHandlingStub implements CommandHandler
         $this->handled[] = __METHOD__;
     }
 
+    public function handleUnionParameter(SupportedCommand1|SupportedCommand2 $command1): void
+    {
+        $this->handled[] = __METHOD__;
+    }
+
+    public function handleNonVoidReturnType(SupportedCommand1 $command1): \ArrayAccess
+    {
+        $this->handled[] = __METHOD__;
+    }
+
+    public function handleUnionReturnType(SupportedCommand1 $command1): \ArrayAccess|\stdClass
+    {
+        $this->handled[] = __METHOD__;
+    }
+
     public function handled(): array
     {
         return $this->handled;

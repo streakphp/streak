@@ -22,13 +22,9 @@ use Streak\Domain;
  */
 class CommandNotSupported extends \RuntimeException
 {
-    private Domain\Command $command;
-
-    public function __construct(Domain\Command $command)
+    public function __construct(private Domain\Command $command)
     {
-        $this->command = $command;
-
-        $message = sprintf('Command "%s" is not supported.', \get_class($command));
+        $message = sprintf('Command "%s" is not supported.', $command::class);
 
         parent::__construct($message);
     }

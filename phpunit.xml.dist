@@ -24,6 +24,7 @@
         <junit outputFile="build/.phpunit/junit.xml"/>
     </logging>
     <php>
+        <ini name="error_reporting" value="-1" />
         <env name="PHPUNIT_POSTGRES_HOSTNAME" value="postgres"/>
         <env name="PHPUNIT_POSTGRES_PORT" value="5432"/>
         <env name="PHPUNIT_POSTGRES_DATABASE" value="phpunit"/>

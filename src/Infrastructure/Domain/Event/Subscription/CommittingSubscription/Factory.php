@@ -25,13 +25,8 @@ use Streak\Infrastructure\Domain\UnitOfWork;
  */
 class Factory implements Subscription\Factory
 {
-    private Subscription\Factory $factory;
-    private UnitOfWork $uow;
-
-    public function __construct(Subscription\Factory $factory, UnitOfWork $uow)
+    public function __construct(private Subscription\Factory $factory, private UnitOfWork $uow)
     {
-        $this->factory = $factory;
-        $this->uow = $uow;
     }
 
     public function create(Event\Listener $listener): Event\Subscription

@@ -62,7 +62,7 @@ class InMemoryDAO implements DAO
     {
         foreach ($this->subscriptions as $key => $stored) {
             if (\count($types)) {
-                $type = \get_class($stored->subscriptionId());
+                $type = $stored->subscriptionId()::class;
                 if (false === \in_array($type, $types)) {
                     continue;
                 }

@@ -90,13 +90,13 @@ class CommittingCommandBusTest extends TestCase
                 [$this->command2],
             )
             ->willReturnOnConsecutiveCalls(
-                self::returnCallback(function (Command $command) use ($bus) {
+                self::returnCallback(function (Command $command) use ($bus): void {
                     self::assertSame($this->command1, $command);
                     self::assertSame(1, $bus->transactions());
                     $bus->dispatch($this->command2);
                     self::assertSame(1, $bus->transactions());
                 }),
-                self::returnCallback(function (Command $command) use ($bus) {
+                self::returnCallback(function (Command $command) use ($bus): void {
                     self::assertSame($this->command2, $command);
                     self::assertSame(2, $bus->transactions());
                 }),
@@ -163,12 +163,12 @@ class CommittingCommandBusTest extends TestCase
                 [$this->command2],
             )
             ->willReturnOnConsecutiveCalls(
-                self::returnCallback(function (Command $command) use ($bus) {
+                self::returnCallback(function (Command $command) use ($bus): void {
                     self::assertSame($this->command1, $command);
                     self::assertSame(1, $bus->transactions());
                     $bus->dispatch($this->command2);
                 }),
-                self::returnCallback(function (Command $command) use ($bus, $exception) {
+                self::returnCallback(function (Command $command) use ($bus, $exception): void {
                     self::assertSame($this->command2, $command);
                     self::assertSame(2, $bus->transactions());
 

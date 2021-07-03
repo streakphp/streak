@@ -25,13 +25,8 @@ use Streak\Infrastructure\Domain\Serializer;
  */
 final class SnapshottableAggregatesSnapshotter implements Snapshotter
 {
-    private Serializer $serializer;
-    private Snapshotter\Storage $storage;
-
-    public function __construct(Serializer $serializer, Snapshotter\Storage $storage)
+    public function __construct(private Serializer $serializer, private Snapshotter\Storage $storage)
     {
-        $this->serializer = $serializer;
-        $this->storage = $storage;
     }
 
     public function restoreToSnapshot(AggregateRoot $aggregate): ?AggregateRoot
@@ -42,7 +37,7 @@ final class SnapshottableAggregatesSnapshotter implements Snapshotter
 
         try {
             $serialized = $this->storage->find($aggregate);
-        } catch (SnapshotNotFound $e) {
+        } catch (SnapshotNotFound) {
             return null;
         }
 

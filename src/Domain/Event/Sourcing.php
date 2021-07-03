@@ -86,7 +86,7 @@ trait Sourcing //implements Event\Consumer, Event\Producer, Domain\Identifiable,
      * @throws Event\Exception\TooManyEventApplyingMethodsFound
      * @throws \Throwable
      */
-    final private function apply(Event $event): void
+    private function apply(Event $event): void
     {
         $event = Event\Envelope::new(
             $event,
@@ -102,7 +102,7 @@ trait Sourcing //implements Event\Consumer, Event\Producer, Domain\Identifiable,
      * @throws Event\Exception\TooManyEventApplyingMethodsFound
      * @throws \Throwable
      */
-    final private function applyEvent(Event\Envelope $event): void
+    private function applyEvent(Event\Envelope $event): void
     {
         if (!$this instanceof Event\Consumer) {
             throw new Exception\SourcingObjectWithEventFailed($this, $event);
@@ -174,12 +174,15 @@ trait Sourcing //implements Event\Consumer, Event\Producer, Domain\Identifiable,
             }
 
             $parameter = $method->getParameters()[0];
-            $parameter = $parameter->getClass();
+            $parameter = $parameter->getType();
 
-            // ..and its has class...
-            if (null === $parameter) {
+            // ...is not an union...
+            if (!$parameter instanceof \ReflectionNamedType) {
                 continue;
             }
+
+            $parameter = $parameter->getName();
+            $parameter = new \ReflectionClass($parameter);
 
             // ..and its an event...
             if (false === $parameter->isSubclassOf(Event::class)) {
