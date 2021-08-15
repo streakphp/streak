@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Streak\Domain\Query;
 
+use Streak\Domain\Event;
 use Streak\Domain\Exception\QueryNotSupported;
 use Streak\Domain\Query;
 
@@ -25,6 +26,12 @@ trait Handling
 {
     public function handleQuery(Query $query)
     {
+        if ($query instanceof EventListenerQuery && $this instanceof Event\Listener) {
+            if (false === $this->listenerId()->equals($query->listenerId())) {
+                throw new QueryNotSupported($query);
+            }
+        }
+
         $reflection = new \ReflectionObject($this);
 
         foreach ($reflection->getMethods() as $method) {
