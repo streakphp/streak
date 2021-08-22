@@ -54,14 +54,14 @@ class SubscriptionDAOUnitOfWorkTest extends TestCase
     public function testItDoesNotAddsNotSupportedSubscription(): void
     {
         $subscription = $this->getMockBuilder(Subscription::class)->getMock();
-        self::expectException(ObjectNotSupported::class);
+        $this->expectException(ObjectNotSupported::class);
         $this->uow->add($subscription);
     }
 
     public function testHasOnNotSupportedObject(): void
     {
         $subscription = $this->getMockBuilder(Subscription::class)->getMock();
-        self::expectException(ObjectNotSupported::class);
+        $this->expectException(ObjectNotSupported::class);
         $this->uow->has($subscription);
     }
 
@@ -87,7 +87,7 @@ class SubscriptionDAOUnitOfWorkTest extends TestCase
     public function testItDoesNotRemoveNotSupportedSubscription(): void
     {
         $subscription = $this->getMockBuilder(Subscription::class)->getMock();
-        self::expectException(ObjectNotSupported::class);
+        $this->expectException(ObjectNotSupported::class);
         $this->uow->remove($subscription);
     }
 
@@ -106,7 +106,7 @@ class SubscriptionDAOUnitOfWorkTest extends TestCase
         $subscription = $this->createSubscriptionStub('1');
         $this->uow->add($subscription);
         $this->dao->expects(self::once())->method('save')->with($subscription)->willThrowException(new \Exception());
-        self::expectException(\Exception::class);
+        $this->expectException(\Exception::class);
         iterator_to_array($this->uow->commit());
         self::assertEquals([$subscription], $this->uow->uncommitted());
     }
@@ -118,7 +118,7 @@ class SubscriptionDAOUnitOfWorkTest extends TestCase
     {
         $result = $this->getMockBuilder(DecoratedSubscription::class)->getMock();
         $result->method('subscription')->willReturn($this->createSubscriptionStub($id));
-        $result->method('subscriptionId')->willReturn($this->createIdStub($id));
+        $result->method('id')->willReturn($this->createIdStub($id));
 
         return $result;
     }
@@ -129,7 +129,7 @@ class SubscriptionDAOUnitOfWorkTest extends TestCase
     private function createSubscriptionStub(string $id): DAO\Subscription
     {
         $result = $this->getMockBuilder(DAO\Subscription::class)->disableOriginalConstructor()->getMock();
-        $result->method('subscriptionId')->willReturn($this->createIdStub($id));
+        $result->method('id')->willReturn($this->createIdStub($id));
 
         return $result;
     }

@@ -49,21 +49,12 @@ class CommittingSensorTest extends TestCase
 
         $this->sensor
             ->expects(self::once())
-            ->method('sensorId')
+            ->method('id')
             ->with()
             ->willReturn($this->sensorId)
         ;
 
-        self::assertSame($this->sensorId, $sensor->sensorId());
-
-        $this->sensor
-            ->expects(self::once())
-            ->method('producerId')
-            ->with()
-            ->willReturn($this->sensorId)
-        ;
-
-        self::assertSame($this->sensorId, $sensor->producerId());
+        self::assertSame($this->sensorId, $sensor->id());
 
         $this->sensor
             ->expects(self::once())

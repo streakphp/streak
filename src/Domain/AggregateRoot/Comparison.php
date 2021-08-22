@@ -19,12 +19,14 @@ use Streak\Domain\AggregateRoot;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @see \Streak\Domain\AggregateRoot\ComparisonTest
  */
 trait Comparison
 {
     use Aggregate\Comparison;
 
-    abstract public function aggregateRootId(): AggregateRoot\Id;
+    abstract public function id(): AggregateRoot\Id;
 
     final public function equals(object $root): bool
     {
@@ -36,7 +38,7 @@ trait Comparison
             return false;
         }
 
-        if (!$this->aggregateRootId()->equals($root->aggregateRootId())) {
+        if (!$this->id()->equals($root->id())) {
             return false;
         }
 

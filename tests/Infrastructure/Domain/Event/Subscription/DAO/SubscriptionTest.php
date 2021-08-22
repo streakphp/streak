@@ -68,7 +68,7 @@ class SubscriptionTest extends TestCase
         $this->listener8 = $this->getMockBuilder(FilteringListener::class)->getMock();
         $this->listener9 = $this->getMockBuilder(StatefulListener::class)->getMock();
 
-        $this->id1 = new class('f5e65690-e50d-4312-a175-b004ec1bd42a') extends UUID implements Listener\Id {
+        $this->id1 = new class ('f5e65690-e50d-4312-a175-b004ec1bd42a') extends UUID implements Listener\Id {
         };
 
         $this->store = $this->getMockBuilder(EventStore::class)->getMockForAbstractClass();
@@ -90,7 +90,7 @@ class SubscriptionTest extends TestCase
     {
         $this->listener1
             ->expects(self::atLeastOnce())
-            ->method('listenerId')
+            ->method('id')
             ->willReturn($this->id1)
         ;
         $this->listener1
@@ -101,7 +101,7 @@ class SubscriptionTest extends TestCase
         $subscription = new Subscription($this->listener1, $this->clock);
 
         self::assertSame($subscription->listener(), $this->listener1);
-        self::assertSame($this->id1, $subscription->subscriptionId());
+        self::assertSame($this->id1, $subscription->id());
         self::assertSame(0, $subscription->version());
         self::assertFalse($subscription->starting());
         self::assertFalse($subscription->paused());
@@ -111,7 +111,7 @@ class SubscriptionTest extends TestCase
 
         $subscription->startFor($this->event1);
 
-        self::assertSame($this->id1, $subscription->subscriptionId());
+        self::assertSame($this->id1, $subscription->id());
         self::assertSame(1, $subscription->version());
         self::assertTrue($subscription->starting());
         self::assertFalse($subscription->paused());
@@ -202,7 +202,7 @@ class SubscriptionTest extends TestCase
     {
         $this->listener9
             ->expects(self::atLeastOnce())
-            ->method('listenerId')
+            ->method('id')
             ->willReturn($this->id1)
         ;
 
@@ -242,13 +242,13 @@ class SubscriptionTest extends TestCase
         $subscription = new Subscription($this->listener9, $this->clock);
 
         self::assertSame($subscription->listener(), $this->listener9);
-        self::assertSame($this->id1, $subscription->subscriptionId());
+        self::assertSame($this->id1, $subscription->id());
         self::assertSame(0, $subscription->version());
         self::assertFalse($subscription->starting());
 
         $subscription->startFor($this->event1);
 
-        self::assertSame($this->id1, $subscription->subscriptionId());
+        self::assertSame($this->id1, $subscription->id());
         self::assertSame(1, $subscription->version());
         self::assertTrue($subscription->starting());
 
@@ -312,7 +312,7 @@ class SubscriptionTest extends TestCase
     {
         $this->listener7
             ->expects(self::atLeastOnce())
-            ->method('listenerId')
+            ->method('id')
             ->willReturn($this->id1)
         ;
         $this->listener7
@@ -327,12 +327,12 @@ class SubscriptionTest extends TestCase
         $subscription = new Subscription($this->listener7, $this->clock);
 
         self::assertSame($subscription->listener(), $this->listener7);
-        self::assertSame($this->id1, $subscription->subscriptionId());
+        self::assertSame($this->id1, $subscription->id());
         self::assertSame(0, $subscription->version());
 
         $subscription->startFor($this->event3);
 
-        self::assertSame($this->id1, $subscription->subscriptionId());
+        self::assertSame($this->id1, $subscription->id());
         self::assertSame(1, $subscription->version());
 
         $this->stream1 = new InMemoryStream($this->event1, $this->event2, $this->event3);
@@ -386,14 +386,14 @@ class SubscriptionTest extends TestCase
 
         $this->listener8
             ->expects(self::atLeastOnce())
-            ->method('listenerId')
+            ->method('id')
             ->willReturn($this->id1)
         ;
 
         $subscription = new Subscription($this->listener8, $this->clock);
 
         self::assertSame($subscription->listener(), $this->listener8);
-        self::assertSame($this->id1, $subscription->subscriptionId());
+        self::assertSame($this->id1, $subscription->id());
         self::assertSame(0, $subscription->version());
 
         $subscription->startFor($this->event2);
@@ -450,7 +450,7 @@ class SubscriptionTest extends TestCase
     {
         $this->listener3
             ->expects(self::atLeastOnce())
-            ->method('listenerId')
+            ->method('id')
             ->willReturn($this->id1)
         ;
         $this->listener1
@@ -461,12 +461,12 @@ class SubscriptionTest extends TestCase
         $subscription = new Subscription($this->listener3, $this->clock);
 
         self::assertSame($subscription->listener(), $this->listener3);
-        self::assertSame($this->id1, $subscription->subscriptionId());
+        self::assertSame($this->id1, $subscription->id());
         self::assertSame(0, $subscription->version());
 
         $subscription->startFor($this->event1);
 
-        self::assertSame($this->id1, $subscription->subscriptionId());
+        self::assertSame($this->id1, $subscription->id());
         self::assertSame(1, $subscription->version());
 
         $this->stream1 = new InMemoryStream($this->event1, $this->event2);
@@ -536,21 +536,21 @@ class SubscriptionTest extends TestCase
     {
         $this->listener3
             ->expects(self::atLeastOnce())
-            ->method('listenerId')
+            ->method('id')
             ->willReturn($this->id1)
         ;
 
         $subscription = new Subscription($this->listener3, $this->clock);
 
         self::assertSame($subscription->listener(), $this->listener3);
-        self::assertSame($this->id1, $subscription->subscriptionId());
+        self::assertSame($this->id1, $subscription->id());
         self::assertSame(0, $subscription->version());
         self::assertFalse($subscription->completed());
         self::assertFalse($subscription->paused());
 
         $subscription->startFor($this->event1);
 
-        self::assertSame($this->id1, $subscription->subscriptionId());
+        self::assertSame($this->id1, $subscription->id());
         self::assertSame(1, $subscription->version());
         self::assertFalse($subscription->completed());
         self::assertFalse($subscription->paused());
@@ -647,14 +647,14 @@ class SubscriptionTest extends TestCase
     {
         $this->listener1
             ->expects(self::atLeastOnce())
-            ->method('listenerId')
+            ->method('id')
             ->willReturn($this->id1)
         ;
 
         $subscription = new Subscription($this->listener1, $this->clock);
 
         self::assertSame($subscription->listener(), $this->listener1);
-        self::assertSame($this->id1, $subscription->subscriptionId());
+        self::assertSame($this->id1, $subscription->id());
 
         $subscription->startFor($this->event1);
 
@@ -667,7 +667,7 @@ class SubscriptionTest extends TestCase
     {
         $this->listener9
             ->expects(self::atLeastOnce())
-            ->method('listenerId')
+            ->method('id')
             ->willReturn($this->id1)
         ;
         $this->listener9
@@ -679,7 +679,7 @@ class SubscriptionTest extends TestCase
         $subscription = new Subscription($this->listener9, $this->clock);
 
         self::assertSame($subscription->listener(), $this->listener9);
-        self::assertSame($this->id1, $subscription->subscriptionId());
+        self::assertSame($this->id1, $subscription->id());
 
         $subscription->startFor($this->event1);
     }
@@ -688,14 +688,14 @@ class SubscriptionTest extends TestCase
     {
         $this->listener1
             ->expects(self::atLeastOnce())
-            ->method('listenerId')
+            ->method('id')
             ->willReturn($this->id1)
         ;
 
         $subscription = new Subscription($this->listener1, $this->clock);
 
         self::assertSame($subscription->listener(), $this->listener1);
-        self::assertSame($this->id1, $subscription->subscriptionId());
+        self::assertSame($this->id1, $subscription->id());
 
         $this->store
             ->expects(self::never())
@@ -718,7 +718,7 @@ class SubscriptionTest extends TestCase
     {
         $this->listener4
             ->expects(self::atLeastOnce())
-            ->method('listenerId')
+            ->method('id')
             ->willReturn($this->id1)
         ;
         $this->listener4
@@ -729,12 +729,12 @@ class SubscriptionTest extends TestCase
         $subscription = new Subscription($this->listener4, $this->clock);
 
         self::assertSame($subscription->listener(), $this->listener4);
-        self::assertSame($this->id1, $subscription->subscriptionId());
+        self::assertSame($this->id1, $subscription->id());
         self::assertSame(0, $subscription->version());
 
         $subscription->startFor($this->event1);
 
-        self::assertSame($this->id1, $subscription->subscriptionId());
+        self::assertSame($this->id1, $subscription->id());
         self::assertSame(1, $subscription->version());
 
         $this->stream1 = new InMemoryStream($this->event1, $this->event2);
@@ -783,14 +783,14 @@ class SubscriptionTest extends TestCase
     {
         $this->listener1
             ->expects(self::atLeastOnce())
-            ->method('listenerId')
+            ->method('id')
             ->willReturn($this->id1)
         ;
 
         $subscription = new Subscription($this->listener1, $this->clock);
 
         self::assertSame($subscription->listener(), $this->listener1);
-        self::assertSame($this->id1, $subscription->subscriptionId());
+        self::assertSame($this->id1, $subscription->id());
 
         $this->expectExceptionObject(new Event\Subscription\Exception\SubscriptionNotStartedYet($subscription));
 
@@ -801,19 +801,19 @@ class SubscriptionTest extends TestCase
     {
         $this->listener3
             ->expects(self::atLeastOnce())
-            ->method('listenerId')
+            ->method('id')
             ->willReturn($this->id1)
         ;
 
         $subscription = new Subscription($this->listener3, $this->clock);
 
         self::assertSame($subscription->listener(), $this->listener3);
-        self::assertSame($this->id1, $subscription->subscriptionId());
+        self::assertSame($this->id1, $subscription->id());
         self::assertSame(0, $subscription->version());
 
         $subscription->startFor($this->event1);
 
-        self::assertSame($this->id1, $subscription->subscriptionId());
+        self::assertSame($this->id1, $subscription->id());
         self::assertSame(1, $subscription->version());
 
         $this->stream1 = new InMemoryStream($this->event1, $this->event2);
@@ -888,19 +888,19 @@ class SubscriptionTest extends TestCase
     {
         $this->listener1
             ->expects(self::atLeastOnce())
-            ->method('listenerId')
+            ->method('id')
             ->willReturn($this->id1)
         ;
 
         $subscription = new Subscription($this->listener1, $this->clock);
 
         self::assertSame($subscription->listener(), $this->listener1);
-        self::assertSame($this->id1, $subscription->subscriptionId());
+        self::assertSame($this->id1, $subscription->id());
         self::assertSame(0, $subscription->version());
 
         $subscription->startFor($this->event1);
 
-        self::assertSame($this->id1, $subscription->subscriptionId());
+        self::assertSame($this->id1, $subscription->id());
         self::assertSame(1, $subscription->version());
 
         $this->stream1 = new InMemoryStream($this->event1, $this->event2);
@@ -969,13 +969,13 @@ class SubscriptionTest extends TestCase
     {
         $this->listener1
             ->expects(self::atLeastOnce())
-            ->method('listenerId')
+            ->method('id')
             ->with()
             ->willReturn($this->id1)
         ;
 
         $subscription = new Subscription($this->listener1, $this->clock);
-        self::assertSame($this->id1, $subscription->subscriptionId());
+        self::assertSame($this->id1, $subscription->id());
         $subscription->startFor($this->event1);
 
         $this->store
@@ -1002,7 +1002,7 @@ class SubscriptionTest extends TestCase
     {
         $this->listener1
             ->expects(self::atLeastOnce())
-            ->method('listenerId')
+            ->method('id')
             ->willReturn($this->id1)
         ;
         $this->listener1
@@ -1013,12 +1013,12 @@ class SubscriptionTest extends TestCase
         $subscription = new Subscription($this->listener1, $this->clock);
 
         self::assertSame($subscription->listener(), $this->listener1);
-        self::assertSame($this->id1, $subscription->subscriptionId());
+        self::assertSame($this->id1, $subscription->id());
         self::assertSame(0, $subscription->version());
 
         $subscription->startFor($this->event1);
 
-        self::assertSame($this->id1, $subscription->subscriptionId());
+        self::assertSame($this->id1, $subscription->id());
         self::assertSame(1, $subscription->version());
 
         $this->stream1 = new InMemoryStream($this->event1, $this->event2);
@@ -1069,7 +1069,7 @@ class SubscriptionTest extends TestCase
     {
         $this->listener1
             ->expects(self::atLeastOnce())
-            ->method('listenerId')
+            ->method('id')
             ->willReturn($this->id1)
         ;
         $this->listener1
@@ -1080,12 +1080,12 @@ class SubscriptionTest extends TestCase
         $subscription = new Subscription($this->listener1, $this->clock);
 
         self::assertSame($subscription->listener(), $this->listener1);
-        self::assertSame($this->id1, $subscription->subscriptionId());
+        self::assertSame($this->id1, $subscription->id());
         self::assertSame(0, $subscription->version());
 
         $subscription->startFor($this->event1);
 
-        self::assertSame($this->id1, $subscription->subscriptionId());
+        self::assertSame($this->id1, $subscription->id());
         self::assertSame(1, $subscription->version());
 
         $this->stream1 = new InMemoryStream($this->event1, $this->event2);
@@ -1132,7 +1132,7 @@ class SubscriptionTest extends TestCase
     {
         $this->listener1
             ->expects(self::atLeastOnce())
-            ->method('listenerId')
+            ->method('id')
             ->willReturn($this->id1)
         ;
         $this->listener1
@@ -1143,12 +1143,12 @@ class SubscriptionTest extends TestCase
         $subscription = new Subscription($this->listener1, $this->clock);
 
         self::assertSame($subscription->listener(), $this->listener1);
-        self::assertSame($this->id1, $subscription->subscriptionId());
+        self::assertSame($this->id1, $subscription->id());
         self::assertSame(0, $subscription->version());
 
         $subscription->startFor($this->event1);
 
-        self::assertSame($this->id1, $subscription->subscriptionId());
+        self::assertSame($this->id1, $subscription->id());
         self::assertSame(1, $subscription->version());
 
         $this->stream1 = new InMemoryStream($this->event1, $this->event2);
@@ -1195,7 +1195,7 @@ class SubscriptionTest extends TestCase
     {
         $this->listener1
             ->expects(self::atLeastOnce())
-            ->method('listenerId')
+            ->method('id')
             ->willReturn($this->id1)
         ;
         $this->listener1
@@ -1206,12 +1206,12 @@ class SubscriptionTest extends TestCase
         $subscription = new Subscription($this->listener1, $this->clock);
 
         self::assertSame($subscription->listener(), $this->listener1);
-        self::assertSame($this->id1, $subscription->subscriptionId());
+        self::assertSame($this->id1, $subscription->id());
         self::assertSame(0, $subscription->version());
 
         $subscription->startFor($this->event1);
 
-        self::assertSame($this->id1, $subscription->subscriptionId());
+        self::assertSame($this->id1, $subscription->id());
         self::assertSame(1, $subscription->version());
 
         $this->stream1 = new InMemoryStream($this->event1, $this->event2);
@@ -1262,19 +1262,19 @@ class SubscriptionTest extends TestCase
     {
         $this->listener3
             ->expects(self::atLeastOnce())
-            ->method('listenerId')
+            ->method('id')
             ->willReturn($this->id1)
         ;
 
         $subscription = new Subscription($this->listener3, $this->clock);
 
         self::assertSame($subscription->listener(), $this->listener3);
-        self::assertSame($this->id1, $subscription->subscriptionId());
+        self::assertSame($this->id1, $subscription->id());
         self::assertSame(0, $subscription->version());
 
         $subscription->startFor($this->event1);
 
-        self::assertSame($this->id1, $subscription->subscriptionId());
+        self::assertSame($this->id1, $subscription->id());
         self::assertSame(1, $subscription->version());
 
         $this->stream1 = new InMemoryStream($this->event1, $this->event2);

@@ -18,6 +18,10 @@ use Streak\Domain\AggregateRoot;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @property $id AggregateRoot\Id
+ *
+ * @see \Streak\Domain\AggregateRoot\IdentificationTest
  */
 trait Identification
 {
@@ -30,7 +34,7 @@ trait Identification
         $this->identifyBy($id);
     }
 
-    public function aggregateRootId(): AggregateRoot\Id
+    public function id(): AggregateRoot\Id
     {
         return $this->id;
     }

@@ -177,7 +177,7 @@ class NestedObjectConverterTest extends TestCase
 
     public function testItDoesntConvertWrongNestedType(): void
     {
-        self::expectException(Event\Exception\ConversionToArrayNotPossible::class);
+        $this->expectException(Event\Exception\ConversionToArrayNotPossible::class);
         $converter = new NestedObjectConverter();
         $converter->objectToArray(new NestedResource(tmpfile()));
     }

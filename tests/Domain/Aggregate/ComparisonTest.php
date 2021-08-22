@@ -81,7 +81,6 @@ namespace Streak\Domain\Aggregate\ComparisonTest;
 
 use Streak\Domain;
 use Streak\Domain\Aggregate;
-use Streak\Domain\Entity;
 
 class ComparisonStub implements Domain\Aggregate
 {
@@ -94,17 +93,7 @@ class ComparisonStub implements Domain\Aggregate
         $this->id = $id;
     }
 
-    public function aggregateId(): Aggregate\Id
-    {
-        return $this->id;
-    }
-
-    public function entityId(): Entity\Id
-    {
-        return $this->id;
-    }
-
-    public function id(): Domain\Id
+    public function id(): Aggregate\Id
     {
         return $this->id;
     }
@@ -121,12 +110,7 @@ class NonAggregateComparisonStub
         $this->id = $id;
     }
 
-    public function aggregateId(): Aggregate\Id
-    {
-        return $this->id;
-    }
-
-    public function entityId(): Entity\Id
+    public function id(): Aggregate\Id
     {
         return $this->id;
     }

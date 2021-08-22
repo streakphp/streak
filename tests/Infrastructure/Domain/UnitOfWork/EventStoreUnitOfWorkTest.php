@@ -18,9 +18,9 @@ use Streak\Domain\Event;
 use Streak\Domain\EventStore;
 use Streak\Domain\Exception\ConcurrentWriteDetected;
 use Streak\Domain\Id\UUID;
+use Streak\Infrastructure\Domain\EventStoreUnitOfWorkTest\NonVersionableEventSourcedStub;
+use Streak\Infrastructure\Domain\EventStoreUnitOfWorkTest\VersionableEventSourcedStub;
 use Streak\Infrastructure\Domain\UnitOfWork\Exception\ObjectNotSupported;
-use Streak\Infrastructure\Domain\UnitOfWorkTest\NonVersionableEventSourcedStub;
-use Streak\Infrastructure\Domain\UnitOfWorkTest\VersionableEventSourcedStub;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -282,13 +282,13 @@ class EventStoreUnitOfWorkTest extends TestCase
     }
 }
 
-namespace Streak\Infrastructure\Domain\UnitOfWorkTest;
+namespace Streak\Infrastructure\Domain\EventStoreUnitOfWorkTest;
 
 use Streak\Domain;
 use Streak\Domain\Event;
 use Streak\Domain\Versionable;
 
-class VersionableEventSourcedStub implements Event\Sourced, Versionable
+class VersionableEventSourcedStub implements Event\Producer, Event\Consumer, Event\Replayable, Versionable
 {
     private Domain\Id $id;
     private int $version;
@@ -307,12 +307,7 @@ class VersionableEventSourcedStub implements Event\Sourced, Versionable
         throw new \BadMethodCallException();
     }
 
-    public function lastReplayed(): ?Event\Envelope
-    {
-        throw new \BadMethodCallException();
-    }
-
-    public function producerId(): Domain\Id
+    public function id(): Domain\Id
     {
         return $this->id;
     }
@@ -323,6 +318,16 @@ class VersionableEventSourcedStub implements Event\Sourced, Versionable
     }
 
     public function replay(Event\Stream $events): void
+    {
+        throw new \BadMethodCallException();
+    }
+
+    public function lastEvent(): ?Event\Envelope
+    {
+        throw new \BadMethodCallException();
+    }
+
+    public function applyEvent(Event\Envelope $event): void
     {
         throw new \BadMethodCallException();
     }
@@ -343,7 +348,7 @@ class VersionableEventSourcedStub implements Event\Sourced, Versionable
     }
 }
 
-class NonVersionableEventSourcedStub implements Event\Sourced
+class NonVersionableEventSourcedStub implements Event\Producer, Event\Consumer, Event\Replayable
 {
     private Domain\Id $id;
     private array $events;
@@ -359,14 +364,14 @@ class NonVersionableEventSourcedStub implements Event\Sourced
         throw new \BadMethodCallException();
     }
 
-    public function lastReplayed(): ?Event\Envelope
-    {
-        throw new \BadMethodCallException();
-    }
-
-    public function producerId(): Domain\Id
+    public function id(): Domain\Id
     {
         return $this->id;
+    }
+
+    public function applyEvent(Event\Envelope $event): void
+    {
+        throw new \BadMethodCallException();
     }
 
     public function events(): array

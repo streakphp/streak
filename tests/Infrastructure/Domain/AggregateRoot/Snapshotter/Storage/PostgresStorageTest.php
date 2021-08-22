@@ -121,14 +121,14 @@ final class PostgresStorageTest extends \PHPUnit\Framework\TestCase
     public function testItDoesntFindWhenTableDoesNotExists(): void
     {
         $this->givenSnapshotsTableDoesNotExists();
-        self::expectException(SnapshotNotFound::class);
+        $this->expectException(SnapshotNotFound::class);
         $this->storage->find($this->createAggregateRootStub('3e7c8ffa-6bc6-4070-a6b5-30f9ae1c06fe'));
     }
 
     public function testItDoesntFindWhenRowDoesNotExist(): void
     {
         $this->givenSnapshotsTableExists();
-        self::expectException(SnapshotNotFound::class);
+        $this->expectException(SnapshotNotFound::class);
         $this->storage->find($this->createAggregateRootStub('3e7c8ffa-6bc6-4070-a6b5-30f9ae1c06fe'));
     }
 

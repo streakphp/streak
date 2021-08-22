@@ -37,7 +37,7 @@ class SnapshotNotFoundTest extends TestCase
     {
         $this->aggregate
             ->expects(self::atLeastOnce())
-            ->method('aggregateRootId')
+            ->method('id')
             ->willReturn($this->aggregateId)
         ;
         $this->aggregateId

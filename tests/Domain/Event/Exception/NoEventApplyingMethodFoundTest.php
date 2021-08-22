@@ -24,20 +24,20 @@ use Streak\Domain\Event;
  */
 class NoEventApplyingMethodFoundTest extends TestCase
 {
-    private Event\Consumer $consumer;
+    private Event\Sourced\Entity $entity;
     private Event\Envelope $event;
 
     protected function setUp(): void
     {
-        $this->consumer = $this->getMockBuilder(Event\Consumer::class)->getMockForAbstractClass();
-        $this->event = Event\Envelope::new($this->getMockBuilder(Domain\Event::class)->getMockForAbstractClass(), Domain\Id\UUID::random());
+        $this->entity = $this->getMockBuilder(Event\Sourced\Entity::class)->getMockForAbstractClass();
+        $this->event = Event\Envelope::new($this->getMockBuilder(Domain\Event::class)->getMockForAbstractClass(), $producerId = Domain\Id\UUID::random());
     }
 
     public function testException(): void
     {
-        $exception = new NoEventApplyingMethodFound($this->consumer, $this->event);
+        $exception = new NoEventApplyingMethodFound($this->entity, $this->event);
 
-        self::assertSame($this->consumer, $exception->consumer());
+        self::assertSame($this->entity, $exception->object());
         self::assertSame($this->event, $exception->event());
     }
 }

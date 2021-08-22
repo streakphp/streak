@@ -26,7 +26,7 @@ interface Subscription
 {
     public function listener(): Event\Listener;
 
-    public function subscriptionId(): Event\Listener\Id;
+    public function id(): Event\Listener\Id;
 
     /**
      * @throws Exception\SubscriptionAlreadyCompleted

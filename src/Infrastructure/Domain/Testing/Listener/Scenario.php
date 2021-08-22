@@ -110,7 +110,7 @@ class Scenario implements Scenario\Given, Scenario\When, Scenario\Then, Domain\C
                     $previousState = $currentState;
                     $previousListener = $listener;
 
-                    $listener = $this->factory->create($previousListener->listenerId());
+                    $listener = $this->factory->create($previousListener->id());
                     $listener->fromState($currentState);
 
                     Assert::assertEquals($previousListener, $listener, sprintf('Listener "%s" that listened to %s" and generated incomplete state. Please review your Listener\Stateful::toState() and Listener\Stateful::fromState() methods.', \get_class($listener), \get_class($event)));

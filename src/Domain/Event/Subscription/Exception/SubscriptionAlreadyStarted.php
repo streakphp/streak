@@ -24,7 +24,7 @@ class SubscriptionAlreadyStarted extends \RuntimeException implements Subscripti
 {
     public function __construct(private Subscription $subscription)
     {
-        $id = $this->subscription->subscriptionId();
+        $id = $this->subscription->id();
 
         $message = sprintf('Subscription "%s#%s" is already started.', $id::class, $id->toString());
 

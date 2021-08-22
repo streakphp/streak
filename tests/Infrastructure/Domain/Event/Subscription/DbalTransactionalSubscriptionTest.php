@@ -128,12 +128,12 @@ class DbalTransactionalSubscriptionTest extends TestCase
 
         $this->subscription
             ->expects(self::once())
-            ->method('subscriptionId')
+            ->method('id')
             ->with()
             ->willReturn($this->subscriptionId)
         ;
 
-        self::assertSame($this->subscriptionId, $subscription->subscriptionId());
+        self::assertSame($this->subscriptionId, $subscription->id());
 
         $this->subscription
             ->expects(self::once())

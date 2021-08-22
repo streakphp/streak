@@ -47,8 +47,6 @@ class ProcessingTest extends TestCase
         $sensor = new SensorStub1($this->id);
 
         self::assertSame($this->id, $sensor->id());
-        self::assertSame($this->id, $sensor->producerId());
-        self::assertSame($this->id, $sensor->sensorId());
         self::assertNull($sensor->last());
         self::assertEmpty($sensor->events());
 
@@ -122,6 +120,16 @@ class ProcessingTest extends TestCase
         }
 
         // no new assertions here please
+    }
+
+    public function testNoMethodFound(): void
+    {
+        $sensor = new SensorStub2($this->id);
+
+        $this->expectExceptionObject(new \InvalidArgumentException('No method found to process message.'));
+
+        $stdClass = new \stdClass();
+        $sensor->process($stdClass);
     }
 }
 

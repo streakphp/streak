@@ -38,11 +38,11 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
 
         $this->aggregateId1 = new Storage\StorageTestCase\ExtendedUUID1('9bf583d5-d4ff-4cf3-bc53-8ffb6be0c67b');
         $this->aggregate1 = $this->getMockBuilder(AggregateRoot::class)->setMockClassName('streak__aggregate_1')->getMockForAbstractClass();
-        $this->aggregate1->method('aggregateRootId')->with()->willReturn($this->aggregateId1);
+        $this->aggregate1->method('id')->with()->willReturn($this->aggregateId1);
 
         $this->aggregateId2 = new Storage\StorageTestCase\ExtendedUUID2('d61546c6-cc51-4584-90f8-34203fd79b41');
         $this->aggregate2 = $this->getMockBuilder(AggregateRoot::class)->setMockClassName('streak__aggregate_2')->getMockForAbstractClass();
-        $this->aggregate2->method('aggregateRootId')->with()->willReturn($this->aggregateId2);
+        $this->aggregate2->method('id')->with()->willReturn($this->aggregateId2);
     }
 
     public function testObject(): void

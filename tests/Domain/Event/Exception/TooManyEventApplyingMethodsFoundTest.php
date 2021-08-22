@@ -24,21 +24,21 @@ use Streak\Domain\Id\UUID;
  */
 class TooManyEventApplyingMethodsFoundTest extends TestCase
 {
-    private Event\Consumer $consumer;
+    private Event\Sourced\Entity $entity;
 
     private Event\Envelope $event;
 
     protected function setUp(): void
     {
-        $this->consumer = $this->getMockBuilder(Event\Consumer::class)->getMockForAbstractClass();
+        $this->entity = $this->getMockBuilder(Event\Sourced\Entity::class)->getMockForAbstractClass();
         $this->event = Event\Envelope::new($this->getMockBuilder(Event::class)->getMockForAbstractClass(), UUID::random());
     }
 
     public function testException(): void
     {
-        $exception = new TooManyEventApplyingMethodsFound($this->consumer, $this->event);
+        $exception = new TooManyEventApplyingMethodsFound($this->entity, $this->event);
 
-        self::assertSame($this->consumer, $exception->consumer());
+        self::assertSame($this->entity, $exception->object());
         self::assertSame($this->event, $exception->event());
     }
 }

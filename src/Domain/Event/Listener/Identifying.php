@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Streak\Domain\Event\Listener;
 
-use Streak\Domain;
 use Streak\Domain\Event\Listener;
 
 /**
@@ -28,14 +27,9 @@ trait Identifying
         $this->identifyBy($id);
     }
 
-    public function listenerId(): Listener\Id
+    public function id(): Listener\Id
     {
         return $this->id;
-    }
-
-    public function id(): Domain\Id
-    {
-        return $this->listenerId();
     }
 
     protected function identifyBy(Listener\Id $id): void

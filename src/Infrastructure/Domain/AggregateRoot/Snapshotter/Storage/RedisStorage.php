@@ -58,8 +58,8 @@ final class RedisStorage implements Storage, Resettable
     {
         return
             \get_class($aggregate).
-            \get_class($aggregate->aggregateRootId()).
-            $aggregate->aggregateRootId()->toString()
+            \get_class($aggregate->id()).
+            $aggregate->id()->toString()
         ;
     }
 }

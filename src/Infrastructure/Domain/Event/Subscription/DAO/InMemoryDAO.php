@@ -32,7 +32,7 @@ class InMemoryDAO implements DAO
     public function save(Subscription $subscription): void
     {
         foreach ($this->subscriptions as $key => $stored) {
-            if ($stored->subscriptionId()->equals($subscription->subscriptionId())) {
+            if ($stored->id()->equals($subscription->id())) {
                 $this->subscriptions[$key] = $subscription;
 
                 return;
@@ -45,7 +45,7 @@ class InMemoryDAO implements DAO
     public function one(Listener\Id $id): ?Subscription
     {
         foreach ($this->subscriptions as $key => $stored) {
-            if ($stored->subscriptionId()->equals($id)) {
+            if ($stored->id()->equals($id)) {
                 return $stored;
             }
         }
@@ -62,7 +62,7 @@ class InMemoryDAO implements DAO
     {
         foreach ($this->subscriptions as $key => $stored) {
             if (\count($types)) {
-                $type = $stored->subscriptionId()::class;
+                $type = $stored->id()::class;
                 if (false === \in_array($type, $types)) {
                     continue;
                 }

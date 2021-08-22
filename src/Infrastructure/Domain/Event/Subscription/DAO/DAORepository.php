@@ -44,7 +44,7 @@ class DAORepository implements Subscription\Repository
 
     public function has(Event\Subscription $subscription): bool
     {
-        return $this->dao->exists($subscription->subscriptionId());
+        return $this->dao->exists($subscription->id());
     }
 
     public function add(Event\Subscription $subscription): void

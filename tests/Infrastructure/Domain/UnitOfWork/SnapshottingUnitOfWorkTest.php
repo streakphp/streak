@@ -15,6 +15,7 @@ namespace Streak\Infrastructure\Domain\UnitOfWork;
 
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
+use Streak\Domain\AggregateRoot;
 use Streak\Domain\Event;
 use Streak\Infrastructure\Domain\AggregateRoot\Snapshotter;
 use Streak\Infrastructure\Domain\UnitOfWork;
@@ -34,11 +35,11 @@ class SnapshottingUnitOfWorkTest extends TestCase
 
     private Event\Sourced\AggregateRoot $aggregateRoot1;
 
-    private Event\Sourced\AggregateRoot\Id $aggregateRootId1;
+    private AggregateRoot\Id $aggregateRootId1;
 
     private Event\Sourced\AggregateRoot $aggregateRoot2;
 
-    private Event\Sourced\AggregateRoot\Id $aggregateRootId2;
+    private AggregateRoot\Id $aggregateRootId2;
 
     protected function setUp(): void
     {
@@ -46,9 +47,9 @@ class SnapshottingUnitOfWorkTest extends TestCase
         $this->snapshotter = $this->getMockBuilder(Snapshotter::class)->getMockForAbstractClass();
         $this->producer = $this->getMockBuilder(Event\Producer::class)->setMockClassName('s__producer')->getMockForAbstractClass();
         $this->aggregateRoot1 = $this->getMockBuilder(Event\Sourced\AggregateRoot::class)->setMockClassName('s__ar1')->getMockForAbstractClass();
-        $this->aggregateRootId1 = $this->getMockBuilder(Event\Sourced\AggregateRoot\Id::class)->getMockForAbstractClass();
+        $this->aggregateRootId1 = $this->getMockBuilder(AggregateRoot\Id::class)->getMockForAbstractClass();
         $this->aggregateRoot2 = $this->getMockBuilder(Event\Sourced\AggregateRoot::class)->setMockClassName('s__ar2')->getMockForAbstractClass();
-        $this->aggregateRootId2 = $this->getMockBuilder(Event\Sourced\AggregateRoot\Id::class)->getMockForAbstractClass();
+        $this->aggregateRootId2 = $this->getMockBuilder(AggregateRoot\Id::class)->getMockForAbstractClass();
     }
 
     public function testObject(): void
@@ -57,12 +58,12 @@ class SnapshottingUnitOfWorkTest extends TestCase
 
         $this->producer
             ->expects(self::never()) // we do not handle this type of object
-            ->method('producerId')
+            ->method('id')
         ;
 
         $this->aggregateRoot1
             ->expects(self::atLeastOnce())
-            ->method('producerId')
+            ->method('id')
             ->willReturn($this->aggregateRootId1)
         ;
 
@@ -78,7 +79,7 @@ class SnapshottingUnitOfWorkTest extends TestCase
 
         $this->aggregateRoot2
             ->expects(self::atLeastOnce())
-            ->method('producerId')
+            ->method('id')
             ->willReturn($this->aggregateRootId2)
         ;
 
@@ -237,7 +238,7 @@ class SnapshottingUnitOfWorkTest extends TestCase
 
         $this->aggregateRoot1
             ->expects(self::atLeastOnce())
-            ->method('producerId')
+            ->method('id')
             ->willReturn($this->aggregateRootId1)
         ;
 
@@ -276,7 +277,7 @@ class SnapshottingUnitOfWorkTest extends TestCase
      */
     public function testItDoesNotCreateWithWrongInterval(int $interval): void
     {
-        self::expectException(InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         new SnapshottingUnitOfWork($this->uow, $this->snapshotter, 0);
     }
 

@@ -9,8 +9,13 @@ jobs:
         uses: actions/checkout@v2
       - name: Docker pull
         run: docker-compose pull php
+      - name: Docker caching
+        uses: satackey/action-docker-layer-caching@v0.0.11
+        continue-on-error: true
+      - name: Start PHP container
+        run: docker-compose up --detach --build --no-deps php
       - name: Run composer validate
-        run: docker-compose run --rm --no-deps php composer validate --strict --no-interaction --ansi
+        run: docker-compose exec -T php composer validate --strict --no-interaction --ansi
   run-php-cs-fixer:
     name: php-cs-fixer
     runs-on: ubuntu-latest
@@ -19,16 +24,21 @@ jobs:
         uses: actions/checkout@v2
       - name: Docker pull
         run: docker-compose pull php
+      - name: Docker caching
+        uses: satackey/action-docker-layer-caching@v0.0.11
+        continue-on-error: true
       - name: Composer caching
         uses: actions/cache@v2
         with:
           path: ./build/.composer
           key: ${{ runner.os }}-composer-v1-${{ hashFiles('composer.json') }}
           restore-keys: ${{ runner.os }}-composer-v1-
+      - name: Start PHP container
+        run: docker-compose up --detach --build --no-deps php
       - name: Install dependencies
-        run: docker-compose run --rm --no-deps php composer --no-scripts install --no-interaction --ansi
+        run: docker-compose exec -T php composer --no-scripts install --no-interaction --ansi
       - name: Run php-cs-fixer
-        run: docker-compose run --rm --no-deps php bin/php-cs-fixer fix --diff --dry-run --ansi --config=.php-cs-fixer.dist.php
+        run: docker-compose exec -T php bin/php-cs-fixer fix --diff --dry-run --ansi --config=.php-cs-fixer.dist.php
   run-phpunit:
     name: phpunit
     runs-on: ubuntu-latest
@@ -37,22 +47,32 @@ jobs:
         uses: actions/checkout@v2
       - name: Docker pull
         run: docker-compose pull
+      - name: Docker caching
+        uses: satackey/action-docker-layer-caching@v0.0.11
+        continue-on-error: true
       - name: Composer caching
         uses: actions/cache@v2
         with:
           path: ./build/.composer
           key: ${{ runner.os }}-composer-v1-${{ hashFiles('composer.json') }}
           restore-keys: ${{ runner.os }}-composer-v1-
+      - name: Start containers
+        run: docker-compose up --detach --build
       - name: Install dependencies
-        run: docker-compose run --rm php composer install --no-scripts --no-interaction --ansi
+        run: docker-compose exec -T php composer install --no-scripts --no-interaction --ansi
       - name: Run phpunit
-        run: docker-compose run --rm php xphp bin/phpunit --color=always --configuration=phpunit.xml.dist
-      - name: Upload coverage report to codecov.io
-        uses: codecov/codecov-action@v1
+        run: docker-compose exec -T php xphp -dxdebug.mode=coverage bin/phpunit --color=always --configuration=phpunit.xml.dist
+      - name: Upload coverage report to Codecov.io
+        uses: codecov/codecov-action@v2
         with:
           files: ./build/.phpunit/clover.xml
           fail_ci_if_error: true
           verbose: true
+#      - name: Upload coverage report to GitHub.com
+#        uses: actions/upload-artifact@v2
+#        with:
+#          name: Code Coverage Report
+#          path: build/.phpunit/code-coverage/*
   run-rector:
     name: rector
     runs-on: ubuntu-latest
@@ -61,16 +81,21 @@ jobs:
         uses: actions/checkout@v2
       - name: Docker pull
         run: docker-compose pull php
+      - name: Docker caching
+        uses: satackey/action-docker-layer-caching@v0.0.11
+        continue-on-error: true
       - name: Composer caching
         uses: actions/cache@v2
         with:
           path: ./build/.composer
           key: ${{ runner.os }}-composer-v1-${{ hashFiles('composer.json') }}
           restore-keys: ${{ runner.os }}-composer-v1-
+      - name: Start PHP container
+        run: docker-compose up --detach --build --no-deps php
       - name: Install dependencies
-        run: docker-compose run --rm --no-deps php composer install --no-interaction --ansi
+        run: docker-compose exec -T php composer install --no-interaction --ansi
       - name: Run rector
-        run: docker-compose run --rm --no-deps php bin/rector --no-progress-bar --dry-run --ansi
+        run: docker-compose exec -T php bin/rector --no-progress-bar --dry-run --ansi
   run-deptrac:
     name: deptrac
     runs-on: ubuntu-latest
@@ -79,13 +104,18 @@ jobs:
         uses: actions/checkout@v2
       - name: Docker pull
         run: docker-compose pull php
+      - name: Docker caching
+        uses: satackey/action-docker-layer-caching@v0.0.11
+        continue-on-error: true
       - name: Composer caching
         uses: actions/cache@v2
         with:
           path: ./build/.composer
           key: ${{ runner.os }}-composer-v1-${{ hashFiles('composer.json') }}
           restore-keys: ${{ runner.os }}-composer-v1-
+      - name: Start PHP container
+        run: docker-compose up --detach --build --no-deps php
       - name: Install dependencies
-        run: docker-compose run --rm --no-deps php composer install --no-scripts --no-interaction --ansi
+        run: docker-compose exec -T php composer install --no-scripts --no-interaction --ansi
       - name: Run deptrac
-        run: docker-compose run --rm --no-deps php bin/deptrac --no-progress --no-interaction --cache-file=./build/.deptrac/.deptrac.cache --ansi
+        run: docker-compose exec -T php bin/deptrac --no-progress --no-interaction --cache-file=./build/.deptrac/.deptrac.cache --ansi

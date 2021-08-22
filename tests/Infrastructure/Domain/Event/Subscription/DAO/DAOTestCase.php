@@ -70,12 +70,12 @@ abstract class DAOTestCase extends TestCase
 
         $this->listener1
             ->expects(self::atLeastOnce())
-            ->method('listenerId')
+            ->method('id')
             ->willReturn($listenerId1)
         ;
         $this->listener2
             ->expects(self::atLeastOnce())
-            ->method('listenerId')
+            ->method('id')
             ->willReturn($listenerId2)
         ;
 
