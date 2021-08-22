@@ -32,6 +32,6 @@ class NullListener implements Event\Listener
 
     public static function from(Event\Listener $listener)
     {
-        return new self($listener->listenerId());
+        return new self($listener->id());
     }
 }

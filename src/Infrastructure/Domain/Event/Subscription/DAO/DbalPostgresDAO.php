@@ -87,8 +87,8 @@ class DbalPostgresDAO implements DAO
     public function toRow(DAO\Subscription $subscription): array
     {
         // dehydrate
-        $row['subscription_type'] = $subscription->subscriptionId()::class;
-        $row['subscription_id'] = $subscription->subscriptionId()->toString();
+        $row['subscription_type'] = $subscription->id()::class;
+        $row['subscription_id'] = $subscription->id()->toString();
         $row['subscription_version'] = $subscription->version();
 
         $reflection = new \ReflectionObject($subscription);

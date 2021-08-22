@@ -11,14 +11,14 @@
 
 declare(strict_types=1);
 
-namespace Streak\Domain\Event\Producer;
+namespace Streak\Domain\Event\Sourced;
 
-use Streak\Domain;
+use Streak\Domain\Event;
+use Streak\Domain\Versionable;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-interface Id extends Domain\Id
+interface Subscription extends Event\Subscription, Event\Producer, Event\Replayable, Versionable
 {
-//    public static function from(string $value) : self;
 }

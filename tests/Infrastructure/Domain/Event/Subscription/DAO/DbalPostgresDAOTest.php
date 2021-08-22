@@ -59,7 +59,7 @@ class DbalPostgresDAOTest extends DAOTestCase
         $listener3 = $this->getMockBuilder(DAO\DbalPostgresDAOTest\CompletableListener::class)->setMockClassName('listener3')->getMock();
         $listener3
             ->expects(self::atLeastOnce())
-            ->method('listenerId')
+            ->method('id')
             ->willReturn($listenerId3)
         ;
         $subscription3 = new Subscription($listener3, $this->clock);

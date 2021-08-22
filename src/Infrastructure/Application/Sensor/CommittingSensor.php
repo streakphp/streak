@@ -14,7 +14,6 @@ declare(strict_types=1);
 namespace Streak\Infrastructure\Application\Sensor;
 
 use Streak\Application\Sensor;
-use Streak\Domain;
 use Streak\Domain\Event;
 use Streak\Infrastructure\Domain\UnitOfWork;
 
@@ -29,9 +28,9 @@ class CommittingSensor implements Sensor
     {
     }
 
-    public function producerId(): Domain\Id
+    public function id(): Sensor\Id
     {
-        return $this->sensor->producerId();
+        return $this->sensor->id();
     }
 
     /**
@@ -40,11 +39,6 @@ class CommittingSensor implements Sensor
     public function events(): array
     {
         return $this->sensor->events();
-    }
-
-    public function sensorId(): Sensor\Id
-    {
-        return $this->sensor->sensorId();
     }
 
     public function process(...$messages): void

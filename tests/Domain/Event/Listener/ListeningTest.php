@@ -309,11 +309,8 @@ class SupportedEvent3ThatCausesException implements Event
 }
 class SupportedEvent4 implements Event
 {
-    private $value;
-
-    public function __construct($value)
+    public function __construct(private $value)
     {
-        $this->value = $value;
     }
 
     public function value()

@@ -11,13 +11,19 @@
 
 declare(strict_types=1);
 
-namespace Streak\Domain\Event\Sourced\AggregateRoot;
+namespace Streak\Domain\Aggregate;
 
-use Streak\Domain\AggregateRoot;
+use Streak\Domain\Aggregate;
+use Streak\Domain\Entity;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @see \Streak\Domain\EventSourcingTest
  */
-interface Id extends AggregateRoot\Id
+trait EventSourcing //implements Event\Sourced\Aggregate
 {
+    use Entity\EventSourcing;
+
+    abstract public function id(): Aggregate\Id;
 }

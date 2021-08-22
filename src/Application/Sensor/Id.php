@@ -13,11 +13,11 @@ declare(strict_types=1);
 
 namespace Streak\Application\Sensor;
 
-use Streak\Domain\Event\Producer;
+use Streak\Domain;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-interface Id extends Producer\Id
+interface Id extends Domain\Id
 {
 }

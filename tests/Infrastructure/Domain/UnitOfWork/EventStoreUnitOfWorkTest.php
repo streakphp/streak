@@ -18,9 +18,9 @@ use Streak\Domain\Event;
 use Streak\Domain\EventStore;
 use Streak\Domain\Exception\ConcurrentWriteDetected;
 use Streak\Domain\Id\UUID;
+use Streak\Infrastructure\Domain\EventStoreUnitOfWorkTest\NonVersionableEventSourcedStub;
+use Streak\Infrastructure\Domain\EventStoreUnitOfWorkTest\VersionableEventSourcedStub;
 use Streak\Infrastructure\Domain\UnitOfWork\Exception\ObjectNotSupported;
-use Streak\Infrastructure\Domain\UnitOfWorkTest\NonVersionableEventSourcedStub;
-use Streak\Infrastructure\Domain\UnitOfWorkTest\VersionableEventSourcedStub;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -69,7 +69,7 @@ class EventStoreUnitOfWorkTest extends TestCase
         $uow = new EventStoreUnitOfWork($this->store);
 
         self::assertEmpty($uow->uncommitted());
-        self::assertEquals(0, $uow->count());
+        self::assertSame(0, $uow->count());
         self::assertFalse($uow->has($object1));
         self::assertFalse($uow->has($object2));
         self::assertFalse($uow->has($object3));
@@ -78,7 +78,7 @@ class EventStoreUnitOfWorkTest extends TestCase
         $uow->remove($object1);
 
         self::assertEmpty($uow->uncommitted());
-        self::assertEquals(0, $uow->count());
+        self::assertSame(0, $uow->count());
         self::assertFalse($uow->has($object1));
         self::assertFalse($uow->has($object2));
         self::assertFalse($uow->has($object3));
@@ -87,7 +87,7 @@ class EventStoreUnitOfWorkTest extends TestCase
         $uow->add($object1);
 
         self::assertSame([$object1], $uow->uncommitted());
-        self::assertEquals(1, $uow->count());
+        self::assertSame(1, $uow->count());
         self::assertTrue($uow->has($object1));
         self::assertFalse($uow->has($object2));
         self::assertFalse($uow->has($object3));
@@ -96,7 +96,7 @@ class EventStoreUnitOfWorkTest extends TestCase
         $uow->add($object2);
 
         self::assertSame([$object1, $object2], $uow->uncommitted());
-        self::assertEquals(2, $uow->count());
+        self::assertSame(2, $uow->count());
         self::assertTrue($uow->has($object1));
         self::assertTrue($uow->has($object2));
         self::assertFalse($uow->has($object3));
@@ -105,7 +105,7 @@ class EventStoreUnitOfWorkTest extends TestCase
         $uow->remove($object2);
 
         self::assertSame([$object1], $uow->uncommitted());
-        self::assertEquals(1, $uow->count());
+        self::assertSame(1, $uow->count());
         self::assertTrue($uow->has($object1));
         self::assertFalse($uow->has($object2));
         self::assertFalse($uow->has($object3));
@@ -114,7 +114,7 @@ class EventStoreUnitOfWorkTest extends TestCase
         $uow->add($object3);
 
         self::assertSame([$object1, $object3], $uow->uncommitted());
-        self::assertEquals(2, $uow->count());
+        self::assertSame(2, $uow->count());
         self::assertTrue($uow->has($object1));
         self::assertFalse($uow->has($object2));
         self::assertTrue($uow->has($object3));
@@ -123,7 +123,7 @@ class EventStoreUnitOfWorkTest extends TestCase
         $uow->add($object4);
 
         self::assertSame([$object1, $object3, $object4], $uow->uncommitted());
-        self::assertEquals(3, $uow->count());
+        self::assertSame(3, $uow->count());
         self::assertTrue($uow->has($object1));
         self::assertFalse($uow->has($object2));
         self::assertTrue($uow->has($object3));
@@ -159,7 +159,7 @@ class EventStoreUnitOfWorkTest extends TestCase
         self::assertTrue($object1->commited());
         self::assertFalse($object2->commited());
         self::assertTrue($object3->commited());
-        self::assertEquals(0, $uow->count());
+        self::assertSame(0, $uow->count());
         self::assertFalse($uow->has($object1));
         self::assertFalse($uow->has($object2));
         self::assertFalse($uow->has($object3));
@@ -246,7 +246,7 @@ class EventStoreUnitOfWorkTest extends TestCase
         // retry
         try {
             iterator_to_array($uow->commit());
-        } catch (\RuntimeException $exception3) {
+        } catch (\RuntimeException) {
             self::fail();
         } finally {
             self::assertSame(0, $uow->count());
@@ -259,7 +259,7 @@ class EventStoreUnitOfWorkTest extends TestCase
         try {
             iterator_to_array($uow->commit());
             self::fail();
-        } catch (ConcurrentWriteDetected $exception4) {
+        } catch (ConcurrentWriteDetected) {
             self::assertSame(0, $uow->count());
             self::assertFalse($uow->has($object1));
             self::assertFalse($uow->has($object2));
@@ -282,23 +282,19 @@ class EventStoreUnitOfWorkTest extends TestCase
     }
 }
 
-namespace Streak\Infrastructure\Domain\UnitOfWorkTest;
+namespace Streak\Infrastructure\Domain\EventStoreUnitOfWorkTest;
 
 use Streak\Domain;
 use Streak\Domain\Event;
 use Streak\Domain\Versionable;
 
-class VersionableEventSourcedStub implements Event\Sourced, Versionable
+class VersionableEventSourcedStub implements Event\Producer, Event\Consumer, Event\Replayable, Versionable
 {
-    private Domain\Id $id;
-    private int $version;
     private array $events;
     private bool $commited = false;
 
-    public function __construct(Domain\Id $id, int $version, Event\Envelope ...$events)
+    public function __construct(private Domain\Id $id, private int $version, Event\Envelope ...$events)
     {
-        $this->id = $id;
-        $this->version = $version;
         $this->events = $events;
     }
 
@@ -307,12 +303,7 @@ class VersionableEventSourcedStub implements Event\Sourced, Versionable
         throw new \BadMethodCallException();
     }
 
-    public function lastReplayed(): ?Event\Envelope
-    {
-        throw new \BadMethodCallException();
-    }
-
-    public function producerId(): Domain\Id
+    public function id(): Domain\Id
     {
         return $this->id;
     }
@@ -323,6 +314,16 @@ class VersionableEventSourcedStub implements Event\Sourced, Versionable
     }
 
     public function replay(Event\Stream $events): void
+    {
+        throw new \BadMethodCallException();
+    }
+
+    public function lastEvent(): ?Event\Envelope
+    {
+        throw new \BadMethodCallException();
+    }
+
+    public function applyEvent(Event\Envelope $event): void
     {
         throw new \BadMethodCallException();
     }
@@ -343,14 +344,12 @@ class VersionableEventSourcedStub implements Event\Sourced, Versionable
     }
 }
 
-class NonVersionableEventSourcedStub implements Event\Sourced
+class NonVersionableEventSourcedStub implements Event\Producer, Event\Consumer, Event\Replayable
 {
-    private Domain\Id $id;
     private array $events;
 
-    public function __construct(Domain\Id $id, Event\Envelope ...$events)
+    public function __construct(private Domain\Id $id, Event\Envelope ...$events)
     {
-        $this->id = $id;
         $this->events = $events;
     }
 
@@ -359,14 +358,14 @@ class NonVersionableEventSourcedStub implements Event\Sourced
         throw new \BadMethodCallException();
     }
 
-    public function lastReplayed(): ?Event\Envelope
-    {
-        throw new \BadMethodCallException();
-    }
-
-    public function producerId(): Domain\Id
+    public function id(): Domain\Id
     {
         return $this->id;
+    }
+
+    public function applyEvent(Event\Envelope $event): void
+    {
+        throw new \BadMethodCallException();
     }
 
     public function events(): array

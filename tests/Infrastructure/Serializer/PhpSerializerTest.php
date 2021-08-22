@@ -34,7 +34,7 @@ class PhpSerializerTest extends \PHPUnit\Framework\TestCase
         $serialized = $serializer->serialize($value);
         $unserialized = $serializer->unserialize($serialized);
 
-        self::assertEquals(serialize($value), $serialized);
+        self::assertSame(serialize($value), $serialized);
         self::assertEquals(unserialize($serialized), $unserialized);
         self::assertEquals($value, $unserialized);
     }

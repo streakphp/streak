@@ -29,6 +29,8 @@ final class Envelope implements Domain\Envelope
     public const METADATA_VERSION = 'version';
     public const METADATA_PRODUCER_TYPE = 'producer_type';
     public const METADATA_PRODUCER_ID = 'producer_id';
+    public const METADATA_ENTITY_TYPE = 'entity_type';
+    public const METADATA_ENTITY_ID = 'entity_id';
     private array $metadata = [];
 
     public function __construct(UUID $uuid, string $name, private Event $message, Domain\Id $producerId, ?int $version = null)
@@ -37,6 +39,13 @@ final class Envelope implements Domain\Envelope
         $this->metadata[self::METADATA_NAME] = $name;
         $this->metadata[self::METADATA_PRODUCER_TYPE] = $producerId::class;
         $this->metadata[self::METADATA_PRODUCER_ID] = $producerId->toString();
+        if ($message instanceof EntityEvent) {
+            $this->metadata[self::METADATA_ENTITY_TYPE] = $message->entityId()::class;
+            $this->metadata[self::METADATA_ENTITY_ID] = $message->entityId()->toString();
+        } else {
+            $this->metadata[self::METADATA_ENTITY_TYPE] = $producerId::class;
+            $this->metadata[self::METADATA_ENTITY_ID] = $producerId->toString();
+        }
         if (null !== $version) {
             $this->metadata[self::METADATA_VERSION] = $version;
         }
@@ -67,6 +76,11 @@ final class Envelope implements Domain\Envelope
         return $this->get(self::METADATA_PRODUCER_TYPE)::fromString($this->get(self::METADATA_PRODUCER_ID));
     }
 
+    public function entityId(): Domain\Id
+    {
+        return $this->get(self::METADATA_ENTITY_TYPE)::fromString($this->get(self::METADATA_ENTITY_ID));
+    }
+
     public function version(): ?int
     {
         return $this->get(self::METADATA_VERSION);
@@ -77,7 +91,7 @@ final class Envelope implements Domain\Envelope
         if (empty($name)) {
             throw new \InvalidArgumentException('Name of the attribute can not be empty.');
         }
-        if (!is_scalar($value)) {
+        if (!\is_scalar($value)) {
             throw new \InvalidArgumentException(sprintf('Value for attribute "%s" is a scalar.', $name));
         }
 
@@ -86,7 +100,7 @@ final class Envelope implements Domain\Envelope
             $this->name(),
             $this->message(),
             $this->producerId(),
-            $this->version()
+            $this->version(),
         );
 
         $new->metadata = $this->metadata;
@@ -116,5 +130,16 @@ final class Envelope implements Domain\Envelope
         }
 
         return true;
+    }
+
+    public function defineVersion(int $version): self
+    {
+        return new self(
+            $this->uuid(),
+            $this->name(),
+            $this->message(),
+            $this->producerId(),
+            $version,
+        );
     }
 }

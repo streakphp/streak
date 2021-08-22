@@ -23,11 +23,8 @@ use Streak\Infrastructure\Domain\Resettable;
  */
 final class RedisStorage implements Storage, Resettable
 {
-    private \Redis $redis;
-
-    public function __construct(\Redis $client)
+    public function __construct(private \Redis $redis)
     {
-        $this->redis = $client;
     }
 
     /**
@@ -57,9 +54,9 @@ final class RedisStorage implements Storage, Resettable
     private function key(AggregateRoot $aggregate): string
     {
         return
-            \get_class($aggregate).
-            \get_class($aggregate->aggregateRootId()).
-            $aggregate->aggregateRootId()->toString()
+            $aggregate::class.
+            $aggregate->id()::class.
+            $aggregate->id()->toString()
         ;
     }
 }

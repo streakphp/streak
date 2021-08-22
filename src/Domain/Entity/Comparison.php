@@ -18,10 +18,12 @@ use Streak\Domain\Entity;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @see \Streak\Domain\Entity\ComparisonTest
  */
 trait Comparison
 {
-    abstract public function entityId(): Entity\Id;
+    abstract public function id(): Entity\Id;
 
     final public function equals(object $entity): bool
     {
@@ -33,7 +35,7 @@ trait Comparison
             return false;
         }
 
-        if (!$this->entityId()->equals($entity->entityId())) {
+        if (!$this->id()->equals($entity->id())) {
             return false;
         }
 

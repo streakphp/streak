@@ -40,9 +40,9 @@ class DbalTransactionalSubscription implements Subscription, Subscription\Decora
         return $this->subscription->listener();
     }
 
-    public function subscriptionId(): Listener\Id
+    public function id(): Listener\Id
     {
-        return $this->subscription->subscriptionId();
+        return $this->subscription->id();
     }
 
     public function subscribeTo(EventStore $store, ?int $limit = null): iterable

@@ -334,11 +334,8 @@ use Streak\Domain;
 
 abstract class ValueId implements Domain\Id
 {
-    private string $value;
-
-    public function __construct(string $value)
+    public function __construct(private string $value)
     {
-        $this->value = $value;
     }
 
     public function equals(object $id): bool

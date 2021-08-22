@@ -18,18 +18,18 @@ use Streak\Domain\Event;
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  *
- * @see \Streak\Domain\Exception\EventAndConsumerMismatchTest
+ * @see \Streak\Domain\Exception\EventMismatchedTest
  */
-class EventAndConsumerMismatch extends \LogicException
+class EventMismatched extends \LogicException
 {
-    public function __construct(private Event\Consumer $consumer, private Event\Envelope $event, \Throwable $previous = null)
+    public function __construct(private object $object, private Event\Envelope $event, \Throwable $previous = null)
     {
-        parent::__construct('Event mismatched when applying on consumer.', 0, $previous);
+        parent::__construct('Event mismatched when applying on object.', 0, $previous);
     }
 
-    public function consumer(): Event\Consumer
+    public function object(): object
     {
-        return $this->consumer;
+        return $this->object;
     }
 
     public function event(): Event\Envelope

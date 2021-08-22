@@ -18,5 +18,5 @@ namespace Streak\Domain;
  */
 interface Entity extends Comparable, Identifiable
 {
-    public function entityId(): Entity\Id;
+    public function id(): Entity\Id;
 }

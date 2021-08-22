@@ -11,13 +11,12 @@
 
 declare(strict_types=1);
 
-namespace Streak\Domain\Event\Sourced\Aggregate;
+namespace Streak\Domain\Event;
 
-use Streak\Domain\Aggregate;
+use Streak\Domain\Entity;
+use Streak\Domain\Event;
 
-/**
- * @author Alan Gabriel Bem <alan.bem@gmail.com>
- */
-interface Id extends Aggregate\Id
+interface EntityEvent extends Event
 {
+    public function entityId(): Entity\Id;
 }

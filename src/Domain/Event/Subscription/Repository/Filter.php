@@ -15,6 +15,7 @@ namespace Streak\Domain\Event\Subscription\Repository;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ * @see \Streak\Domain\Event\Subscription\Repository\FilterTest
  */
 final class Filter
 {

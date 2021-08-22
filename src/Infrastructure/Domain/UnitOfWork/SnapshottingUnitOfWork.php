@@ -43,7 +43,7 @@ class SnapshottingUnitOfWork implements UnitOfWork
         $this->uow->add($producer);
 
         if ($producer instanceof Event\Sourced\AggregateRoot) {
-            $id = $producer->producerId();
+            $id = $producer->id();
             $version = $producer->version();
             $this->versions->attach($id, $version);
         }
@@ -52,7 +52,7 @@ class SnapshottingUnitOfWork implements UnitOfWork
     public function remove(object $producer): void
     {
         if ($producer instanceof Event\Sourced\AggregateRoot) {
-            $id = $producer->producerId();
+            $id = $producer->id();
             $this->versions->offsetUnset($id);
         }
 
@@ -90,10 +90,10 @@ class SnapshottingUnitOfWork implements UnitOfWork
                         continue;
                     }
 
-                    $versionBeforeCommit = $this->versions->offsetGet($committed->producerId());
+                    $versionBeforeCommit = $this->versions->offsetGet($committed->id());
                     $versionAfterCommit = $committed->version();
 
-                    $this->versions->offsetUnset($committed->producerId());
+                    $this->versions->offsetUnset($committed->id());
 
                     if (!$this->isReadyForSnapshot($versionBeforeCommit, $versionAfterCommit)) {
                         yield $committed;

@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Streak\Domain\Event;
 
 use PHPUnit\Framework\TestCase;
+use Streak\Domain\Entity;
 use Streak\Domain\Event;
 use Streak\Domain\Id\UUID;
 
@@ -25,10 +26,18 @@ use Streak\Domain\Id\UUID;
 class EnvelopeTest extends TestCase
 {
     private Event $event1;
+    private Event $event2;
+    private Entity\Id $entityId1;
+    private Entity\Id $entityId2;
 
     protected function setUp(): void
     {
+        $this->entityId1 = Event\EnvelopeTest\EntityId::random();
+        $this->entityId2 = Event\EnvelopeTest\EntityId::random();
+
         $this->event1 = $this->getMockBuilder(Event::class)->setMockClassName('dushf9fguiewhfh')->getMockForAbstractClass();
+        $this->event2 = $this->getMockBuilder(Event\EntityEvent::class)->setMockClassName('y7rb7wfe77fcw7e')->getMockForAbstractClass();
+        $this->event2->expects(self::any())->method('entityId')->willReturn($this->entityId2);
     }
 
     public function testEnvelope(): void
@@ -48,7 +57,7 @@ class EnvelopeTest extends TestCase
         self::assertSame($this->event1, $envelope1a->message());
         self::assertSame(\PHP_INT_MAX, $envelope1a->version());
         self::assertSame(\PHP_INT_MAX, $envelope1a->get($envelope1a::METADATA_VERSION));
-        self::assertSame(['uuid' => $envelope1a->uuid()->toString(), 'name' => $envelope1a->name(), 'producer_type' => 'Streak\Domain\Id\UUID', 'producer_id' => $envelope1a->producerId()->toString(), 'version' => $envelope1a->version()], $envelope1a->metadata());
+        self::assertSame(['uuid' => $envelope1a->uuid()->toString(), 'name' => $envelope1a->name(), 'producer_type' => 'Streak\Domain\Id\UUID', 'producer_id' => $envelope1a->producerId()->toString(), 'entity_type' => 'Streak\Domain\Id\UUID', 'entity_id' => $envelope1a->producerId()->toString(), 'version' => $envelope1a->version()], $envelope1a->metadata());
         self::assertNull($envelope1a->get('attr-1'));
 
         $envelope1b = $envelope1a->set('attr-1', 'value-1');
@@ -56,19 +65,19 @@ class EnvelopeTest extends TestCase
         self::assertNotSame($envelope1a, $envelope1b);
 
         self::assertNull($envelope1a->get('attr-1'));
-        self::assertSame(['uuid' => $envelope1a->uuid()->toString(), 'name' => $envelope1a->name(), 'producer_type' => 'Streak\Domain\Id\UUID', 'producer_id' => $envelope1a->producerId()->toString(), 'version' => $envelope1a->version(), 'attr-1' => 'value-1'], $envelope1b->metadata());
+        self::assertSame(['uuid' => $envelope1a->uuid()->toString(), 'name' => $envelope1a->name(), 'producer_type' => 'Streak\Domain\Id\UUID', 'producer_id' => $envelope1a->producerId()->toString(), 'entity_type' => 'Streak\Domain\Id\UUID', 'entity_id' => $envelope1a->producerId()->toString(), 'version' => $envelope1a->version(), 'attr-1' => 'value-1'], $envelope1b->metadata());
         self::assertSame('value-1', $envelope1b->get('attr-1'));
 
         $envelope2a = new Event\Envelope($uuid, 'dushf9fguiewhfh', $this->event1, $producerId, \PHP_INT_MAX);
         $envelope2b = new Event\Envelope($uuid, 'dushf9fguiewhfh', $this->event1, $producerId, \PHP_INT_MAX);
 
         self::assertInstanceOf(Envelope::class, $envelope2a);
-        self::assertTrue($envelope2a->uuid()->equals($uuid));
+        self::assertEquals($envelope2a->uuid(), $uuid);
         self::assertSame('dushf9fguiewhfh', $envelope2a->name());
-        self::assertTrue($envelope2a->producerId()->equals($producerId));
+        self::assertEquals($envelope2a->producerId(), $producerId);
         self::assertSame($this->event1, $envelope2a->message());
         self::assertSame(\PHP_INT_MAX, $envelope2a->version());
-        self::assertSame(['uuid' => $envelope2a->uuid()->toString(), 'name' => $envelope2a->name(), 'producer_type' => 'Streak\Domain\Id\UUID', 'producer_id' => $envelope2a->producerId()->toString(), 'version' => $envelope2a->version()], $envelope2a->metadata());
+        self::assertSame(['uuid' => $envelope2a->uuid()->toString(), 'name' => $envelope2a->name(), 'producer_type' => 'Streak\Domain\Id\UUID', 'producer_id' => $envelope2a->producerId()->toString(), 'entity_type' => 'Streak\Domain\Id\UUID', 'entity_id' => $envelope2a->producerId()->toString(), 'version' => $envelope2a->version()], $envelope2a->metadata());
 
         self::assertTrue($envelope1a->equals($envelope1a));
         self::assertTrue($envelope2a->equals($envelope2a));
@@ -77,6 +86,30 @@ class EnvelopeTest extends TestCase
         self::assertTrue($envelope2a->equals($envelope2b));
 
         self::assertFalse($envelope1a->equals(new \stdClass()));
+
+        $envelope3 = Event\Envelope::new($this->event2, $producerId);
+
+        self::assertNull($envelope3->version());
+        self::assertSame('y7rb7wfe77fcw7e', $envelope3->name());
+        self::assertEquals($envelope3->producerId(), $producerId);
+        self::assertEquals($envelope3->entityId(), $this->entityId2);
+
+        $envelope4 = $envelope3->defineVersion(1);
+
+        self::assertTrue($envelope3->equals($envelope4));
+        self::assertTrue($envelope4->equals($envelope3));
+
+        self::assertSame(1, $envelope4->version());
+        self::assertSame('y7rb7wfe77fcw7e', $envelope4->name());
+        self::assertTrue($envelope4->producerId()->equals($producerId));
+        self::assertTrue($envelope4->entityId()->equals($this->entityId2));
+
+        $envelope5 = $envelope4->defineVersion(2);
+
+        self::assertSame(2, $envelope5->version());
+        self::assertSame('y7rb7wfe77fcw7e', $envelope5->name());
+        self::assertTrue($envelope5->producerId()->equals($producerId));
+        self::assertTrue($envelope5->entityId()->equals($this->entityId2));
     }
 
     public function testSettingEmptyAttributeName(): void
@@ -111,4 +144,13 @@ class EnvelopeTest extends TestCase
 
         $envelope->set('attr-1', $value);
     }
+}
+
+namespace Streak\Domain\Event\EnvelopeTest;
+
+use Streak\Domain\Entity;
+use Streak\Domain\Id\UUID;
+
+class EntityId extends UUID implements Entity\Id
+{
 }

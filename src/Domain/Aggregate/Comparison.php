@@ -19,12 +19,14 @@ use Streak\Domain\Entity;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @see \Streak\Domain\Aggregate\ComparisonTest
  */
 trait Comparison
 {
     use Entity\Comparison;
 
-    abstract public function aggregateId(): Aggregate\Id;
+    abstract public function id(): Aggregate\Id;
 
     final public function equals(object $aggregate): bool
     {
@@ -36,7 +38,7 @@ trait Comparison
             return false;
         }
 
-        if (!$this->aggregateId()->equals($aggregate->aggregateId())) {
+        if (!$this->id()->equals($aggregate->id())) {
             return false;
         }
 

@@ -18,6 +18,7 @@ use Streak\Domain\Clock;
 use Streak\Domain\Event;
 use Streak\Domain\Event\Listener;
 use Streak\Domain\EventStore;
+use Streak\Domain\Exception\EventMismatched;
 use Streak\Domain\Id\UUID;
 use Streak\Infrastructure\Domain\Clock\FixedClock;
 use Streak\Infrastructure\Domain\Event\InMemoryStream;
@@ -83,7 +84,7 @@ class SubscriptionTest extends TestCase
         $this->listener8 = $this->getMockBuilder(FilteringListener::class)->getMock();
         $this->listener9 = $this->getMockBuilder(StatefulListener::class)->getMock();
 
-        $this->id1 = new class('f5e65690-e50d-4312-a175-b004ec1bd42a') extends UUID implements Listener\Id {
+        $this->id1 = new class ('f5e65690-e50d-4312-a175-b004ec1bd42a') extends UUID implements Listener\Id {
         };
 
         $this->store = $this->getMockBuilder(EventStore::class)->getMockForAbstractClass();
@@ -111,7 +112,7 @@ class SubscriptionTest extends TestCase
 
         $this->listener1
             ->expects(self::atLeastOnce())
-            ->method('listenerId')
+            ->method('id')
             ->willReturn($this->id1)
         ;
         $this->listener1
@@ -122,9 +123,7 @@ class SubscriptionTest extends TestCase
         $subscription = new Subscription($this->listener1, $this->clock);
 
         self::assertSame($subscription->listener(), $this->listener1);
-        self::assertSame($this->id1, $subscription->subscriptionId());
-        self::assertSame($this->id1, $subscription->producerId());
-        self::assertNull($subscription->lastReplayed());
+        self::assertSame($this->id1, $subscription->id());
         self::assertNull($subscription->lastEvent());
         self::assertEmpty($subscription->events());
         self::assertSame(0, $subscription->version());
@@ -135,9 +134,7 @@ class SubscriptionTest extends TestCase
 
         $subscription->startFor($this->event1);
 
-        self::assertSame($this->id1, $subscription->subscriptionId());
-        self::assertSame($this->id1, $subscription->producerId());
-        self::assertNull($subscription->lastReplayed());
+        self::assertSame($this->id1, $subscription->id());
         self::assertSame(0, $subscription->version());
         self::assertEquals(new SubscriptionStarted($this->event1, $now), $subscription->lastEvent());
         self::assertEquals([new SubscriptionStarted($this->event1, $now)], $subscription->events());
@@ -146,9 +143,7 @@ class SubscriptionTest extends TestCase
 
         $subscription->commit();
 
-        self::assertSame($this->id1, $subscription->subscriptionId());
-        self::assertSame($this->id1, $subscription->producerId());
-        self::assertNull($subscription->lastReplayed());
+        self::assertSame($this->id1, $subscription->id());
         self::assertSame(1, $subscription->version());
         self::assertEquals(new SubscriptionStarted($this->event1, $now), $subscription->lastEvent());
         self::assertEquals([], $subscription->events());
@@ -295,7 +290,7 @@ class SubscriptionTest extends TestCase
 
         $this->listener7
             ->expects(self::atLeastOnce())
-            ->method('listenerId')
+            ->method('id')
             ->willReturn($this->id1)
         ;
         $this->listener7
@@ -310,18 +305,14 @@ class SubscriptionTest extends TestCase
         $subscription = new Subscription($this->listener7, $this->clock);
 
         self::assertSame($subscription->listener(), $this->listener7);
-        self::assertSame($this->id1, $subscription->subscriptionId());
-        self::assertSame($this->id1, $subscription->producerId());
-        self::assertNull($subscription->lastReplayed());
+        self::assertSame($this->id1, $subscription->id());
         self::assertNull($subscription->lastEvent());
         self::assertEmpty($subscription->events());
         self::assertSame(0, $subscription->version());
 
         $subscription->startFor($this->event3);
 
-        self::assertSame($this->id1, $subscription->subscriptionId());
-        self::assertSame($this->id1, $subscription->producerId());
-        self::assertNull($subscription->lastReplayed());
+        self::assertSame($this->id1, $subscription->id());
         self::assertSame(0, $subscription->version());
         self::assertEquals(new SubscriptionStarted($this->event3, $now), $subscription->lastEvent());
         self::assertEquals([new SubscriptionStarted($this->event3, $now)], $subscription->events());
@@ -399,28 +390,25 @@ class SubscriptionTest extends TestCase
 
         $this->listener8
             ->expects(self::atLeastOnce())
-            ->method('listenerId')
+            ->method('id')
             ->willReturn($this->id1)
         ;
 
         $subscription = new Subscription($this->listener8, $this->clock);
 
         self::assertSame($subscription->listener(), $this->listener8);
-        self::assertNull($subscription->lastReplayed());
         self::assertNull($subscription->lastEvent());
         self::assertEmpty($subscription->events());
         self::assertSame(0, $subscription->version());
 
         $subscription->startFor($this->event2);
 
-        self::assertNull($subscription->lastReplayed());
         self::assertSame(0, $subscription->version());
         self::assertEquals(new SubscriptionStarted($this->event2, $now), $subscription->lastEvent());
         self::assertEquals([new SubscriptionStarted($this->event2, $now)], $subscription->events());
 
         $subscription->commit();
 
-        self::assertNull($subscription->lastReplayed());
         self::assertSame(1, $subscription->version());
         self::assertEquals(new SubscriptionStarted($this->event2, $now), $subscription->lastEvent());
         self::assertEmpty($subscription->events());
@@ -489,7 +477,7 @@ class SubscriptionTest extends TestCase
 
         $this->listener3
             ->expects(self::atLeastOnce())
-            ->method('listenerId')
+            ->method('id')
             ->willReturn($this->id1)
         ;
         $this->listener1
@@ -500,27 +488,21 @@ class SubscriptionTest extends TestCase
         $subscription = new Subscription($this->listener3, $this->clock);
 
         self::assertSame($subscription->listener(), $this->listener3);
-        self::assertSame($this->id1, $subscription->subscriptionId());
-        self::assertSame($this->id1, $subscription->producerId());
-        self::assertNull($subscription->lastReplayed());
+        self::assertSame($this->id1, $subscription->id());
         self::assertNull($subscription->lastEvent());
         self::assertEmpty($subscription->events());
         self::assertSame(0, $subscription->version());
 
         $subscription->startFor($this->event1);
 
-        self::assertSame($this->id1, $subscription->subscriptionId());
-        self::assertSame($this->id1, $subscription->producerId());
-        self::assertNull($subscription->lastReplayed());
+        self::assertSame($this->id1, $subscription->id());
         self::assertSame(0, $subscription->version());
         self::assertEquals(new SubscriptionStarted($this->event1, $now), $subscription->lastEvent());
         self::assertEquals([new SubscriptionStarted($this->event1, $now)], $subscription->events());
 
         $subscription->commit();
 
-        self::assertSame($this->id1, $subscription->subscriptionId());
-        self::assertSame($this->id1, $subscription->producerId());
-        self::assertNull($subscription->lastReplayed());
+        self::assertSame($this->id1, $subscription->id());
         self::assertSame(1, $subscription->version());
         self::assertEquals(new SubscriptionStarted($this->event1, $now), $subscription->lastEvent());
         self::assertEquals([], $subscription->events());
@@ -612,7 +594,7 @@ class SubscriptionTest extends TestCase
 
         $this->listener1
             ->expects(self::atLeastOnce())
-            ->method('listenerId')
+            ->method('id')
             ->willReturn($this->id1)
         ;
         $this->listener1
@@ -623,9 +605,7 @@ class SubscriptionTest extends TestCase
         $subscription = new Subscription($this->listener1, $this->clock);
 
         self::assertSame($subscription->listener(), $this->listener1);
-        self::assertSame($this->id1, $subscription->subscriptionId());
-        self::assertSame($this->id1, $subscription->producerId());
-        self::assertNull($subscription->lastReplayed());
+        self::assertSame($this->id1, $subscription->id());
         self::assertNull($subscription->lastEvent());
         self::assertEmpty($subscription->events());
         self::assertSame(0, $subscription->version());
@@ -641,9 +621,7 @@ class SubscriptionTest extends TestCase
 
         $subscription->replay($this->stream1);
 
-        self::assertSame($this->id1, $subscription->subscriptionId());
-        self::assertSame($this->id1, $subscription->producerId());
-        self::assertSame($event2, $subscription->lastReplayed());
+        self::assertSame($this->id1, $subscription->id());
         self::assertSame(3, $subscription->version());
         self::assertEquals($event2, $subscription->lastEvent());
         self::assertEmpty($subscription->events());
@@ -706,7 +684,7 @@ class SubscriptionTest extends TestCase
 
         $this->listener9
             ->expects(self::atLeastOnce())
-            ->method('listenerId')
+            ->method('id')
             ->with()
             ->willReturn($this->id1)
         ;
@@ -714,7 +692,6 @@ class SubscriptionTest extends TestCase
         $subscription = new Subscription($this->listener9, $this->clock);
 
         self::assertSame($subscription->listener(), $this->listener9);
-        self::assertNull($subscription->lastReplayed());
         self::assertNull($subscription->lastEvent());
         self::assertEmpty($subscription->events());
         self::assertSame(0, $subscription->version());
@@ -741,7 +718,6 @@ class SubscriptionTest extends TestCase
 
         $subscription->replay($this->stream1);
 
-        self::assertSame($event3, $subscription->lastReplayed());
         self::assertSame(4, $subscription->version());
         self::assertEquals($event3, $subscription->lastEvent());
         self::assertEmpty($subscription->events());
@@ -813,14 +789,13 @@ class SubscriptionTest extends TestCase
 
         $this->listener9
             ->expects(self::atLeastOnce())
-            ->method('listenerId')
+            ->method('id')
             ->with()
             ->willReturn($this->id1)
         ;
         $subscription = new Subscription($this->listener9, $this->clock);
 
         self::assertSame($subscription->listener(), $this->listener9);
-        self::assertNull($subscription->lastReplayed());
         self::assertNull($subscription->lastEvent());
         self::assertEmpty($subscription->events());
         self::assertSame(0, $subscription->version());
@@ -836,7 +811,6 @@ class SubscriptionTest extends TestCase
 
         $subscription->replay($this->stream1);
 
-        self::assertSame($event2, $subscription->lastReplayed());
         self::assertSame(3, $subscription->version());
         self::assertEquals($event2, $subscription->lastEvent());
         self::assertEmpty($subscription->events());
@@ -914,7 +888,7 @@ class SubscriptionTest extends TestCase
     {
         $this->listener1
             ->expects(self::atLeastOnce())
-            ->method('listenerId')
+            ->method('id')
             ->willReturn($this->id1)
         ;
         $this->listener1
@@ -925,9 +899,7 @@ class SubscriptionTest extends TestCase
         $subscription = new Subscription($this->listener1, $this->clock);
 
         self::assertSame($subscription->listener(), $this->listener1);
-        self::assertSame($this->id1, $subscription->subscriptionId());
-        self::assertSame($this->id1, $subscription->producerId());
-        self::assertNull($subscription->lastReplayed());
+        self::assertSame($this->id1, $subscription->id());
         self::assertNull($subscription->lastEvent());
         self::assertEmpty($subscription->events());
         self::assertSame(0, $subscription->version());
@@ -937,9 +909,7 @@ class SubscriptionTest extends TestCase
         $subscription->replay($this->stream1);
 
         self::assertSame($subscription->listener(), $this->listener1);
-        self::assertSame($this->id1, $subscription->subscriptionId());
-        self::assertSame($this->id1, $subscription->producerId());
-        self::assertNull($subscription->lastReplayed());
+        self::assertSame($this->id1, $subscription->id());
         self::assertNull($subscription->lastEvent());
         self::assertEmpty($subscription->events());
         self::assertSame(0, $subscription->version());
@@ -951,7 +921,7 @@ class SubscriptionTest extends TestCase
 
         $this->listener3
             ->expects(self::atLeastOnce())
-            ->method('listenerId')
+            ->method('id')
             ->with()
             ->willReturn($this->id1)
         ;
@@ -960,7 +930,6 @@ class SubscriptionTest extends TestCase
 
         self::assertSame($subscription->listener(), $this->listener3);
         self::assertFalse($subscription->completed());
-        self::assertNull($subscription->lastReplayed());
         self::assertNull($subscription->lastEvent());
         self::assertEmpty($subscription->events());
         self::assertSame(0, $subscription->version());
@@ -973,7 +942,6 @@ class SubscriptionTest extends TestCase
 
         $subscription->replay($this->stream1);
 
-        self::assertSame($event0, $subscription->lastReplayed());
         self::assertSame($event0, $subscription->lastEvent());
         self::assertEmpty($subscription->events());
         self::assertSame(1, $subscription->version());
@@ -1017,7 +985,6 @@ class SubscriptionTest extends TestCase
         self::assertEquals([$this->event1, $this->event2], $events);
         self::assertTrue($subscription->completed());
         self::assertEquals([new SubscriptionListenedToEvent($this->event1, $now), new SubscriptionListenedToEvent($this->event2, $now), new SubscriptionCompleted($now)], $subscription->events());
-        self::assertSame($event0, $subscription->lastReplayed());
         self::assertEquals(new SubscriptionCompleted($now), $subscription->lastEvent());
         self::assertSame(1, $subscription->version());
         self::assertFalse($subscription->paused());
@@ -1026,7 +993,6 @@ class SubscriptionTest extends TestCase
 
         self::assertTrue($subscription->completed());
         self::assertEmpty($subscription->events());
-        self::assertSame($event0, $subscription->lastReplayed());
         self::assertEquals(new SubscriptionCompleted($now), $subscription->lastEvent());
         self::assertSame(4, $subscription->version());
         self::assertFalse($subscription->paused());
@@ -1035,7 +1001,6 @@ class SubscriptionTest extends TestCase
 
         self::assertTrue($subscription->completed());
         self::assertEmpty($subscription->events());
-        self::assertSame($event0, $subscription->lastReplayed());
         self::assertEquals(new SubscriptionCompleted($now), $subscription->lastEvent());
         self::assertSame(4, $subscription->version());
         self::assertFalse($subscription->paused());
@@ -1044,7 +1009,6 @@ class SubscriptionTest extends TestCase
 
         self::assertTrue($subscription->completed());
         self::assertEmpty($subscription->events());
-        self::assertSame($event0, $subscription->lastReplayed());
         self::assertEquals(new SubscriptionCompleted($now), $subscription->lastEvent());
         self::assertSame(4, $subscription->version());
         self::assertFalse($subscription->paused());
@@ -1053,7 +1017,6 @@ class SubscriptionTest extends TestCase
 
         self::assertTrue($subscription->completed());
         self::assertEmpty($subscription->events());
-        self::assertSame($event0, $subscription->lastReplayed());
         self::assertEquals(new SubscriptionCompleted($now), $subscription->lastEvent());
         self::assertSame(4, $subscription->version());
         self::assertFalse($subscription->paused());
@@ -1062,7 +1025,6 @@ class SubscriptionTest extends TestCase
 
         self::assertTrue($subscription->completed());
         self::assertEmpty($subscription->events());
-        self::assertSame($event0, $subscription->lastReplayed());
         self::assertEquals(new SubscriptionCompleted($now), $subscription->lastEvent());
         self::assertSame(4, $subscription->version());
         self::assertFalse($subscription->paused());
@@ -1078,16 +1040,14 @@ class SubscriptionTest extends TestCase
     {
         $this->listener1
             ->expects(self::atLeastOnce())
-            ->method('listenerId')
+            ->method('id')
             ->willReturn($this->id1)
         ;
 
         $subscription = new Subscription($this->listener1, $this->clock);
 
         self::assertSame($subscription->listener(), $this->listener1);
-        self::assertSame($this->id1, $subscription->subscriptionId());
-        self::assertSame($this->id1, $subscription->producerId());
-        self::assertNull($subscription->lastReplayed());
+        self::assertSame($this->id1, $subscription->id());
         self::assertNull($subscription->lastEvent());
         self::assertEmpty($subscription->events());
 
@@ -1104,7 +1064,7 @@ class SubscriptionTest extends TestCase
 
         $this->listener3
             ->expects(self::atLeastOnce())
-            ->method('listenerId')
+            ->method('id')
             ->with()
             ->willReturn($this->id1)
         ;
@@ -1126,7 +1086,6 @@ class SubscriptionTest extends TestCase
         $subscription->replay($this->stream1);
 
         self::assertTrue($subscription->completed());
-        self::assertSame($event2, $subscription->lastReplayed());
         self::assertSame($event2, $subscription->lastEvent());
         self::assertEmpty($subscription->events());
         self::assertSame(3, $subscription->version());
@@ -1149,7 +1108,7 @@ class SubscriptionTest extends TestCase
 
         $this->listener3
             ->expects(self::atLeastOnce())
-            ->method('listenerId')
+            ->method('id')
             ->with()
             ->willReturn($this->id1)
         ;
@@ -1177,7 +1136,6 @@ class SubscriptionTest extends TestCase
         $subscription->replay($this->stream1);
 
         self::assertTrue($subscription->completed());
-        self::assertSame($event5, $subscription->lastReplayed());
         self::assertSame($event5, $subscription->lastEvent());
         self::assertEmpty($subscription->events());
         self::assertSame(6, $subscription->version());
@@ -1198,16 +1156,14 @@ class SubscriptionTest extends TestCase
     {
         $this->listener1
             ->expects(self::atLeastOnce())
-            ->method('listenerId')
+            ->method('id')
             ->willReturn($this->id1)
         ;
 
         $subscription = new Subscription($this->listener1, $this->clock);
 
         self::assertSame($subscription->listener(), $this->listener1);
-        self::assertSame($this->id1, $subscription->subscriptionId());
-        self::assertSame($this->id1, $subscription->producerId());
-        self::assertNull($subscription->lastReplayed());
+        self::assertSame($this->id1, $subscription->id());
         self::assertNull($subscription->lastEvent());
         self::assertEmpty($subscription->events());
 
@@ -1232,7 +1188,7 @@ class SubscriptionTest extends TestCase
     {
         $this->listener4
             ->expects(self::atLeastOnce())
-            ->method('listenerId')
+            ->method('id')
             ->with()
             ->willReturn($this->id1)
         ;
@@ -1240,7 +1196,6 @@ class SubscriptionTest extends TestCase
         $subscription = new Subscription($this->listener4, $this->clock);
 
         self::assertSame($subscription->listener(), $this->listener4);
-        self::assertNull($subscription->lastReplayed());
         self::assertNull($subscription->lastEvent());
         self::assertEmpty($subscription->events());
         self::assertSame(0, $subscription->version());
@@ -1259,21 +1214,18 @@ class SubscriptionTest extends TestCase
 
         $subscription->replay($this->stream1);
 
-        self::assertSame($event3, $subscription->lastReplayed());
         self::assertSame($event3, $subscription->lastEvent());
         self::assertSame([], $subscription->events());
         self::assertSame(4, $subscription->version());
 
         $subscription->restart();
 
-        self::assertSame($event3, $subscription->lastReplayed());
         self::assertEquals(new SubscriptionRestarted($this->event1, $now), $subscription->lastEvent());
         self::assertEquals([new SubscriptionRestarted($this->event1, $now)], $subscription->events());
         self::assertSame(4, $subscription->version());
 
         $subscription->commit();
 
-        self::assertSame($event3, $subscription->lastReplayed());
         self::assertEquals(new SubscriptionRestarted($this->event1, $now), $subscription->lastEvent());
         self::assertSame([], $subscription->events());
         self::assertSame(5, $subscription->version());
@@ -1281,7 +1233,6 @@ class SubscriptionTest extends TestCase
         $subscription->restart();
 
         // nothing changed as consecutive restarts are ignored
-        self::assertSame($event3, $subscription->lastReplayed());
         self::assertEquals(new SubscriptionRestarted($this->event1, $now), $subscription->lastEvent());
         self::assertSame([], $subscription->events());
         self::assertSame(5, $subscription->version());
@@ -1319,14 +1270,12 @@ class SubscriptionTest extends TestCase
         $events = iterator_to_array($events);
 
         self::assertSame([$this->event1, $this->event3, $this->event4, $this->event5], $events);
-        self::assertSame($event3, $subscription->lastReplayed());
         self::assertEquals(new SubscriptionListenedToEvent($this->event5, $now), $subscription->lastEvent());
         self::assertEquals([new SubscriptionListenedToEvent($this->event1, $now), new SubscriptionListenedToEvent($this->event3, $now), new SubscriptionIgnoredEvent($this->event4, $now), new SubscriptionListenedToEvent($this->event5, $now)], $subscription->events());
         self::assertSame(5, $subscription->version());
 
         $subscription->commit();
 
-        self::assertSame($event3, $subscription->lastReplayed());
         self::assertEquals(new SubscriptionListenedToEvent($this->event5, $now), $subscription->lastEvent());
         self::assertSame([], $subscription->events());
         self::assertSame(9, $subscription->version());
@@ -1336,16 +1285,14 @@ class SubscriptionTest extends TestCase
     {
         $this->listener1
             ->expects(self::atLeastOnce())
-            ->method('listenerId')
+            ->method('id')
             ->willReturn($this->id1)
         ;
 
         $subscription = new Subscription($this->listener1, $this->clock);
 
         self::assertSame($subscription->listener(), $this->listener1);
-        self::assertSame($this->id1, $subscription->subscriptionId());
-        self::assertSame($this->id1, $subscription->producerId());
-        self::assertNull($subscription->lastReplayed());
+        self::assertSame($this->id1, $subscription->id());
         self::assertNull($subscription->lastEvent());
         self::assertEmpty($subscription->events());
 
@@ -1358,7 +1305,7 @@ class SubscriptionTest extends TestCase
     {
         $this->listener6
             ->expects(self::atLeastOnce())
-            ->method('listenerId')
+            ->method('id')
             ->with()
             ->willReturn($this->id1)
         ;
@@ -1366,7 +1313,6 @@ class SubscriptionTest extends TestCase
         $subscription = new Subscription($this->listener6, $this->clock);
 
         self::assertSame($subscription->listener(), $this->listener6);
-        self::assertNull($subscription->lastReplayed());
         self::assertNull($subscription->lastEvent());
         self::assertEmpty($subscription->events());
         self::assertSame(0, $subscription->version());
@@ -1403,7 +1349,6 @@ class SubscriptionTest extends TestCase
 
         $subscription->replay($this->stream1);
 
-        self::assertSame($event3, $subscription->lastReplayed());
         self::assertSame($event3, $subscription->lastEvent());
         self::assertSame([], $subscription->events());
         self::assertSame(4, $subscription->version());
@@ -1411,7 +1356,6 @@ class SubscriptionTest extends TestCase
 
         $subscription->restart();
 
-        self::assertSame($event3, $subscription->lastReplayed());
         self::assertEquals(new SubscriptionRestarted($this->event2, $now), $subscription->lastEvent());
         self::assertEquals([new SubscriptionRestarted($this->event2, $now)], $subscription->events());
         self::assertSame(4, $subscription->version());
@@ -1419,7 +1363,6 @@ class SubscriptionTest extends TestCase
 
         $subscription->commit();
 
-        self::assertSame($event3, $subscription->lastReplayed());
         self::assertEquals(new SubscriptionRestarted($this->event2, $now), $subscription->lastEvent());
         self::assertSame([], $subscription->events());
         self::assertSame(5, $subscription->version());
@@ -1453,7 +1396,6 @@ class SubscriptionTest extends TestCase
         $events = iterator_to_array($events);
 
         self::assertSame([$this->event2, $this->event3, $this->event4, $this->event5], $events);
-        self::assertSame($event3, $subscription->lastReplayed());
         self::assertEquals(new SubscriptionListenedToEvent($this->event5, $now), $subscription->lastEvent());
         self::assertEquals([new SubscriptionListenedToEvent($this->event2, $now), new SubscriptionListenedToEvent($this->event3, $now), new SubscriptionListenedToEvent($this->event4, $now), new SubscriptionListenedToEvent($this->event5, $now)], $subscription->events());
         self::assertSame(5, $subscription->version());
@@ -1461,7 +1403,6 @@ class SubscriptionTest extends TestCase
 
         $subscription->commit();
 
-        self::assertSame($event3, $subscription->lastReplayed());
         self::assertEquals(new SubscriptionListenedToEvent($this->event5, $now), $subscription->lastEvent());
         self::assertSame([], $subscription->events());
         self::assertSame(9, $subscription->version());
@@ -1472,7 +1413,7 @@ class SubscriptionTest extends TestCase
     {
         $this->listener1
             ->expects(self::atLeastOnce())
-            ->method('listenerId')
+            ->method('id')
             ->with()
             ->willReturn($this->id1)
         ;
@@ -1481,7 +1422,6 @@ class SubscriptionTest extends TestCase
 
         self::assertSame($subscription->listener(), $this->listener1);
         self::assertFalse($subscription->completed());
-        self::assertNull($subscription->lastReplayed());
         self::assertNull($subscription->lastEvent());
         self::assertEmpty($subscription->events());
         self::assertSame(0, $subscription->version());
@@ -1499,7 +1439,6 @@ class SubscriptionTest extends TestCase
 
         $subscription->replay($this->stream1);
 
-        self::assertSame($event2, $subscription->lastReplayed());
         self::assertSame($event2, $subscription->lastEvent());
         self::assertEmpty($subscription->events());
         self::assertSame(3, $subscription->version());
@@ -1528,13 +1467,13 @@ class SubscriptionTest extends TestCase
 
         $this->listener1
             ->expects(self::atLeastOnce())
-            ->method('listenerId')
+            ->method('id')
             ->willReturn($id1)
         ;
 
         $this->listener3
             ->expects(self::atLeastOnce())
-            ->method('listenerId')
+            ->method('id')
             ->willReturn($id2)
         ;
 
@@ -1563,33 +1502,28 @@ class SubscriptionTest extends TestCase
 
         $this->listener4
             ->expects(self::atLeastOnce())
-            ->method('listenerId')
+            ->method('id')
             ->willReturn($this->id1)
         ;
         $subscription = new Subscription($this->listener4, $this->clock);
 
         self::assertSame($subscription->listener(), $this->listener4);
-        self::assertSame($this->id1, $subscription->subscriptionId());
-        self::assertSame($this->id1, $subscription->producerId());
-        self::assertNull($subscription->lastReplayed());
+        self::assertSame($this->id1, $subscription->id());
         self::assertNull($subscription->lastEvent());
         self::assertEmpty($subscription->events());
         self::assertSame(0, $subscription->version());
 
         $subscription->startFor($this->event1);
 
-        self::assertSame($this->id1, $subscription->subscriptionId());
-        self::assertSame($this->id1, $subscription->producerId());
-        self::assertNull($subscription->lastReplayed());
+        self::assertSame($this->id1, $subscription->id());
+
         self::assertSame(0, $subscription->version());
         self::assertEquals(new SubscriptionStarted($this->event1, $now), $subscription->lastEvent());
         self::assertEquals([new SubscriptionStarted($this->event1, $now)], $subscription->events());
 
         $subscription->commit();
 
-        self::assertSame($this->id1, $subscription->subscriptionId());
-        self::assertSame($this->id1, $subscription->producerId());
-        self::assertNull($subscription->lastReplayed());
+        self::assertSame($this->id1, $subscription->id());
         self::assertSame(1, $subscription->version());
         self::assertEquals(new SubscriptionStarted($this->event1, $now), $subscription->lastEvent());
         self::assertEquals([], $subscription->events());
@@ -1633,33 +1567,27 @@ class SubscriptionTest extends TestCase
 
         $this->listener4
             ->expects(self::atLeastOnce())
-            ->method('listenerId')
+            ->method('id')
             ->willReturn($this->id1)
         ;
         $subscription = new Subscription($this->listener4, $this->clock);
 
         self::assertSame($subscription->listener(), $this->listener4);
-        self::assertSame($this->id1, $subscription->subscriptionId());
-        self::assertSame($this->id1, $subscription->producerId());
-        self::assertNull($subscription->lastReplayed());
+        self::assertSame($this->id1, $subscription->id());
         self::assertNull($subscription->lastEvent());
         self::assertEmpty($subscription->events());
         self::assertSame(0, $subscription->version());
 
         $subscription->startFor($this->event1);
 
-        self::assertSame($this->id1, $subscription->subscriptionId());
-        self::assertSame($this->id1, $subscription->producerId());
-        self::assertNull($subscription->lastReplayed());
+        self::assertSame($this->id1, $subscription->id());
         self::assertSame(0, $subscription->version());
         self::assertEquals(new SubscriptionStarted($this->event1, $now), $subscription->lastEvent());
         self::assertEquals([new SubscriptionStarted($this->event1, $now)], $subscription->events());
 
         $subscription->commit();
 
-        self::assertSame($this->id1, $subscription->subscriptionId());
-        self::assertSame($this->id1, $subscription->producerId());
-        self::assertNull($subscription->lastReplayed());
+        self::assertSame($this->id1, $subscription->id());
         self::assertSame(1, $subscription->version());
         self::assertEquals(new SubscriptionStarted($this->event1, $now), $subscription->lastEvent());
         self::assertEquals([], $subscription->events());
@@ -1703,33 +1631,27 @@ class SubscriptionTest extends TestCase
 
         $this->listener4
             ->expects(self::atLeastOnce())
-            ->method('listenerId')
+            ->method('id')
             ->willReturn($this->id1)
         ;
         $subscription = new Subscription($this->listener4, $this->clock);
 
         self::assertSame($subscription->listener(), $this->listener4);
-        self::assertSame($this->id1, $subscription->subscriptionId());
-        self::assertSame($this->id1, $subscription->producerId());
-        self::assertNull($subscription->lastReplayed());
+        self::assertSame($this->id1, $subscription->id());
         self::assertNull($subscription->lastEvent());
         self::assertEmpty($subscription->events());
         self::assertSame(0, $subscription->version());
 
         $subscription->startFor($this->event1);
 
-        self::assertSame($this->id1, $subscription->subscriptionId());
-        self::assertSame($this->id1, $subscription->producerId());
-        self::assertNull($subscription->lastReplayed());
+        self::assertSame($this->id1, $subscription->id());
         self::assertSame(0, $subscription->version());
         self::assertEquals(new SubscriptionStarted($this->event1, $now), $subscription->lastEvent());
         self::assertEquals([new SubscriptionStarted($this->event1, $now)], $subscription->events());
 
         $subscription->commit();
 
-        self::assertSame($this->id1, $subscription->subscriptionId());
-        self::assertSame($this->id1, $subscription->producerId());
-        self::assertNull($subscription->lastReplayed());
+        self::assertSame($this->id1, $subscription->id());
         self::assertSame(1, $subscription->version());
         self::assertEquals(new SubscriptionStarted($this->event1, $now), $subscription->lastEvent());
         self::assertEquals([], $subscription->events());
@@ -1737,9 +1659,7 @@ class SubscriptionTest extends TestCase
         $subscription->restart();
 
         // nothing changed as consecutive restarts are ignored
-        self::assertSame($this->id1, $subscription->subscriptionId());
-        self::assertSame($this->id1, $subscription->producerId());
-        self::assertNull($subscription->lastReplayed());
+        self::assertSame($this->id1, $subscription->id());
         self::assertSame(1, $subscription->version());
         self::assertEquals(new SubscriptionStarted($this->event1, $now), $subscription->lastEvent());
         self::assertEquals([], $subscription->events());
@@ -1773,7 +1693,7 @@ class SubscriptionTest extends TestCase
     {
         $this->listener1
             ->expects(self::atLeastOnce())
-            ->method('listenerId')
+            ->method('id')
             ->with()
             ->willReturn($this->id1)
         ;
@@ -1808,7 +1728,7 @@ class SubscriptionTest extends TestCase
 
         $this->listener1
             ->expects(self::atLeastOnce())
-            ->method('listenerId')
+            ->method('id')
             ->willReturn($this->id1)
         ;
         $this->listener1
@@ -1819,27 +1739,21 @@ class SubscriptionTest extends TestCase
         $subscription = new Subscription($this->listener1, $this->clock);
 
         self::assertSame($subscription->listener(), $this->listener1);
-        self::assertSame($this->id1, $subscription->subscriptionId());
-        self::assertSame($this->id1, $subscription->producerId());
-        self::assertNull($subscription->lastReplayed());
+        self::assertSame($this->id1, $subscription->id());
         self::assertNull($subscription->lastEvent());
         self::assertEmpty($subscription->events());
         self::assertSame(0, $subscription->version());
 
         $subscription->startFor($this->event1);
 
-        self::assertSame($this->id1, $subscription->subscriptionId());
-        self::assertSame($this->id1, $subscription->producerId());
-        self::assertNull($subscription->lastReplayed());
+        self::assertSame($this->id1, $subscription->id());
         self::assertSame(0, $subscription->version());
         self::assertEquals(new SubscriptionStarted($this->event1, $now), $subscription->lastEvent());
         self::assertEquals([new SubscriptionStarted($this->event1, $now)], $subscription->events());
 
         $subscription->commit();
 
-        self::assertSame($this->id1, $subscription->subscriptionId());
-        self::assertSame($this->id1, $subscription->producerId());
-        self::assertNull($subscription->lastReplayed());
+        self::assertSame($this->id1, $subscription->id());
         self::assertSame(1, $subscription->version());
         self::assertEquals(new SubscriptionStarted($this->event1, $now), $subscription->lastEvent());
         self::assertEquals([], $subscription->events());
@@ -1900,7 +1814,7 @@ class SubscriptionTest extends TestCase
 
         $this->listener1
             ->expects(self::atLeastOnce())
-            ->method('listenerId')
+            ->method('id')
             ->willReturn($this->id1)
         ;
         $this->listener1
@@ -1911,27 +1825,21 @@ class SubscriptionTest extends TestCase
         $subscription = new Subscription($this->listener1, $this->clock);
 
         self::assertSame($subscription->listener(), $this->listener1);
-        self::assertSame($this->id1, $subscription->subscriptionId());
-        self::assertSame($this->id1, $subscription->producerId());
-        self::assertNull($subscription->lastReplayed());
+        self::assertSame($this->id1, $subscription->id());
         self::assertNull($subscription->lastEvent());
         self::assertEmpty($subscription->events());
         self::assertSame(0, $subscription->version());
 
         $subscription->startFor($this->event1);
 
-        self::assertSame($this->id1, $subscription->subscriptionId());
-        self::assertSame($this->id1, $subscription->producerId());
-        self::assertNull($subscription->lastReplayed());
+        self::assertSame($this->id1, $subscription->id());
         self::assertSame(0, $subscription->version());
         self::assertEquals(new SubscriptionStarted($this->event1, $now), $subscription->lastEvent());
         self::assertEquals([new SubscriptionStarted($this->event1, $now)], $subscription->events());
 
         $subscription->commit();
 
-        self::assertSame($this->id1, $subscription->subscriptionId());
-        self::assertSame($this->id1, $subscription->producerId());
-        self::assertNull($subscription->lastReplayed());
+        self::assertSame($this->id1, $subscription->id());
         self::assertSame(1, $subscription->version());
         self::assertEquals(new SubscriptionStarted($this->event1, $now), $subscription->lastEvent());
         self::assertEquals([], $subscription->events());
@@ -1988,7 +1896,7 @@ class SubscriptionTest extends TestCase
 
         $this->listener1
             ->expects(self::atLeastOnce())
-            ->method('listenerId')
+            ->method('id')
             ->willReturn($this->id1)
         ;
         $this->listener1
@@ -1999,27 +1907,21 @@ class SubscriptionTest extends TestCase
         $subscription = new Subscription($this->listener1, $this->clock);
 
         self::assertSame($subscription->listener(), $this->listener1);
-        self::assertSame($this->id1, $subscription->subscriptionId());
-        self::assertSame($this->id1, $subscription->producerId());
-        self::assertNull($subscription->lastReplayed());
+        self::assertSame($this->id1, $subscription->id());
         self::assertNull($subscription->lastEvent());
         self::assertEmpty($subscription->events());
         self::assertSame(0, $subscription->version());
 
         $subscription->startFor($this->event1);
 
-        self::assertSame($this->id1, $subscription->subscriptionId());
-        self::assertSame($this->id1, $subscription->producerId());
-        self::assertNull($subscription->lastReplayed());
+        self::assertSame($this->id1, $subscription->id());
         self::assertSame(0, $subscription->version());
         self::assertEquals(new SubscriptionStarted($this->event1, $now), $subscription->lastEvent());
         self::assertEquals([new SubscriptionStarted($this->event1, $now)], $subscription->events());
 
         $subscription->commit();
 
-        self::assertSame($this->id1, $subscription->subscriptionId());
-        self::assertSame($this->id1, $subscription->producerId());
-        self::assertNull($subscription->lastReplayed());
+        self::assertSame($this->id1, $subscription->id());
         self::assertSame(1, $subscription->version());
         self::assertEquals(new SubscriptionStarted($this->event1, $now), $subscription->lastEvent());
         self::assertEquals([], $subscription->events());
@@ -2076,7 +1978,7 @@ class SubscriptionTest extends TestCase
 
         $this->listener1
             ->expects(self::atLeastOnce())
-            ->method('listenerId')
+            ->method('id')
             ->willReturn($this->id1)
         ;
         $this->listener1
@@ -2087,27 +1989,21 @@ class SubscriptionTest extends TestCase
         $subscription = new Subscription($this->listener1, $this->clock);
 
         self::assertSame($subscription->listener(), $this->listener1);
-        self::assertSame($this->id1, $subscription->subscriptionId());
-        self::assertSame($this->id1, $subscription->producerId());
-        self::assertNull($subscription->lastReplayed());
+        self::assertSame($this->id1, $subscription->id());
         self::assertNull($subscription->lastEvent());
         self::assertEmpty($subscription->events());
         self::assertSame(0, $subscription->version());
 
         $subscription->startFor($this->event1);
 
-        self::assertSame($this->id1, $subscription->subscriptionId());
-        self::assertSame($this->id1, $subscription->producerId());
-        self::assertNull($subscription->lastReplayed());
+        self::assertSame($this->id1, $subscription->id());
         self::assertSame(0, $subscription->version());
         self::assertEquals(new SubscriptionStarted($this->event1, $now), $subscription->lastEvent());
         self::assertEquals([new SubscriptionStarted($this->event1, $now)], $subscription->events());
 
         $subscription->commit();
 
-        self::assertSame($this->id1, $subscription->subscriptionId());
-        self::assertSame($this->id1, $subscription->producerId());
-        self::assertNull($subscription->lastReplayed());
+        self::assertSame($this->id1, $subscription->id());
         self::assertSame(1, $subscription->version());
         self::assertEquals(new SubscriptionStarted($this->event1, $now), $subscription->lastEvent());
         self::assertEquals([], $subscription->events());
@@ -2168,34 +2064,28 @@ class SubscriptionTest extends TestCase
 
         $this->listener3
             ->expects(self::atLeastOnce())
-            ->method('listenerId')
+            ->method('id')
             ->willReturn($this->id1)
         ;
 
         $subscription = new Subscription($this->listener3, $this->clock);
 
         self::assertSame($subscription->listener(), $this->listener3);
-        self::assertSame($this->id1, $subscription->subscriptionId());
-        self::assertSame($this->id1, $subscription->producerId());
-        self::assertNull($subscription->lastReplayed());
+        self::assertSame($this->id1, $subscription->id());
         self::assertNull($subscription->lastEvent());
         self::assertEmpty($subscription->events());
         self::assertSame(0, $subscription->version());
 
         $subscription->startFor($this->event1);
 
-        self::assertSame($this->id1, $subscription->subscriptionId());
-        self::assertSame($this->id1, $subscription->producerId());
-        self::assertNull($subscription->lastReplayed());
+        self::assertSame($this->id1, $subscription->id());
         self::assertSame(0, $subscription->version());
         self::assertEquals(new SubscriptionStarted($this->event1, $now), $subscription->lastEvent());
         self::assertEquals([new SubscriptionStarted($this->event1, $now)], $subscription->events());
 
         $subscription->commit();
 
-        self::assertSame($this->id1, $subscription->subscriptionId());
-        self::assertSame($this->id1, $subscription->producerId());
-        self::assertNull($subscription->lastReplayed());
+        self::assertSame($this->id1, $subscription->id());
         self::assertSame(1, $subscription->version());
         self::assertEquals(new SubscriptionStarted($this->event1, $now), $subscription->lastEvent());
         self::assertEquals([], $subscription->events());
@@ -2256,6 +2146,51 @@ class SubscriptionTest extends TestCase
         self::assertEquals([], $subscription->events());
         self::assertSame(7, $subscription->version());
     }
+
+    public function testReplayingMismatchedEvent(): void
+    {
+        $now = new \DateTime('2018-09-28 19:12:32.763188 +00:00');
+
+        $this->listener1
+            ->expects(self::atLeastOnce())
+            ->method('id')
+            ->willReturn($this->id1)
+        ;
+        $this->listener1
+            ->expects(self::never())
+            ->method('replay')
+        ;
+
+        $subscription = new Subscription($this->listener1, $this->clock);
+
+        self::assertSame($subscription->listener(), $this->listener1);
+        self::assertSame($this->id1, $subscription->id());
+        self::assertNull($subscription->lastEvent());
+        self::assertEmpty($subscription->events());
+        self::assertSame(0, $subscription->version());
+
+        $event0 = new SubscriptionStarted($this->event1, $now);
+        $event0 = Event\Envelope::new($event0, $this->id1, 1);
+        $event1 = new SubscriptionListenedToEvent($this->event1, $now);
+        $event1 = Event\Envelope::new($event1, $this->id1, 2);
+        $event2 = new SubscriptionListenedToEvent($this->event2, $now);
+        $event2 = Event\Envelope::new($event2, UUID::random(), 3);
+
+        $this->stream1 = new InMemoryStream($event0, $event1, $event2);
+
+        try {
+            $subscription->replay($this->stream1);
+            self::fail();
+        } catch (EventMismatched $exception) {
+            self::assertSame($event2, $exception->event());
+            self::assertSame($subscription, $exception->object());
+
+            self::assertSame($this->id1, $subscription->id());
+            self::assertSame(1, $subscription->version());
+            self::assertEquals($event0, $subscription->lastEvent());
+            self::assertEmpty($subscription->events());
+        }
+    }
 }
 
 namespace Streak\Infrastructure\Domain\Event\Sourced\SubscriptionTest;
@@ -2288,5 +2223,9 @@ abstract class StatefulListener implements Listener, Listener\Stateful
 }
 
 abstract class IterableStream implements Event\Stream, \IteratorAggregate
+{
+}
+
+class UnsupportedEvent implements Event
 {
 }

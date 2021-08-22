@@ -43,7 +43,7 @@ class CommittingSubscriptionTest extends TestCase
     {
         $this->listener = $this->getMockBuilder(Listener::class)->addMethods(['replay', 'reset', 'completed'])->getMockForAbstractClass();
 
-        $this->id1 = new class('f5e65690-e50d-4312-a175-b004ec1bd42a') extends UUID implements Listener\Id {
+        $this->id1 = new class ('f5e65690-e50d-4312-a175-b004ec1bd42a') extends UUID implements Listener\Id {
         };
 
         $this->store = $this->getMockBuilder(EventStore::class)->getMockForAbstractClass();
@@ -68,7 +68,7 @@ class CommittingSubscriptionTest extends TestCase
         ;
         $this->subscription
             ->expects(self::atLeastOnce())
-            ->method('subscriptionId')
+            ->method('id')
             ->willReturn($this->id1)
         ;
         $this->subscription
@@ -98,7 +98,7 @@ class CommittingSubscriptionTest extends TestCase
         ;
 
         self::assertSame($this->listener, $subscription->listener());
-        self::assertSame($this->id1, $subscription->subscriptionId());
+        self::assertSame($this->id1, $subscription->id());
         self::assertSame(\PHP_INT_MAX, $subscription->version());
         self::assertTrue($subscription->starting());
         self::assertFalse($subscription->starting());

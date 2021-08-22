@@ -21,7 +21,7 @@ use Streak\Domain\Event;
  */
 interface Producer
 {
-    public function producerId(): Domain\Id;
+    public function id(): Domain\Id;
 
     /**
      * @return Event\Envelope[]

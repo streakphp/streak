@@ -3,6 +3,7 @@
 $config = new PhpCsFixer\Config();
 $finder = PhpCsFixer\Finder::create();
 $finder
+    // The vendor directory is excluded by default.
     ->exclude('.github')
     ->exclude('bin')
     ->exclude('build')
@@ -30,6 +31,7 @@ $config
             'php_unit_dedicate_assert_internal_type' => true,
             'php_unit_mock' => true,
             'php_unit_test_case_static_method_calls' => ['call_type' => 'self'],
+            'no_extra_blank_lines' => true,
             'header_comment' => [
                 'comment_type' => 'PHPDoc',
                 'location' => 'after_open',
@@ -46,7 +48,6 @@ HEADER
             ],
         ]
     )
-    //The vendor directory is excluded by default.
     ->setFinder($finder)
 ;
 
