@@ -1,7 +1,27 @@
+codecov:
+  branch: master
+  max_report_age: 24
+  require_ci_to_pass: yes
+
+comment:
+  layout: "reach, diff, flags, files"
+  behavior: new
+  require_changes: false
+  require_base: true
+  require_head: true
+
+parsers:
+  gcov:
+    branch_detection:
+      conditional: yes
+      loop: yes
+      method: yes
+      macro: yes
+
 coverage:
   precision: 2
   round: down
-  range: "70...100"
+  range: "90...100"
 
   status:
     project:

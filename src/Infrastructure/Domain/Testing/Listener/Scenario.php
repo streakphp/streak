@@ -28,10 +28,6 @@ use Streak\Infrastructure\Domain\Testing\Listener\Scenario\Then;
  */
 class Scenario implements Scenario\Given, Scenario\When, Scenario\Then, Domain\CommandHandler
 {
-    private Application\CommandBus $bus;
-
-    private Event\Listener\Factory $factory;
-
     /**
      * @var Event\Envelope[]
      */
@@ -56,11 +52,9 @@ class Scenario implements Scenario\Given, Scenario\When, Scenario\Then, Domain\C
      */
     private array $expectedErrors = [];
 
-    public function __construct(Application\CommandBus $bus, Event\Listener\Factory $factory)
+    public function __construct(private Application\CommandBus $bus, private Event\Listener\Factory $factory)
     {
-        $this->bus = $bus;
         $this->bus->register($this);
-        $this->factory = $factory;
     }
 
     public function given(Domain\Event ...$events): Scenario\When
@@ -110,10 +104,10 @@ class Scenario implements Scenario\Given, Scenario\When, Scenario\Then, Domain\C
                     $previousState = $currentState;
                     $previousListener = $listener;
 
-                    $listener = $this->factory->create($previousListener->listenerId());
+                    $listener = $this->factory->create($previousListener->id());
                     $listener->fromState($currentState);
 
-                    Assert::assertEquals($previousListener, $listener, sprintf('Listener "%s" that listened to %s" and generated incomplete state. Please review your Listener\Stateful::toState() and Listener\Stateful::fromState() methods.', \get_class($listener), \get_class($event)));
+                    Assert::assertEquals($previousListener, $listener, sprintf('Listener "%s" that listened to %s" and generated incomplete state. Please review your Listener\Stateful::toState() and Listener\Stateful::fromState() methods.', $listener::class, $event::class));
                 }
                 $this->replaying = false;
             }
@@ -128,7 +122,7 @@ class Scenario implements Scenario\Given, Scenario\When, Scenario\Then, Domain\C
             $stream = $listener->filter($stream);
             $stream = iterator_to_array($stream);
 
-            Assert::assertEquals([$this->when], $stream, sprintf('Listener is not listening to %s event.', \get_class($this->when)));
+            Assert::assertEquals([$this->when], $stream, sprintf('Listener is not listening to %s event.', $this->when::class));
         }
 
         Assert::assertNotEmpty($this->expectedCommands, 'At least one then() clause is required.');
@@ -137,7 +131,7 @@ class Scenario implements Scenario\Given, Scenario\When, Scenario\Then, Domain\C
         $listener->on($this->when);
 
         if (!$listener instanceof Event\Listener\Stateful) {
-            Assert::assertEquals($listener, $new, sprintf('State introduced when listener "%s" listened to "%s" event, but listener is not implementing "%s" interface.', \get_class($listener), \get_class($this->when), Event\Listener\Stateful::class));
+            Assert::assertEquals($listener, $new, sprintf('State introduced when listener "%s" listened to "%s" event, but listener is not implementing "%s" interface.', $listener::class, $this->when::class, Event\Listener\Stateful::class));
         }
 
         Assert::assertEquals($this->expectedCommands, $this->actualCommands, 'Expected commands do not match actual commands dispatched by the listener.');

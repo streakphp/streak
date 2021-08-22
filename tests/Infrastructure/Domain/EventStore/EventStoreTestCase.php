@@ -317,7 +317,7 @@ abstract class EventStoreTestCase extends TestCase
         $uuid2 = new Id\UUID('5e04364e-4590-403b-9f8f-3ae14f6dcce6');
 
         $event = new EventStoreTestCase\Event1();
-        $event = new Event\Envelope($uuid1, 'event1', $event, new EventStoreTestCase\ProducerId1('producer1'), 1);
+        $event = new Event\Envelope($uuid1, 'event1', $event, new EventStoreTestCase\ProducerId1('producer1'), new EventStoreTestCase\ProducerId1('producer1'), 1);
 
         $this->store->add($event);
 
@@ -334,11 +334,8 @@ use Streak\Domain;
 
 abstract class ValueId implements Domain\Id
 {
-    private string $value;
-
-    public function __construct(string $value)
+    public function __construct(private string $value)
     {
-        $this->value = $value;
     }
 
     public function equals(object $id): bool

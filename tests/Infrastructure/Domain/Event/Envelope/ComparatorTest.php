@@ -49,8 +49,8 @@ class ComparatorTest extends TestCase
 
         $this->uuid = UUID::random();
         $this->event1 = $this->getMockBuilder(Event::class)->getMockForAbstractClass();
-        $this->envelope1a = new Event\Envelope($this->uuid, 'name', $this->event1, UUID::random());
-        $this->envelope1b = new Event\Envelope($this->uuid, 'name', $this->event1, UUID::random());
+        $this->envelope1a = new Event\Envelope($this->uuid, 'name', $this->event1, UUID::random(), UUID::random());
+        $this->envelope1b = new Event\Envelope($this->uuid, 'name', $this->event1, UUID::random(), UUID::random());
         $this->event2 = $this->getMockBuilder(Event::class)->getMockForAbstractClass();
         $this->envelope2 = Event\Envelope::new($this->event2, UUID::random());
     }
@@ -117,7 +117,15 @@ class ComparatorTest extends TestCase
 
     public function testEqualEnvelopes(): void
     {
-        self::assertNull($this->comparator->assertEquals($this->envelope1a, $this->envelope1b));
+//        $this->expectNotToPerformAssertions();
+
+        try {
+            $this->comparator->assertEquals($this->envelope1a, $this->envelope1b);
+        } catch (ComparisonFailure) {
+            self::fail();
+        }
+
+        $this->addToAssertionCount(1); // tests without assertions does not report any coverage, so this is a hack @link https://github.com/sebastianbergmann/phpunit/pull/3348
     }
 
     public function testNotEqualEnvelopes(): void

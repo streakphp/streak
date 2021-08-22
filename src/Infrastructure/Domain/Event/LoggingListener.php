@@ -32,14 +32,9 @@ class LoggingListener implements Event\Listener, Event\Listener\Completable, Lis
     {
     }
 
-    public function id(): Domain\Id
+    public function id(): Listener\Id
     {
-        return $this->listenerId();
-    }
-
-    public function listenerId(): Listener\Id
-    {
-        return $this->listener->listenerId();
+        return $this->listener->id();
     }
 
     public function on(Event\Envelope $event): bool

@@ -34,8 +34,6 @@ class IdentificationTest extends TestCase
     {
         $identification = $this->getMockBuilder(Identification::class)->setConstructorArgs([$this->id])->getMockForTrait();
 
-        self::assertSame($this->id, $identification->sensorId());
-        self::assertSame($this->id, $identification->producerId());
         self::assertSame($this->id, $identification->id());
     }
 }

@@ -47,9 +47,9 @@ class Subscription implements Event\Subscription
         return $this->listener;
     }
 
-    public function subscriptionId(): Listener\Id
+    public function id(): Listener\Id
     {
-        return $this->listener->listenerId();
+        return $this->listener->id();
     }
 
     public function subscribeTo(EventStore $store, ?int $limit = null): iterable

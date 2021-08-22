@@ -115,20 +115,20 @@ final class PostgresStorageTest extends \PHPUnit\Framework\TestCase
         ]);
 
         $snapshot = $this->storage->find($this->createAggregateRootStub($id));
-        self::assertEquals('snapshot', $snapshot);
+        self::assertSame('snapshot', $snapshot);
     }
 
     public function testItDoesntFindWhenTableDoesNotExists(): void
     {
         $this->givenSnapshotsTableDoesNotExists();
-        self::expectException(SnapshotNotFound::class);
+        $this->expectException(SnapshotNotFound::class);
         $this->storage->find($this->createAggregateRootStub('3e7c8ffa-6bc6-4070-a6b5-30f9ae1c06fe'));
     }
 
     public function testItDoesntFindWhenRowDoesNotExist(): void
     {
         $this->givenSnapshotsTableExists();
-        self::expectException(SnapshotNotFound::class);
+        $this->expectException(SnapshotNotFound::class);
         $this->storage->find($this->createAggregateRootStub('3e7c8ffa-6bc6-4070-a6b5-30f9ae1c06fe'));
     }
 
@@ -171,16 +171,13 @@ final class PostgresStorageTest extends \PHPUnit\Framework\TestCase
 
 class IdStub implements AggregateRoot\Id
 {
-    private string $id;
-
     /**
      * IdMock constructor.
      *
      * @param $id
      */
-    public function __construct(string $id)
+    public function __construct(private string $id)
     {
-        $this->id = $id;
     }
 
     public function equals(object $object): bool

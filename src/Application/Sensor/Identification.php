@@ -14,7 +14,6 @@ declare(strict_types=1);
 namespace Streak\Application\Sensor;
 
 use Streak\Application\Sensor;
-use Streak\Domain;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -28,19 +27,9 @@ trait Identification
         $this->identifyBy($id);
     }
 
-    public function sensorId(): Sensor\Id
+    public function id(): Sensor\Id
     {
         return $this->id;
-    }
-
-    public function producerId(): Domain\Id
-    {
-        return $this->sensorId();
-    }
-
-    public function id(): Domain\Id
-    {
-        return $this->sensorId();
     }
 
     protected function identifyBy(Sensor\Id $id): void

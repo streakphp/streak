@@ -27,6 +27,6 @@ class ObjectNotSupportedTest extends TestCase
         $exception = new ObjectNotSupported($object, $previous);
         self::assertSame($object, $exception->object());
         self::assertSame($previous, $exception->getPrevious());
-        self::assertEquals('Object is not supported.', $exception->getMessage());
+        self::assertSame('Object is not supported.', $exception->getMessage());
     }
 }

@@ -19,6 +19,13 @@ use Streak\Domain\Event;
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-interface Entity extends Domain\Entity, Event\Sourced
+interface Entity extends Domain\Entity, Event\Consumer
 {
+    public function registerAggregateRoot(Event\Sourced\AggregateRoot $aggregate): void;
+
+    public function registerAggregate(Event\Sourced\Aggregate $aggregate): void;
+
+    public function aggregateRoot(): Event\Sourced\AggregateRoot;
+
+    public function aggregate(): ?Event\Sourced\Aggregate;
 }

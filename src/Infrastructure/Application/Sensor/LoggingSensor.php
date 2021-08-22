@@ -16,7 +16,6 @@ namespace Streak\Infrastructure\Application\Sensor;
 use Psr\Log\LoggerInterface;
 use Streak\Application;
 use Streak\Application\Sensor;
-use Streak\Domain;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -29,19 +28,14 @@ class LoggingSensor implements Application\Sensor
     {
     }
 
-    public function producerId(): Domain\Id
+    public function id(): Sensor\Id
     {
-        return $this->sensor->producerId();
+        return $this->sensor->id();
     }
 
     public function events(): array
     {
         return $this->sensor->events();
-    }
-
-    public function sensorId(): Sensor\Id
-    {
-        return $this->sensor->sensorId();
     }
 
     public function process(...$messages): void

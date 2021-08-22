@@ -38,7 +38,7 @@ class SubscriptionNotStartedYetTest extends TestCase
     {
         $this->subscription
             ->expects(self::atLeastOnce())
-            ->method('subscriptionId')
+            ->method('id')
             ->willReturn($this->subscriptionId)
         ;
 

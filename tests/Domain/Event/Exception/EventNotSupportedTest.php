@@ -30,7 +30,7 @@ class EventNotSupportedTest extends TestCase
     protected function setUp(): void
     {
         $producerId = $this->getMockBuilder(Domain\Id::class)->getMockForAbstractClass();
-        $this->event = new Event\Envelope(UUID::random(), 'event', $this->getMockBuilder(Event::class)->getMockForAbstractClass(), $producerId, null);
+        $this->event = new Event\Envelope(UUID::random(), 'event', $this->getMockBuilder(Event::class)->getMockForAbstractClass(), $producerId, $producerId, null);
     }
 
     public function testException(): void

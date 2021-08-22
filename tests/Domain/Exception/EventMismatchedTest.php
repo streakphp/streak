@@ -21,25 +21,25 @@ use Streak\Domain\Id\UUID;
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  *
- * @covers \Streak\Domain\Exception\EventAndConsumerMismatch
+ * @covers \Streak\Domain\Exception\EventMismatched
  */
-class EventAndConsumerMismatchTest extends TestCase
+class EventMismatchedTest extends TestCase
 {
-    private Event\Consumer $consumer;
+    private Event\Sourced\Entity $entity;
 
     private Domain\Event\Envelope $event;
 
     protected function setUp(): void
     {
-        $this->consumer = $this->getMockBuilder(Event\Consumer::class)->getMockForAbstractClass();
+        $this->entity = $this->getMockBuilder(Event\Sourced\Entity::class)->getMockForAbstractClass();
         $this->event = Event\Envelope::new($this->getMockBuilder(Domain\Event::class)->getMockForAbstractClass(), UUID::random());
     }
 
     public function testException(): void
     {
-        $exception = new EventAndConsumerMismatch($this->consumer, $this->event);
+        $exception = new EventMismatched($this->entity, $this->event);
 
-        self::assertSame($this->consumer, $exception->consumer());
+        self::assertSame($this->entity, $exception->object());
         self::assertSame($this->event, $exception->event());
     }
 }

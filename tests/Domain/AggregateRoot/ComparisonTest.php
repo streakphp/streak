@@ -80,37 +80,17 @@ class ComparisonTest extends TestCase
 namespace Streak\Domain\AggregateRoot\ComparisonTest;
 
 use Streak\Domain;
-use Streak\Domain\Aggregate;
 use Streak\Domain\AggregateRoot;
-use Streak\Domain\Entity;
 
 class ComparisonStub implements Domain\AggregateRoot
 {
     use AggregateRoot\Comparison;
 
-    private AggregateRoot\Id $id;
-
-    public function __construct(AggregateRoot\Id $id)
+    public function __construct(private AggregateRoot\Id $id)
     {
-        $this->id = $id;
     }
 
-    public function aggregateRootId(): AggregateRoot\Id
-    {
-        return $this->id;
-    }
-
-    public function aggregateId(): Aggregate\Id
-    {
-        return $this->id;
-    }
-
-    public function entityId(): Entity\Id
-    {
-        return $this->id;
-    }
-
-    public function id(): Domain\Id
+    public function id(): AggregateRoot\Id
     {
         return $this->id;
     }
@@ -120,24 +100,11 @@ class NonAggregateRootComparisonStub
 {
     use AggregateRoot\Comparison;
 
-    private AggregateRoot\Id $id;
-
-    public function __construct(AggregateRoot\Id $id)
+    public function __construct(private AggregateRoot\Id $id)
     {
-        $this->id = $id;
     }
 
-    public function aggregateRootId(): AggregateRoot\Id
-    {
-        return $this->id;
-    }
-
-    public function aggregateId(): Aggregate\Id
-    {
-        return $this->id;
-    }
-
-    public function entityId(): Entity\Id
+    public function id(): AggregateRoot\Id
     {
         return $this->id;
     }

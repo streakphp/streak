@@ -1,12 +1,14 @@
-version: '3'
+version: '3.7'
 services:
 
   php:
     image: streakphp/php80-cli:latest
+    init: true
     volumes:
       - .:/var/www/project
       - ./docker/php/etc/php/8.0/cli/php.ini:/etc/php/8.0/cli/php.ini
     working_dir: /var/www/project
+    entrypoint: tail -f /dev/null # keep container alive for development
     depends_on:
       - postgres
       - redis
@@ -14,7 +16,6 @@ services:
       COMPOSER_ALLOW_SUPERUSER: 1
       COMPOSER_NO_INTERACTION: 1
       COMPOSER_CACHE_DIR: /var/www/project/build/.composer
-      XDEBUG_MODE: 'develop,debug,coverage'
 
   postgres:
     image: postgres:13-alpine

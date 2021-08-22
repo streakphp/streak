@@ -47,8 +47,6 @@ class ProcessingTest extends TestCase
         $sensor = new SensorStub1($this->id);
 
         self::assertSame($this->id, $sensor->id());
-        self::assertSame($this->id, $sensor->producerId());
-        self::assertSame($this->id, $sensor->sensorId());
         self::assertNull($sensor->last());
         self::assertEmpty($sensor->events());
 
@@ -122,6 +120,16 @@ class ProcessingTest extends TestCase
         }
 
         // no new assertions here please
+    }
+
+    public function testNoMethodFound(): void
+    {
+        $sensor = new SensorStub2($this->id);
+
+        $this->expectExceptionObject(new \InvalidArgumentException('No method found to process message.'));
+
+        $stdClass = new \stdClass();
+        $sensor->process($stdClass);
     }
 }
 
@@ -219,51 +227,36 @@ class SensorStub2 implements Sensor
 
 class ArrayProcessed implements Event
 {
-    private array $array;
-
-    public function __construct(array $array)
+    public function __construct(private array $array)
     {
-        $this->array = $array;
     }
 }
 
 class IntegerProcessed implements Event
 {
-    private int $integer;
-
-    public function __construct(int $array)
+    public function __construct(private int $integer)
     {
-        $this->integer = $array;
     }
 }
 
 class StringProcessed implements Event
 {
-    private string $string;
-
-    public function __construct(string $string)
+    public function __construct(private string $string)
     {
-        $this->string = $string;
     }
 }
 
 class StdClassProcessed implements Event
 {
-    private \stdClass $stdClass;
-
-    public function __construct(\stdClass $stdClass)
+    public function __construct(private \stdClass $stdClass)
     {
-        $this->stdClass = $stdClass;
     }
 }
 
 class BooleanProcessed implements Event
 {
-    private bool $boolean;
-
-    public function __construct(bool $boolean)
+    public function __construct(private bool $boolean)
     {
-        $this->boolean = $boolean;
     }
 }
 
@@ -281,30 +274,21 @@ class B2 extends A
 
 class AProcessed implements Event
 {
-    private A $a;
-
-    public function __construct(A $a)
+    public function __construct(private A $a)
     {
-        $this->a = $a;
     }
 }
 
 class B2Processed implements Event
 {
-    private B2 $b2;
-
-    public function __construct(B2 $b2)
+    public function __construct(private B2 $b2)
     {
-        $this->b2 = $b2;
     }
 }
 
 class B1Processed implements Event
 {
-    private B1 $b1;
-
-    public function __construct(B1 $b1)
+    public function __construct(private B1 $b1)
     {
-        $this->b1 = $b1;
     }
 }

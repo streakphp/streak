@@ -29,7 +29,7 @@ class NotSupportedTypeTest extends TestCase
     {
         $exception = new NotSupportedType($value);
         self::assertEquals($value, $exception->value());
-        self::assertEquals($expectedMessage, $exception->getMessage());
+        self::assertSame($expectedMessage, $exception->getMessage());
     }
 
     public function typesProvider(): array

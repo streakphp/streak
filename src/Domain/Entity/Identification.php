@@ -13,27 +13,23 @@ declare(strict_types=1);
 
 namespace Streak\Domain\Entity;
 
-use Streak\Domain;
 use Streak\Domain\Entity;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @see \Streak\Domain\Entity\IdentificationTest
  */
 trait Identification
 {
-    private $id;
+    private Entity\Id $id;
 
     public function __construct(Entity\Id $id)
     {
         $this->identifyBy($id);
     }
 
-    public function entityId(): Entity\Id
-    {
-        return $this->id;
-    }
-
-    public function id(): Domain\Id
+    public function id(): Entity\Id
     {
         return $this->id;
     }

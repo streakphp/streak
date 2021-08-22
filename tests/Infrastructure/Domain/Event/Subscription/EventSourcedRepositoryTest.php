@@ -84,13 +84,13 @@ class EventSourcedRepositoryTest extends TestCase
         $this->nonEventSourcedSubscription3 = $this->getMockBuilder(DecoratedSubscription::class)->setMockClassName('nonEventSourcedSubscription3')->getMock();
         $this->nonEventSourcedSubscription3->method('subscription')->willReturn($this->nonEventSourcedSubscription2);
 
-        $this->id1 = new class('f5e65690-e50d-4312-a175-b004ec1bd42a') extends Domain\Id\UUID implements Listener\Id {
+        $this->id1 = new class ('f5e65690-e50d-4312-a175-b004ec1bd42a') extends Domain\Id\UUID implements Listener\Id {
         };
-        $this->id2 = new class('d01286b0-7dd6-4520-b714-0e9903ab39af') extends Domain\Id\UUID implements Listener\Id {
+        $this->id2 = new class ('d01286b0-7dd6-4520-b714-0e9903ab39af') extends Domain\Id\UUID implements Listener\Id {
         };
-        $this->id3 = new class('39ab6175-7cd7-4c94-95c1-03d05c2e2fa2') extends Domain\Id\UUID implements Listener\Id {
+        $this->id3 = new class ('39ab6175-7cd7-4c94-95c1-03d05c2e2fa2') extends Domain\Id\UUID implements Listener\Id {
         };
-        $this->id4 = new class('2d40c01d-7aa9-4757-ac28-de3733431cc5') extends Domain\Id\UUID implements Listener\Id {
+        $this->id4 = new class ('2d40c01d-7aa9-4757-ac28-de3733431cc5') extends Domain\Id\UUID implements Listener\Id {
         };
 
         $this->event1 = Event\Envelope::new($this->getMockBuilder(Event::class)->setMockClassName('event1')->getMockForAbstractClass(), UUID::random());
@@ -153,7 +153,7 @@ class EventSourcedRepositoryTest extends TestCase
 
         $this->eventSourcedSubscription1
             ->expects(self::once())
-            ->method('producerId')
+            ->method('id')
             ->willReturn($this->id1)
         ;
 
@@ -177,7 +177,7 @@ class EventSourcedRepositoryTest extends TestCase
 
         $this->eventSourcedSubscription1
             ->expects(self::once())
-            ->method('producerId')
+            ->method('id')
             ->willReturn($this->id1)
         ;
 
@@ -192,7 +192,7 @@ class EventSourcedRepositoryTest extends TestCase
 
         $this->eventSourcedSubscription1
             ->expects(self::once())
-            ->method('producerId')
+            ->method('id')
             ->willReturn($this->id1)
         ;
 
@@ -232,7 +232,7 @@ class EventSourcedRepositoryTest extends TestCase
 
         $this->eventSourcedSubscription1
             ->expects(self::once())
-            ->method('producerId')
+            ->method('id')
             ->willReturn($this->id1)
         ;
 
@@ -288,7 +288,7 @@ class EventSourcedRepositoryTest extends TestCase
 
         $this->eventSourcedSubscription1
             ->expects(self::once())
-            ->method('producerId')
+            ->method('id')
             ->willReturn($this->id1)
         ;
 
@@ -324,7 +324,7 @@ class EventSourcedRepositoryTest extends TestCase
 
         $this->eventSourcedSubscription1
             ->expects(self::atLeastOnce())
-            ->method('producerId')
+            ->method('id')
             ->willReturn($this->id1)
         ;
 
@@ -339,7 +339,7 @@ class EventSourcedRepositoryTest extends TestCase
 
         $this->eventSourcedSubscription1
             ->expects(self::atLeastOnce())
-            ->method('producerId')
+            ->method('id')
             ->willReturn($this->id1)
         ;
 
@@ -413,7 +413,7 @@ namespace Streak\Infrastructure\Domain\Event\Subscription\EventSourcedRepository
 
 use Streak\Domain\Event;
 
-abstract class EventSourcedSubscription implements Event\Subscription, Event\Sourced
+abstract class EventSourcedSubscription implements Event\Sourced\Subscription
 {
 }
 

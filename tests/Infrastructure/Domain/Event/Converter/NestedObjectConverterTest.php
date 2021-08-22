@@ -177,7 +177,7 @@ class NestedObjectConverterTest extends TestCase
 
     public function testItDoesntConvertWrongNestedType(): void
     {
-        self::expectException(Event\Exception\ConversionToArrayNotPossible::class);
+        $this->expectException(Event\Exception\ConversionToArrayNotPossible::class);
         $converter = new NestedObjectConverter();
         $converter->objectToArray(new NestedResource(tmpfile()));
     }
@@ -186,77 +186,36 @@ class NestedObjectConverterTest extends TestCase
 class NestedResource
 {
     /**
-     * @var resource
-     */
-    private $resource;
-
-    /**
      * @param resource $resource
      */
-    public function __construct($resource)
+    public function __construct(private $resource)
     {
-        $this->resource = $resource;
     }
 }
 
 class Event1Stub implements Event
 {
-    public string $publicStringProperty;
-    public int $publicIntegerProperty;
-    public float $publicFloatProperty;
-    public array $publicArrayProperty;
-    public $publicAnyTypeProperty;
     public array $publicEmptyArrayProperty;
-    protected string $protectedStringProperty;
-    protected int $protectedIntegerProperty;
-    protected float $protectedFloatProperty;
-    protected array $protectedArrayProperty;
-    protected $protectedAnyTypeProperty;
     protected array $protectedEmptyArrayProperty;
-    private string $privateStringProperty;
-    private int $privateIntegerProperty;
-    private float $privateFloatProperty;
-    private array $privateArrayProperty;
-    private $privateAnyTypeProperty;
     private array $privateEmptyArrayProperty;
 
     public function __construct(
-        string $privateStringProperty,
-        string $publicStringProperty,
-        string $protectedStringProperty,
-        int $privateIntegerProperty,
-        int $publicIntegerProperty,
-        int $protectedIntegerProperty,
-        float $privateFloatProperty,
-        float $publicFloatProperty,
-        float $protectedFloatProperty,
-        array $privateArrayProperty,
-        array $publicArrayProperty,
-        array $protectedArrayProperty,
-        $privateAnyTypeProperty,
-        $publicAnyTypeProperty,
-        $protectedAnyTypeProperty
+        private string $privateStringProperty,
+        public string $publicStringProperty,
+        protected string $protectedStringProperty,
+        private int $privateIntegerProperty,
+        public int $publicIntegerProperty,
+        protected int $protectedIntegerProperty,
+        private float $privateFloatProperty,
+        public float $publicFloatProperty,
+        protected float $protectedFloatProperty,
+        private array $privateArrayProperty,
+        public array $publicArrayProperty,
+        protected array $protectedArrayProperty,
+        private $privateAnyTypeProperty,
+        public $publicAnyTypeProperty,
+        protected $protectedAnyTypeProperty
     ) {
-        $this->privateStringProperty = $privateStringProperty;
-        $this->publicStringProperty = $publicStringProperty;
-        $this->protectedStringProperty = $protectedStringProperty;
-
-        $this->privateIntegerProperty = $privateIntegerProperty;
-        $this->publicIntegerProperty = $publicIntegerProperty;
-        $this->protectedIntegerProperty = $protectedIntegerProperty;
-
-        $this->privateFloatProperty = $privateFloatProperty;
-        $this->publicFloatProperty = $publicFloatProperty;
-        $this->protectedFloatProperty = $protectedFloatProperty;
-
-        $this->privateArrayProperty = $privateArrayProperty;
-        $this->publicArrayProperty = $publicArrayProperty;
-        $this->protectedArrayProperty = $protectedArrayProperty;
-
-        $this->privateAnyTypeProperty = $privateAnyTypeProperty;
-        $this->publicAnyTypeProperty = $publicAnyTypeProperty;
-        $this->protectedAnyTypeProperty = $protectedAnyTypeProperty;
-
         $this->privateEmptyArrayProperty = [];
         $this->publicEmptyArrayProperty = [];
         $this->protectedEmptyArrayProperty = [];
@@ -269,63 +228,36 @@ class Event1Stub implements Event
 
 class EventA implements Event
 {
-    private string $property1;
-
-    public function __construct(string $property1)
+    public function __construct(private string $property1)
     {
-        $this->property1 = $property1;
     }
 }
 
 class EventB extends EventA
 {
-    private $property2;
-
-    public function __construct($property1, $property2)
+    public function __construct($property1, private $property2)
     {
         parent::__construct($property1);
-        $this->property2 = $property2;
     }
 }
 
 class EventC implements Event
 {
-    private Event $event;
-
-    public function __construct(Event $event)
+    public function __construct(private Event $event)
     {
-        $this->event = $event;
     }
 }
 
 class ParentObject
 {
-    private object $objectProperty;
-
-    private string $scalarProperty;
-
-    private array $arrayProperty;
-
-    public function __construct(string $scalarProperty, object $objectProperty, array $arrayProperty)
+    public function __construct(private string $scalarProperty, private object $objectProperty, private array $arrayProperty)
     {
-        $this->objectProperty = $objectProperty;
-        $this->scalarProperty = $scalarProperty;
-        $this->arrayProperty = $arrayProperty;
     }
 }
 
 class ChildObject
 {
-    private string $scalarProperty;
-
-    private array $arrayProperty;
-
-    private ?self $child;
-
-    public function __construct(string $scalarProperty, array $arrayProperty, self $childObject = null)
+    public function __construct(private string $scalarProperty, private array $arrayProperty, private ?self $child = null)
     {
-        $this->scalarProperty = $scalarProperty;
-        $this->arrayProperty = $arrayProperty;
-        $this->child = $childObject;
     }
 }

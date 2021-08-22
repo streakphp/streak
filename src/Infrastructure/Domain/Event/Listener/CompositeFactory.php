@@ -42,7 +42,7 @@ class CompositeFactory implements Event\Listener\Factory
         foreach ($this->factories as $factory) {
             try {
                 return $factory->create($id);
-            } catch (Exception\InvalidIdGiven $e) {
+            } catch (Exception\InvalidIdGiven) {
                 continue;
             }
         }

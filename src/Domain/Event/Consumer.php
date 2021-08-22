@@ -18,7 +18,11 @@ use Streak\Domain\Event;
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-interface Consumer extends Event\Replayable
+interface Consumer
 {
-    public function lastReplayed(): ?Event\Envelope; // TODO: remove (use last() instead?)
+    /**
+     * @throws Event\Exception\NoEventApplyingMethodFound
+     * @throws Event\Exception\TooManyEventApplyingMethodsFound
+     */
+    public function applyEvent(Event\Envelope $event): void;
 }

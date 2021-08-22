@@ -20,7 +20,7 @@ use Streak\Domain\Versionable;
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
-interface AggregateRoot extends Domain\AggregateRoot, Event\Sourced, Versionable
+interface AggregateRoot extends Domain\AggregateRoot, Event\Consumer, Event\Producer, Event\Replayable, Versionable
 {
     public function lastEvent(): ?Event\Envelope;
 }

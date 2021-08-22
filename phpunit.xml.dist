@@ -4,6 +4,8 @@
          colors="true"
          cacheResultFile="build/.phpunit/.phpunit.result.cache"
          bootstrap="tests/bootstrap.php"
+         beStrictAboutOutputDuringTests="true"
+         beStrictAboutTodoAnnotatedTests="true"
 >
     <coverage>
         <include>
@@ -11,7 +13,7 @@
         </include>
         <report>
             <clover outputFile="build/.phpunit/clover.xml"/>
-<!--            <html outputDirectory="build/.phpunit/code-coverage" lowUpperBound="35" highLowerBound="70"/>-->
+<!--            <html outputDirectory="build/.phpunit/code-coverage" lowUpperBound="60" highLowerBound="90"/>-->
             <text outputFile="php://stdout" showUncoveredFiles="true"/>
         </report>
     </coverage>

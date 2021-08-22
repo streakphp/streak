@@ -13,8 +13,8 @@ declare(strict_types=1);
 
 namespace Streak\Application\Sensor;
 
+use Streak\Application\Sensor;
 use Streak\Domain\Event;
-use Streak\Domain\Id;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -27,7 +27,7 @@ trait Processing
     private $events = [];
     private $last;
 
-    abstract public function producerId(): Id;
+    abstract public function id(): Sensor\Id;
 
     final public function last(): ?Event\Envelope
     {
@@ -140,7 +140,7 @@ trait Processing
                 }
 
                 if (false === $routed) {
-                    throw new \InvalidArgumentException();
+                    throw new \InvalidArgumentException('No method found to process message.');
                 }
             }
         } catch (\Throwable $e) {
@@ -156,6 +156,6 @@ trait Processing
 
     private function addEvent(Event $event): void
     {
-        $this->pending[] = Event\Envelope::new($event, $this->producerId());
+        $this->pending[] = Event\Envelope::new($event, $this->id());
     }
 }

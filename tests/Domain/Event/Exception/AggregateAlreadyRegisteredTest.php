@@ -34,7 +34,7 @@ class AggregateAlreadyRegisteredTest extends TestCase
     {
         $exception = new AggregateAlreadyRegistered($this->aggregate);
 
-        self::assertEquals('Aggregate already registered.', $exception->getMessage());
+        self::assertSame('Aggregate already registered.', $exception->getMessage());
         self::assertSame($this->aggregate, $exception->aggregate());
     }
 }

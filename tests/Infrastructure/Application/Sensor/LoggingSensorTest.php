@@ -62,19 +62,11 @@ class LoggingSensorTest extends TestCase
 
         $this->sensor
             ->expects(self::once())
-            ->method('sensorId')
+            ->method('id')
             ->willReturn($this->sensorId)
         ;
 
-        self::assertSame($this->sensorId, $sensor->sensorId());
-
-        $this->sensor
-            ->expects(self::once())
-            ->method('producerId')
-            ->willReturn($this->sensorId)
-        ;
-
-        self::assertSame($this->sensorId, $sensor->producerId());
+        self::assertSame($this->sensorId, $sensor->id());
 
         $this->sensor
             ->expects(self::once())
