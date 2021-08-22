@@ -16,8 +16,6 @@ Running checks & tests locally
 
 `docker-compose exec -T php xphp -dxdebug.mode=coverage bin/phpunit --color=always --configuration=phpunit.xml.dist`
 
-`docker-compose run  -T php bin/phpunit`
-
 `docker-compose exec -T php bin/rector --dry-run --ansi`
 
 `docker-compose exec -T php bin/deptrac --no-interaction --cache-file=./build/.deptrac/.deptrac.cache --ansi`

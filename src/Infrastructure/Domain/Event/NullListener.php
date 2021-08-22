@@ -23,7 +23,7 @@ use Streak\Domain\Event\Listener;
  */
 class NullListener implements Event\Listener
 {
-    use Listener\Identifying;
+    use Listener\Identification;
 
     public function on(Event\Envelope $event): bool
     {

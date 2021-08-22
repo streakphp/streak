@@ -27,21 +27,23 @@
   },
   "require": {
     "php": ">=8.0",
-    "ext-pdo": "*",
     "ext-igbinary": "*",
-    "ext-redis": "*",
     "ext-json": "*",
+    "ext-pdo": "*",
+    "ext-redis": "*",
     "doctrine/dbal": "^2.13",
     "psr/log": "^1.1",
     "ramsey/uuid": "^4.1"
   },
   "require-dev": {
-    "roave/security-advisories": "dev-latest",
     "friendsofphp/php-cs-fixer": "^3.0",
-    "php-amqplib/rabbitmq-bundle": "^2.6.0",
-    "phpunit/phpunit": "^9.5.4",
+    "php-amqplib/rabbitmq-bundle": "^2.6",
+    "phpstan/phpstan": "^1.5",
+    "phpunit/phpunit": "^9.5",
+    "qossmic/deptrac-shim": "^0.13",
     "rector/rector": "0.12.18",
-    "qossmic/deptrac-shim": "^0.13.0"
+    "roave/security-advisories": "dev-latest",
+    "vimeo/psalm": "^4.22"
   },
   "config": {
     "bin-dir": "bin",

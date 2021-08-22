@@ -32,8 +32,16 @@ class IdentificationTest extends TestCase
 
     public function testObject(): void
     {
-        $identification = $this->getMockBuilder(Identification::class)->setConstructorArgs([$this->id])->getMockForTrait();
-
-        self::assertSame($this->id, $identification->id());
+        $stub = new Aggregate\IdentificationTest\IdentifyingStub($this->id);
+        self::assertSame($this->id, $stub->id());
     }
+}
+
+namespace Streak\Domain\Aggregate\IdentificationTest;
+
+use Streak\Domain\Aggregate;
+
+class IdentifyingStub
+{
+    use Aggregate\Identification;
 }

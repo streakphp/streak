@@ -222,9 +222,11 @@ class ListeningStub
         $this->listenerMethodWithObjectWhichIsUnionType = true;
     }
 
-    public function onObjectWhenReturnTypeIsUnion(\stdClass $event): SupportedEvent1|SupportedEvent4
+    public function onObjectWhenReturnTypeIsUnion(\stdClass $event): \ArrayObject|\stdClass
     {
         $this->listenerMethodWithUnionReturnTypeActivated = true;
+
+        return new \ArrayObject();
     }
 
     public function onSupportedEvent3ThatCausesException(SupportedEvent3ThatCausesException $event3): void

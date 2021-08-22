@@ -14,7 +14,6 @@ declare(strict_types=1);
 namespace Streak\Infrastructure\Domain\Event\Converter;
 
 use PHPUnit\Framework\TestCase;
-use Streak\Domain;
 use Streak\Domain\Event;
 
 /**
@@ -219,10 +218,6 @@ class Event1Stub implements Event
         $this->privateEmptyArrayProperty = [];
         $this->publicEmptyArrayProperty = [];
         $this->protectedEmptyArrayProperty = [];
-    }
-
-    public function producerId(): Domain\Id
-    {
     }
 }
 

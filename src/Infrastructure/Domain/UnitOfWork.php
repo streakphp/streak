@@ -30,14 +30,14 @@ interface UnitOfWork
     public function has(object $object): bool;
 
     /**
-     * @return object[]
+     * @return array<int, object>
      */
     public function uncommitted(): array;
 
     public function count(): int;
 
     /**
-     * @return \Generator|object[]
+     * @return \Generator<int, object>
      */
     public function commit(): \Generator;
 

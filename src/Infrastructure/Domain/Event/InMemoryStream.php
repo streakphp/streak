@@ -165,7 +165,7 @@ final class InMemoryStream implements \IteratorAggregate, Event\Stream
     }
 
     /**
-     * @return Event[]
+     * @return array<int, Event\Envelope>
      */
     private function filter(): array
     {

@@ -22,9 +22,6 @@ use Streak\Infrastructure\Domain\UnitOfWork;
  */
 class CompositeUnitOfWork implements UnitOfWork
 {
-    /**
-     * @var UnitOfWork[]
-     */
     private array $uows = [];
 
     public function __construct(UnitOfWork ...$uows)

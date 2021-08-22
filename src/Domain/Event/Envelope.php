@@ -68,12 +68,22 @@ final class Envelope implements Domain\Envelope
 
     public function producerId(): Domain\Id
     {
-        return $this->get(self::METADATA_PRODUCER_TYPE)::fromString($this->get(self::METADATA_PRODUCER_ID));
+        $class = $this->get(self::METADATA_PRODUCER_TYPE);
+
+        /** @var class-string<Domain\Id> $class */
+        /** @phpstan-var class-string<Domain\Id> $class */
+        /** @psalm-var class-string<Domain\Id> $class */
+        return $class::fromString($this->get(self::METADATA_PRODUCER_ID));
     }
 
     public function entityId(): Domain\Id
     {
-        return $this->get(self::METADATA_ENTITY_TYPE)::fromString($this->get(self::METADATA_ENTITY_ID));
+        $class = $this->get(self::METADATA_ENTITY_TYPE);
+
+        /** @var class-string<Domain\Id> $class */
+        /** @phpstan-var class-string<Domain\Id> $class */
+        /** @psalm-var class-string<Domain\Id> $class */
+        return $class::fromString($this->get(self::METADATA_ENTITY_ID));
     }
 
     public function version(): ?int

@@ -21,6 +21,8 @@ use Streak\Domain\Id\UUID;
 interface EventStore
 {
     /**
+     * @return array<int, Event\Envelope>
+     *
      * @throws Exception\ConcurrentWriteDetected
      * @throws Exception\InvalidAggregateGiven
      */

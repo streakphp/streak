@@ -334,7 +334,7 @@ use Streak\Domain;
 
 abstract class ValueId implements Domain\Id
 {
-    public function __construct(private string $value)
+    final public function __construct(private string $value)
     {
     }
 

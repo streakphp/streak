@@ -14,6 +14,7 @@ declare(strict_types=1);
 use Rector\CodeQuality\Rector\FuncCall\SingleInArrayToCompareRector;
 use Rector\CodeQuality\Rector\FuncCall\UnwrapSprintfOneArgumentRector;
 use Rector\Core\Configuration\Option;
+use Rector\Core\ValueObject\PhpVersion;
 use Rector\PHPUnit\Set\PHPUnitSetList;
 use Rector\Set\ValueObject\SetList;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
@@ -35,6 +36,8 @@ return static function (ContainerConfigurator $configurator): void {
     $configurator->import(SetList::PHP_80);
 //    $configurator->import(SetList::PRIVATIZATION);
 
+    $parameters->set(Option::PARALLEL, true);
+
     $parameters->set(Option::SKIP, [
     ]);
 
@@ -49,6 +52,12 @@ return static function (ContainerConfigurator $configurator): void {
 
     // Run Rector only on changed files
     $parameters->set(Option::CACHE_DIR, __DIR__ . '/build/.rector');
+
+    // is your PHP version different from the one your refactor to? [default: your PHP version], uses PHP_VERSION_ID format
+    $parameters->set(Option::PHP_VERSION_FEATURES, PhpVersion::PHP_80);
+
+    // Path to phpstan with extensions, that PHPSTan in Rector uses to determine types
+    $parameters->set(Option::PHPSTAN_FOR_RECTOR_PATH, __DIR__ . '/phpstan.neon');
 
     $services = $configurator->services();
 

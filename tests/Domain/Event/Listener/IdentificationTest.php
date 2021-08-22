@@ -19,9 +19,9 @@ use Streak\Domain\Event\Listener;
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  *
- * @covers \Streak\Domain\Event\Listener\Identifying
+ * @covers \Streak\Domain\Event\Listener\Identification
  */
-class IdentifyingTest extends TestCase
+class IdentificationTest extends TestCase
 {
     private Listener\Id $id;
 
@@ -32,8 +32,16 @@ class IdentifyingTest extends TestCase
 
     public function testObject(): void
     {
-        $identification = $this->getMockBuilder(Identifying::class)->setConstructorArgs([$this->id])->getMockForTrait();
-
-        self::assertSame($this->id, $identification->id());
+        $stub = new Listener\IdentificationTest\IdentifyingStub($this->id);
+        self::assertSame($this->id, $stub->id());
     }
+}
+
+namespace Streak\Domain\Event\Listener\IdentificationTest;
+
+use Streak\Domain\Event;
+
+class IdentifyingStub
+{
+    use Event\Listener\Identification;
 }
