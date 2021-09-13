@@ -1,9 +1,6 @@
 # Build artifacts
 /build/
 
-# Managed by IDE
-.idea/
-
 # Managed by Composer
 /bin/*
 /vendor/
