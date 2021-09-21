@@ -92,7 +92,7 @@ jobs:
   build-docs:
     name: build documentation
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master'
+    #if: github.ref == 'refs/heads/master'
     steps:
       - name: Checkout master
         uses: actions/checkout@v1
