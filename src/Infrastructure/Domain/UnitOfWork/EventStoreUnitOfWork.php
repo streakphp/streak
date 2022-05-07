@@ -104,25 +104,30 @@ class EventStoreUnitOfWork implements UnitOfWork
             $this->committing = true;
 
             try {
+                $events = [];
+                $producers = [];
                 /** @var Event\Producer $producer */
                 while ($producer = array_shift($this->uncommited)) {
-                    try {
-                        $this->store->add(...$producer->events()); // maybe gather all events and send them in one single EventStore:add() call?
+                    $producers[] = $producer;
+                    $events = [...$events, ...$producer->events()];
+                }
 
-                        if ($producer instanceof Domain\Versionable) {
-                            $producer->commit();
-                        }
+                try {
+                    $this->store->add(...$events);
+                } catch (ConcurrentWriteDetected $e) {
+                    // version must be wrong so nothing good if we retry it later on...
+                    throw $e;
+                } catch (\Exception $e) {
+                    // something unexpected occurred, so lets leave uow in state from just before it happened - we may like to retry it later...
+                    array_unshift($this->uncommited, ...$producers);
+                    throw $e;
+                }
 
-                        yield $producer;
-                    } catch (ConcurrentWriteDetected $e) {
-                        // version must be wrong so nothing good if we retry it later on...
-                        throw $e;
-                    } catch (\Exception $e) {
-                        // something unexpected occurred, so lets leave uow in state from just before it happened - we may like to retry it later...
-                        array_unshift($this->uncommited, $producer);
-
-                        throw $e;
+                foreach ($producers as $producer) {
+                    if ($producer instanceof Domain\Versionable) {
+                        $producer->commit();
                     }
+                    yield $producer;
                 }
 
                 $this->clear();
