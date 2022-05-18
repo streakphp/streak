@@ -15,6 +15,7 @@ namespace Streak\Infrastructure\Interfaces\RabbitMQ;
 
 use OldSound\RabbitMqBundle\RabbitMq\ConsumerInterface;
 use PhpAmqpLib\Message\AMQPMessage;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Streak\Infrastructure\Domain\UnitOfWork;
 
@@ -28,9 +29,9 @@ class CommittingSensorConsumerTest extends TestCase
     private const ACK = true;
     private const NACK = false;
 
-    private ConsumerInterface $consumer;
+    private ConsumerInterface|MockObject $consumer;
 
-    private UnitOfWork $uow;
+    private UnitOfWork|MockObject $uow;
 
     protected function setUp(): void
     {

@@ -247,6 +247,38 @@ abstract class EventStoreTestCase extends TestCase
         self::assertEquals($event214, $stream->last());
     }
 
+    public function testFilteringWithEventsNotInStore(): void
+    {
+        $producerId11 = new EventStoreTestCase\ProducerId1('producer1');
+
+        $event111 = new EventStoreTestCase\Event1();
+        $event111 = Event\Envelope::new($event111, $producerId11, 1);
+        $event112 = new EventStoreTestCase\Event2();
+        $event112 = Event\Envelope::new($event112, $producerId11, 2);
+        $event113 = new EventStoreTestCase\Event3();
+        $event113 = Event\Envelope::new($event113, $producerId11, 3);
+
+        $this->store->add($event111);
+
+        $stream = $this->store->stream();
+        self::assertFalse($stream->empty());
+        self::assertEquals([$event111], iterator_to_array($stream));
+        self::assertEquals($event111, $stream->first());
+        self::assertEquals($event111, $stream->last());
+
+        $stream = $stream->from($event112);
+        self::assertFalse($stream->empty());
+        self::assertEquals([$event111], iterator_to_array($stream));
+        self::assertEquals($event111, $stream->first());
+        self::assertEquals($event111, $stream->last());
+
+        $stream = $stream->to($event113);
+        self::assertFalse($stream->empty());
+        self::assertEquals([$event111], iterator_to_array($stream));
+        self::assertEquals($event111, $stream->first());
+        self::assertEquals($event111, $stream->last());
+    }
+
     public function testConcurrentWriting(): void
     {
         $producerId1 = new EventStoreTestCase\ProducerId1('producer1');
@@ -317,7 +349,7 @@ abstract class EventStoreTestCase extends TestCase
         $uuid2 = new Id\UUID('5e04364e-4590-403b-9f8f-3ae14f6dcce6');
 
         $event = new EventStoreTestCase\Event1();
-        $event = new Event\Envelope($uuid1, 'event1', $event, new EventStoreTestCase\ProducerId1('producer1'), new EventStoreTestCase\ProducerId1('producer1'), 1);
+        $event = new Event\Envelope($uuid1, EventStoreTestCase\Event1::class, $event, new EventStoreTestCase\ProducerId1('producer1'), new EventStoreTestCase\ProducerId1('producer1'), 1);
 
         $this->store->add($event);
 

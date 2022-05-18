@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Streak\Infrastructure\Domain\AggregateRoot\Snapshotter;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Streak\Domain\AggregateRoot;
 
@@ -23,7 +24,7 @@ use Streak\Domain\AggregateRoot;
  */
 class NullSnapshotterTest extends TestCase
 {
-    private AggregateRoot $aggregate1;
+    private AggregateRoot|MockObject $aggregate1;
 
     protected function setUp(): void
     {

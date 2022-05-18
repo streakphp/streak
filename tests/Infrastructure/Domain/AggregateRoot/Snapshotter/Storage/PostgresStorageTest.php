@@ -171,11 +171,6 @@ final class PostgresStorageTest extends \PHPUnit\Framework\TestCase
 
 class IdStub implements AggregateRoot\Id
 {
-    /**
-     * IdMock constructor.
-     *
-     * @param $id
-     */
     public function __construct(private string $id)
     {
     }

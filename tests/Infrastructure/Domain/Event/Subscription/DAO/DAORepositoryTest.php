@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Streak\Infrastructure\Domain\Event\Subscription\DAO;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Streak\Domain\Event\Listener\Id;
 use Streak\Domain\Event\Subscription;
@@ -27,9 +28,9 @@ class DAORepositoryTest extends TestCase
 {
     private DAORepository $daoRepository;
 
-    private DAO $dao;
+    private DAO|MockObject $dao;
 
-    private UnitOfWork $uow;
+    private UnitOfWork|MockObject $uow;
 
     protected function setUp(): void
     {

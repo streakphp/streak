@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Streak\Infrastructure\Application\Sensor\Factory;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Streak\Application\Sensor;
 
@@ -23,8 +24,8 @@ use Streak\Application\Sensor;
  */
 class CachingFactoryTest extends TestCase
 {
-    private Sensor\Factory $factory;
-    private Sensor $sensor;
+    private Sensor\Factory|MockObject $factory;
+    private Sensor|MockObject $sensor;
 
     protected function setUp(): void
     {

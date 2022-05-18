@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Streak\Infrastructure\Domain\UnitOfWork;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Streak\Domain\Event;
 use Streak\Domain\EventStore;
@@ -29,13 +30,13 @@ use Streak\Infrastructure\Domain\UnitOfWork\Exception\ObjectNotSupported;
  */
 class EventStoreUnitOfWorkTest extends TestCase
 {
-    private EventStore $store;
+    private EventStore|MockObject $store;
 
-    private Event $event1;
-    private Event $event2;
-    private Event $event3;
-    private Event $event4;
-    private Event $event5;
+    private Event|MockObject $event1;
+    private Event|MockObject $event2;
+    private Event|MockObject $event3;
+    private Event|MockObject $event4;
+    private Event|MockObject $event5;
 
     protected function setUp(): void
     {
@@ -313,7 +314,7 @@ class VersionableEventSourcedStub implements Event\Producer, Event\Consumer, Eve
         return $this->events;
     }
 
-    public function replay(Event\Stream $events): void
+    public function replay(Event\Stream $stream): void
     {
         throw new \BadMethodCallException();
     }
@@ -373,7 +374,7 @@ class NonVersionableEventSourcedStub implements Event\Producer, Event\Consumer, 
         return $this->events;
     }
 
-    public function replay(Event\Stream $events): void
+    public function replay(Event\Stream $stream): void
     {
         throw new \BadMethodCallException();
     }

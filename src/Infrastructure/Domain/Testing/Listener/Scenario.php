@@ -14,9 +14,9 @@ declare(strict_types=1);
 namespace Streak\Infrastructure\Domain\Testing\Listener;
 
 use PHPUnit\Framework\Assert;
-use Streak\Application;
 use Streak\Domain;
 use Streak\Domain\Event;
+use Streak\Infrastructure\Application\CommandBus\SynchronousCommandBus;
 use Streak\Infrastructure\Domain\Event\InMemoryStream;
 use Streak\Infrastructure\Domain\Event\Sourced\Subscription\InMemoryState;
 use Streak\Infrastructure\Domain\Testing\Listener\Scenario\Then;
@@ -52,7 +52,7 @@ class Scenario implements Scenario\Given, Scenario\When, Scenario\Then, Domain\C
      */
     private array $expectedErrors = [];
 
-    public function __construct(private Application\CommandBus $bus, private Event\Listener\Factory $factory)
+    public function __construct(private SynchronousCommandBus $bus, private Event\Listener\Factory $factory)
     {
         $this->bus->register($this);
     }
@@ -90,6 +90,7 @@ class Scenario implements Scenario\Given, Scenario\When, Scenario\Then, Domain\C
 
             $previousState = null;
             if ($listener instanceof Event\Listener\Stateful) {
+                /** @var Event\Listener&Event\Listener\Stateful $listener */
                 $this->replaying = true;
                 foreach ($this->given as $event) {
                     $listener->on($event);
@@ -104,6 +105,7 @@ class Scenario implements Scenario\Given, Scenario\When, Scenario\Then, Domain\C
                     $previousState = $currentState;
                     $previousListener = $listener;
 
+                    /** @var Event\Listener&Event\Listener\Stateful $listener */
                     $listener = $this->factory->create($previousListener->id());
                     $listener->fromState($currentState);
 

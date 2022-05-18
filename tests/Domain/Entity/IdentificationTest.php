@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Streak\Domain\Entity;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Streak\Domain\Entity;
 
@@ -23,7 +24,7 @@ use Streak\Domain\Entity;
  */
 class IdentificationTest extends TestCase
 {
-    private Entity\Id $id;
+    private Entity\Id|MockObject $id;
 
     protected function setUp(): void
     {

@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Streak\Domain\Event\Listener;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Streak\Domain\Event\Listener;
 
@@ -23,7 +24,7 @@ use Streak\Domain\Event\Listener;
  */
 class IdentificationTest extends TestCase
 {
-    private Listener\Id $id;
+    private Listener\Id|MockObject $id;
 
     protected function setUp(): void
     {

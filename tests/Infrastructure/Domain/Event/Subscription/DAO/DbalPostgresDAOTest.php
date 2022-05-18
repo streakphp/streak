@@ -22,6 +22,8 @@ use Streak\Infrastructure\Domain\Event\Subscription\DAO;
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  *
+ * @property DbalPostgresDAO $dao
+ *
  * @covers \Streak\Infrastructure\Domain\Event\Subscription\DAO\DbalPostgresDAO
  */
 class DbalPostgresDAOTest extends DAOTestCase

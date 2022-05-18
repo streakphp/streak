@@ -73,6 +73,9 @@ class PostgresStorage implements Storage, Resettable
         return $row['snapshot'];
     }
 
+    /**
+     * @throws TableNotFoundException
+     */
     private function doStore(AggregateRoot $aggregate, string $snapshot): void
     {
         $sql = <<<'SQL'

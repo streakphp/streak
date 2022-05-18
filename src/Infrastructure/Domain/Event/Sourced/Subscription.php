@@ -415,19 +415,25 @@ final class Subscription implements Event\Sourced\Subscription
             $this->applySubscriptionListenersStateChanged($event);
         }
         if ($event->message() instanceof SubscriptionPaused) {
-            $this->applySubscriptionPaused($event);
+            $this->applySubscriptionPaused();
         }
         if ($event->message() instanceof SubscriptionUnPaused) {
-            $this->applySubscriptionUnPaused($event);
+            $this->applySubscriptionUnPaused();
         }
     }
 
+    /**
+     * @param Event\Envelope<SubscriptionListenedToEvent> $event
+     */
     private function applySubscriptionListenedToEvent(Event\Envelope $event): void
     {
         $this->starting = false;
         $this->lastProcessedEvent = $event->message()->event();
     }
 
+    /**
+     * @param Event\Envelope<SubscriptionIgnoredEvent> $event
+     */
     private function applySubscriptionIgnoredEvent(Event\Envelope $event): void
     {
         $this->starting = false;
@@ -441,22 +447,28 @@ final class Subscription implements Event\Sourced\Subscription
         $this->paused = false;
     }
 
+    /**
+     * @param Event\Envelope<SubscriptionStarted> $event
+     */
     private function applySubscriptionStarted(Event\Envelope $event): void
     {
         $this->startedBy = $event->message()->startedBy();
         $this->starting = true;
     }
 
-    private function applySubscriptionPaused(Event\Envelope $event): void
+    private function applySubscriptionPaused(): void
     {
         $this->paused = true;
     }
 
-    private function applySubscriptionUnPaused(Event\Envelope $event): void
+    private function applySubscriptionUnPaused(): void
     {
         $this->paused = false;
     }
 
+    /**
+     * @param Event\Envelope<SubscriptionRestarted> $event
+     */
     private function applySubscriptionRestarted(Event\Envelope $event): void
     {
         $this->startedBy = $event->message()->originallyStartedBy();
@@ -465,6 +477,9 @@ final class Subscription implements Event\Sourced\Subscription
         $this->paused = false;
     }
 
+    /**
+     * @param Event\Envelope<SubscriptionListenersStateChanged> $event
+     */
     private function applySubscriptionListenersStateChanged(Event\Envelope $event): void
     {
         $state = $event->message()->state();

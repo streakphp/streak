@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Streak\Infrastructure\Domain\EventBus;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Streak\Domain\Event;
 use Streak\Domain\Id\UUID;
@@ -24,9 +25,9 @@ use Streak\Domain\Id\UUID;
  */
 class NullEventBusTest extends TestCase
 {
-    private Event\Listener $listener1;
-    private Event\Listener $listener2;
-    private Event\Listener $listener3;
+    private Event\Listener|MockObject $listener1;
+    private Event\Listener|MockObject $listener2;
+    private Event\Listener|MockObject $listener3;
 
     private Event\Envelope $event1;
     private Event\Envelope  $event2;

@@ -19,8 +19,9 @@ use Streak\Infrastructure\Domain\AggregateRoot\Snapshotter\Storage\Exception\Sna
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  *
+ * @property RedisStorage $storage
+ *
  * @covers \Streak\Infrastructure\Domain\AggregateRoot\Snapshotter\Storage\RedisStorage
- * @covers \Streak\Infrastructure\Domain\AggregateRoot\Snapshotter\Storage\TestCase
  */
 class RedisTest extends Storage\TestCase
 {

@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Streak\Infrastructure\Application\CommandBus;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Streak\Domain\Command;
 use Streak\Domain\CommandHandler;
@@ -25,9 +26,9 @@ use Streak\Domain\Exception\CommandNotSupported;
  */
 class SynchronousCommandBusTest extends TestCase
 {
-    private CommandHandler $handler1;
-    private CommandHandler $handler2;
-    private CommandHandler $handler3;
+    private CommandHandler|MockObject $handler1;
+    private CommandHandler|MockObject $handler2;
+    private CommandHandler|MockObject $handler3;
 
     private Command $command1;
 

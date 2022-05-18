@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Streak\Domain\Aggregate;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Streak\Domain\Aggregate;
 
@@ -23,7 +24,7 @@ use Streak\Domain\Aggregate;
  */
 class IdentificationTest extends TestCase
 {
-    private Aggregate\Id $id;
+    private Aggregate\Id|MockObject $id;
 
     protected function setUp(): void
     {

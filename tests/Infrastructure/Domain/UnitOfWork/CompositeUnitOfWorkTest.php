@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Streak\Infrastructure\Domain\UnitOfWork;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Streak\Infrastructure\Domain\UnitOfWork;
 
@@ -23,9 +24,9 @@ use Streak\Infrastructure\Domain\UnitOfWork;
  */
 class CompositeUnitOfWorkTest extends TestCase
 {
-    private UnitOfWork $uow1;
-    private UnitOfWork $uow2;
-    private UnitOfWork $uow3;
+    private UnitOfWork|MockObject $uow1;
+    private UnitOfWork|MockObject $uow2;
+    private UnitOfWork|MockObject $uow3;
 
     protected function setUp(): void
     {

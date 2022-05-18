@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Streak\Infrastructure\Application\CommandBus;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Streak\Application\CommandBus;
 use Streak\Domain;
@@ -26,13 +27,13 @@ use Streak\Domain\Exception;
  */
 class RetryingCommandBusTest extends TestCase
 {
-    private CommandBus $bus;
+    private CommandBus|MockObject $bus;
 
-    private Command $command1;
-    private Command $command2;
-    private Command $command3;
+    private Command|MockObject $command1;
+    private Command|MockObject $command2;
+    private Command|MockObject $command3;
 
-    private Domain\Id $id;
+    private Domain\Id|MockObject $id;
 
     private Exception\ConcurrentWriteDetected $exception1;
     private Exception\ConcurrentWriteDetected $exception2;

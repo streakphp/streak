@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Streak\Domain\EventStore;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Streak\Domain\Id;
 
@@ -23,8 +24,8 @@ use Streak\Domain\Id;
  */
 class FilterTest extends TestCase
 {
-    private Id $id1;
-    private Id $id2;
+    private Id|MockObject $id1;
+    private Id|MockObject $id2;
 
     protected function setUp(): void
     {

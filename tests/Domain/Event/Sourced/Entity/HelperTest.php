@@ -168,7 +168,7 @@ final class EventSourcedEntityStub implements Event\Sourced\Entity
         throw new \RuntimeException(__METHOD__ . ' should not be invoked.');
     }
 
-    public function registerAggregateRoot(Event\Sourced\AggregateRoot $aggregate): void
+    public function registerAggregateRoot(Event\Sourced\AggregateRoot $aggregateRoot): void
     {
         throw new \RuntimeException(__METHOD__ . ' should not be invoked.');
     }

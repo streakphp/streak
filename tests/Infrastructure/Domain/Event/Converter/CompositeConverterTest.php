@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Streak\Infrastructure\Domain\Event\Converter;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Streak\Domain\Event;
 
@@ -23,11 +24,11 @@ use Streak\Domain\Event;
  */
 class CompositeConverterTest extends TestCase
 {
-    private Event\Converter $converter1;
-    private Event\Converter $converter2;
-    private Event\Converter $converter3;
+    private Event\Converter|MockObject $converter1;
+    private Event\Converter|MockObject $converter2;
+    private Event\Converter|MockObject $converter3;
 
-    private Event $message;
+    private Event|MockObject $message;
 
     protected function setUp(): void
     {

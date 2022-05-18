@@ -20,5 +20,5 @@ use Streak\Domain\Event;
  */
 interface Replayable // TODO: Rename to Event\Listener\Replayable
 {
-    public function replay(Event\Stream $events): void;
+    public function replay(Event\Stream $stream): void;
 }

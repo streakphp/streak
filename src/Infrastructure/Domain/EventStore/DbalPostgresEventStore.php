@@ -572,8 +572,10 @@ class DbalPostgresEventStore implements \Iterator, EventStore, Event\Stream, Sch
                 $from = $this->session[$from->uuid()->toString()];
             }
 
-            $where[] = ' (number >= :from) ';
-            $parameters['from'] = $from->get(self::EVENT_METADATA_NUMBER);
+            if ($from->get(self::EVENT_METADATA_NUMBER)) {
+                $where[] = ' (number >= :from) ';
+                $parameters['from'] = $from->get(self::EVENT_METADATA_NUMBER);
+            }
         }
 
         if ($to) {
@@ -581,8 +583,10 @@ class DbalPostgresEventStore implements \Iterator, EventStore, Event\Stream, Sch
                 $to = $this->session[$to->uuid()->toString()];
             }
 
-            $where[] = ' (number <= :to) ';
-            $parameters['to'] = $to->get(self::EVENT_METADATA_NUMBER);
+            if ($to->get(self::EVENT_METADATA_NUMBER)) {
+                $where[] = ' (number <= :to) ';
+                $parameters['to'] = $to->get(self::EVENT_METADATA_NUMBER);
+            }
         }
 
         if ($after) {
@@ -590,8 +594,10 @@ class DbalPostgresEventStore implements \Iterator, EventStore, Event\Stream, Sch
                 $after = $this->session[$after->uuid()->toString()];
             }
 
-            $where[] = ' (number > :after) ';
-            $parameters['after'] = $after->get(self::EVENT_METADATA_NUMBER);
+            if ($after->get(self::EVENT_METADATA_NUMBER)) {
+                $where[] = ' (number > :after) ';
+                $parameters['after'] = $after->get(self::EVENT_METADATA_NUMBER);
+            }
         }
 
         if ($before) {
@@ -599,8 +605,10 @@ class DbalPostgresEventStore implements \Iterator, EventStore, Event\Stream, Sch
                 $before = $this->session[$before->uuid()->toString()];
             }
 
-            $where[] = ' (number < :before) ';
-            $parameters['before'] = $before->get(self::EVENT_METADATA_NUMBER);
+            if ($before->get(self::EVENT_METADATA_NUMBER)) {
+                $where[] = ' (number < :before) ';
+                $parameters['before'] = $before->get(self::EVENT_METADATA_NUMBER);
+            }
         }
 
         $where = implode(' AND ', $where);

@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Streak\Infrastructure\Domain\Event\Subscription;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Streak\Domain\Event;
 use Streak\Domain\Event\Listener;
@@ -27,19 +28,19 @@ use Streak\Domain\Id\UUID;
  */
 class LazyLoadedSubscriptionTest extends TestCase
 {
-    private Listener\Id $id;
+    private Listener\Id|MockObject $id;
 
-    private Listener $listener;
+    private Listener|MockObject $listener;
 
-    private Subscription $subscription;
+    private Subscription|MockObject $subscription;
 
-    private Subscription\Repository $repository;
+    private Subscription\Repository|MockObject $repository;
 
     private Event\Envelope $event1;
     private Event\Envelope $event2;
     private Event\Envelope $event3;
 
-    private EventStore $store;
+    private EventStore|MockObject $store;
 
     protected function setUp(): void
     {

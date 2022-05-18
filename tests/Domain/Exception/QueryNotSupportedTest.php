@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Streak\Domain\Exception;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Streak\Domain\Query;
 
@@ -23,7 +24,7 @@ use Streak\Domain\Query;
  */
 class QueryNotSupportedTest extends TestCase
 {
-    private $query;
+    private Query|MockObject $query;
 
     protected function setUp(): void
     {

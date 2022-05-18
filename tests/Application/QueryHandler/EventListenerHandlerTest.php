@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Streak\Application\QueryHandler;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Streak\Application\QueryHandler\EventListenerHandlerTest\QueryHandlingListener;
 use Streak\Domain\Event;
@@ -28,19 +29,13 @@ use Streak\Domain\Query;
  */
 class EventListenerHandlerTest extends TestCase
 {
-    private Repository $repository;
-
-    private Query $query;
-
-    private Event\Subscription $subscription;
-
-    private Event\Listener $eventListener;
-
-    private QueryHandlingListener $eventListenerQueryHandler;
-
-    private Query\EventListenerQuery $eventListenerQuery;
-
-    private Event\Listener\Id $eventListenerId;
+    private Repository|MockObject $repository;
+    private Query|MockObject $query;
+    private Event\Subscription|MockObject $subscription;
+    private Event\Listener|MockObject $eventListener;
+    private QueryHandlingListener|MockObject $eventListenerQueryHandler;
+    private Query\EventListenerQuery|MockObject $eventListenerQuery;
+    private Event\Listener\Id|MockObject $eventListenerId;
 
     protected function setUp(): void
     {

@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Streak\Infrastructure\Domain\AggregateRoot\Factory;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Streak\Domain\AggregateRoot;
 use Streak\Domain\Exception\InvalidAggregateIdGiven;
@@ -24,12 +25,12 @@ use Streak\Domain\Exception\InvalidAggregateIdGiven;
  */
 class CompositeFactoryTest extends TestCase
 {
-    private AggregateRoot\Id $id1;
+    private AggregateRoot\Id|MockObject $id1;
 
-    private AggregateRoot\Factory $factory1;
-    private AggregateRoot\Factory $factory2;
+    private AggregateRoot\Factory|MockObject $factory1;
+    private AggregateRoot\Factory|MockObject $factory2;
 
-    private AggregateRoot $aggregate1;
+    private AggregateRoot|MockObject $aggregate1;
 
     protected function setUp(): void
     {

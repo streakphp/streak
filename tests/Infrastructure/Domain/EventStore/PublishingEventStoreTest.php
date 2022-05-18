@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Streak\Infrastructure\Domain\EventStore;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Streak\Domain;
 use Streak\Domain\Event;
@@ -28,22 +29,22 @@ use Streak\Infrastructure\Domain\EventStore\PublishingEventStoreTest\EventStoreW
  */
 class PublishingEventStoreTest extends TestCase
 {
-    private EventStore $store;
+    private EventStore|MockObject $store;
 
-    private EventStoreWithSchema $schemableStore;
+    private EventStoreWithSchema|MockObject $schemableStore;
 
-    private EventBus $bus;
+    private EventBus|MockObject $bus;
 
-    private Domain\Id $id;
+    private Domain\Id|MockObject $id;
 
     private Event\Envelope $event1;
     private Event\Envelope $event2;
     private Event\Envelope $event3;
 
-    private Event\Stream $stream1;
-    private Event\Stream $stream2;
+    private Event\Stream|MockObject $stream1;
+    private Event\Stream|MockObject $stream2;
 
-    private Schema $schema;
+    private Schema|MockObject $schema;
 
     protected function setUp(): void
     {

@@ -72,8 +72,11 @@ class UUID implements Domain\Id
         return $this->value;
     }
 
-    public static function fromString(string $uuid): Domain\Id
+    /**
+     * @return static
+     */
+    public static function fromString(string $id): Domain\Id
     {
-        return new static($uuid);
+        return new static($id);
     }
 }

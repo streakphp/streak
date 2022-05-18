@@ -101,7 +101,7 @@ trait EventSourcing //implements Event\Sourced\AggregateRoot
         }
 
         foreach ($this->eventSourcedEntities() as $entity) {
-            /** @var Event\Sourced\Entity $aggregate */
+            /** @var Event\Sourced\Entity $entity */
             if ($entity->id()->equals($event->entityId())) {
                 $aggregate = $entity;
                 $stack = [];

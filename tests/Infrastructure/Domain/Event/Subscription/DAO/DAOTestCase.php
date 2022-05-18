@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Streak\Infrastructure\Domain\Event\Subscription\DAO;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Streak\Domain\Event;
 use Streak\Domain\Id\UUID;
@@ -30,17 +31,17 @@ abstract class DAOTestCase extends TestCase
 {
     protected ?DAO $dao = null;
 
-    protected Event\Subscription\Factory $subscriptions;
+    protected Event\Subscription\Factory|MockObject $subscriptions;
 
-    protected Event\Listener\Factory $listeners;
+    protected Event\Listener\Factory|MockObject $listeners;
 
-    protected Event\Listener $listener1;
+    protected Event\Listener|MockObject $listener1;
 
-    protected Event\Listener $listener2;
+    protected Event\Listener|MockObject $listener2;
 
     protected ?Event\Envelope $event = null;
 
-    protected ?FixedClock $clock = null;
+    protected FixedClock|MockObject $clock;
 
     protected function setUp(): void
     {

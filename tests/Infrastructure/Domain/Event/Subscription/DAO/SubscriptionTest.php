@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Streak\Infrastructure\Domain\Event\Subscription\DAO;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Streak\Domain\Clock;
 use Streak\Domain\Event;
@@ -36,20 +37,20 @@ use Streak\Infrastructure\Domain\Event\Subscription\DAO\SubscriptionTest\Statefu
  */
 class SubscriptionTest extends TestCase
 {
-    private Listener $listener1;
-    private CompletableListener $listener3;
-    private ResettableListener $listener4;
-    private ResettableListenerThatCanPickStartingEvent $listener7;
-    private FilteringListener $listener8;
-    private StatefulListener $listener9;
+    private Listener|MockObject $listener1;
+    private CompletableListener|MockObject $listener3;
+    private ResettableListener|MockObject $listener4;
+    private ResettableListenerThatCanPickStartingEvent|MockObject $listener7;
+    private FilteringListener|MockObject $listener8;
+    private StatefulListener|MockObject $listener9;
 
     private Listener\Id $id1;
 
-    private EventStore $store;
+    private EventStore|MockObject $store;
 
-    private Event\Stream $stream1;
-    private Event\Stream $stream2;
-    private Event\Stream $stream3;
+    private Event\Stream|MockObject $stream1;
+    private Event\Stream|MockObject $stream2;
+    private Event\Stream|MockObject $stream3;
 
     private Event\Envelope $event1;
     private Event\Envelope $event2;
@@ -57,7 +58,7 @@ class SubscriptionTest extends TestCase
     private Event\Envelope $event4;
     private Event\Envelope $event5;
 
-    private Clock $clock;
+    private Clock|MockObject $clock;
 
     protected function setUp(): void
     {
@@ -962,6 +963,7 @@ class SubscriptionTest extends TestCase
         $this->expectExceptionObject(new \InvalidArgumentException('$limit must be a positive integer, but 0 was given.'));
 
         $events = $subscription->subscribeTo($this->store, 0);
+        $events = new \IteratorIterator($events);
         $events->rewind();
     }
 
@@ -995,6 +997,7 @@ class SubscriptionTest extends TestCase
         $this->expectExceptionObject(new \InvalidArgumentException('$limit must be a positive integer, but -1 was given.'));
 
         $events = $subscription->subscribeTo($this->store, -1);
+        $events = new \IteratorIterator($events);
         $events->rewind();
     }
 

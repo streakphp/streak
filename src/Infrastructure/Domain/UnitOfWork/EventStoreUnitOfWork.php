@@ -23,6 +23,8 @@ use Streak\Infrastructure\Domain\UnitOfWork;
  *
  * @TODO: rename to EventSourcedUnitOfWork
  *
+ * @template-implements UnitOfWork<Event\Producer>
+ *
  * @see \Streak\Infrastructure\Domain\UnitOfWork\EventStoreUnitOfWorkTest
  */
 class EventStoreUnitOfWork implements UnitOfWork
@@ -38,26 +40,26 @@ class EventStoreUnitOfWork implements UnitOfWork
     {
     }
 
-    public function add(object $producer): void
+    public function add(object $object): void
     {
-        if (!$producer instanceof Event\Producer) {
-            throw new Exception\ObjectNotSupported($producer);
+        if (!$object instanceof Event\Producer) {
+            throw new Exception\ObjectNotSupported($object);
         }
 
-        if (!$this->has($producer)) {
-            $this->uncommited[] = $producer;
+        if (!$this->has($object)) {
+            $this->uncommited[] = $object;
         }
     }
 
-    public function remove(object $producer): void
+    public function remove(object $object): void
     {
-        if (!$producer instanceof Event\Producer) {
+        if (!$object instanceof Event\Producer) {
             return;
         }
 
         foreach ($this->uncommited as $key => $current) {
             // @var $current Event\Producer
-            if ($current->id()->equals($producer->id())) {
+            if ($current->id()->equals($object->id())) {
                 unset($this->uncommited[$key]);
 
                 return;
@@ -65,15 +67,15 @@ class EventStoreUnitOfWork implements UnitOfWork
         }
     }
 
-    public function has(object $producer): bool
+    public function has(object $object): bool
     {
-        if (!$producer instanceof Event\Producer) {
+        if (!$object instanceof Event\Producer) {
             return false;
         }
 
         foreach ($this->uncommited as $current) {
             // @var $current Event\Producer
-            if ($current->id()->equals($producer->id())) {
+            if ($current->id()->equals($object->id())) {
                 return true;
             }
         }
@@ -104,22 +106,22 @@ class EventStoreUnitOfWork implements UnitOfWork
             $this->committing = true;
 
             try {
-                /** @var Event\Producer $producer */
-                while ($producer = array_shift($this->uncommited)) {
+                while ($object = array_shift($this->uncommited)) {
+                    /** @var Event\Producer $object */
                     try {
-                        $this->store->add(...$producer->events()); // maybe gather all events and send them in one single EventStore:add() call?
+                        $this->store->add(...$object->events()); // maybe gather all events and send them in one single EventStore:add() call?
 
-                        if ($producer instanceof Domain\Versionable) {
-                            $producer->commit();
+                        if ($object instanceof Domain\Versionable) {
+                            $object->commit();
                         }
 
-                        yield $producer;
+                        yield $object;
                     } catch (ConcurrentWriteDetected $e) {
                         // version must be wrong so nothing good if we retry it later on...
                         throw $e;
                     } catch (\Exception $e) {
                         // something unexpected occurred, so lets leave uow in state from just before it happened - we may like to retry it later...
-                        array_unshift($this->uncommited, $producer);
+                        array_unshift($this->uncommited, $object);
 
                         throw $e;
                     }

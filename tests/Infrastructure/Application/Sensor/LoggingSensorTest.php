@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Streak\Infrastructure\Application\Sensor;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Streak\Application\Sensor;
@@ -25,13 +26,13 @@ use Streak\Domain\Event;
  */
 class LoggingSensorTest extends TestCase
 {
-    private Sensor $sensor;
+    private Sensor|MockObject $sensor;
 
-    private LoggerInterface $logger;
+    private LoggerInterface|MockObject $logger;
 
-    private Sensor\Id $sensorId;
+    private Sensor\Id|MockObject $sensorId;
 
-    private Event $event;
+    private Event|MockObject $event;
 
     protected function setUp(): void
     {

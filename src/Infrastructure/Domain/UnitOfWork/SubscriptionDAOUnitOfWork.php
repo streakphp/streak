@@ -20,6 +20,8 @@ use Streak\Infrastructure\Domain\UnitOfWork;
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  *
+ * @template-implements UnitOfWork<DAO\Subscription>
+ *
  * @see \Streak\Infrastructure\Domain\UnitOfWork\SubscriptionDAOUnitOfWorkTest
  */
 class SubscriptionDAOUnitOfWork implements UnitOfWork
@@ -35,25 +37,25 @@ class SubscriptionDAOUnitOfWork implements UnitOfWork
     {
     }
 
-    public function add(object $subscription): void
+    public function add(object $object): void
     {
-        if (false === $this->supports($subscription)) {
-            throw new UnitOfWork\Exception\ObjectNotSupported($subscription);
+        if (false === $this->supports($object)) {
+            throw new UnitOfWork\Exception\ObjectNotSupported($object);
         }
 
-        if (!$this->has($subscription)) {
-            $this->uncommited[] = $subscription;
+        if (!$this->has($object)) {
+            $this->uncommited[] = $object;
         }
     }
 
-    public function remove(object $subscription): void
+    public function remove(object $object): void
     {
-        if (false === $this->supports($subscription)) {
-            throw new UnitOfWork\Exception\ObjectNotSupported($subscription);
+        if (false === $this->supports($object)) {
+            throw new UnitOfWork\Exception\ObjectNotSupported($object);
         }
 
         foreach ($this->uncommited as $key => $current) {
-            if ($current->id()->equals($subscription->id())) {
+            if ($current->id()->equals($object->id())) {
                 unset($this->uncommited[$key]);
 
                 return;
@@ -61,14 +63,14 @@ class SubscriptionDAOUnitOfWork implements UnitOfWork
         }
     }
 
-    public function has(object $subscription): bool
+    public function has(object $object): bool
     {
-        if (false === $this->supports($subscription)) {
-            throw new UnitOfWork\Exception\ObjectNotSupported($subscription);
+        if (false === $this->supports($object)) {
+            throw new UnitOfWork\Exception\ObjectNotSupported($object);
         }
 
         foreach ($this->uncommited as $current) {
-            if ($current->id()->equals($subscription->id())) {
+            if ($current->id()->equals($object->id())) {
                 return true;
             }
         }
@@ -95,15 +97,15 @@ class SubscriptionDAOUnitOfWork implements UnitOfWork
             $this->committing = true;
 
             try {
-                /** @var Subscription $subscription */
-                while ($subscription = array_shift($this->uncommited)) {
+                while ($object = array_shift($this->uncommited)) {
+                    /** @var Subscription $object */
                     try {
-                        $this->dao->save($subscription);
+                        $this->dao->save($object);
 
-                        yield $subscription;
+                        yield $object;
                     } catch (\Exception $e) {
                         // something unexpected occurred, so lets leave uow in state from just before it happened - we may like to retry it later...
-                        array_unshift($this->uncommited, $subscription);
+                        array_unshift($this->uncommited, $object);
 
                         throw $e;
                     }

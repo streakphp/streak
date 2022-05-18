@@ -31,18 +31,18 @@ final class SensorConsumer implements ConsumerInterface
     {
     }
 
-    public function execute(AMQPMessage $message)
+    public function execute(AMQPMessage $msg)
     {
-        $original = $message->getBody();
-        $message = json_decode($original, true);
+        $original = $msg->getBody();
+        $msg = json_decode($original, true);
 
         if (\JSON_ERROR_NONE !== json_last_error()) {
-            $message = $original;
+            $msg = $original;
         }
 
         try {
             $sensor = $this->factory->create();
-            $sensor->process($message);
+            $sensor->process($msg);
         } catch (\Exception) {
             return self::NACK;
         }

@@ -18,8 +18,9 @@ use Streak\Infrastructure\Domain\AggregateRoot\Snapshotter\Storage;
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  *
+ * @property InMemoryStorage $storage
+ *
  * @covers \Streak\Infrastructure\Domain\AggregateRoot\Snapshotter\Storage\InMemoryStorage
- * @covers \Streak\Infrastructure\Domain\AggregateRoot\Snapshotter\Storage\TestCase
  */
 class InMemoryTest extends TestCase
 {

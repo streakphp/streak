@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Streak\Domain\Exception;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Streak\Domain;
 
@@ -23,7 +24,7 @@ use Streak\Domain;
  */
 class ConcurrentWriteDetectedTest extends TestCase
 {
-    private Domain\Id $id;
+    private Domain\Id|MockObject $id;
 
     protected function setUp(): void
     {

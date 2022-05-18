@@ -17,6 +17,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
+use PHPUnit\Framework\MockObject\MockObject;
 use Streak\Domain\Event;
 use Streak\Domain\EventStore;
 use Streak\Domain\Exception\ConcurrentWriteDetected;
@@ -33,7 +34,7 @@ class DbalPostgresEventStoreTest extends EventStoreTestCase
 
     private static Connection $connection2;
 
-    private Connection $mysql;
+    private Connection|MockObject $mysql;
 
     private MySqlPlatform $mysqlPlatform;
 

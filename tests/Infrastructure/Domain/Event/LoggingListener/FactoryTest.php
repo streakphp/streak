@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Streak\Infrastructure\Domain\Event\LoggingListener;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Streak\Domain\Event;
@@ -26,13 +27,13 @@ use Streak\Infrastructure\Domain\Event\LoggingListener;
  */
 class FactoryTest extends TestCase
 {
-    private Listener\Factory $factory;
+    private Listener\Factory|MockObject $factory;
 
-    private Listener $listener;
+    private Listener|MockObject $listener;
 
-    private LoggerInterface $logger;
+    private LoggerInterface|MockObject $logger;
 
-    private Listener\Id $id;
+    private Listener\Id|MockObject $id;
 
     private Event\Envelope $event;
 

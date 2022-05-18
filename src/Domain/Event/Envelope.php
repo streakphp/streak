@@ -20,6 +20,8 @@ use Streak\Domain\Id\UUID;
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  *
+ * @template T of Event
+ *
  * @see \Streak\Domain\Event\EnvelopeTest
  */
 final class Envelope implements Domain\Envelope
@@ -33,6 +35,9 @@ final class Envelope implements Domain\Envelope
     public const METADATA_ENTITY_ID = 'entity_id';
     private array $metadata = [];
 
+    /**
+     * @param T $message
+     */
     public function __construct(UUID $uuid, string $name, private Event $message, Domain\Id $producerId, Domain\Id $entityId, ?int $version = null)
     {
         $this->metadata[self::METADATA_UUID] = $uuid->toString();
@@ -46,9 +51,12 @@ final class Envelope implements Domain\Envelope
         }
     }
 
-    public static function new(Event $event, Domain\Id $producerId, ?int $version = null): self
+    /**
+     * @return Envelope<T>
+     */
+    public static function new(Event $message, Domain\Id $producerId, ?int $version = null): self
     {
-        return new self(UUID::random(), $event::class, $event, $producerId, $producerId, $version);
+        return new self(UUID::random(), $message::class, $message, $producerId, $producerId, $version);
     }
 
     public function uuid(): UUID
@@ -61,6 +69,9 @@ final class Envelope implements Domain\Envelope
         return $this->get(self::METADATA_NAME);
     }
 
+    /**
+     * @return T
+     */
     public function message(): Event
     {
         return $this->message;

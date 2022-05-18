@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Streak\Infrastructure\Domain\Event\Event;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Streak\Domain\Event;
 use Streak\Domain\Event\Listener;
@@ -27,13 +28,13 @@ use Streak\Infrastructure\Domain\Event\Listener\CompositeFactory;
  */
 class CompositeFactoryTest extends TestCase
 {
-    private Listener\Id $id1;
+    private Listener\Id|MockObject $id1;
 
-    private Listener\Factory $factory1;
-    private Listener\Factory $factory2;
-    private Listener\Factory $factory3;
+    private Listener\Factory|MockObject $factory1;
+    private Listener\Factory|MockObject $factory2;
+    private Listener\Factory|MockObject $factory3;
 
-    private Listener $listener1;
+    private Listener|MockObject $listener1;
 
     private Event\Envelope $event1;
 

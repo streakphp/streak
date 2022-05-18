@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Streak\Infrastructure\Domain\Event\Subscription;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Streak\Domain;
 use Streak\Domain\Event;
@@ -35,23 +36,23 @@ use Streak\Infrastructure\Domain\UnitOfWork;
  */
 class EventSourcedRepositoryTest extends TestCase
 {
-    private Event\Subscription\Factory $subscriptions;
+    private Event\Subscription\Factory|MockObject $subscriptions;
 
-    private Event\Listener\Factory $listeners;
+    private Event\Listener\Factory|MockObject $listeners;
 
     private InMemoryEventStore $store;
 
     private UnitOfWork\EventStoreUnitOfWork $uow;
 
-    private Event\Listener $listener1;
+    private Event\Listener|MockObject $listener1;
 
-    private EventSourcedSubscription $eventSourcedSubscription1;
-    private DecoratedSubscription $eventSourcedSubscription2;
-    private DecoratedSubscription $eventSourcedSubscription3;
+    private EventSourcedSubscription|MockObject $eventSourcedSubscription1;
+    private DecoratedSubscription|MockObject $eventSourcedSubscription2;
+    private DecoratedSubscription|MockObject $eventSourcedSubscription3;
 
-    private Event\Subscription $nonEventSourcedSubscription1;
-    private DecoratedSubscription $nonEventSourcedSubscription2;
-    private DecoratedSubscription $nonEventSourcedSubscription3;
+    private Event\Subscription|MockObject $nonEventSourcedSubscription1;
+    private DecoratedSubscription|MockObject $nonEventSourcedSubscription2;
+    private DecoratedSubscription|MockObject $nonEventSourcedSubscription3;
 
     private Listener\Id $id1;
     private Listener\Id $id2;

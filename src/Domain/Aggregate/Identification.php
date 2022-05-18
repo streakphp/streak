@@ -19,7 +19,7 @@ use Streak\Domain\Entity;
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  *
- * @property $id Aggregate\Id
+ * @property Aggregate\Id $id
  *
  * @see \Streak\Domain\Aggregate\IdentificationTest
  */
