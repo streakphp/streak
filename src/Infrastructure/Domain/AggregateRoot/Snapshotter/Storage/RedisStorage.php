@@ -20,6 +20,8 @@ use Streak\Infrastructure\Domain\Resettable;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @see \Streak\Infrastructure\Domain\AggregateRoot\Snapshotter\Storage\RedisStorageTest
  */
 final class RedisStorage implements Storage, Resettable
 {
@@ -38,12 +40,17 @@ final class RedisStorage implements Storage, Resettable
             throw new SnapshotNotFound($aggregate);
         }
 
+        // Redis::get() can return Redis instance when it's in multi() mode.
+        if ($snapshot instanceof \Redis) {
+            throw new SnapshotNotFound($aggregate);
+        }
+
         return $snapshot;
     }
 
     public function store(AggregateRoot $aggregate, string $snapshot): void
     {
-        $this->redis->set($this->key($aggregate), (string) $snapshot);
+        $this->redis->set($this->key($aggregate), $snapshot);
     }
 
     public function reset(): bool

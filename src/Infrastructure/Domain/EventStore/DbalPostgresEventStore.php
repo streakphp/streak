@@ -691,7 +691,7 @@ class DbalPostgresEventStore implements \Iterator, EventStore, Event\Stream, Sch
         ];
     }
 
-    private function extractIdForConcurrentWrite(UniqueConstraintViolationException $e)
+    private function extractIdForConcurrentWrite(UniqueConstraintViolationException $e): Domain\Id|null
     {
         // example:
         // SQLSTATE[23505]: Unique violation: 7 ERROR:  duplicate key value violates unique constraint "events_producer_type_producer_id_producer_version_key"
@@ -717,7 +717,7 @@ class DbalPostgresEventStore implements \Iterator, EventStore, Event\Stream, Sch
         return $this->toId($matches['type'], $matches['id']);
     }
 
-    private function extractIdForEventAlreadyInStore(UniqueConstraintViolationException $e)
+    private function extractIdForEventAlreadyInStore(UniqueConstraintViolationException $e): UUID|null
     {
         // example:
         // SQLSTATE[23505]: Unique violation: 7 ERROR:  duplicate key value violates unique constraint "events_uuid_key"

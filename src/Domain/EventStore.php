@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Streak\Domain;
 
+use Streak\Domain\Exception;
 use Streak\Domain\Id\UUID;
 
 /**
@@ -23,6 +24,7 @@ interface EventStore
     /**
      * @return array<int, Event\Envelope>
      *
+     * @throws Exception\EventAlreadyInStore
      * @throws Exception\ConcurrentWriteDetected
      * @throws Exception\InvalidAggregateGiven
      */

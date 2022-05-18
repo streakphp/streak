@@ -59,7 +59,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
         return new PhpSerializer();
     }
 
-    protected function createSnapshotterStorage()
+    protected function createSnapshotterStorage(): Snapshotter\Storage\InMemoryStorage
     {
         return new Snapshotter\Storage\InMemoryStorage();
     }

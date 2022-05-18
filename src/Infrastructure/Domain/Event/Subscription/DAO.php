@@ -30,7 +30,7 @@ interface DAO
     /**
      * @param string[] $types
      *
-     * @return DAO\Subscription[]
+     * @return iterable<int,Subscription>
      */
     public function all(array $types = [], ?bool $completed = null): iterable;
 }

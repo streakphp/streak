@@ -23,7 +23,7 @@ use Streak\Infrastructure\Domain\AggregateRoot\Snapshotter\Storage\Exception\Sna
  *
  * @covers \Streak\Infrastructure\Domain\AggregateRoot\Snapshotter\Storage\RedisStorage
  */
-class RedisTest extends Storage\TestCase
+class RedisStorageTest extends Storage\TestCase
 {
     public function testResetting(): void
     {
@@ -40,12 +40,27 @@ class RedisTest extends Storage\TestCase
         $this->storage->find($this->aggregate1);
     }
 
+    public function testRedisInMultiMode(): void
+    {
+        $redis = $this->newRedis();
+        $storage = new RedisStorage($redis->multi());
+
+        $this->expectExceptionObject(new SnapshotNotFound($this->aggregate1));
+
+        $storage->find($this->aggregate1);
+    }
+
     protected function newStorage(): Storage
+    {
+        return new RedisStorage($this->newRedis());
+    }
+
+    private function newRedis(): \Redis
     {
         $redis = new \Redis();
         $redis->connect($_ENV['PHPUNIT_REDIS_HOSTNAME'], (int) $_ENV['PHPUNIT_REDIS_PORT']);
         $redis->select((int) $_ENV['PHPUNIT_REDIS_DATABASE']);
 
-        return new RedisStorage($redis);
+        return $redis;
     }
 }

@@ -15,9 +15,11 @@ namespace Streak\Infrastructure\Domain\Event\Subscription\DAO\Subscription;
 
 use Streak\Domain\Clock;
 use Streak\Domain\Event;
-use Streak\Infrastructure\Domain\Event\Subscription\DAO\Subscription;
+use Streak\Infrastructure\Domain\Event\Subscription\DAO;
 
 /**
+ * @implements Event\Subscription\Factory<DAO\Subscription>
+ *
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  *
  * @see \Streak\Infrastructure\Domain\Event\Subscription\DAO\Subscription\FactoryTest
@@ -28,8 +30,8 @@ class Factory implements Event\Subscription\Factory
     {
     }
 
-    public function create(Event\Listener $listener): Event\Subscription
+    public function create(Event\Listener $listener): DAO\Subscription
     {
-        return new Subscription($listener, $this->clock);
+        return new DAO\Subscription($listener, $this->clock);
     }
 }

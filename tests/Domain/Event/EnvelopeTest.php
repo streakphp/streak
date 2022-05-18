@@ -127,29 +127,6 @@ class EnvelopeTest extends TestCase
 
         $envelope->set('', 'value-1');
     }
-
-    public function nonScalarValues()
-    {
-        return [
-            [[]],
-            [new \stdClass()],
-        ];
-    }
-
-    /**
-     * @dataProvider nonScalarValues
-     *
-     * @param mixed $value
-     */
-    public function testSettingNonScalarAttribute($value): void
-    {
-        $envelope = Event\Envelope::new($this->event1, UUID::random(), \PHP_INT_MAX);
-
-        $exception = new \InvalidArgumentException('Value for attribute "attr-1" is a scalar.');
-        $this->expectExceptionObject($exception);
-
-        $envelope->set('attr-1', $value);
-    }
 }
 
 namespace Streak\Domain\Event\EnvelopeTest;

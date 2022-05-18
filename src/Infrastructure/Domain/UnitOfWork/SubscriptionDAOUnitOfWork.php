@@ -27,7 +27,7 @@ use Streak\Infrastructure\Domain\UnitOfWork;
 class SubscriptionDAOUnitOfWork implements UnitOfWork
 {
     /**
-     * @var Subscription[]
+     * @var DAO\Subscription[]
      */
     private array $uncommited = [];
 
@@ -98,7 +98,7 @@ class SubscriptionDAOUnitOfWork implements UnitOfWork
 
             try {
                 while ($object = array_shift($this->uncommited)) {
-                    /** @var Subscription $object */
+                    /** @var DAO\Subscription $object */
                     try {
                         $this->dao->save($object);
 
@@ -125,16 +125,12 @@ class SubscriptionDAOUnitOfWork implements UnitOfWork
 
     private function supports(object $subscription): bool
     {
-        if ($subscription instanceof DAO\Subscription) {
-            return true;
-        }
-
         while ($subscription instanceof Subscription\Decorator) {
             $subscription = $subscription->subscription();
+        }
 
-            if ($subscription instanceof DAO\Subscription) {
-                return true;
-            }
+        if ($subscription instanceof DAO\Subscription) {
+            return true;
         }
 
         return false;

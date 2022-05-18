@@ -20,6 +20,9 @@ namespace Streak\Domain\Event;
  */
 final class Metadata
 {
+    /**
+     * @var array<string, string>
+     */
     private array $metadata = [];
 
     private function __construct(array $metadata)
@@ -34,7 +37,7 @@ final class Metadata
         $this->metadata[$name] = $value;
     }
 
-    public function has(string $name)
+    public function has(string $name): bool
     {
         if (isset($this->metadata[$name])) {
             return true;
@@ -52,7 +55,7 @@ final class Metadata
         return $this->metadata[$name];
     }
 
-    public static function fromObject($object): self
+    public static function fromObject(object $object): self
     {
         if (!isset($object->__streak_metadata)) {
             return new self([]);
@@ -77,7 +80,7 @@ final class Metadata
         return new self($metadata);
     }
 
-    public function toObject($object): void
+    public function toObject(object $object): void
     {
         $object->__streak_metadata = $this->metadata;
     }

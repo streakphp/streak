@@ -48,7 +48,7 @@ class InMemoryEventBus implements EventBus
             }
         }
 
-        $this->listeners[] = $listener;
+        $this->listeners->enqueue($listener);
     }
 
     public function remove(Event\Listener $listener): void

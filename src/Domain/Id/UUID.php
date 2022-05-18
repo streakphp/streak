@@ -25,8 +25,12 @@ use Streak\Domain;
  */
 class UUID implements Domain\Id
 {
+    /** @var non-empty-string */
     private string $value;
 
+    /**
+     * @param non-empty-string $value
+     */
     final public function __construct(string $value)
     {
         $value = mb_strtolower($value);
@@ -44,10 +48,10 @@ class UUID implements Domain\Id
             throw new \InvalidArgumentException();
         }
 
-        $this->value = $value;
+        $this->value = $value; // @phpstan-ignore-line
     }
 
-    public static function random()
+    public static function random(): static
     {
         $uuid = \Ramsey\Uuid\Uuid::uuid4()->toString();
 
@@ -72,10 +76,7 @@ class UUID implements Domain\Id
         return $this->value;
     }
 
-    /**
-     * @return static
-     */
-    public static function fromString(string $id): Domain\Id
+    public static function fromString(string $id): static
     {
         return new static($id);
     }

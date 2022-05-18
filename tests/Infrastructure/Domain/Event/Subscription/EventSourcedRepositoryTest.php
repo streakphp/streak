@@ -243,7 +243,9 @@ class EventSourcedRepositoryTest extends TestCase
             ->with(self::callback(function (Event\Stream $stream) use ($event1, $event2, $event3) {
                 $stream = iterator_to_array($stream);
 
-                return self::equalTo([$event1, $event2, $event3])->evaluate($stream);
+                self::equalTo([$event1, $event2, $event3])->evaluate($stream);
+
+                return true;
             }))
         ;
 
@@ -300,7 +302,9 @@ class EventSourcedRepositoryTest extends TestCase
                 $stream = iterator_to_array($stream);
 
                 // streaming from SubscriptionRestarted event
-                return self::equalTo([$event1, $event2, $event3, $event4, $event5, $event6])->evaluate($stream);
+                self::equalTo([$event1, $event2, $event3, $event4, $event5, $event6])->evaluate($stream);
+
+                return true;
             }))
         ;
 

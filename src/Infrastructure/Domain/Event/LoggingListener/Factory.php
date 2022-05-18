@@ -18,6 +18,8 @@ use Streak\Domain\Event;
 use Streak\Infrastructure\Domain\Event\LoggingListener;
 
 /**
+ * @implements Event\Listener\Factory<LoggingListener>
+ *
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  *
  * @see \Streak\Infrastructure\Domain\Event\LoggingListener\FactoryTest
@@ -28,14 +30,14 @@ class Factory implements Event\Listener\Factory
     {
     }
 
-    public function create(Event\Listener\Id $id): Event\Listener
+    public function create(Event\Listener\Id $id): LoggingListener
     {
         $saga = $this->factory->create($id);
 
         return new LoggingListener($saga, $this->logger);
     }
 
-    public function createFor(Event\Envelope $event): Event\Listener
+    public function createFor(Event\Envelope $event): LoggingListener
     {
         $listener = $this->factory->createFor($event);
 

@@ -16,9 +16,14 @@ namespace Streak\Domain\Event\Subscription;
 use Streak\Domain\Event;
 
 /**
+ * @template T of Event\Subscription
+ *
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
 interface Factory
 {
+    /**
+     * @return T
+     */
     public function create(Event\Listener $listener): Event\Subscription;
 }

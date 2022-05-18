@@ -16,6 +16,8 @@ namespace Streak\Domain;
 use Streak\Domain\Id\UUID;
 
 /**
+ * @template T of object
+ *
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
 interface Envelope extends ValueObject
@@ -24,12 +26,15 @@ interface Envelope extends ValueObject
 
     public function name(): string;
 
+    /**
+     * @return T
+     */
     public function message();
 
     /**
      * @param string $name
      *
-     * @return float|int|string|null
+     * @return null|scalar
      */
     public function get($name);
 

@@ -20,5 +20,5 @@ interface Serializer
 {
     public function serialize($subject): string;
 
-    public function unserialize($serialized);
+    public function unserialize(string $serialized);
 }
