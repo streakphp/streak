@@ -66,6 +66,11 @@ parameters:
 			path: tests/Domain/Command/HandlingTest.php
 
 		-
+			message: "#^Parameter \\#1 \\$name of method Streak\\\\Domain\\\\Event\\\\Envelope\\<Streak\\\\Domain\\\\Event\\>\\:\\:set\\(\\) expects non\\-empty\\-string, '' given\\.$#"
+			count: 1
+			path: tests/Domain/Event/EnvelopeTest.php
+
+		-
 			message: "#^Method Streak\\\\Domain\\\\Event\\\\Listener\\\\FilteringTest\\\\ListeningStub1\\:\\:onSupportedEvent1ButPrivate\\(\\) is unused\\.$#"
 			count: 1
 			path: tests/Domain/Event/Listener/FilteringTest.php
@@ -186,6 +191,11 @@ parameters:
 			path: tests/Domain/EventSourcingTest.php
 
 		-
+			message: "#^Parameter \\#1 \\$id of class Streak\\\\Infrastructure\\\\Domain\\\\AggregateRoot\\\\Snapshotter\\\\Storage\\\\IdStub constructor expects non\\-empty\\-string, string given\\.$#"
+			count: 1
+			path: tests/Infrastructure/Domain/AggregateRoot/Snapshotter/Storage/PostgresStorageTest.php
+
+		-
 			message: "#^Property Streak\\\\Infrastructure\\\\Domain\\\\Event\\\\Converter\\\\ChildObject\\:\\:\\$arrayProperty is never read, only written\\.$#"
 			count: 1
 			path: tests/Infrastructure/Domain/Event/Converter/NestedObjectConverterTest.php
@@ -264,3 +274,43 @@ parameters:
 			message: "#^Property Streak\\\\Infrastructure\\\\Domain\\\\Event\\\\Converter\\\\ParentObject\\:\\:\\$scalarProperty is never read, only written\\.$#"
 			count: 1
 			path: tests/Infrastructure/Domain/Event/Converter/NestedObjectConverterTest.php
+
+		-
+			message: "#^Parameter \\#1 \\$object of method Streak\\\\Infrastructure\\\\Domain\\\\UnitOfWork\\\\EventStoreUnitOfWork\\:\\:add\\(\\) expects Streak\\\\Domain\\\\Event\\\\Producer, stdClass given\\.$#"
+			count: 1
+			path: tests/Infrastructure/Domain/UnitOfWork/EventStoreUnitOfWorkTest.php
+
+		-
+			message: "#^Parameter \\#1 \\$object of method Streak\\\\Infrastructure\\\\Domain\\\\UnitOfWork\\\\EventStoreUnitOfWork\\:\\:has\\(\\) expects Streak\\\\Domain\\\\Event\\\\Producer, stdClass given\\.$#"
+			count: 1
+			path: tests/Infrastructure/Domain/UnitOfWork/EventStoreUnitOfWorkTest.php
+
+		-
+			message: "#^Parameter \\#1 \\$object of method Streak\\\\Infrastructure\\\\Domain\\\\UnitOfWork\\\\EventStoreUnitOfWork\\:\\:remove\\(\\) expects Streak\\\\Domain\\\\Event\\\\Producer, stdClass given\\.$#"
+			count: 1
+			path: tests/Infrastructure/Domain/UnitOfWork/EventStoreUnitOfWorkTest.php
+
+		-
+			message: "#^Parameter \\#1 \\$object of method Streak\\\\Infrastructure\\\\Domain\\\\UnitOfWork\\\\SubscriptionDAOUnitOfWork\\:\\:add\\(\\) expects Streak\\\\Infrastructure\\\\Domain\\\\Event\\\\Subscription\\\\DAO\\\\Subscription, PHPUnit\\\\Framework\\\\MockObject\\\\MockObject&Streak\\\\Domain\\\\Event\\\\Subscription given\\.$#"
+			count: 1
+			path: tests/Infrastructure/Domain/UnitOfWork/SubscriptionDAOUnitOfWorkTest.php
+
+		-
+			message: "#^Parameter \\#1 \\$object of method Streak\\\\Infrastructure\\\\Domain\\\\UnitOfWork\\\\SubscriptionDAOUnitOfWork\\:\\:add\\(\\) expects Streak\\\\Infrastructure\\\\Domain\\\\Event\\\\Subscription\\\\DAO\\\\Subscription, PHPUnit\\\\Framework\\\\MockObject\\\\MockObject\\|Streak\\\\Domain\\\\Event\\\\Subscription\\\\Decorator given\\.$#"
+			count: 1
+			path: tests/Infrastructure/Domain/UnitOfWork/SubscriptionDAOUnitOfWorkTest.php
+
+		-
+			message: "#^Parameter \\#1 \\$object of method Streak\\\\Infrastructure\\\\Domain\\\\UnitOfWork\\\\SubscriptionDAOUnitOfWork\\:\\:has\\(\\) expects Streak\\\\Infrastructure\\\\Domain\\\\Event\\\\Subscription\\\\DAO\\\\Subscription, PHPUnit\\\\Framework\\\\MockObject\\\\MockObject&Streak\\\\Domain\\\\Event\\\\Subscription given\\.$#"
+			count: 1
+			path: tests/Infrastructure/Domain/UnitOfWork/SubscriptionDAOUnitOfWorkTest.php
+
+		-
+			message: "#^Parameter \\#1 \\$object of method Streak\\\\Infrastructure\\\\Domain\\\\UnitOfWork\\\\SubscriptionDAOUnitOfWork\\:\\:has\\(\\) expects Streak\\\\Infrastructure\\\\Domain\\\\Event\\\\Subscription\\\\DAO\\\\Subscription, PHPUnit\\\\Framework\\\\MockObject\\\\MockObject\\|Streak\\\\Domain\\\\Event\\\\Subscription\\\\Decorator given\\.$#"
+			count: 1
+			path: tests/Infrastructure/Domain/UnitOfWork/SubscriptionDAOUnitOfWorkTest.php
+
+		-
+			message: "#^Parameter \\#1 \\$object of method Streak\\\\Infrastructure\\\\Domain\\\\UnitOfWork\\\\SubscriptionDAOUnitOfWork\\:\\:remove\\(\\) expects Streak\\\\Infrastructure\\\\Domain\\\\Event\\\\Subscription\\\\DAO\\\\Subscription, PHPUnit\\\\Framework\\\\MockObject\\\\MockObject&Streak\\\\Domain\\\\Event\\\\Subscription given\\.$#"
+			count: 1
+			path: tests/Infrastructure/Domain/UnitOfWork/SubscriptionDAOUnitOfWorkTest.php
