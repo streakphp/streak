@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Streak\Domain\Entity;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Streak\Domain\Entity;
 
@@ -23,7 +24,7 @@ use Streak\Domain\Entity;
  */
 class IdentificationTest extends TestCase
 {
-    private Entity\Id $id;
+    private Entity\Id|MockObject $id;
 
     protected function setUp(): void
     {
@@ -32,8 +33,16 @@ class IdentificationTest extends TestCase
 
     public function testObject(): void
     {
-        $identification = $this->getMockBuilder(Identification::class)->setConstructorArgs([$this->id])->getMockForTrait();
-
-        self::assertSame($this->id, $identification->id());
+        $stub = new Entity\IdentificationTest\IdentifyingStub($this->id);
+        self::assertSame($this->id, $stub->id());
     }
+}
+
+namespace Streak\Domain\Entity\IdentificationTest;
+
+use Streak\Domain\Entity;
+
+class IdentifyingStub
+{
+    use Entity\Identification;
 }

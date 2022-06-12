@@ -20,11 +20,13 @@ interface Converter
 {
     /**
      * @throws Exception\ConversionToArrayNotPossible
+     * @throws \Exception
      */
     public function objectToArray(object $object): array;
 
     /**
      * @throws Exception\ConversionToObjectNotPossible
+     * @throws \Exception
      */
     public function arrayToObject(array $data): object;
 }

@@ -75,7 +75,7 @@ class NestedObjectConverter implements Converter
                 if (false === $reflection) {
                     break;
                 }
-            } while ($reflection->getProperties() > 0);
+            } while (\count($reflection->getProperties()) > 0);
         }
 
         if (\is_array($object)) {

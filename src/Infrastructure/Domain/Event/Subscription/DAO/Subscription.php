@@ -16,6 +16,7 @@ namespace Streak\Infrastructure\Domain\Event\Subscription\DAO;
 use Streak\Domain\Clock;
 use Streak\Domain\Event;
 use Streak\Domain\Event\Listener;
+use Streak\Domain\Event\Listener\State;
 use Streak\Domain\Event\Subscription\Exception;
 use Streak\Domain\EventStore;
 use Streak\Infrastructure\Domain\Event\Sourced\Subscription\InMemoryState;
@@ -28,12 +29,12 @@ use Streak\Infrastructure\Domain\Event\Sourced\Subscription\InMemoryState;
 class Subscription implements Event\Subscription
 {
     private const LIMIT_TO_INITIAL_STREAM = 0;
-    private InMemoryState $state;
+    private State $state;
     private ?Event\Envelope $startedBy = null;
-    private ?\DateTimeImmutable $startedAt = null;
+    private ?\DateTimeImmutable $startedAt = null; // @TODO: check if needed
     private ?\DateTimeImmutable $pausedAt = null;
     private ?Event\Envelope $lastProcessedEvent = null;
-    private ?\DateTimeImmutable $lastEventProcessedAt = null;
+    private ?\DateTimeImmutable $lastEventProcessedAt = null; // @TODO: check if needed
     private int $version = 0;
     private bool $completed = false;
 

@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Streak\Application\Sensor;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Streak\Application\Sensor;
 
@@ -23,7 +24,7 @@ use Streak\Application\Sensor;
  */
 class IdentificationTest extends TestCase
 {
-    private Sensor\Id $id;
+    private Sensor\Id|MockObject $id;
 
     protected function setUp(): void
     {
@@ -32,8 +33,16 @@ class IdentificationTest extends TestCase
 
     public function testObject(): void
     {
-        $identification = $this->getMockBuilder(Identification::class)->setConstructorArgs([$this->id])->getMockForTrait();
-
-        self::assertSame($this->id, $identification->id());
+        $stub = new Sensor\IdentificationTest\IdentifyingStub($this->id);
+        self::assertSame($this->id, $stub->id());
     }
+}
+
+namespace Streak\Application\Sensor\IdentificationTest;
+
+use Streak\Application\Sensor;
+
+class IdentifyingStub
+{
+    use Sensor\Identification;
 }

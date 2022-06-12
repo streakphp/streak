@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Streak\Infrastructure\Domain\Event\Subscription;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Streak\Domain\Event;
 use Streak\Domain\Event\Listener;
@@ -27,17 +28,17 @@ use Streak\Infrastructure\Domain\UnitOfWork;
  */
 class CommittingSubscriptionTest extends TestCase
 {
-    private Event\Subscription $subscription;
+    private Event\Subscription|MockObject $subscription;
 
-    private Listener $listener;
+    private Listener|MockObject $listener;
 
     private Listener\Id $id1;
 
-    private EventStore $store;
+    private EventStore|MockObject $store;
 
     private Event\Envelope $event1;
 
-    private UnitOfWork $uow;
+    private UnitOfWork|MockObject $uow;
 
     protected function setUp(): void
     {

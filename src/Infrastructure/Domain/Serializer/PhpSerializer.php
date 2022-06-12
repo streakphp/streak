@@ -27,7 +27,7 @@ class PhpSerializer implements Serializer
         return serialize($subject);
     }
 
-    public function unserialize($serialized)
+    public function unserialize(string $serialized)
     {
         return unserialize($serialized);
     }

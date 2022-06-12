@@ -20,7 +20,13 @@ use Streak\Domain;
  */
 interface Id extends Domain\ValueObject
 {
+    /**
+     * @return non-empty-string
+     */
     public function toString(): string;
 
-    public static function fromString(string $id): Domain\Id;
+    /**
+     * @param non-empty-string $id
+     */
+    public static function fromString(string $id): static;
 }

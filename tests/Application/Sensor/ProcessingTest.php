@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Streak\Application\Sensor;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Streak\Application\Sensor;
 use Streak\Application\Sensor\ProcessingTest\AProcessed;
@@ -35,7 +36,7 @@ use Streak\Application\Sensor\ProcessingTest\StringProcessed;
  */
 class ProcessingTest extends TestCase
 {
-    private Sensor\Id $id;
+    private Sensor\Id|MockObject $id;
 
     protected function setUp(): void
     {
@@ -196,12 +197,12 @@ class SensorStub2 implements Sensor
 
     public function processOptionalB2(?B2 $optionalB1): void
     {
-        $this->addEvent(new B1Processed($optionalB1));
+        $this->addEvent(new B2Processed($optionalB1));
     }
 
     public function processNullableB2(B2 $nullableB1 = null): void
     {
-        $this->addEvent(new B1Processed($nullableB1));
+        $this->addEvent(new B2Processed($nullableB1));
     }
 
     public function processA(A $a): void

@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Streak\Infrastructure\Application\Sensor\CommittingSensor;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Streak\Application\Sensor;
 use Streak\Infrastructure\Application\Sensor\CommittingSensor;
@@ -25,11 +26,11 @@ use Streak\Infrastructure\Domain\UnitOfWork;
  */
 class FactoryTest extends TestCase
 {
-    private Sensor\Factory $factory;
+    private Sensor\Factory|MockObject $factory;
 
-    private UnitOfWork $uow;
+    private UnitOfWork|MockObject $uow;
 
-    private Sensor $sensor;
+    private Sensor|MockObject $sensor;
 
     protected function setUp(): void
     {

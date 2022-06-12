@@ -26,7 +26,7 @@ use Streak\Infrastructure\Domain\UnitOfWork\SubscriptionDAOUnitOfWorkTest\Decora
  */
 class SubscriptionDAOUnitOfWorkTest extends TestCase
 {
-    private DAO $dao;
+    private DAO|MockObject $dao;
 
     private SubscriptionDAOUnitOfWork $uow;
 
@@ -111,10 +111,7 @@ class SubscriptionDAOUnitOfWorkTest extends TestCase
         self::assertEquals([$subscription], $this->uow->uncommitted());
     }
 
-    /**
-     * @return MockObject|Subscription\Decorator
-     */
-    private function createSubscriptionDecoratorStub(string $id): Subscription\Decorator
+    private function createSubscriptionDecoratorStub(string $id): MockObject|Subscription\Decorator
     {
         $result = $this->getMockBuilder(DecoratedSubscription::class)->getMock();
         $result->method('subscription')->willReturn($this->createSubscriptionStub($id));
@@ -123,10 +120,7 @@ class SubscriptionDAOUnitOfWorkTest extends TestCase
         return $result;
     }
 
-    /**
-     * @return DAO\Subscription|MockObject
-     */
-    private function createSubscriptionStub(string $id): DAO\Subscription
+    private function createSubscriptionStub(string $id): MockObject|DAO\Subscription
     {
         $result = $this->getMockBuilder(DAO\Subscription::class)->disableOriginalConstructor()->getMock();
         $result->method('id')->willReturn($this->createIdStub($id));

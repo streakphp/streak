@@ -23,7 +23,7 @@ use Streak\Infrastructure\Domain\Event\Subscription\DAO;
  */
 class IdentityMappingDaoTest extends TestCase
 {
-    private DAO $dao;
+    private DAO|MockObject $dao;
 
     protected function setUp(): void
     {
@@ -166,10 +166,7 @@ class IdentityMappingDaoTest extends TestCase
         $dao->exists($this->createSubscriptionIdStub('Id', 'be0e34c3-d53b-4463-b316-4a210971e64d'));
     }
 
-    /**
-     * @return MockObject|Subscription
-     */
-    private function createSubscriptionStub(string $subscriptionId, string $subscriptionIdClassName, int $version): Subscription
+    private function createSubscriptionStub(string $subscriptionId, string $subscriptionIdClassName, int $version): MockObject|Subscription
     {
         $result = $this->getMockBuilder(Subscription::class)->disableOriginalConstructor()->getMock();
         $result->method('id')->willReturn($this->createSubscriptionIdStub($subscriptionIdClassName, $subscriptionId));

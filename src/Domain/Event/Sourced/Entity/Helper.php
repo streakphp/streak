@@ -42,9 +42,9 @@ final class Helper
     }
 
     /**
-     * @return Event\Sourced\Entity[]
+     * @return \Generator<int, Event\Sourced\Entity>
      */
-    public function extractEventSourcedEntities(): iterable
+    public function extractEventSourcedEntities(): \Generator
     {
         yield from self::doExtractEventSourcedEntities($this->object);
     }
@@ -128,8 +128,10 @@ final class Helper
 
     /**
      * Extract event sourced entities recursively.
+     *
+     * @return \Generator<int, Event\Sourced\Entity>
      */
-    private static function doExtractEventSourcedEntities(object $object, array &$ignored = []): iterable
+    private static function doExtractEventSourcedEntities(object $object, array &$ignored = []): \Generator
     {
         $ignored[] = $object;
 

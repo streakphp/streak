@@ -28,7 +28,7 @@ class Factory implements Sensor\Factory
     {
     }
 
-    public function create(): Sensor
+    public function create(): CommittingSensor
     {
         $sensor = $this->factory->create();
 

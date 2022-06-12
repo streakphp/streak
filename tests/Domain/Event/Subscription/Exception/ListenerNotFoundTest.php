@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Streak\Domain\Event\Subscription\Exception;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Streak\Domain\Event;
 
@@ -23,7 +24,7 @@ use Streak\Domain\Event;
  */
 class ListenerNotFoundTest extends TestCase
 {
-    private Event\Listener\Id $listenerId;
+    private Event\Listener\Id|MockObject $listenerId;
 
     protected function setUp(): void
     {

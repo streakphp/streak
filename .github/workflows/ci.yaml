@@ -119,3 +119,49 @@ jobs:
         run: docker-compose exec -T php composer install --no-scripts --no-interaction --ansi
       - name: Run deptrac
         run: docker-compose exec -T php bin/deptrac --no-progress --no-interaction --cache-file=./build/.deptrac/.deptrac.cache --ansi
+  run-phpstan:
+    name: phpstan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Docker pull
+        run: docker-compose pull php
+      - name: Docker caching
+        uses: satackey/action-docker-layer-caching@v0.0.11
+        continue-on-error: true
+      - name: Composer caching
+        uses: actions/cache@v2
+        with:
+          path: ./build/.composer
+          key: ${{ runner.os }}-composer-v1-${{ hashFiles('composer.json') }}
+          restore-keys: ${{ runner.os }}-composer-v1-
+      - name: Start PHP container
+        run: docker-compose up --detach --build --no-deps php
+      - name: Install dependencies
+        run: docker-compose exec -T php composer install --no-scripts --no-interaction --ansi
+      - name: Run phpstan
+        run: docker-compose exec -T php bin/phpstan analyse -c phpstan.neon
+  run-psalm:
+    name: psalm
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Docker pull
+        run: docker-compose pull php
+      - name: Docker caching
+        uses: satackey/action-docker-layer-caching@v0.0.11
+        continue-on-error: true
+      - name: Composer caching
+        uses: actions/cache@v2
+        with:
+          path: ./build/.composer
+          key: ${{ runner.os }}-composer-v1-${{ hashFiles('composer.json') }}
+          restore-keys: ${{ runner.os }}-composer-v1-
+      - name: Start PHP container
+        run: docker-compose up --detach --build --no-deps php
+      - name: Install dependencies
+        run: docker-compose exec -T php composer install --no-scripts --no-interaction --ansi
+      - name: Run psalm
+        run: docker-compose exec -T php bin/psalm

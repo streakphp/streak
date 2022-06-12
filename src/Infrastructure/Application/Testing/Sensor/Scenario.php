@@ -38,9 +38,9 @@ class Scenario implements Scenario\Given, Scenario\Then
         return $this;
     }
 
-    public function then(Event ...$expected): void
+    public function then(Event ...$events): void
     {
         $actual = array_map(fn (Event\Envelope $event) => $event->message(), $this->sensor->events());
-        Assert::assertEquals($expected, $actual, 'Expected events don\'t match produced events.');
+        Assert::assertEquals($events, $actual, 'Expected events don\'t match produced events.');
     }
 }

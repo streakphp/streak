@@ -22,6 +22,9 @@ use Streak\Domain\Event\Listener\State;
  */
 class InMemoryState implements State
 {
+    /**
+     * @var array<string, scalar>
+     */
     private array $state = [];
 
     private function __construct()
@@ -55,7 +58,10 @@ class InMemoryState implements State
         return $this->state[$name];
     }
 
-    public function set(string $name, $value): State
+    /**
+     * @param array|scalar|null $value
+     */
+    public function set(string $name, $value): self
     {
         $this->validate($name, $value);
 
@@ -94,6 +100,9 @@ class InMemoryState implements State
         return new self();
     }
 
+    /**
+     * @param array|scalar|null $value
+     */
     private function validate(string $name, $value): void
     {
         if (true === empty($name)) {

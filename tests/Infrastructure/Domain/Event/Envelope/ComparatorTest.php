@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Streak\Infrastructure\Domain\Event\Envelope;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use SebastianBergmann\Comparator\ComparisonFailure;
 use SebastianBergmann\Comparator\Factory;
@@ -26,15 +27,15 @@ use Streak\Domain\Id\UUID;
  */
 class ComparatorTest extends TestCase
 {
-    private Factory $factory;
+    private Factory|MockObject $factory;
 
     private Comparator $comparator;
-    private Comparator $subcomparator;
+    private Comparator|MockObject $subcomparator;
 
     private UUID $uuid;
 
-    private Event $event1;
-    private Event $event2;
+    private Event|MockObject $event1;
+    private Event|MockObject $event2;
 
     private Event\Envelope $envelope1a;
     private Event\Envelope $envelope1b;

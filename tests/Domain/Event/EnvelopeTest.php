@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Streak\Domain\Event;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Streak\Domain\Entity;
 use Streak\Domain\Event;
@@ -25,17 +26,16 @@ use Streak\Domain\Id\UUID;
  */
 class EnvelopeTest extends TestCase
 {
-    private Event $event1;
-    private Event $event2;
+    private Event|MockObject $event1;
+    private Event|MockObject $event2;
     private Entity\Id $entityId1;
-    private Entity\Id $entityId2;
 
     protected function setUp(): void
     {
         $this->event1 = $this->getMockBuilder(Event::class)->setMockClassName('dushf9fguiewhfh')->getMockForAbstractClass();
         $this->event2 = $this->getMockBuilder(Event::class)->setMockClassName('y7rb7wfe77fcw7e')->getMockForAbstractClass();
         $this->entityId1 = Event\EnvelopeTest\EntityId::random();
-        $this->entityId2 = Event\EnvelopeTest\EntityId::random();
+        $this->entityId1 = Event\EnvelopeTest\EntityId::random();
     }
 
     public function testEnvelope(): void
@@ -86,12 +86,12 @@ class EnvelopeTest extends TestCase
         self::assertFalse($envelope1a->equals(new \stdClass()));
 
         $envelope3 = Event\Envelope::new($this->event2, $producerId);
-        $envelope3 = $envelope3->defineEntityId($this->entityId2);
+        $envelope3 = $envelope3->defineEntityId($this->entityId1);
 
         self::assertNull($envelope3->version());
         self::assertSame('y7rb7wfe77fcw7e', $envelope3->name());
         self::assertEquals($envelope3->producerId(), $producerId);
-        self::assertEquals($envelope3->entityId(), $this->entityId2);
+        self::assertEquals($envelope3->entityId(), $this->entityId1);
 
         $envelope4 = $envelope3->defineVersion(1);
 
@@ -101,21 +101,21 @@ class EnvelopeTest extends TestCase
         self::assertSame(1, $envelope4->version());
         self::assertSame('y7rb7wfe77fcw7e', $envelope4->name());
         self::assertTrue($envelope4->producerId()->equals($producerId));
-        self::assertTrue($envelope4->entityId()->equals($this->entityId2));
+        self::assertTrue($envelope4->entityId()->equals($this->entityId1));
 
         $envelope5 = $envelope4->defineVersion(2);
 
         self::assertSame(2, $envelope5->version());
         self::assertSame('y7rb7wfe77fcw7e', $envelope5->name());
         self::assertTrue($envelope5->producerId()->equals($producerId));
-        self::assertTrue($envelope5->entityId()->equals($this->entityId2));
+        self::assertTrue($envelope5->entityId()->equals($this->entityId1));
 
-        $envelope6 = $envelope5->defineEntityId($this->entityId2);
+        $envelope6 = $envelope5->defineEntityId($this->entityId1);
 
         self::assertSame(2, $envelope6->version());
         self::assertSame('y7rb7wfe77fcw7e', $envelope6->name());
         self::assertTrue($envelope6->producerId()->equals($producerId));
-        self::assertTrue($envelope6->entityId()->equals($this->entityId2));
+        self::assertTrue($envelope6->entityId()->equals($this->entityId1));
     }
 
     public function testSettingEmptyAttributeName(): void
@@ -126,29 +126,6 @@ class EnvelopeTest extends TestCase
         $this->expectExceptionObject($exception);
 
         $envelope->set('', 'value-1');
-    }
-
-    public function nonScalarValues()
-    {
-        return [
-            [[]],
-            [new \stdClass()],
-        ];
-    }
-
-    /**
-     * @dataProvider nonScalarValues
-     *
-     * @param mixed $value
-     */
-    public function testSettingNonScalarAttribute($value): void
-    {
-        $envelope = Event\Envelope::new($this->event1, UUID::random(), \PHP_INT_MAX);
-
-        $exception = new \InvalidArgumentException('Value for attribute "attr-1" is a scalar.');
-        $this->expectExceptionObject($exception);
-
-        $envelope->set('attr-1', $value);
     }
 }
 

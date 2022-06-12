@@ -18,14 +18,13 @@ use Streak\Infrastructure\Domain\UnitOfWork;
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  *
+ * @template-implements UnitOfWork<object>
+ *
  * @see \Streak\Infrastructure\Domain\UnitOfWork\CompositeUnitOfWorkTest
  */
 class CompositeUnitOfWork implements UnitOfWork
 {
-    /**
-     * @var UnitOfWork[]
-     */
-    private array $uows = [];
+    private array $uows;
 
     public function __construct(UnitOfWork ...$uows)
     {

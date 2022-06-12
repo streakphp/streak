@@ -24,12 +24,12 @@ use Streak\Domain\EventBus;
 class InMemoryEventBus implements EventBus
 {
     /**
-     * @var Event\Listener[]
+     * @var \SplQueue<Event\Listener>
      */
-    private \SplObjectStorage $listeners;
+    private \SplQueue $listeners;
 
     /**
-     * @var Event[]
+     * @var Event\Envelope[]
      */
     private array $events = [];
 
@@ -37,17 +37,28 @@ class InMemoryEventBus implements EventBus
 
     public function __construct()
     {
-        $this->listeners = new \SplObjectStorage();
+        $this->listeners = new \SplQueue();
     }
 
     public function add(Event\Listener $listener): void
     {
-        $this->listeners->attach($listener);
+        foreach ($this->listeners as $current) {
+            if ($current->id()->equals($listener->id())) {
+                return;
+            }
+        }
+
+        $this->listeners->enqueue($listener);
     }
 
     public function remove(Event\Listener $listener): void
     {
-        $this->listeners->detach($listener);
+        foreach ($this->listeners as $key => $current) {
+            if ($current->id()->equals($listener->id())) {
+                unset($this->listeners[$key]);
+                return;
+            }
+        }
     }
 
     public function publish(Event\Envelope ...$events): void

@@ -28,12 +28,12 @@ class CommittingSensorConsumer implements ConsumerInterface
     {
     }
 
-    public function execute(AMQPMessage $message)
+    public function execute(AMQPMessage $msg)
     {
         $this->uow->clear();
 
         try {
-            $result = $this->consumer->execute($message);
+            $result = $this->consumer->execute($msg);
 
             if (false !== $result) {
                 iterator_to_array($this->uow->commit());

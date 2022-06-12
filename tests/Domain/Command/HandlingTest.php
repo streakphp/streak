@@ -132,11 +132,15 @@ class CommandHandlingStub implements CommandHandler
     public function handleNonVoidReturnType(SupportedCommand1 $command1): \ArrayAccess
     {
         $this->handled[] = __METHOD__;
+
+        return new \ArrayObject();
     }
 
     public function handleUnionReturnType(SupportedCommand1 $command1): \ArrayAccess|\stdClass
     {
         $this->handled[] = __METHOD__;
+
+        return new \ArrayObject();
     }
 
     public function handled(): array

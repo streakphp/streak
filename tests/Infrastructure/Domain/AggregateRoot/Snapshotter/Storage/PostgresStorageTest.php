@@ -15,7 +15,6 @@ namespace Streak\Infrastructure\Domain\AggregateRoot\Snapshotter\Storage;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
-use Streak\Domain;
 use Streak\Domain\AggregateRoot;
 use Streak\Infrastructure\Domain\AggregateRoot\Snapshotter\Storage\Exception\SnapshotNotFound;
 
@@ -169,15 +168,12 @@ final class PostgresStorageTest extends \PHPUnit\Framework\TestCase
     }
 }
 
-class IdStub implements AggregateRoot\Id
+final class IdStub implements AggregateRoot\Id
 {
-    /**
-     * IdMock constructor.
-     *
-     * @param $id
-     */
-    public function __construct(private string $id)
-    {
+    public function __construct(
+        /** @var non-empty-string $id */
+        private string $id
+    ) {
     }
 
     public function equals(object $object): bool
@@ -190,7 +186,7 @@ class IdStub implements AggregateRoot\Id
         return $this->id;
     }
 
-    public static function fromString(string $id): Domain\Id
+    public static function fromString(string $id): static
     {
         return new self($id);
     }

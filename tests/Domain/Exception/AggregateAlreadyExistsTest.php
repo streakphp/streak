@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Streak\Domain\Exception;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Streak\Domain;
 
@@ -23,7 +24,7 @@ use Streak\Domain;
  */
 class AggregateAlreadyExistsTest extends TestCase
 {
-    private Domain\AggregateRoot $aggregate;
+    private Domain\AggregateRoot|MockObject $aggregate;
 
     protected function setUp(): void
     {

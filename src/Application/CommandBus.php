@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace Streak\Application;
 
 use Streak\Domain;
-use Streak\Domain\Exception\CommandNotSupported;
+use Streak\Domain\Exception;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
@@ -22,7 +22,8 @@ use Streak\Domain\Exception\CommandNotSupported;
 interface CommandBus
 {
     /**
-     * @throws CommandNotSupported
+     * @throws Exception\CommandNotSupported
+     * @throws Exception\ConcurrentWriteDetected
      */
     public function dispatch(Domain\Command $command): void;
 }

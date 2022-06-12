@@ -38,9 +38,6 @@ class CompositeConverter implements Converter
         $this->converters[] = $converter;
     }
 
-    /**
-     * @throws Exception\ConversionToArrayNotPossible
-     */
     public function objectToArray(object $object): array
     {
         foreach ($this->converters as $converter) {
@@ -56,9 +53,6 @@ class CompositeConverter implements Converter
         throw new Exception\ConversionToArrayNotPossible($object);
     }
 
-    /**
-     * @throws Exception\ConversionToObjectNotPossible
-     */
     public function arrayToObject(array $data): object
     {
         $previous = null;

@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Streak\Infrastructure\Domain\AggregateRoot\Repository;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Streak\Domain;
 use Streak\Domain\Event;
@@ -25,20 +26,20 @@ use Streak\Infrastructure;
  */
 class EventSourcedRepositoryTest extends TestCase
 {
-    private Domain\AggregateRoot\Factory $factory;
-    private Domain\EventStore $store;
+    private Domain\AggregateRoot\Factory|MockObject $factory;
+    private Domain\EventStore|MockObject $store;
 
-    private Infrastructure\Domain\AggregateRoot\Snapshotter $snapshotter;
-    private Infrastructure\Domain\UnitOfWork $uow;
+    private Infrastructure\Domain\AggregateRoot\Snapshotter|MockObject $snapshotter;
+    private Infrastructure\Domain\UnitOfWork|MockObject $uow;
 
-    private Domain\AggregateRoot $nonEventSourcedAggregateRoot;
+    private Domain\AggregateRoot|MockObject $nonEventSourcedAggregateRoot;
 
-    private Event\Sourced\AggregateRoot $aggregateRoot;
-    private Domain\AggregateRoot\Id $aggregateRootId;
+    private Event\Sourced\AggregateRoot|MockObject $aggregateRoot;
+    private Domain\AggregateRoot\Id|MockObject $aggregateRootId;
 
     private Domain\Event\Envelope $event1;
 
-    private Domain\Event\Stream $stream;
+    private Domain\Event\Stream|MockObject $stream;
 
     protected function setUp(): void
     {

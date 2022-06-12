@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Streak\Domain\Event\Subscription\Exception;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Streak\Domain\Event\Listener;
 use Streak\Domain\Event\Subscription;
@@ -24,8 +25,8 @@ use Streak\Domain\Event\Subscription;
  */
 class SubscriptionPausedTest extends TestCase
 {
-    private Subscription $subscription;
-    private Listener\Id $subscriptionId;
+    private Subscription|MockObject $subscription;
+    private Listener\Id|MockObject $subscriptionId;
 
     protected function setUp(): void
     {

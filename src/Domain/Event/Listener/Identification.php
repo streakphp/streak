@@ -17,8 +17,10 @@ use Streak\Domain\Event\Listener;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
+ *
+ * @see \Streak\Domain\Event\Listener\IdentificationTest
  */
-trait Identifying
+trait Identification
 {
     private $id;
 

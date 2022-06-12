@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Streak\Infrastructure\Application\CommandBus;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Streak\Application\CommandBus;
 use Streak\Domain\Command;
@@ -26,15 +27,15 @@ use Streak\Infrastructure\Domain\UnitOfWork;
  */
 class CommittingCommandBusTest extends TestCase
 {
-    private CommandBus $bus;
+    private CommandBus|MockObject $bus;
 
-    private Command $command1;
-    private Command $command2;
+    private Command|MockObject $command1;
+    private Command|MockObject $command2;
 
-    private UnitOfWork $uow;
+    private UnitOfWork|MockObject $uow;
 
-    private Event\Producer $producer1;
-    private Event\Producer $producer2;
+    private Event\Producer|MockObject $producer1;
+    private Event\Producer|MockObject $producer2;
 
     protected function setUp(): void
     {

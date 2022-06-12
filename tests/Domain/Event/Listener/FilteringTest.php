@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Streak\Domain\Event\Listener;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Streak\Domain\Event;
 
@@ -23,7 +24,7 @@ use Streak\Domain\Event;
  */
 class FilteringTest extends TestCase
 {
-    private Event\Stream $stream;
+    private Event\Stream|MockObject $stream;
 
     protected function setUp(): void
     {

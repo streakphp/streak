@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Streak\Infrastructure\Domain\AggregateRoot\Snapshotter;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Streak\Domain\AggregateRoot;
 use Streak\Infrastructure\Domain\AggregateRoot\Snapshotter;
@@ -27,13 +28,13 @@ use Streak\Infrastructure\Domain\Serializer;
  */
 class SnapshottableAggregatesSnapshotterTest extends TestCase
 {
-    private Serializer $serializer;
+    private Serializer|MockObject $serializer;
 
-    private Snapshotter\Storage $storage;
+    private Snapshotter\Storage|MockObject $storage;
 
-    private AggregateRoot $nonSnapshottableAggregateRoot;
+    private AggregateRoot|MockObject $nonSnapshottableAggregateRoot;
 
-    private SnapshottableAggregateRoot $snapshottableAggregateRoot;
+    private SnapshottableAggregateRoot|MockObject $snapshottableAggregateRoot;
 
     protected function setUp(): void
     {

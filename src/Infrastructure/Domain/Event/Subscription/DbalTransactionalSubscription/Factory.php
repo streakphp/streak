@@ -18,6 +18,8 @@ use Streak\Domain\Event;
 use Streak\Infrastructure\Domain\Event\Subscription\DbalTransactionalSubscription;
 
 /**
+ * @implements Event\Subscription\Factory<DbalTransactionalSubscription>
+ *
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  *
  * @see \Streak\Infrastructure\Domain\Event\Subscription\DbalTransactionalSubscription\FactoryTest
@@ -35,7 +37,7 @@ class Factory implements Event\Subscription\Factory
         $this->maxTransactionSize = $maxTransactionSize;
     }
 
-    public function create(Event\Listener $listener): Event\Subscription
+    public function create(Event\Listener $listener): DbalTransactionalSubscription
     {
         $subscription = $this->factory->create($listener);
 

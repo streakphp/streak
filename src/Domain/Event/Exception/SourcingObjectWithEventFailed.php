@@ -29,7 +29,7 @@ class SourcingObjectWithEventFailed extends \BadMethodCallException
         parent::__construct($message, 0, $previous);
     }
 
-    public function subject()
+    public function subject(): object
     {
         return $this->subject;
     }

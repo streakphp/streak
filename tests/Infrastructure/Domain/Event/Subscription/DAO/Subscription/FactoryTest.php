@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Streak\Infrastructure\Domain\Event\Subscription\DAO\Subscription;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Streak\Domain\Clock;
 use Streak\Domain\Event;
@@ -25,9 +26,9 @@ use Streak\Infrastructure\Domain\Event\Subscription\DAO\Subscription;
  */
 class FactoryTest extends TestCase
 {
-    private Event\Listener $listener;
+    private Event\Listener|MockObject $listener;
 
-    private Clock $clock;
+    private Clock|MockObject $clock;
 
     protected function setUp(): void
     {

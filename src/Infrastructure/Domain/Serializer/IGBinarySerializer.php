@@ -27,7 +27,7 @@ class IGBinarySerializer implements Serializer
         return igbinary_serialize($subject);
     }
 
-    public function unserialize($serialized)
+    public function unserialize(string $serialized)
     {
         return igbinary_unserialize($serialized);
     }

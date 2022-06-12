@@ -20,6 +20,9 @@ use Streak\Domain\Id\UUID;
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  *
+ * @template TMessage as Event
+ * @implements Domain\Envelope<TMessage>
+ *
  * @see \Streak\Domain\Event\EnvelopeTest
  */
 final class Envelope implements Domain\Envelope
@@ -31,63 +34,100 @@ final class Envelope implements Domain\Envelope
     public const METADATA_PRODUCER_ID = 'producer_id';
     public const METADATA_ENTITY_TYPE = 'entity_type';
     public const METADATA_ENTITY_ID = 'entity_id';
-    private array $metadata = [];
 
+    /**
+     * @var-phpstan non-empty-array<non-empty-string, scalar>
+     * @var-psalm non-empty-array<non-empty-string, scalar>&array{
+     *          uuid: non-empty-string,
+     *          name: non-empty-string,
+     *          producer_type: class-string<Domain\Id>,
+     *          producer_id: non-empty-string,
+     *          entity_type: class-string<Domain\Id>,
+     *          entity_id: non-empty-string,
+     *          version?: positive-int,
+     * }
+     */
+    private array $metadata;
+
+    /**
+     * @param non-empty-string $name
+     * @param TMessage $message
+     */
     public function __construct(UUID $uuid, string $name, private Event $message, Domain\Id $producerId, Domain\Id $entityId, ?int $version = null)
     {
-        $this->metadata[self::METADATA_UUID] = $uuid->toString();
-        $this->metadata[self::METADATA_NAME] = $name;
-        $this->metadata[self::METADATA_PRODUCER_TYPE] = $producerId::class;
-        $this->metadata[self::METADATA_PRODUCER_ID] = $producerId->toString();
-        $this->metadata[self::METADATA_ENTITY_TYPE] = $entityId::class;
-        $this->metadata[self::METADATA_ENTITY_ID] = $entityId->toString();
+        $this->metadata = [
+            self::METADATA_UUID => $uuid->toString(),
+            self::METADATA_NAME => $name,
+            self::METADATA_PRODUCER_TYPE => $producerId::class,
+            self::METADATA_PRODUCER_ID => $producerId->toString(),
+            self::METADATA_ENTITY_TYPE => $entityId::class,
+            self::METADATA_ENTITY_ID => $entityId->toString(),
+        ];
         if (null !== $version) {
             $this->metadata[self::METADATA_VERSION] = $version;
         }
     }
 
-    public static function new(Event $event, Domain\Id $producerId, ?int $version = null): self
+    /**
+     * @template TEvent of Event
+     * @param TEvent $message
+     *
+     * @return self<TEvent>
+     */
+    public static function new(Event $message, Domain\Id $producerId, ?int $version = null): self
     {
-        return new self(UUID::random(), $event::class, $event, $producerId, $producerId, $version);
+        return new self(UUID::random(), $message::class, $message, $producerId, $producerId, $version);
     }
 
     public function uuid(): UUID
     {
-        return new UUID($this->get(self::METADATA_UUID));
+        return new UUID($this->metadata[self::METADATA_UUID]);
     }
 
+    /**
+     * @return non-empty-string
+     */
     public function name(): string
     {
-        return $this->get(self::METADATA_NAME);
+        return $this->metadata[self::METADATA_NAME];
     }
 
-    public function message(): Event
+    public function message()
     {
         return $this->message;
     }
 
     public function producerId(): Domain\Id
     {
-        return $this->get(self::METADATA_PRODUCER_TYPE)::fromString($this->get(self::METADATA_PRODUCER_ID));
+        $class = $this->metadata[self::METADATA_PRODUCER_TYPE];
+        $id = $this->metadata[self::METADATA_PRODUCER_ID];
+
+        /** @var class-string<Domain\Id> $class */
+        return $class::fromString($id);
     }
 
     public function entityId(): Domain\Id
     {
-        return $this->get(self::METADATA_ENTITY_TYPE)::fromString($this->get(self::METADATA_ENTITY_ID));
+        $class = $this->metadata[self::METADATA_ENTITY_TYPE];
+        $id = $this->metadata[self::METADATA_ENTITY_ID];
+
+        /** @var class-string<Domain\Id> $class */
+        return $class::fromString($id);
     }
 
     public function version(): ?int
     {
-        return $this->get(self::METADATA_VERSION);
+        return $this->metadata[self::METADATA_VERSION] ?? null;
     }
 
-    public function set(string $name, $value): self
+    /**
+     * @param non-empty-string $name
+     * @return self<TMessage>
+     */
+    public function set(string $name, bool|float|int|string $value): self
     {
-        if (empty($name)) {
+        if (empty($name)) { // @phpstan-ignore-line
             throw new \InvalidArgumentException('Name of the attribute can not be empty.');
-        }
-        if (!\is_scalar($value)) {
-            throw new \InvalidArgumentException(sprintf('Value for attribute "%s" is a scalar.', $name));
         }
 
         $new = new self(
@@ -128,6 +168,9 @@ final class Envelope implements Domain\Envelope
         return true;
     }
 
+    /**
+     * @return self<TMessage>
+     */
     public function defineVersion(int $version): self
     {
         return new self(
@@ -140,6 +183,9 @@ final class Envelope implements Domain\Envelope
         );
     }
 
+    /**
+     * @return self<TMessage>
+     */
     public function defineEntityId(Domain\Id $entityId): self
     {
         return new self(

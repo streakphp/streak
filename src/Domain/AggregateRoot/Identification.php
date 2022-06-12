@@ -19,7 +19,7 @@ use Streak\Domain\AggregateRoot;
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  *
- * @property $id AggregateRoot\Id
+ * @property AggregateRoot\Id $id
  *
  * @see \Streak\Domain\AggregateRoot\IdentificationTest
  */

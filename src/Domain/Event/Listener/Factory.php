@@ -15,20 +15,25 @@ namespace Streak\Domain\Event\Listener;
 
 use Streak\Domain\Event;
 use Streak\Domain\Event\Exception\InvalidEventGiven;
-use Streak\Domain\Event\Listener;
 use Streak\Domain\Exception\InvalidIdGiven;
 
 /**
+ * @template T of Event\Listener
+ *
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  */
 interface Factory
 {
     /**
+     * @return T
+     *
      * @throws InvalidIdGiven
      */
-    public function create(Listener\Id $id): Listener;
+    public function create(Event\Listener\Id $id): Event\Listener;
 
     /**
+     * @return T
+     *
      * @throws InvalidEventGiven
      */
     public function createFor(Event\Envelope $event): Event\Listener;

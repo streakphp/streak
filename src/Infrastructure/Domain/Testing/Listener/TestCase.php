@@ -38,7 +38,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
 
     abstract public function createFactory(Application\CommandBus $bus): Domain\Event\Listener\Factory;
 
-    private function createScenario(Application\CommandBus $bus, Domain\Event\Listener\Factory $factory): Listener\Scenario
+    private function createScenario(SynchronousCommandBus $bus, Domain\Event\Listener\Factory $factory): Listener\Scenario
     {
         return new Listener\Scenario($bus, $factory);
     }

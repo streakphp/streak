@@ -27,7 +27,7 @@ use Streak\Infrastructure\Domain\Event\Sourced\Subscription\Event\SubscriptionSt
  */
 class Subscriber implements Event\Listener
 {
-    use Event\Listener\Identifying;
+    use Event\Listener\Identification;
 
     public function __construct(private Event\Listener\Factory $listenerFactory, private Event\Subscription\Factory $subscriptionFactory, private Event\Subscription\Repository $subscriptionsRepository)
     {

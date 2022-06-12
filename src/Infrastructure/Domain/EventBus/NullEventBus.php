@@ -33,7 +33,7 @@ class NullEventBus implements EventBus
     {
     }
 
-    public function publish(Event\Envelope ...$messages): void
+    public function publish(Event\Envelope ...$events): void
     {
     }
 }

@@ -30,8 +30,13 @@ use Streak\Infrastructure\Domain\Event\Subscription\DAO;
  */
 class DbalPostgresDAO implements DAO
 {
-    public function __construct(private Subscription\Factory $subscriptions, private Event\Listener\Factory $listeners, private Connection $connection, private Event\Converter $converter)
-    {
+    public function __construct(
+        /** @var Subscription\Factory<DAO\Subscription> */
+        private Subscription\Factory $subscriptions,
+        private Event\Listener\Factory $listeners,
+        private Connection $connection,
+        private Event\Converter $converter
+    ) {
     }
 
     /**
@@ -69,11 +74,9 @@ class DbalPostgresDAO implements DAO
     }
 
     /**
-     * @param string[] $types
+     * @return \Generator<int, Subscription>
      *
      * @throws \Doctrine\DBAL\DBALException
-     *
-     * @return Subscription[]
      */
     public function all(array $types = [], ?bool $completed = null): iterable
     {
@@ -186,7 +189,7 @@ class DbalPostgresDAO implements DAO
         $statement->execute();
     }
 
-    private function fromRow($row): Subscription
+    private function fromRow($row): DAO\Subscription
     {
         $id = $row['subscription_type'];
         $id = $id::fromString($row['subscription_id']);
@@ -306,11 +309,9 @@ class DbalPostgresDAO implements DAO
     }
 
     /**
-     *
      * @throws \Doctrine\DBAL\DBALException
-     * @return \Streak\Infrastructure\Domain\Event\Subscription\DAO\Subscription|null
      */
-    private function doOne(Event\Listener\Id $id)
+    private function doOne(Event\Listener\Id $id): ?DAO\Subscription
     {
         $sql = 'SELECT subscription_type, subscription_id, subscription_version, state, started_by, started_at, last_processed_event, last_event_processed_at, completed, paused_at FROM subscriptions WHERE subscription_type = :subscription_type AND subscription_id = :subscription_id LIMIT 1';
 
@@ -354,6 +355,8 @@ class DbalPostgresDAO implements DAO
     }
 
     /**
+     * @return \Generator<int, Subscription>
+     *
      * @throws \Doctrine\DBAL\DBALException
      */
     private function doAll(array $types, ?bool $completed): \Generator

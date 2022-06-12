@@ -19,6 +19,8 @@ use Streak\Infrastructure\Domain\Event\Subscription\CommittingSubscription;
 use Streak\Infrastructure\Domain\UnitOfWork;
 
 /**
+ * @implements Event\Subscription\Factory<CommittingSubscription>
+ *
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  *
  * @see \Streak\Infrastructure\Domain\Event\Subscription\CommittingSubscription\FactoryTest
@@ -29,7 +31,7 @@ class Factory implements Subscription\Factory
     {
     }
 
-    public function create(Event\Listener $listener): Event\Subscription
+    public function create(Event\Listener $listener): CommittingSubscription
     {
         $subscription = $this->factory->create($listener);
 

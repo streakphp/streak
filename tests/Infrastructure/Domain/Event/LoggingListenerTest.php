@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Streak\Infrastructure\Domain\Event;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Streak\Domain\Event;
@@ -29,23 +30,23 @@ use Streak\Infrastructure\Domain\Event\LoggingListenerTest\ListenerWithAllPossib
  */
 class LoggingListenerTest extends TestCase
 {
-    private Event\Listener $listener1;
+    private Event\Listener|MockObject $listener1;
 
-    private ListenerWithAllPossibleFeatures $listener2;
+    private ListenerWithAllPossibleFeatures|MockObject $listener2;
 
-    private LoggerInterface $logger;
+    private LoggerInterface|MockObject $logger;
 
-    private Listener\Id $listenerId;
+    private Listener\Id|MockObject $listenerId;
 
     private Event\Envelope $event;
 
-    private Event\Stream $stream1;
-    private Event\Stream $stream2;
+    private Event\Stream|MockObject $stream1;
+    private Event\Stream|MockObject $stream2;
 
-    private Query $query;
+    private Query|MockObject $query;
 
-    private Listener\State $state1;
-    private Listener\State $state2;
+    private Listener\State|MockObject $state1;
+    private Listener\State|MockObject $state2;
 
     protected function setUp(): void
     {

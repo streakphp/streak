@@ -19,6 +19,8 @@ use Streak\Infrastructure\Domain\Event\Subscription\DAO;
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  *
+ * @property InMemoryDAO $dao
+ *
  * @covers \Streak\Infrastructure\Domain\Event\Subscription\DAO\InMemoryDAO
  */
 class InMemoryDAOTest extends DAOTestCase

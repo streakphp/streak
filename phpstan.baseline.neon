@@ -1,0 +1,316 @@
+parameters:
+	ignoreErrors:
+		-
+			message: "#^Instanceof between string and Redis will always evaluate to false\\.$#"
+			count: 1
+			path: src/Infrastructure/Domain/AggregateRoot/Snapshotter/Storage/RedisStorage.php
+
+		-
+			message: "#^Property Streak\\\\Infrastructure\\\\Domain\\\\Event\\\\Subscription\\\\DAO\\\\Subscription\\:\\:\\$lastEventProcessedAt is never read, only written\\.$#"
+			count: 1
+			path: src/Infrastructure/Domain/Event/Subscription/DAO/Subscription.php
+
+		-
+			message: "#^Property Streak\\\\Infrastructure\\\\Domain\\\\Event\\\\Subscription\\\\DAO\\\\Subscription\\:\\:\\$startedAt is never read, only written\\.$#"
+			count: 1
+			path: src/Infrastructure/Domain/Event/Subscription/DAO/Subscription.php
+
+		-
+			message: "#^Property Streak\\\\Application\\\\Sensor\\\\ProcessingTest\\\\AProcessed\\:\\:\\$a is never read, only written\\.$#"
+			count: 1
+			path: tests/Application/Sensor/ProcessingTest.php
+
+		-
+			message: "#^Property Streak\\\\Application\\\\Sensor\\\\ProcessingTest\\\\ArrayProcessed\\:\\:\\$array is never read, only written\\.$#"
+			count: 1
+			path: tests/Application/Sensor/ProcessingTest.php
+
+		-
+			message: "#^Property Streak\\\\Application\\\\Sensor\\\\ProcessingTest\\\\B1Processed\\:\\:\\$b1 is never read, only written\\.$#"
+			count: 1
+			path: tests/Application/Sensor/ProcessingTest.php
+
+		-
+			message: "#^Property Streak\\\\Application\\\\Sensor\\\\ProcessingTest\\\\B2Processed\\:\\:\\$b2 is never read, only written\\.$#"
+			count: 1
+			path: tests/Application/Sensor/ProcessingTest.php
+
+		-
+			message: "#^Property Streak\\\\Application\\\\Sensor\\\\ProcessingTest\\\\BooleanProcessed\\:\\:\\$boolean is never read, only written\\.$#"
+			count: 1
+			path: tests/Application/Sensor/ProcessingTest.php
+
+		-
+			message: "#^Property Streak\\\\Application\\\\Sensor\\\\ProcessingTest\\\\IntegerProcessed\\:\\:\\$integer is never read, only written\\.$#"
+			count: 1
+			path: tests/Application/Sensor/ProcessingTest.php
+
+		-
+			message: "#^Property Streak\\\\Application\\\\Sensor\\\\ProcessingTest\\\\StdClassProcessed\\:\\:\\$stdClass is never read, only written\\.$#"
+			count: 1
+			path: tests/Application/Sensor/ProcessingTest.php
+
+		-
+			message: "#^Property Streak\\\\Application\\\\Sensor\\\\ProcessingTest\\\\StringProcessed\\:\\:\\$string is never read, only written\\.$#"
+			count: 1
+			path: tests/Application/Sensor/ProcessingTest.php
+
+		-
+			message: "#^Unreachable statement \\- code above always terminates\\.$#"
+			count: 2
+			path: tests/Application/Sensor/ProcessingTest.php
+
+		-
+			message: "#^Method Streak\\\\Domain\\\\Command\\\\HandlingTest\\\\CommandHandlingStub\\:\\:handlePrivateMethodHandlingMethod\\(\\) is unused\\.$#"
+			count: 1
+			path: tests/Domain/Command/HandlingTest.php
+
+		-
+			message: "#^Parameter \\#1 \\$name of method Streak\\\\Domain\\\\Event\\\\Envelope\\<Streak\\\\Domain\\\\Event\\>\\:\\:set\\(\\) expects non\\-empty\\-string, '' given\\.$#"
+			count: 1
+			path: tests/Domain/Event/EnvelopeTest.php
+
+		-
+			message: "#^Method Streak\\\\Domain\\\\Event\\\\Listener\\\\FilteringTest\\\\ListeningStub1\\:\\:onSupportedEvent1ButPrivate\\(\\) is unused\\.$#"
+			count: 1
+			path: tests/Domain/Event/Listener/FilteringTest.php
+
+		-
+			message: "#^Property Streak\\\\Domain\\\\Event\\\\Listener\\\\ListeningTest\\\\ListeningStub\\:\\:\\$listenerMethodWithNullableEventActivated is never read, only written\\.$#"
+			count: 1
+			path: tests/Domain/Event/Listener/ListeningTest.php
+
+		-
+			message: "#^Property Streak\\\\Domain\\\\Event\\\\Sourced\\\\Entity\\\\HelperTest\\\\EventSourcedEntityStub\\:\\:\\$arrayOfIntegers is never read, only written\\.$#"
+			count: 1
+			path: tests/Domain/Event/Sourced/Entity/HelperTest.php
+
+		-
+			message: "#^Property Streak\\\\Domain\\\\Event\\\\Sourced\\\\Entity\\\\HelperTest\\\\EventSourcedEntityStub\\:\\:\\$arrayOfMixed is never read, only written\\.$#"
+			count: 1
+			path: tests/Domain/Event/Sourced/Entity/HelperTest.php
+
+		-
+			message: "#^Property Streak\\\\Domain\\\\Event\\\\Sourced\\\\Entity\\\\HelperTest\\\\EventSourcedEntityStub\\:\\:\\$arrayOfObjects is never read, only written\\.$#"
+			count: 1
+			path: tests/Domain/Event/Sourced/Entity/HelperTest.php
+
+		-
+			message: "#^Property Streak\\\\Domain\\\\Event\\\\Sourced\\\\Entity\\\\HelperTest\\\\EventSourcedEntityStub\\:\\:\\$arrayOfStrings is never read, only written\\.$#"
+			count: 1
+			path: tests/Domain/Event/Sourced/Entity/HelperTest.php
+
+		-
+			message: "#^Property Streak\\\\Domain\\\\Event\\\\Sourced\\\\Entity\\\\HelperTest\\\\EventSourcedEntityStub\\:\\:\\$entity is never read, only written\\.$#"
+			count: 1
+			path: tests/Domain/Event/Sourced/Entity/HelperTest.php
+
+		-
+			message: "#^Property Streak\\\\Domain\\\\Event\\\\Sourced\\\\Entity\\\\HelperTest\\\\EventSourcedEntityStub\\:\\:\\$integer is never read, only written\\.$#"
+			count: 1
+			path: tests/Domain/Event/Sourced/Entity/HelperTest.php
+
+		-
+			message: "#^Property Streak\\\\Domain\\\\Event\\\\Sourced\\\\Entity\\\\HelperTest\\\\EventSourcedEntityStub\\:\\:\\$nonInitializedArray is unused\\.$#"
+			count: 1
+			path: tests/Domain/Event/Sourced/Entity/HelperTest.php
+
+		-
+			message: "#^Property Streak\\\\Domain\\\\Event\\\\Sourced\\\\Entity\\\\HelperTest\\\\EventSourcedEntityStub\\:\\:\\$nonInitializedInteger is unused\\.$#"
+			count: 1
+			path: tests/Domain/Event/Sourced/Entity/HelperTest.php
+
+		-
+			message: "#^Property Streak\\\\Domain\\\\Event\\\\Sourced\\\\Entity\\\\HelperTest\\\\EventSourcedEntityStub\\:\\:\\$nonInitializedObject is unused\\.$#"
+			count: 1
+			path: tests/Domain/Event/Sourced/Entity/HelperTest.php
+
+		-
+			message: "#^Property Streak\\\\Domain\\\\Event\\\\Sourced\\\\Entity\\\\HelperTest\\\\EventSourcedEntityStub\\:\\:\\$nonInitializedString is unused\\.$#"
+			count: 1
+			path: tests/Domain/Event/Sourced/Entity/HelperTest.php
+
+		-
+			message: "#^Property Streak\\\\Domain\\\\Event\\\\Sourced\\\\Entity\\\\HelperTest\\\\EventSourcedEntityStub\\:\\:\\$object is never read, only written\\.$#"
+			count: 1
+			path: tests/Domain/Event/Sourced/Entity/HelperTest.php
+
+		-
+			message: "#^Property Streak\\\\Domain\\\\Event\\\\Sourced\\\\Entity\\\\HelperTest\\\\EventSourcedEntityStub\\:\\:\\$self is never read, only written\\.$#"
+			count: 1
+			path: tests/Domain/Event/Sourced/Entity/HelperTest.php
+
+		-
+			message: "#^Property Streak\\\\Domain\\\\Event\\\\Sourced\\\\Entity\\\\HelperTest\\\\EventSourcedEntityStub\\:\\:\\$string is never read, only written\\.$#"
+			count: 1
+			path: tests/Domain/Event/Sourced/Entity/HelperTest.php
+
+		-
+			message: "#^Dead catch \\- Streak\\\\Domain\\\\Exception\\\\EventMismatched is never thrown in the try block\\.$#"
+			count: 2
+			path: tests/Domain/EventSourcingTest.php
+
+		-
+			message: "#^Method Streak\\\\Domain\\\\EventSourcingTest\\\\EventSourcedAggregateRootStub\\:\\:applyEvent1\\(\\) is unused\\.$#"
+			count: 1
+			path: tests/Domain/EventSourcingTest.php
+
+		-
+			message: "#^Method Streak\\\\Domain\\\\EventSourcingTest\\\\EventSourcedAggregateRootStub\\:\\:applyEvent4\\(\\) is unused\\.$#"
+			count: 1
+			path: tests/Domain/EventSourcingTest.php
+
+		-
+			message: "#^Method Streak\\\\Domain\\\\EventSourcingTest\\\\EventSourcedAggregateStub\\:\\:applyEvent1\\(\\) is unused\\.$#"
+			count: 1
+			path: tests/Domain/EventSourcingTest.php
+
+		-
+			message: "#^Method Streak\\\\Domain\\\\EventSourcingTest\\\\EventSourcedAggregateStub\\:\\:applyEvent2\\(\\) is unused\\.$#"
+			count: 1
+			path: tests/Domain/EventSourcingTest.php
+
+		-
+			message: "#^Method Streak\\\\Domain\\\\EventSourcingTest\\\\EventSourcedEntityStub\\:\\:applyEvent1\\(\\) is unused\\.$#"
+			count: 1
+			path: tests/Domain/EventSourcingTest.php
+
+		-
+			message: "#^Method Streak\\\\Domain\\\\EventSourcingTest\\\\EventSourcedEntityStub\\:\\:applyEvent2\\(\\) is unused\\.$#"
+			count: 1
+			path: tests/Domain/EventSourcingTest.php
+
+		-
+			message: "#^Method Streak\\\\Domain\\\\EventSourcingTest\\\\EventSourcedEntityStub\\:\\:applyEvent3\\(\\) is unused\\.$#"
+			count: 1
+			path: tests/Domain/EventSourcingTest.php
+
+		-
+			message: "#^Method Streak\\\\Domain\\\\EventSourcingTest\\\\EventSourcedEntityStub\\:\\:applyEvent4\\(\\) is unused\\.$#"
+			count: 1
+			path: tests/Domain/EventSourcingTest.php
+
+		-
+			message: "#^Parameter \\#1 \\$id of class Streak\\\\Infrastructure\\\\Domain\\\\AggregateRoot\\\\Snapshotter\\\\Storage\\\\IdStub constructor expects non\\-empty\\-string, string given\\.$#"
+			count: 1
+			path: tests/Infrastructure/Domain/AggregateRoot/Snapshotter/Storage/PostgresStorageTest.php
+
+		-
+			message: "#^Property Streak\\\\Infrastructure\\\\Domain\\\\Event\\\\Converter\\\\ChildObject\\:\\:\\$arrayProperty is never read, only written\\.$#"
+			count: 1
+			path: tests/Infrastructure/Domain/Event/Converter/NestedObjectConverterTest.php
+
+		-
+			message: "#^Property Streak\\\\Infrastructure\\\\Domain\\\\Event\\\\Converter\\\\ChildObject\\:\\:\\$child is never read, only written\\.$#"
+			count: 1
+			path: tests/Infrastructure/Domain/Event/Converter/NestedObjectConverterTest.php
+
+		-
+			message: "#^Property Streak\\\\Infrastructure\\\\Domain\\\\Event\\\\Converter\\\\ChildObject\\:\\:\\$scalarProperty is never read, only written\\.$#"
+			count: 1
+			path: tests/Infrastructure/Domain/Event/Converter/NestedObjectConverterTest.php
+
+		-
+			message: "#^Property Streak\\\\Infrastructure\\\\Domain\\\\Event\\\\Converter\\\\Event1Stub\\:\\:\\$privateAnyTypeProperty is never read, only written\\.$#"
+			count: 1
+			path: tests/Infrastructure/Domain/Event/Converter/NestedObjectConverterTest.php
+
+		-
+			message: "#^Property Streak\\\\Infrastructure\\\\Domain\\\\Event\\\\Converter\\\\Event1Stub\\:\\:\\$privateArrayProperty is never read, only written\\.$#"
+			count: 1
+			path: tests/Infrastructure/Domain/Event/Converter/NestedObjectConverterTest.php
+
+		-
+			message: "#^Property Streak\\\\Infrastructure\\\\Domain\\\\Event\\\\Converter\\\\Event1Stub\\:\\:\\$privateEmptyArrayProperty is never read, only written\\.$#"
+			count: 1
+			path: tests/Infrastructure/Domain/Event/Converter/NestedObjectConverterTest.php
+
+		-
+			message: "#^Property Streak\\\\Infrastructure\\\\Domain\\\\Event\\\\Converter\\\\Event1Stub\\:\\:\\$privateFloatProperty is never read, only written\\.$#"
+			count: 1
+			path: tests/Infrastructure/Domain/Event/Converter/NestedObjectConverterTest.php
+
+		-
+			message: "#^Property Streak\\\\Infrastructure\\\\Domain\\\\Event\\\\Converter\\\\Event1Stub\\:\\:\\$privateIntegerProperty is never read, only written\\.$#"
+			count: 1
+			path: tests/Infrastructure/Domain/Event/Converter/NestedObjectConverterTest.php
+
+		-
+			message: "#^Property Streak\\\\Infrastructure\\\\Domain\\\\Event\\\\Converter\\\\Event1Stub\\:\\:\\$privateStringProperty is never read, only written\\.$#"
+			count: 1
+			path: tests/Infrastructure/Domain/Event/Converter/NestedObjectConverterTest.php
+
+		-
+			message: "#^Property Streak\\\\Infrastructure\\\\Domain\\\\Event\\\\Converter\\\\EventA\\:\\:\\$property1 is never read, only written\\.$#"
+			count: 1
+			path: tests/Infrastructure/Domain/Event/Converter/NestedObjectConverterTest.php
+
+		-
+			message: "#^Property Streak\\\\Infrastructure\\\\Domain\\\\Event\\\\Converter\\\\EventB\\:\\:\\$property2 is never read, only written\\.$#"
+			count: 1
+			path: tests/Infrastructure/Domain/Event/Converter/NestedObjectConverterTest.php
+
+		-
+			message: "#^Property Streak\\\\Infrastructure\\\\Domain\\\\Event\\\\Converter\\\\EventC\\:\\:\\$event is never read, only written\\.$#"
+			count: 1
+			path: tests/Infrastructure/Domain/Event/Converter/NestedObjectConverterTest.php
+
+		-
+			message: "#^Property Streak\\\\Infrastructure\\\\Domain\\\\Event\\\\Converter\\\\NestedResource\\:\\:\\$resource is never read, only written\\.$#"
+			count: 1
+			path: tests/Infrastructure/Domain/Event/Converter/NestedObjectConverterTest.php
+
+		-
+			message: "#^Property Streak\\\\Infrastructure\\\\Domain\\\\Event\\\\Converter\\\\ParentObject\\:\\:\\$arrayProperty is never read, only written\\.$#"
+			count: 1
+			path: tests/Infrastructure/Domain/Event/Converter/NestedObjectConverterTest.php
+
+		-
+			message: "#^Property Streak\\\\Infrastructure\\\\Domain\\\\Event\\\\Converter\\\\ParentObject\\:\\:\\$objectProperty is never read, only written\\.$#"
+			count: 1
+			path: tests/Infrastructure/Domain/Event/Converter/NestedObjectConverterTest.php
+
+		-
+			message: "#^Property Streak\\\\Infrastructure\\\\Domain\\\\Event\\\\Converter\\\\ParentObject\\:\\:\\$scalarProperty is never read, only written\\.$#"
+			count: 1
+			path: tests/Infrastructure/Domain/Event/Converter/NestedObjectConverterTest.php
+
+		-
+			message: "#^Parameter \\#1 \\$object of method Streak\\\\Infrastructure\\\\Domain\\\\UnitOfWork\\\\EventStoreUnitOfWork\\:\\:add\\(\\) expects Streak\\\\Domain\\\\Event\\\\Producer, stdClass given\\.$#"
+			count: 1
+			path: tests/Infrastructure/Domain/UnitOfWork/EventStoreUnitOfWorkTest.php
+
+		-
+			message: "#^Parameter \\#1 \\$object of method Streak\\\\Infrastructure\\\\Domain\\\\UnitOfWork\\\\EventStoreUnitOfWork\\:\\:has\\(\\) expects Streak\\\\Domain\\\\Event\\\\Producer, stdClass given\\.$#"
+			count: 1
+			path: tests/Infrastructure/Domain/UnitOfWork/EventStoreUnitOfWorkTest.php
+
+		-
+			message: "#^Parameter \\#1 \\$object of method Streak\\\\Infrastructure\\\\Domain\\\\UnitOfWork\\\\EventStoreUnitOfWork\\:\\:remove\\(\\) expects Streak\\\\Domain\\\\Event\\\\Producer, stdClass given\\.$#"
+			count: 1
+			path: tests/Infrastructure/Domain/UnitOfWork/EventStoreUnitOfWorkTest.php
+
+		-
+			message: "#^Parameter \\#1 \\$object of method Streak\\\\Infrastructure\\\\Domain\\\\UnitOfWork\\\\SubscriptionDAOUnitOfWork\\:\\:add\\(\\) expects Streak\\\\Infrastructure\\\\Domain\\\\Event\\\\Subscription\\\\DAO\\\\Subscription, PHPUnit\\\\Framework\\\\MockObject\\\\MockObject&Streak\\\\Domain\\\\Event\\\\Subscription given\\.$#"
+			count: 1
+			path: tests/Infrastructure/Domain/UnitOfWork/SubscriptionDAOUnitOfWorkTest.php
+
+		-
+			message: "#^Parameter \\#1 \\$object of method Streak\\\\Infrastructure\\\\Domain\\\\UnitOfWork\\\\SubscriptionDAOUnitOfWork\\:\\:add\\(\\) expects Streak\\\\Infrastructure\\\\Domain\\\\Event\\\\Subscription\\\\DAO\\\\Subscription, PHPUnit\\\\Framework\\\\MockObject\\\\MockObject\\|Streak\\\\Domain\\\\Event\\\\Subscription\\\\Decorator given\\.$#"
+			count: 1
+			path: tests/Infrastructure/Domain/UnitOfWork/SubscriptionDAOUnitOfWorkTest.php
+
+		-
+			message: "#^Parameter \\#1 \\$object of method Streak\\\\Infrastructure\\\\Domain\\\\UnitOfWork\\\\SubscriptionDAOUnitOfWork\\:\\:has\\(\\) expects Streak\\\\Infrastructure\\\\Domain\\\\Event\\\\Subscription\\\\DAO\\\\Subscription, PHPUnit\\\\Framework\\\\MockObject\\\\MockObject&Streak\\\\Domain\\\\Event\\\\Subscription given\\.$#"
+			count: 1
+			path: tests/Infrastructure/Domain/UnitOfWork/SubscriptionDAOUnitOfWorkTest.php
+
+		-
+			message: "#^Parameter \\#1 \\$object of method Streak\\\\Infrastructure\\\\Domain\\\\UnitOfWork\\\\SubscriptionDAOUnitOfWork\\:\\:has\\(\\) expects Streak\\\\Infrastructure\\\\Domain\\\\Event\\\\Subscription\\\\DAO\\\\Subscription, PHPUnit\\\\Framework\\\\MockObject\\\\MockObject\\|Streak\\\\Domain\\\\Event\\\\Subscription\\\\Decorator given\\.$#"
+			count: 1
+			path: tests/Infrastructure/Domain/UnitOfWork/SubscriptionDAOUnitOfWorkTest.php
+
+		-
+			message: "#^Parameter \\#1 \\$object of method Streak\\\\Infrastructure\\\\Domain\\\\UnitOfWork\\\\SubscriptionDAOUnitOfWork\\:\\:remove\\(\\) expects Streak\\\\Infrastructure\\\\Domain\\\\Event\\\\Subscription\\\\DAO\\\\Subscription, PHPUnit\\\\Framework\\\\MockObject\\\\MockObject&Streak\\\\Domain\\\\Event\\\\Subscription given\\.$#"
+			count: 1
+			path: tests/Infrastructure/Domain/UnitOfWork/SubscriptionDAOUnitOfWorkTest.php

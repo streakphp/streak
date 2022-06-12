@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Streak\Infrastructure\Interfaces\RabbitMQ;
 
 use PhpAmqpLib\Message\AMQPMessage;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Streak\Application\Sensor;
 
@@ -27,9 +28,9 @@ class SensorConsumerTest extends TestCase
     private const ACK = true;
     private const NACK = false;
 
-    private Sensor\Factory $factory;
+    private Sensor\Factory|MockObject $factory;
 
-    private Sensor $sensor;
+    private Sensor|MockObject $sensor;
 
     protected function setUp(): void
     {

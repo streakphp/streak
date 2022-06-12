@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Streak\Infrastructure\Application\QueryBus;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Streak\Domain\Exception\QueryNotSupported;
 use Streak\Domain\Query;
@@ -25,11 +26,11 @@ use Streak\Domain\QueryHandler;
  */
 class SynchronousQueryBusTest extends TestCase
 {
-    private QueryHandler $handler1;
-    private QueryHandler $handler2;
-    private QueryHandler $handler3;
+    private QueryHandler|MockObject $handler1;
+    private QueryHandler|MockObject $handler2;
+    private QueryHandler|MockObject $handler3;
 
-    private Query $query1;
+    private Query|MockObject $query1;
 
     protected function setUp(): void
     {

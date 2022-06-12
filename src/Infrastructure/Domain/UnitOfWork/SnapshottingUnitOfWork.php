@@ -21,6 +21,8 @@ use Streak\Infrastructure\Domain\UnitOfWork;
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>
  *
+ * @template-implements UnitOfWork<object>
+ *
  * @see \Streak\Infrastructure\Domain\UnitOfWork\SnapshottingUnitOfWorkTest
  */
 class SnapshottingUnitOfWork implements UnitOfWork
@@ -38,30 +40,30 @@ class SnapshottingUnitOfWork implements UnitOfWork
         $this->interval = $interval;
     }
 
-    public function add(object $producer): void
+    public function add(object $object): void
     {
-        $this->uow->add($producer);
+        $this->uow->add($object);
 
-        if ($producer instanceof Event\Sourced\AggregateRoot) {
-            $id = $producer->id();
-            $version = $producer->version();
+        if ($object instanceof Event\Sourced\AggregateRoot) {
+            $id = $object->id();
+            $version = $object->version();
             $this->versions->attach($id, $version);
         }
     }
 
-    public function remove(object $producer): void
+    public function remove(object $object): void
     {
-        if ($producer instanceof Event\Sourced\AggregateRoot) {
-            $id = $producer->id();
+        if ($object instanceof Event\Sourced\AggregateRoot) {
+            $id = $object->id();
             $this->versions->offsetUnset($id);
         }
 
-        $this->uow->remove($producer);
+        $this->uow->remove($object);
     }
 
-    public function has(object $producer): bool
+    public function has(object $object): bool
     {
-        return $this->uow->has($producer);
+        return $this->uow->has($object);
     }
 
     /**

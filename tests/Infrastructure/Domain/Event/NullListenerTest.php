@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Streak\Infrastructure\Domain\Event;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Streak\Domain\Event;
 use Streak\Domain\Id\UUID;
@@ -24,9 +25,9 @@ use Streak\Domain\Id\UUID;
  */
 class NullListenerTest extends TestCase
 {
-    private Event\Listener $listener;
+    private Event\Listener|MockObject $listener;
 
-    private Event\Listener\Id $id;
+    private Event\Listener\Id|MockObject $id;
 
     private Event\Envelope $event;
 

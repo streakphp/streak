@@ -23,14 +23,14 @@ use Streak\Domain\Event\Listener;
  */
 class NullListener implements Event\Listener
 {
-    use Listener\Identifying;
+    use Listener\Identification;
 
     public function on(Event\Envelope $event): bool
     {
         return true;
     }
 
-    public static function from(Event\Listener $listener)
+    public static function from(Event\Listener $listener): self
     {
         return new self($listener->id());
     }

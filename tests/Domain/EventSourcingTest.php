@@ -637,7 +637,7 @@ class EventSourcedAggregateStub implements Event\Sourced\Aggregate
     use Aggregate\Identification;
 
     /**
-     * @var Event\Envelope[]
+     * @var array<int, Event\Envelope>
      */
     private array $appliedEvents = [];
 
@@ -671,12 +671,12 @@ class EventSourcedAggregateStub implements Event\Sourced\Aggregate
 
     private function applyEvent1(Event1 $event): void
     {
-        $this->appliedEvents = [$event];
+        $this->appliedEvents[] = $event;
     }
 
     private function applyEvent2(Event2 $event): void
     {
-        $this->appliedEvents = [$event];
+        $this->appliedEvents[] = $event;
     }
 }
 

@@ -21,7 +21,7 @@ use Streak\Domain\Event;
  */
 interface Entity extends Domain\Entity, Event\Consumer
 {
-    public function registerAggregateRoot(Event\Sourced\AggregateRoot $aggregate): void;
+    public function registerAggregateRoot(Event\Sourced\AggregateRoot $aggregateRoot): void;
 
     public function registerAggregate(Event\Sourced\Aggregate $aggregate): void;
 

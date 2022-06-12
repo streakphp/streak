@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Streak\Infrastructure\Domain\Event\Subscription\DbalTransactionalSubscription;
 
 use Doctrine\DBAL\Driver\Connection;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Streak\Domain\Event\Listener;
 use Streak\Domain\Event\Subscription;
@@ -26,13 +27,13 @@ use Streak\Infrastructure\Domain\Event\Subscription\DbalTransactionalSubscriptio
  */
 class FactoryTest extends TestCase
 {
-    private Subscription\Factory $factory;
+    private Subscription\Factory|MockObject $factory;
 
-    private Connection $connection;
+    private Connection|MockObject $connection;
 
-    private Listener $listener;
+    private Listener|MockObject $listener;
 
-    private Subscription $subscription;
+    private Subscription|MockObject $subscription;
 
     protected function setUp(): void
     {

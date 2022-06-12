@@ -60,7 +60,7 @@ class InMemoryDAO implements DAO
 
     public function all(array $types = [], ?bool $completed = null): iterable
     {
-        foreach ($this->subscriptions as $key => $stored) {
+        foreach ($this->subscriptions as $stored) {
             if (\count($types)) {
                 $type = $stored->id()::class;
                 if (false === \in_array($type, $types)) {

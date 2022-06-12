@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Streak\Infrastructure\Domain\UnitOfWork;
 
 use InvalidArgumentException;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Streak\Domain\AggregateRoot;
 use Streak\Domain\Event;
@@ -27,19 +28,19 @@ use Streak\Infrastructure\Domain\UnitOfWork;
  */
 class SnapshottingUnitOfWorkTest extends TestCase
 {
-    private UnitOfWork $uow;
+    private UnitOfWork|MockObject $uow;
 
-    private Snapshotter $snapshotter;
+    private Snapshotter|MockObject $snapshotter;
 
-    private Event\Producer $producer;
+    private Event\Producer|MockObject $producer;
 
-    private Event\Sourced\AggregateRoot $aggregateRoot1;
+    private Event\Sourced\AggregateRoot|MockObject $aggregateRoot1;
 
-    private AggregateRoot\Id $aggregateRootId1;
+    private AggregateRoot\Id|MockObject $aggregateRootId1;
 
-    private Event\Sourced\AggregateRoot $aggregateRoot2;
+    private Event\Sourced\AggregateRoot|MockObject $aggregateRoot2;
 
-    private AggregateRoot\Id $aggregateRootId2;
+    private AggregateRoot\Id|MockObject $aggregateRootId2;
 
     protected function setUp(): void
     {

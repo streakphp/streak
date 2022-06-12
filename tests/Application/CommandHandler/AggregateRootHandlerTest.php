@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Streak\Application\CommandHandler;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Streak\Domain\AggregateRoot;
 use Streak\Domain\Command;
@@ -27,12 +28,12 @@ use Streak\Domain\Exception\CommandNotSupported;
  */
 class AggregateRootHandlerTest extends TestCase
 {
-    private AggregateRoot\Repository $repository;
-    private Command $command;
-    private AggregateRoot $aggregateRoot;
-    private AggregateRoot\Id $aggregateRootId;
-    private Command\AggregateRootCommand $aggregateRootCommand;
-    private CommandHandlingAggregateRoot $aggregateRootCommandHandler;
+    private AggregateRoot\Repository|MockObject $repository;
+    private Command|MockObject $command;
+    private AggregateRoot|MockObject $aggregateRoot;
+    private AggregateRoot\Id|MockObject $aggregateRootId;
+    private Command\AggregateRootCommand|MockObject $aggregateRootCommand;
+    private CommandHandlingAggregateRoot|MockObject $aggregateRootCommandHandler;
 
     protected function setUp(): void
     {

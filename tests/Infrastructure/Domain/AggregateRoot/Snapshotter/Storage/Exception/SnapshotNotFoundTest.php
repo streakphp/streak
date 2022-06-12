@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Streak\Infrastructure\Domain\AggregateRoot\Snapshotter\Storage\Exception;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Streak\Domain\AggregateRoot;
 
@@ -23,9 +24,9 @@ use Streak\Domain\AggregateRoot;
  */
 class SnapshotNotFoundTest extends TestCase
 {
-    private AggregateRoot $aggregate;
+    private AggregateRoot|MockObject $aggregate;
 
-    private AggregateRoot\Id $aggregateId;
+    private AggregateRoot\Id|MockObject $aggregateId;
 
     protected function setUp(): void
     {

@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Streak\Infrastructure\Application\CommandBus;
 
 use Doctrine\DBAL\Driver\Connection;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Streak\Application\CommandBus;
 use Streak\Domain\Command;
@@ -25,9 +26,9 @@ use Streak\Domain\Command;
  */
 class DbalTransactionalCommandBusTest extends TestCase
 {
-    private CommandBus $bus;
-    private Connection $connection;
-    private Command $command;
+    private CommandBus|MockObject $bus;
+    private Connection|MockObject $connection;
+    private Command|MockObject $command;
 
     protected function setUp(): void
     {

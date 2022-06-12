@@ -13,8 +13,9 @@ declare(strict_types=1);
 
 namespace Streak\Infrastructure\Domain\Event\Subscription;
 
-use Doctrine\DBAL\Driver\Connection;
+use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Streak\Domain\Event;
 use Streak\Domain\Event\Listener;
@@ -35,14 +36,14 @@ use Streak\Infrastructure\Domain\EventStore\DbalPostgresEventStore;
  */
 class DbalTransactionalSubscriptionTest extends TestCase
 {
-    private Subscription $subscription;
+    private Subscription|MockObject $subscription;
 
-    private Listener $listener;
+    private Listener|MockObject $listener;
 
     private EventStore $store1;
     private EventStore $store2;
 
-    private Listener\Id $subscriptionId;
+    private Listener\Id|MockObject $subscriptionId;
 
     private UUID $producerId1;
 
@@ -50,7 +51,7 @@ class DbalTransactionalSubscriptionTest extends TestCase
     private Event\Envelope $event2;
     private Event\Envelope $event3;
 
-    private Connection $connection;
+    private Connection|MockObject $connection;
     private static Connection $connection1;
     private static Connection $connection2;
 
@@ -83,7 +84,7 @@ class DbalTransactionalSubscriptionTest extends TestCase
         $this->subscription = $this->getMockBuilder(Subscription::class)->getMockForAbstractClass();
         $this->listener = $this->getMockBuilder(Listener::class)->getMockForAbstractClass();
         $this->subscriptionId = $this->getMockBuilder(Listener\Id::class)->getMockForAbstractClass();
-        $this->connection = $this->getMockBuilder(Connection::class)->getMockForAbstractClass();
+        $this->connection = $this->getMockBuilder(Connection::class)->disableOriginalConstructor()->getMock();
         $this->producerId1 = ProducerId1::random();
         $this->event1 = Event\Envelope::new(new Event1(), $this->producerId1);
         $this->event2 = Event\Envelope::new(new Event2(), $this->producerId1);
@@ -533,6 +534,7 @@ class DbalTransactionalSubscriptionTest extends TestCase
 
         try {
             $events = $subscription->subscribeTo($this->store1);
+            $events = new \IteratorIterator($events);
             $events->rewind();
             $event1 = $events->current();
             self::assertEquals($this->event1, $event1);
@@ -613,6 +615,7 @@ class DbalTransactionalSubscriptionTest extends TestCase
 
         try {
             $events = $subscription->subscribeTo($this->store1);
+            $events = new \IteratorIterator($events);
             $events->rewind();
             $event1 = $events->current();
             self::assertEquals($this->event1, $event1);
@@ -688,6 +691,7 @@ class DbalTransactionalSubscriptionTest extends TestCase
 
         try {
             $events = $subscription->subscribeTo($this->store1);
+            $events = new \IteratorIterator($events);
             $events->rewind();
             $event1 = $events->current();
             self::assertEquals($this->event1, $event1);
@@ -765,6 +769,7 @@ class DbalTransactionalSubscriptionTest extends TestCase
 
         try {
             $events = $subscription->subscribeTo($this->store1);
+            $events = new \IteratorIterator($events);
             $events->rewind();
         } finally {
             self::assertTrue($this->store1->stream()->empty());
