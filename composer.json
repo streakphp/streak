@@ -31,7 +31,7 @@
     "ext-igbinary": "*",
     "ext-redis": "*",
     "ext-json": "*",
-    "doctrine/dbal": "^2.13",
+    "doctrine/dbal": "^2.13 || ^3.0",
     "psr/log": "^1.1",
     "ramsey/uuid": "^4.1"
   },
