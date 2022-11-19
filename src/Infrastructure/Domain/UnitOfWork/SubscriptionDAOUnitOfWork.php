@@ -53,7 +53,7 @@ class SubscriptionDAOUnitOfWork implements UnitOfWork
         }
 
         foreach ($this->uncommited as $key => $current) {
-            if ($current->subscriptionId()->equals($subscription->subscriptionId())) {
+            if ($current->id()->equals($subscription->id())) {
                 unset($this->uncommited[$key]);
 
                 return;
@@ -68,7 +68,7 @@ class SubscriptionDAOUnitOfWork implements UnitOfWork
         }
 
         foreach ($this->uncommited as $current) {
-            if ($current->subscriptionId()->equals($subscription->subscriptionId())) {
+            if ($current->id()->equals($subscription->id())) {
                 return true;
             }
         }

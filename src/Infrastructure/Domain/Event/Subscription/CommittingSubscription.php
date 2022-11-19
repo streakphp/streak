@@ -34,9 +34,9 @@ class CommittingSubscription implements Subscription, Subscription\Decorator
         return $this->subscription;
     }
 
-    public function subscriptionId(): Event\Listener\Id
+    public function id(): Event\Listener\Id
     {
-        return $this->subscription->subscriptionId();
+        return $this->subscription->id();
     }
 
     public function listener(): Event\Listener

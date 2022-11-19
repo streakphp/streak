@@ -15,10 +15,7 @@ namespace Streak\Infrastructure\Domain\Event\Subscription\DAO;
 
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Streak\Domain\Event;
-use Streak\Domain\Event\Envelope;
 use Streak\Domain\Event\Listener\Id;
-use Streak\Domain\Id\UUID;
 use Streak\Infrastructure\Domain\Event\Subscription\DAO;
 
 /**
@@ -159,7 +156,7 @@ class IdentityMappingDaoTest extends TestCase
         $subscription = $this->createSubscriptionStub('eea81580-4e00-4680-8f87-e96054d3c41b', 'SubscriptionId', 100);
         $this->dao->expects(self::once())->method('one')->willReturn($subscription);
         $dao = new IdentityMappingDao($this->dao);
-        self::assertSame($subscription, $dao->one($subscription->subscriptionId()));
+        self::assertSame($subscription, $dao->one($subscription->id()));
     }
 
     public function testItExists(): void
@@ -175,17 +172,10 @@ class IdentityMappingDaoTest extends TestCase
     private function createSubscriptionStub(string $subscriptionId, string $subscriptionIdClassName, int $version): Subscription
     {
         $result = $this->getMockBuilder(Subscription::class)->disableOriginalConstructor()->getMock();
-        $result->method('subscriptionId')->willReturn($this->createSubscriptionIdStub($subscriptionIdClassName, $subscriptionId));
+        $result->method('id')->willReturn($this->createSubscriptionIdStub($subscriptionIdClassName, $subscriptionId));
         $result->method('version')->willReturn($version);
 
         return $result;
-    }
-
-    private function createEnvelopeStub(string $id): Envelope
-    {
-        $event = $this->getMockBuilder(Event::class)->getMock();
-
-        return new Envelope(new UUID($id), 'test', $event, new UUID($id));
     }
 
     private function createSubscriptionIdStub(string $className, string $id): Id

@@ -102,7 +102,7 @@ class InMemoryState implements State
 
         $value = [$name => $value];
         array_walk_recursive($value, function ($value, $key): void {
-            if (true === is_scalar($value)) {
+            if (true === \is_scalar($value)) {
                 return;
             }
             if (null === $value) {

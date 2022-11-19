@@ -48,7 +48,6 @@ return static function (ContainerConfigurator $configurator): void {
     ]);
 
     // Run Rector only on changed files
-    $parameters->set(Option::ENABLE_CACHE, true);
     $parameters->set(Option::CACHE_DIR, __DIR__ . '/build/.rector');
 
     $services = $configurator->services();

@@ -31,7 +31,7 @@ class LazyLoadedSubscription implements Subscription, Subscription\Decorator
     {
     }
 
-    public function subscriptionId(): Listener\Id
+    public function id(): Listener\Id
     {
         return $this->id;
     }
@@ -74,7 +74,7 @@ class LazyLoadedSubscription implements Subscription, Subscription\Decorator
     public function subscription(): Subscription
     {
         if (null === $this->subscription) {
-            $this->subscription = $this->repository->find($this->subscriptionId());
+            $this->subscription = $this->repository->find($this->id());
         }
 
         return $this->subscription;

@@ -46,8 +46,8 @@ abstract class DAOTestCase extends TestCase
     {
         $this->subscriptions = $this->getMockBuilder(Event\Subscription\Factory::class)->getMockForAbstractClass();
         $this->listeners = $this->getMockBuilder(Event\Listener\Factory::class)->getMockForAbstractClass();
-        $this->listener1 = $this->getMockBuilder(CompletableListener::class)->setMockClassName('listener1')->getMock();
-        $this->listener2 = $this->getMockBuilder(CompletableListener::class)->setMockClassName('listener2')->getMock();
+        $this->listener1 = $this->getMockBuilder(CompletableListener::class)->setMockClassName('listener1_sydteu')->getMockForAbstractClass();
+        $this->listener2 = $this->getMockBuilder(CompletableListener::class)->setMockClassName('listener2_dhafg6')->getMockForAbstractClass();
         $this->event = Event\Envelope::new(new EventStub(), UUID::random());
         $this->clock = new FixedClock(new \DateTime('2018-09-28 19:12:32.763188 +00:00'));
         $this->dao = $this->newDAO(new Subscription\Factory($this->clock), $this->listeners);
@@ -70,22 +70,23 @@ abstract class DAOTestCase extends TestCase
 
         $this->listener1
             ->expects(self::atLeastOnce())
-            ->method('listenerId')
+            ->method('id')
             ->willReturn($listenerId1)
         ;
         $this->listener2
             ->expects(self::atLeastOnce())
-            ->method('listenerId')
+            ->method('id')
             ->willReturn($listenerId2)
         ;
 
         $this->listener1
+            ->expects(self::atLeastOnce())
             ->method('completed')
             ->willReturnOnConsecutiveCalls(false, true)
         ;
         $this->listener2
+            ->expects(self::never())
             ->method('completed')
-            ->willReturnOnConsecutiveCalls(false, false)
         ;
 
         $all = $this->dao->all();

@@ -19,7 +19,6 @@ use Streak\Domain\Event\Listener;
 use Streak\Domain\Event\Listener\State;
 use Streak\Domain\Event\Subscription\Exception;
 use Streak\Domain\EventStore;
-use Streak\Domain\Versionable;
 use Streak\Infrastructure\Domain\Event\InMemoryStream;
 use Streak\Infrastructure\Domain\Event\Sourced\Subscription\Event\SubscriptionCompleted;
 use Streak\Infrastructure\Domain\Event\Sourced\Subscription\Event\SubscriptionIgnoredEvent;
@@ -36,12 +35,8 @@ use Streak\Infrastructure\Domain\Event\Sourced\Subscription\InMemoryState;
  *
  * @see \Streak\Infrastructure\Domain\Event\Sourced\SubscriptionTest
  */
-final class Subscription implements Event\Subscription, Event\Sourced, Versionable
+final class Subscription implements Event\Sourced\Subscription
 {
-    use Event\Sourcing {
-        Event\Sourcing::replay as private doReplay;
-    }
-
     private const LIMIT_TO_INITIAL_STREAM = 0;
     private State  $lastState;
     private ?Event\Envelope $completedBy = null;
@@ -50,9 +45,22 @@ final class Subscription implements Event\Subscription, Event\Sourced, Versionab
     private bool $starting = false;
     private $lastProcessedEvent;
 
+    /**
+     * @var Event\Envelope[]
+     */
+    private array $events = [];
+    private ?Event\Envelope $lastEvent = null;
+    private bool $replaying = false;
+    private int $version = 0;
+
     public function __construct(private Event\Listener $listener, private Domain\Clock $clock)
     {
         $this->lastState = InMemoryState::empty();
+    }
+
+    public function id(): Listener\Id
+    {
+        return $this->listener->id();
     }
 
     /**
@@ -243,7 +251,6 @@ final class Subscription implements Event\Subscription, Event\Sourced, Versionab
         $this->doReplay($substream);
 
         if ($this->completed()) {
-            $this->lastReplayed = $last;
             $this->lastEvent = $last;
             $this->version = (int) $last->version();
 
@@ -267,7 +274,6 @@ final class Subscription implements Event\Subscription, Event\Sourced, Versionab
             $this->doReplay(new InMemoryStream($changed));
         }
 
-        $this->lastReplayed = $last;
         $this->lastEvent = $last;
         $this->version = (int) $last->version();
     }
@@ -278,21 +284,11 @@ final class Subscription implements Event\Subscription, Event\Sourced, Versionab
             return false;
         }
 
-        if (!$this->subscriptionId()->equals($object->subscriptionId())) {
+        if (!$this->id()->equals($object->id())) {
             return false;
         }
 
         return true;
-    }
-
-    public function producerId(): Domain\Id
-    {
-        return $this->subscriptionId();
-    }
-
-    public function subscriptionId(): Event\Listener\Id
-    {
-        return $this->listener->listenerId();
     }
 
     public function listener(): Listener
@@ -318,6 +314,45 @@ final class Subscription implements Event\Subscription, Event\Sourced, Versionab
     public function completed(): bool
     {
         return null !== $this->completedBy;
+    }
+
+    public function lastEvent(): ?Event\Envelope
+    {
+        return $this->lastEvent;
+    }
+
+    public function version(): int
+    {
+        return $this->version;
+    }
+
+    /**
+     * @return Event\Envelope[]
+     */
+    public function events(): array
+    {
+        return $this->events;
+    }
+
+    public function commit(): void
+    {
+        $this->version += \count($this->events);
+        $this->events = [];
+    }
+
+    /**
+     * @throws \Throwable
+     */
+    private function doReplay(Event\Stream $stream): void
+    {
+        try {
+            $this->replaying = true;
+            foreach ($stream as $event) {
+                $this->applyEvent($event);
+            }
+        } finally {
+            $this->replaying = false;
+        }
     }
 
     /**
@@ -363,46 +398,28 @@ final class Subscription implements Event\Subscription, Event\Sourced, Versionab
     {
         if ($event->message() instanceof SubscriptionListenedToEvent) {
             $this->applySubscriptionListenedToEvent($event);
-
-            return;
         }
         if ($event->message() instanceof SubscriptionIgnoredEvent) {
             $this->applySubscriptionIgnoredEvent($event);
-
-            return;
         }
         if ($event->message() instanceof SubscriptionCompleted) {
             $this->applySubscriptionCompleted();
-
-            return;
         }
         if ($event->message() instanceof SubscriptionStarted) {
             $this->applySubscriptionStarted($event);
-
-            return;
         }
         if ($event->message() instanceof SubscriptionRestarted) {
             $this->applySubscriptionRestarted($event);
-
-            return;
         }
         if ($event->message() instanceof SubscriptionListenersStateChanged) {
             $this->applySubscriptionListenersStateChanged($event);
-
-            return;
         }
         if ($event->message() instanceof SubscriptionPaused) {
             $this->applySubscriptionPaused($event);
-
-            return;
         }
         if ($event->message() instanceof SubscriptionUnPaused) {
             $this->applySubscriptionUnPaused($event);
-
-            return;
         }
-
-        throw new Event\Exception\NoEventApplyingMethodFound($this, $event); // @codeCoverageIgnore
     }
 
     private function applySubscriptionListenedToEvent(Event\Envelope $event): void
@@ -455,6 +472,42 @@ final class Subscription implements Event\Subscription, Event\Sourced, Versionab
 
         if ($this->listener instanceof Listener\Stateful) {
             $this->listener->fromState($state);
+        }
+    }
+
+    /**
+     * @throws Event\Exception\NoEventApplyingMethodFound
+     * @throws Event\Exception\TooManyEventApplyingMethodsFound
+     * @throws \Throwable
+     */
+    private function apply(Event $event): void
+    {
+        $event = Event\Envelope::new(
+            $event,
+            $this->id(),
+            $this->version + \count($this->events) + 1
+        );
+
+        $this->applyEvent($event);
+    }
+
+    /**
+     * @throws \Throwable
+     */
+    private function applyEvent(Event\Envelope $event): void
+    {
+        if (!$this->id()->equals($event->producerId())) {
+            throw new Domain\Exception\EventMismatched($this, $event);
+        }
+
+        $this->doApplyEvent($event);
+
+        $this->lastEvent = $event;
+
+        if ($this->replaying) {
+            $this->version = $event->version();
+        } else {
+            $this->events[] = $event;
         }
     }
 }

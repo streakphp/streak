@@ -57,7 +57,7 @@ class EventStoreUnitOfWork implements UnitOfWork
 
         foreach ($this->uncommited as $key => $current) {
             // @var $current Event\Producer
-            if ($current->producerId()->equals($producer->producerId())) {
+            if ($current->id()->equals($producer->id())) {
                 unset($this->uncommited[$key]);
 
                 return;
@@ -73,7 +73,7 @@ class EventStoreUnitOfWork implements UnitOfWork
 
         foreach ($this->uncommited as $current) {
             // @var $current Event\Producer
-            if ($current->producerId()->equals($producer->producerId())) {
+            if ($current->id()->equals($producer->id())) {
                 return true;
             }
         }

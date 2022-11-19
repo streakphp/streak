@@ -27,24 +27,14 @@ use Streak\Infrastructure\Domain\UnitOfWork;
  */
 class Scenario implements Scenario\Given, Scenario\When, Scenario\Then
 {
-    private Domain\CommandHandler $handler;
-    private InMemoryEventStore $store;
-    private Domain\AggregateRoot\Factory $factory;
-    private Snapshotter $snapshotter;
-    private UnitOfWork $uow;
     private ?Domain\AggregateRoot\Id $id = null;
     /**
      * @var Domain\Event\Envelope[]
      */
     private array $events = [];
 
-    public function __construct(Domain\CommandHandler $handler, InMemoryEventStore $store, Domain\AggregateRoot\Factory $factory, Snapshotter $snapshotter, UnitOfWork $uow)
+    public function __construct(private Domain\CommandHandler $handler, private InMemoryEventStore $store, private Domain\AggregateRoot\Factory $factory, private Snapshotter $snapshotter, private UnitOfWork $uow)
     {
-        $this->handler = $handler;
-        $this->store = $store;
-        $this->factory = $factory;
-        $this->snapshotter = $snapshotter;
-        $this->uow = $uow;
     }
 
     public function for(Domain\AggregateRoot\Id $id): Given

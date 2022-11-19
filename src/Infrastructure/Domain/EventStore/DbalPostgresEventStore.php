@@ -451,7 +451,7 @@ class DbalPostgresEventStore implements \Iterator, EventStore, Event\Stream, Sch
         return $this->fromRow($row);
     }
 
-    public function producerId($class, $id): Domain\Id
+    private function toId($class, $id): Domain\Id
     {
         $reflection = new \ReflectionClass($class);
 
@@ -643,18 +643,21 @@ class DbalPostgresEventStore implements \Iterator, EventStore, Event\Stream, Sch
         $body = json_decode($body, true);
         $body = $this->converter->arrayToObject($body);
 
-        $producerId = $this->producerId($row['producer_type'], $row['producer_id']);
+        /* TODO: store entity type and id as columns */
+        $metadata = $row['metadata'];
+        $metadata = json_decode($metadata, true);
+
+        $producerId = $this->toId($row['producer_type'], $row['producer_id']);
+        $entityId = $this->toId($metadata['entity_type'], $metadata['entity_id']);
 
         $event = new Event\Envelope(
             $uuid,
             $row['type'],
             $body,
             $producerId,
-            $row['producer_version']
+            $row['producer_version'],
         );
 
-        $metadata = $row['metadata'];
-        $metadata = json_decode($metadata, true);
         $metadata[self::EVENT_METADATA_NUMBER] = $row['number'];
 
         foreach ($metadata as $name => $value) {
@@ -702,7 +705,7 @@ class DbalPostgresEventStore implements \Iterator, EventStore, Event\Stream, Sch
             return null; // @codeCoverageIgnore
         }
 
-        return $this->producerId($matches['type'], $matches['id']);
+        return $this->toId($matches['type'], $matches['id']);
     }
 
     private function extractIdForEventAlreadyInStore(UniqueConstraintViolationException $e)

@@ -117,7 +117,15 @@ class ComparatorTest extends TestCase
 
     public function testEqualEnvelopes(): void
     {
-        self::assertNull($this->comparator->assertEquals($this->envelope1a, $this->envelope1b));
+//        $this->expectNotToPerformAssertions();
+
+        try {
+            $this->comparator->assertEquals($this->envelope1a, $this->envelope1b);
+        } catch (ComparisonFailure) {
+            self::fail();
+        }
+
+        $this->addToAssertionCount(1); // tests without assertions does not report any coverage, so this is a hack @link https://github.com/sebastianbergmann/phpunit/pull/3348
     }
 
     public function testNotEqualEnvelopes(): void

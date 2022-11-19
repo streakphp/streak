@@ -64,7 +64,7 @@ class LazyLoadedSubscriptionTest extends TestCase
             ->willReturn($this->subscription)
         ;
 
-        self::assertSame($this->id, $subscription->subscriptionId());
+        self::assertSame($this->id, $subscription->id());
 
         $this->subscription
             ->expects(self::once())

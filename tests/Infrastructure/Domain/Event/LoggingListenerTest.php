@@ -131,11 +131,11 @@ class LoggingListenerTest extends TestCase
 
         $this->listener2
             ->expects(self::atLeastOnce())
-            ->method('listenerId')
+            ->method('id')
             ->willReturn($this->listenerId)
         ;
 
-        self::assertSame($this->listenerId, $listener->listenerId());
+        self::assertSame($this->listenerId, $listener->id());
         self::assertSame($this->listenerId, $listener->id());
 
         $listener->reset();

@@ -29,7 +29,7 @@ final class InMemoryStorage implements Snapshotter\Storage
     public function find(AggregateRoot $aggregate): string
     {
         foreach ($this->snapshots as [$id, $snapshot]) {
-            if ($aggregate->aggregateRootId()->equals($id)) {
+            if ($aggregate->id()->equals($id)) {
                 return $snapshot;
             }
         }
@@ -40,13 +40,13 @@ final class InMemoryStorage implements Snapshotter\Storage
     public function store(AggregateRoot $aggregate, string $newSnapshot): void
     {
         foreach ($this->snapshots as $key => [$id, $snapshot]) {
-            if ($aggregate->aggregateRootId()->equals($id)) {
+            if ($aggregate->id()->equals($id)) {
                 $this->snapshots[$key] = [$id, $newSnapshot];
 
                 return;
             }
         }
 
-        $this->snapshots[] = [$aggregate->aggregateRootId(), $newSnapshot];
+        $this->snapshots[] = [$aggregate->id(), $newSnapshot];
     }
 }

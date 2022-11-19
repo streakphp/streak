@@ -85,7 +85,7 @@ class NestedObjectConverter implements Converter
 
                     continue;
                 }
-                if (is_scalar($value)) {
+                if (\is_scalar($value)) {
                     continue;
                 }
                 if (null === $value) {

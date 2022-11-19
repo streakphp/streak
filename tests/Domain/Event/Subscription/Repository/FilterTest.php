@@ -11,10 +11,9 @@
 
 declare(strict_types=1);
 
-namespace Streak\Domain\Event\Sourced\Subscription\Repository;
+namespace Streak\Domain\Event\Subscription\Repository;
 
 use PHPUnit\Framework\TestCase;
-use Streak\Domain\Event\Subscription\Repository\Filter;
 
 /**
  * @author Alan Gabriel Bem <alan.bem@gmail.com>

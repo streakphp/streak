@@ -86,19 +86,11 @@ class ComparisonStub implements Domain\Entity
 {
     use Entity\Comparison;
 
-    private Entity\Id $id;
-
-    public function __construct(Entity\Id $id)
+    public function __construct(private Entity\Id $id)
     {
-        $this->id = $id;
     }
 
-    public function entityId(): Entity\Id
-    {
-        return $this->id;
-    }
-
-    public function id(): Domain\Id
+    public function id(): Entity\Id
     {
         return $this->id;
     }
@@ -108,14 +100,11 @@ class NonEntityComparisonStub
 {
     use Entity\Comparison;
 
-    private Entity\Id $id;
-
-    public function __construct(Entity\Id $id)
+    public function __construct(private Entity\Id $id)
     {
-        $this->id = $id;
     }
 
-    public function entityId(): Entity\Id
+    public function id(): Entity\Id
     {
         return $this->id;
     }

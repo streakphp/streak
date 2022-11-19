@@ -34,7 +34,7 @@ class EventSourcedRepositoryTest extends TestCase
     private Domain\AggregateRoot $nonEventSourcedAggregateRoot;
 
     private Event\Sourced\AggregateRoot $aggregateRoot;
-    private Event\Sourced\AggregateRoot\Id $aggregateRootId;
+    private Domain\AggregateRoot\Id $aggregateRootId;
 
     private Domain\Event\Envelope $event1;
 
@@ -50,7 +50,7 @@ class EventSourcedRepositoryTest extends TestCase
         $this->nonEventSourcedAggregateRoot = $this->getMockBuilder(Domain\AggregateRoot::class)->getMockForAbstractClass();
         $this->aggregateRoot = $this->getMockBuilder(Event\Sourced\AggregateRoot::class)->getMockForAbstractClass();
 
-        $this->aggregateRootId = $this->getMockBuilder(Event\Sourced\AggregateRoot\Id::class)->getMockForAbstractClass();
+        $this->aggregateRootId = $this->getMockBuilder(Domain\AggregateRoot\Id::class)->getMockForAbstractClass();
 
         $this->event1 = Event\Envelope::new($this->getMockBuilder(Domain\Event::class)->getMockForAbstractClass(), $this->aggregateRootId, 1);
         $this->stream = $this->getMockBuilder(Event\Stream::class)->getMockForAbstractClass();

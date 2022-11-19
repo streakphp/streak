@@ -43,7 +43,7 @@ class EventSourcedRepository implements Subscription\Repository
         $unwrapped = $this->unwrap($subscription);
 
         $filter = new EventStore\Filter();
-        $filter = $filter->filterProducerIds($unwrapped->producerId());
+        $filter = $filter->filterProducerIds($unwrapped->id());
 
         $stream = $this->store->stream($filter);
 
@@ -66,7 +66,7 @@ class EventSourcedRepository implements Subscription\Repository
         $unwrapped = $this->unwrap($subscription);
 
         $filter = new EventStore\Filter();
-        $filter = $filter->filterProducerIds($unwrapped->producerId());
+        $filter = $filter->filterProducerIds($unwrapped->id());
 
         $stream = $this->store->stream($filter);
 
@@ -104,6 +104,7 @@ class EventSourcedRepository implements Subscription\Repository
 
         $ids = [];
         foreach ($stream as $event) {
+            /** @var $event Event\Envelope */
             if ($event->message() instanceof SubscriptionStarted) {
                 $ids[] = $event->producerId();
             }
@@ -137,21 +138,18 @@ class EventSourcedRepository implements Subscription\Repository
         }
     }
 
-    /**
-     * @return Event\Sourced|Subscription
-     */
-    private function unwrap(Event\Subscription $subscription): Event\Sourced
+    private function unwrap(Event\Subscription $subscription): Event\Sourced\Subscription
     {
         $exception = new Exception\ObjectNotSupported($subscription);
 
-        if ($subscription instanceof Event\Sourced) {
+        if ($subscription instanceof Event\Sourced\Subscription) {
             return $subscription;
         }
 
         while ($subscription instanceof Subscription\Decorator) {
             $subscription = $subscription->subscription();
 
-            if ($subscription instanceof Event\Sourced) {
+            if ($subscription instanceof Event\Sourced\Subscription) {
                 return $subscription;
             }
         }

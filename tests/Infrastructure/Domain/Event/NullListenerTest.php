@@ -41,14 +41,14 @@ class NullListenerTest extends TestCase
     {
         $this->listener
             ->expects(self::atLeastOnce())
-            ->method('listenerId')
+            ->method('id')
             ->willReturn($this->id)
         ;
 
         $listener = NullListener::from($this->listener);
 
         self::assertInstanceOf(NullListener::class, $listener);
-        self::assertSame($this->id, $listener->listenerId());
+        self::assertSame($this->id, $listener->id());
 
         self::assertTrue($listener->on($this->event));
     }
