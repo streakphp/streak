@@ -5,6 +5,8 @@
 [![CI](https://github.com/streakphp/streak/actions/workflows/ci.yaml/badge.svg)](https://github.com/streakphp/streak/actions/workflows/ci.yaml)
 [![codecov](https://codecov.io/gh/streakphp/streak/branch/master/graph/badge.svg)](https://codecov.io/gh/streakphp/streak)
 
+For more information and usage instructions, please refer to the [**Documentation**](docs/index.md).
+
 Running checks & tests locally
 ------------------------------
 
