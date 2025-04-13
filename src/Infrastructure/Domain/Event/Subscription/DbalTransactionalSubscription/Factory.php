@@ -29,7 +29,7 @@ class Factory implements Event\Subscription\Factory
     public function __construct(private Event\Subscription\Factory $factory, private Connection $connection, int $maxTransactionSize = 1)
     {
         if ($maxTransactionSize < 1) {
-            throw new \InvalidArgumentException(sprintf('Maximum transaction size must be at least "1", but "%d" given.', $maxTransactionSize));
+            throw new \InvalidArgumentException(\sprintf('Maximum transaction size must be at least "1", but "%d" given.', $maxTransactionSize));
         }
 
         $this->maxTransactionSize = $maxTransactionSize;

@@ -21,7 +21,7 @@ use Streak\Domain\Sensor;
  */
 interface Event extends Domain\Event
 {
-//    public function producerId() : Actor\Id;
+    //    public function producerId() : Actor\Id;
 
     public function sensorId(): Sensor\Id;
 }

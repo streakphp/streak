@@ -26,7 +26,7 @@ class ConcurrentWriteDetected extends \RuntimeException
     {
         $id ??= Domain\Id\UUID::random(); // TODO: fix it, remove weak dependency
 
-        $message = sprintf('Concurrent write detected when tried to persist "%s#%s" aggregate.', $id::class, $id->toString());
+        $message = \sprintf('Concurrent write detected when tried to persist "%s#%s" aggregate.', $id::class, $id->toString());
 
         parent::__construct($message, 0, $previous);
     }

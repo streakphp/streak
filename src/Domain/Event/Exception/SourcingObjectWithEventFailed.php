@@ -24,7 +24,7 @@ class SourcingObjectWithEventFailed extends \BadMethodCallException
 {
     public function __construct(private object $subject, private Event\Envelope $event, \Throwable $previous = null)
     {
-        $message = sprintf('Sourcing "%s" object with "%s" event failed.', $subject::class, $event->name());
+        $message = \sprintf('Sourcing "%s" object with "%s" event failed.', $subject::class, $event->name());
 
         parent::__construct($message, 0, $previous);
     }

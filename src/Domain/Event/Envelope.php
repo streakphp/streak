@@ -92,7 +92,7 @@ final class Envelope implements Domain\Envelope
             throw new \InvalidArgumentException('Name of the attribute can not be empty.');
         }
         if (!\is_scalar($value)) {
-            throw new \InvalidArgumentException(sprintf('Value for attribute "%s" is a scalar.', $name));
+            throw new \InvalidArgumentException(\sprintf('Value for attribute "%s" is a scalar.', $name));
         }
 
         $new = new self(

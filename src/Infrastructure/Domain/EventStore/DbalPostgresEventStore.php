@@ -396,7 +396,7 @@ class DbalPostgresEventStore implements \Iterator, EventStore, Event\Stream, Sch
         }
 
         $this->current = $row;
-        $this->key = $this->key + 1;
+        $this->key += 1;
     }
 
     public function key()

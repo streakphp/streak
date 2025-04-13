@@ -104,7 +104,7 @@ trait Listening
             }
 
             if (false === \is_bool($listenedTo)) {
-                throw new \UnexpectedValueException(sprintf('Value returned by %s::%s($event) expected to be null or boolean, but %s was given.', $reflection->getShortName(), $method->getName(), \gettype($listenedTo)));
+                throw new \UnexpectedValueException(\sprintf('Value returned by %s::%s($event) expected to be null or boolean, but %s was given.', $reflection->getShortName(), $method->getName(), \gettype($listenedTo)));
             }
 
             return $listenedTo;

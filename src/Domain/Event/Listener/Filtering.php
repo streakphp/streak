@@ -69,7 +69,7 @@ trait Filtering
 
             // ...that is final...
             if (false === $parameter->isFinal()) {
-                throw new \InvalidArgumentException(sprintf('Event class "%s" must be final in order to be used for stream filtering.', $parameter->getName()));
+                throw new \InvalidArgumentException(\sprintf('Event class "%s" must be final in order to be used for stream filtering.', $parameter->getName()));
             }
 
             $types[] = $parameter->getName();

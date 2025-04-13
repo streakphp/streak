@@ -49,7 +49,7 @@ class InMemoryState implements State
     public function get(string $name)
     {
         if (false === $this->has($name)) {
-            throw new \OutOfBoundsException(sprintf('Value not found under key "%s"', $name));
+            throw new \OutOfBoundsException(\sprintf('Value not found under key "%s"', $name));
         }
 
         return $this->state[$name];
@@ -109,7 +109,7 @@ class InMemoryState implements State
                 return;
             }
 
-            throw new \UnexpectedValueException(sprintf('Values passed to state object can only be nulls & scalar values or recursive arrays of nulls & scalar values. Value of type "%s" given under key "%s".', \gettype($value), $key));
+            throw new \UnexpectedValueException(\sprintf('Values passed to state object can only be nulls & scalar values or recursive arrays of nulls & scalar values. Value of type "%s" given under key "%s".', \gettype($value), $key));
         });
     }
 

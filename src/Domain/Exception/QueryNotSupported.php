@@ -24,7 +24,7 @@ class QueryNotSupported extends \RuntimeException
 {
     public function __construct(private Query $query)
     {
-        $message = sprintf('Query "%s" is not supported.', $query::class);
+        $message = \sprintf('Query "%s" is not supported.', $query::class);
         parent::__construct($message);
     }
 

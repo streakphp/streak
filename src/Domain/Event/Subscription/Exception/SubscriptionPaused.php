@@ -24,7 +24,7 @@ class SubscriptionPaused extends \RuntimeException implements Subscription\Excep
 {
     public function __construct(private Subscription $subscription)
     {
-        $message = sprintf('Subscription "%s#%s" is paused.', $this->subscription->id()::class, $this->subscription->id()->toString());
+        $message = \sprintf('Subscription "%s#%s" is paused.', $this->subscription->id()::class, $this->subscription->id()->toString());
 
         parent::__construct($message);
     }

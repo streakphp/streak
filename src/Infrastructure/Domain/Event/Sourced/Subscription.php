@@ -75,7 +75,7 @@ final class Subscription implements Event\Sourced\Subscription
         if (null === $limit) {
             $limit = self::LIMIT_TO_INITIAL_STREAM; // if no $limit was given, we listen to initial stream only
         } elseif ($limit < 1) {
-            throw new \InvalidArgumentException(sprintf('$limit must be a positive integer, but %d was given.', $limit));
+            throw new \InvalidArgumentException(\sprintf('$limit must be a positive integer, but %d was given.', $limit));
         }
 
         if (false === $this->started()) {
@@ -114,9 +114,9 @@ final class Subscription implements Event\Sourced\Subscription
             $stream = $stream->after($this->lastProcessedEvent);
         }
 
-//        if ($limit) {
-//            $stream = $stream->limit($limit); // TODO: optimize DbalPostgresEventStore::limit() implementation and enable it here
-//        }
+        //        if ($limit) {
+        //            $stream = $stream->limit($limit); // TODO: optimize DbalPostgresEventStore::limit() implementation and enable it here
+        //        }
 
         $listened = 0;
         foreach ($stream as $event) {
@@ -124,7 +124,7 @@ final class Subscription implements Event\Sourced\Subscription
 
             yield $event;
 
-            $listened = $listened + 1;
+            $listened += 1;
 
             if ($this->completed()) {
                 return;
@@ -146,7 +146,7 @@ final class Subscription implements Event\Sourced\Subscription
             return;
         }
 
-        $limit = $limit - $listened;
+        $limit -= $listened;
 
         if (0 === $limit) {
             return; // $limit exhausted

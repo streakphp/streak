@@ -24,7 +24,7 @@ class SnapshotNotFound extends \RuntimeException
 {
     public function __construct(private AggregateRoot $aggregate)
     {
-        parent::__construct(sprintf('Snapshot for aggregate "%s#%s" not found.', $this->aggregate->id()::class, $this->aggregate->id()->toString()));
+        parent::__construct(\sprintf('Snapshot for aggregate "%s#%s" not found.', $this->aggregate->id()::class, $this->aggregate->id()->toString()));
     }
 
     public function aggregate(): AggregateRoot

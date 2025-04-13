@@ -181,7 +181,7 @@ class EventStoreUnitOfWorkTest extends TestCase
         $object3 = new VersionableEventSourcedStub($id3, 1, $event3);
 
         $unknownError = new \RuntimeException();
-//        $concurrencyError = new ConcurrentWriteDetected($id3);
+        //        $concurrencyError = new ConcurrentWriteDetected($id3);
         $concurrencyError = new ConcurrentWriteDetected(null);
 
         $uow = new EventStoreUnitOfWork($this->store);

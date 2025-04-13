@@ -24,7 +24,7 @@ class EventIgnored extends \RuntimeException
 {
     public function __construct(private Event\Envelope $event)
     {
-        $message = sprintf('Event "%s" was ignored.', $event->message()::class);
+        $message = \sprintf('Event "%s" was ignored.', $event->message()::class);
 
         parent::__construct($message);
     }

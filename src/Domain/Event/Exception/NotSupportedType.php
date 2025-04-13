@@ -30,7 +30,7 @@ final class NotSupportedType extends InvalidArgumentException
         } else {
             $type = \gettype($value);
         }
-        parent::__construct(sprintf('Type %s is not supported for conversion!', $type));
+        parent::__construct(\sprintf('Type %s is not supported for conversion!', $type));
         $this->value = $value;
     }
 
