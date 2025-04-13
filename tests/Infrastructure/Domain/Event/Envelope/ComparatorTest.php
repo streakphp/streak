@@ -117,7 +117,7 @@ class ComparatorTest extends TestCase
 
     public function testEqualEnvelopes(): void
     {
-//        $this->expectNotToPerformAssertions();
+        //        $this->expectNotToPerformAssertions();
 
         try {
             $this->comparator->assertEquals($this->envelope1a, $this->envelope1b);

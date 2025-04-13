@@ -71,7 +71,7 @@ class InMemoryEventStore implements EventStore
                 }
             } else {
                 $version = \count($this->streams[$streamName]);
-                $version = $version + 1;
+                $version += 1;
             }
 
             $this->streams[$streamName][$version] = $event;

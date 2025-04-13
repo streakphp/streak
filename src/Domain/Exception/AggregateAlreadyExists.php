@@ -24,7 +24,7 @@ class AggregateAlreadyExists extends \RuntimeException
 {
     public function __construct(private AggregateRoot $aggregate, \Throwable $previous = null)
     {
-        $message = sprintf('Aggregate "%s#%s" already exists.', $this->aggregate::class, $this->aggregate->id()->toString());
+        $message = \sprintf('Aggregate "%s#%s" already exists.', $this->aggregate::class, $this->aggregate->id()->toString());
 
         parent::__construct($message, 0, $previous);
     }

@@ -24,7 +24,7 @@ class CommandNotSupported extends \RuntimeException
 {
     public function __construct(private Domain\Command $command)
     {
-        $message = sprintf('Command "%s" is not supported.', $command::class);
+        $message = \sprintf('Command "%s" is not supported.', $command::class);
 
         parent::__construct($message);
     }

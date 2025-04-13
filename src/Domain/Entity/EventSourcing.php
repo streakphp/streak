@@ -45,7 +45,7 @@ trait EventSourcing //implements Event\Sourced\Entity
     public function aggregateRoot(): Event\Sourced\AggregateRoot
     {
         if (null === $this->aggregateRoot) {
-            throw new \BadMethodCallException(sprintf('Aggregate root no registered. Did you forget to run %s::registerAggregateRoot()?', static::class));
+            throw new \BadMethodCallException(\sprintf('Aggregate root no registered. Did you forget to run %s::registerAggregateRoot()?', static::class));
         }
 
         return $this->aggregateRoot;

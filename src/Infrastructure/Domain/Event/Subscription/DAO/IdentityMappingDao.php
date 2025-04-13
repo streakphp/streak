@@ -83,7 +83,7 @@ class IdentityMappingDao implements DAO
 
     private function key(Subscription $subscription): string
     {
-        return sprintf('%s_%s', $subscription->id()::class, $subscription->id()->toString());
+        return \sprintf('%s_%s', $subscription->id()::class, $subscription->id()->toString());
     }
 
     private function rememberVersion(Subscription $subscription): void
