@@ -15,3 +15,6 @@
 
 # OSX files
 .DS_Store
+
+# Scratchpad directory for temporary files and tests
+/src/.scratchpad/

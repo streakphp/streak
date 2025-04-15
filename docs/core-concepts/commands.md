@@ -1,122 +1,333 @@
 # Core Concepts: Commands
 
-Commands represent an intent or a request to change the state of the system. They are imperative messages that tell the application to *do* something.
+Commands represent an intent to change the system's state. They are imperative messages that tell the application to *do* something.
 
 ## What is a Command?
 
-Unlike Events (which describe something that *has happened*), Commands describe something that *should happen*. Examples include `RegisterUser`, `PlaceOrder`, `CreateProject`, `RenameTask`.
+Unlike [Events](events.md) (which describe something that *has happened*), Commands describe something that *should happen*. 
 
-Key characteristics of Commands:
-
-*   **Imperative:** Named using verbs in the imperative mood (e.g., `CreateProject`).
-*   **Data Carriers:** Contain all the necessary information required to execute the requested action (e.g., user details for `RegisterUser`, project name for `CreateProject`).
-*   **Targeted (Implicitly):** While a command object itself might not always contain the target aggregate ID directly, it's usually routed to a specific Aggregate instance or handler responsible for that domain concept.
-
-In Streak, Commands are typically simple PHP objects (POPOs) that implement the marker interface `Streak\Domain\Command`.
+Streak defines the core command interface:
 
 ```php
 <?php
 
-namespace My\Domain\Commands;
+namespace Streak\Domain;
+
+interface Command
+{
+}
+```
+
+Implementation example:
+
+```php
+<?php
+
+namespace Domain\Project\Command;
 
 use Streak\Domain\Command;
 
 final class CreateProject implements Command
 {
     public function __construct(
-        public readonly string $projectId, // ID for the new project
-        public readonly string $projectName,
-        public readonly string $creatorId
-    ) {}
+        public readonly string $id,
+        public readonly string $name
+    ) {
+        if (empty($name)) {
+            throw new \InvalidArgumentException('Project name cannot be empty');
+        }
+    }
 }
 ```
 
-## Command Handlers
+Key characteristics:
 
-A Command Handler is responsible for receiving a command and orchestrating the execution of the requested action. In event-sourced systems using Streak, this often involves:
+*   **Imperative:** Use verbs in imperative mood (`CreateProject`, `RenameTask`)
+*   **Data Carriers:** Contain all information needed for the action
+*   **Targeted:** Route to a specific handler or aggregate
+*   **Simple:** Just PHP objects implementing `Streak\Domain\Command`
 
-1.  Loading the relevant Aggregate Root from the Event Store.
-2.  Invoking a method on the Aggregate Root, passing the command data.
-3.  Saving the new events produced by the Aggregate Root back to the Event Store.
+## Command Handling
 
-Streak supports two main approaches for command handling:
+Command handlers execute the requested action through these steps:
+1. Validate the command data
+2. Check business rules
+3. Make the changes
+4. Record resulting events
 
-1.  **Aggregate Roots as Handlers:** The Aggregate Root itself implements `Streak\Domain\CommandHandler` and uses the `Streak\Domain\Command\Handling` trait. This trait enables the `CommandBus` to route commands directly to public methods on the aggregate instance matching the convention `handle<CommandName>`. These methods contain the logic to process the command and apply resulting events, keeping the decision-making logic close to the state it affects. **When using this pattern, the `CommandBus` effectively routes the command directly to the specific aggregate instance identified as the handler.**
+Streak supports two approaches to handling commands:
 
-    ```php
-    // Inside an Aggregate Root class
-    use Streak\Domain\Command\Handling;
+### 1. Dedicated Command Handlers
 
-    public function handleCreateProject(Commands\CreateProject $command): void
-    {
-        // Validation & Business Logic
-        if (empty($command->projectName())) {
-            throw new InvalidArgumentException('Project name cannot be empty.');
-        }
+A separate service class handles the command by implementing the `CommandHandler` interface:
 
-        $this->apply(new Events\ProjectCreated(...));
+```php
+<?php
+
+namespace Streak\Domain;
+
+interface CommandHandler
+{
+    /**
+     * @throws Exception\CommandNotSupported
+     */
+    public function handleCommand(Command $command): void;
+}
+```
+
+Example implementation:
+
+```php
+<?php
+
+namespace Domain\Project\Handler;
+
+use Streak\Domain\CommandHandler;
+use Streak\Domain\Command;
+use Domain\Project\Command\CreateProject;
+use Domain\Project\Project;
+use Domain\Project\ProjectRepository;
+
+final class CreateProjectHandler implements CommandHandler
+{
+    public function __construct(
+        private ProjectRepository $repository
+    ) {
     }
-    ```
 
-2.  **Dedicated Command Handler Services:** A separate service class implements `Streak\Domain\CommandHandler` (often specific to a command type or an aggregate type). This handler service would typically depend on an `AggregateRoot\Repository` (or directly on the `EventStore`) to load/save the aggregate and then call a public method on the loaded aggregate.
-
-    ```php
-    <?php
-
-    namespace My\Application\CommandHandlers;
-
-    use Streak\Domain;
-    use My\Domain\Project;
-    use My\Domain\Commands;
-
-    final class CreateProjectHandler implements Domain\CommandHandler
+    public function handleCommand(Command $command): void
     {
-        public function __construct(private Project\Repository $repository) {}
+        if (!$command instanceof CreateProject) {
+            throw new \Streak\Domain\Exception\CommandNotSupported($command);
+        }
+        
+        /** @var CreateProject $command */
+        $project = new Project($command->id);
+        $project->rename($command->name);
+        
+        $this->repository->add($project);
+    }
+}
+```
 
-        public function __invoke(Commands\CreateProject $command): void
-        {
-            // Note: In event sourcing, creation might mean instantiating
-            // a new aggregate and then calling its command handler method.
-            // Or, a factory could be used.
-            $project = Project::create($command->projectId(), $command->creatorId()); // Example static factory
-            $project->rename($command->projectName()); // Call method on aggregate
+### Using the Handling Trait
 
-            $this->repository->save($project);
+The same handler can be implemented more elegantly using the `Command\Handling` trait:
+
+```php
+<?php
+
+namespace Domain\Project\Handler;
+
+use Streak\Domain\CommandHandler;
+use Streak\Domain\Command;
+use Domain\Project\Command\CreateProject;
+use Domain\Project\Project;
+use Domain\Project\ProjectRepository;
+
+final class CreateProjectHandler implements CommandHandler
+{
+    use Command\Handling;
+
+    public function __construct(
+        private ProjectRepository $repository
+    ) {
+    }
+
+    public function handleCreateProject(CreateProject $command): void
+    {
+        $project = new Project($command->id);
+        $project->rename($command->name);
+        
+        $this->repository->add($project);
+    }
+}
+```
+
+Using the trait automatically:
+- Routes commands to type-specific handler methods
+- Handles command type verification
+- Throws appropriate exceptions for unsupported commands
+
+## Handling Multiple Commands in a Single Handler
+
+One of the biggest advantages of using the `Handling` trait is the ability to handle multiple command types in a single handler class:
+
+```php
+<?php
+
+namespace Domain\Project\Handler;
+
+use Streak\Domain\CommandHandler;
+use Streak\Domain\Command;
+use Domain\Project\Command\CreateProject;
+use Domain\Project\Command\RenameProject;
+use Domain\Project\Command\AddTask;
+use Domain\Project\Project;
+use Domain\Project\ProjectRepository;
+
+final class ProjectCommandHandler implements CommandHandler
+{
+    use Command\Handling;
+
+    public function __construct(
+        private ProjectRepository $repository
+    ) {
+    }
+
+    public function handleCreateProject(CreateProject $command): void 
+    { /* ... */ }
+    
+    public function handleRenameProject(RenameProject $command): void 
+    { /* ... */ }
+    
+    public function handleAddTask(AddTask $command): void 
+    { /* ... */ }
+}
+```
+
+This approach allows you to:
+- Group related command handlers in a single class
+- Maintain strong typing for each command type
+- Automatically route commands to the correct handler method
+- Avoid repetitive type checking and dispatch logic
+
+### 2. Aggregate Root Handlers
+
+The aggregate itself can handle commands. This requires:
+1. Command implements `AggregateRootCommand`
+2. Aggregate implements `CommandHandler`
+
+The `AggregateRootCommand` interface:
+
+```php
+<?php
+
+namespace Streak\Domain\Command;
+
+use Streak\Domain\AggregateRoot;
+use Streak\Domain\Command;
+
+interface AggregateRootCommand extends Command
+{
+    public function aggregateRootId(): AggregateRoot\Id;
+}
+```
+
+Example command implementation:
+
+```php
+<?php
+
+namespace Domain\Project\Command;
+
+use Streak\Domain\Command\AggregateRootCommand;
+use Streak\Domain\AggregateRoot;
+use Domain\Project\ProjectId;
+
+final class CreateProject implements AggregateRootCommand
+{
+    public function __construct(
+        public readonly string $id,
+        public readonly string $name
+    ) {
+        if (empty($name)) {
+            throw new \InvalidArgumentException('Project name cannot be empty');
         }
     }
-    ```
 
-    The choice between these depends on complexity and preference. Aggregates as handlers are simpler for straightforward cases. Dedicated handlers can be better if command handling involves external services or complex orchestration.
+    public function aggregateRootId(): AggregateRoot\Id
+    {
+        return new ProjectId($this->id);
+    }
+}
+```
+
+The aggregate implementation using the `Handling` trait:
+
+```php
+<?php
+
+namespace Domain\Project;
+
+use Streak\Domain\AggregateRoot;
+use Streak\Domain\CommandHandler;
+use Streak\Domain\Command;
+use Domain\Project\Command\CreateProject;
+use Domain\Project\Event\ProjectCreated;
+
+final class Project implements AggregateRoot, CommandHandler
+{
+    use Command\Handling;
+    
+    private string $id;
+    private string $name;
+
+    public function __construct(string $id)
+    {
+        $this->id = $id;
+    }
+
+    public function handleCreateProject(CreateProject $command): void
+    {
+        $this->apply(new ProjectCreated($command->id, $command->name));
+    }
+    
+    protected function applyProjectCreated(ProjectCreated $event): void
+    {
+        $this->name = $event->name;
+    }
+}
+```
+
+## Command Boundaries
+
+Commands follow these important principles:
+
+* **Single Aggregate:** Each command modifies exactly one aggregate
+* **Atomic Storage:** All events from a command are stored together
+* **Ordered Effects:** Side effects happen after event storage
+* **Cross-Aggregate Changes:** Use [process managers](../tutorials/building-a-process-manager.md) or [sagas](../tutorials/building-a-saga.md)
+
+These principles ensure:
+* Clear boundaries of responsibility
+* Strong consistency within aggregates
+* Eventual consistency across aggregates
+* Reliable event ordering
 
 ## Command Bus
 
-To decouple the command sender from the command handler, a Command Bus is typically used. The sender dispatches a command object to the bus, and the bus ensures it gets delivered to the correct registered handler.
-
-Streak defines the `Streak\Application\CommandBus` interface:
+The Command Bus routes commands to their handlers:
 
 ```php
 <?php
 
 namespace Streak\Application;
 
-use Streak\Domain\Command;
-use Streak\Domain\CommandHandler;
+use Streak\Domain;
+use Streak\Domain\Exception\CommandNotSupported;
 
 interface CommandBus
 {
-    // Registers a handler for a specific type of command
-    public function register(CommandHandler $handler, Command $command):
-
-    // Dispatches a command to its registered handler
-    public function dispatch(Command $command): void;
+    /**
+     * @throws CommandNotSupported
+     */
+    public function dispatch(Domain\Command $command): void;
 }
 ```
 
-*Note: Features like automatic command retries or transaction management (e.g., wrapping handler execution in a database transaction) are typically handled by specific bus implementations, middleware, decorators, or integrated framework features (like Symfony Messenger), rather than being built into the core `CommandBus` interface itself.*
+Usage example:
 
-Streak provides implementations (often found in the `Infrastructure/Application` layer or provided by the `StreakBundle`), such as:
+```php
+<?php
 
-*   A simple synchronous command bus.
-*   Buses that integrate with message queues (though not explicitly in the core library provided interfaces shown).
+use Domain\Project\Command\CreateProject;
+use Streak\Application\CommandBus;
 
-The `StreakBundle` typically handles automatically registering command handlers (found via interfaces or attributes) with the configured command bus service. 
+/** @var CommandBus $commandBus */
+$command = new CreateProject('project-123', 'My Project');
+$commandBus->dispatch($command);
+```
+
+For implementation details, see:
+* [Building an Aggregate](../tutorials/building-an-aggregate.md) - Learn how to implement commands in your aggregates

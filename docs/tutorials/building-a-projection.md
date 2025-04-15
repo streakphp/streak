@@ -1,12 +1,9 @@
-# Tutorial: Building a Projection (Read Model)
+# Building a Projection (Read Model)
 
-This tutorial guides you through creating a simple **Projection** (also known as a Read Model) using Streak. Projections listen to domain events and build a specific data representation optimized for querying.
+This tutorial demonstrates how to create a Projection (also known as a Read Model) using Streak. Projections listen to domain events and build a specific data representation optimized for querying.
 In Streak, projections are implemented as a specialized type of [Event Listener](../core-concepts/listeners.md).
 
 **Goal:** Create a `project_summary` database table that stores the ID and name of projects, kept up-to-date by listening to `ProjectCreated`, `ProjectRenamed`, and `ProjectArchived` events.
-
-
----
 
 ## Step 1: Create the Listener
 
@@ -17,22 +14,22 @@ First, we'll create the `ProjectSummaryProjector` class. This class will impleme
 ```php
 <?php
 
-namespace App\\Application\\Projector;
+namespace App\Application\Projector;
 
-use App\\Domain\\Project\\Event\\ProjectCreated;
-use App\\Domain\\Project\\Event\\ProjectRenamed;
-use App\\Domain\\Project\\Event\\ProjectArchived;
-use Doctrine\\DBAL\\Connection;
-use Streak\\Domain\\Event;
-use Streak\\Domain\\Event\\Listener;
+use App\Domain\Project\Event\ProjectCreated;
+use App\Domain\Project\Event\ProjectRenamed;
+use App\Domain\Project\Event\ProjectArchived;
+use Doctrine\DBAL\Connection;
+use Streak\Domain\Event;
+use Streak\Domain\Event\Listener;
 
 // Note: We also implement Listener\Id here, explained below.
-final class ProjectSummaryProjector implements Listener, Listener\\Id
+final class ProjectSummaryProjector implements Listener, Listener\Id
 {
     private const TABLE_NAME = 'project_summary';
 
     // Store the unique ID for this listener instance
-    private readonly Listener\\Id $id;
+    private readonly Listener\Id $id;
 
     public function __construct(
         private Connection $connection,
@@ -45,7 +42,7 @@ final class ProjectSummaryProjector implements Listener, Listener\\Id
     /**
      * Required by the Listener interface. Returns the listener's unique ID.
      */
-    public function id(): Listener\\Id
+    public function id(): Listener\Id
     {
         return $this->id;
     }
@@ -53,7 +50,7 @@ final class ProjectSummaryProjector implements Listener, Listener\\Id
     /**
      * Required by the Listener interface. Processes incoming event envelopes.
      */
-    public function on(Event\\Envelope $envelope): bool
+    public function on(Event\Envelope $envelope): bool
     {
         $event = $envelope->message();
 
@@ -107,14 +104,14 @@ Since our `ProjectSummaryProjector` often acts as a singleton (only one instance
 ```php
 <?php
 
-namespace App\\Application\\Projector;
+namespace App\Application\Projector;
 
-use Streak\\Domain\\Event\\Listener;
-use Streak\\Domain\\Id; // Base ID interface
-use Streak\\Domain\\Id\\UUID; // Can be based on UUIDs or other strategies
+use Streak\Domain\Event\Listener;
+use Streak\Domain\Id; // Base ID interface
+use Streak\Domain\Id\UUID; // Can be based on UUIDs or other strategies
 
 // This ID uniquely identifies our ProjectSummaryProjector instance
-final class ProjectSummaryProjectorId implements Listener\\Id
+final class ProjectSummaryProjectorId implements Listener\Id
 {
     // A fixed, known UUID for this singleton projector
     private const ID = 'a1a5c5a5-4122-48f6-a673-4e176a61f8f8';
@@ -172,22 +169,22 @@ Modify the `ProjectSummaryProjector` to use the trait:
 ```php
 <?php
 
-namespace App\\Application\\Projector;
+namespace App\Application\Projector;
 
-use App\\Domain\\Project\\Event\\ProjectCreated;
-use App\\Domain\\Project\\Event\\ProjectRenamed;
-use App\\Domain\\Project\\Event\\ProjectArchived;
-use Doctrine\\DBAL\\Connection;
-use Streak\\Domain\\Event;
-use Streak\\Domain\\Event\\Listener;
-use Streak\\Domain\\Event\\Listener\\Listening;
+use App\Domain\Project\Event\ProjectCreated;
+use App\Domain\Project\Event\ProjectRenamed;
+use App\Domain\Project\Event\ProjectArchived;
+use Doctrine\DBAL\Connection;
+use Streak\Domain\Event;
+use Streak\Domain\Event\Listener;
+use Streak\Domain\Event\Listener\Listening;
 
-final class ProjectSummaryProjector implements Listener, Listener\\Id
+final class ProjectSummaryProjector implements Listener, Listener\Id
 {
     use Listening;
 
     private const TABLE_NAME = 'project_summary';
- 
+
     // rest of the code
 
     public function onProjectCreated(ProjectCreated $event): void
@@ -278,14 +275,14 @@ Modify the `ProjectSummaryProjector` to implement `Picker` and add the `pick` me
 ```php
 <?php
 
-namespace App\\Application\\Projector;
+namespace App\Application\Projector;
 
-use Streak\\Domain\\Event\Listener;
-use Streak\\Domain\\Event\Listener\Listening;
-use Streak\\Domain\Event\Listener\Picker;
-use Streak\\Domain\EventStore;
+use Streak\Domain\Event\Listener;
+use Streak\Domain\Event\Listener\Listening;
+use Streak\Domain\Event\Listener\Picker;
+use Streak\Domain\EventStore;
 
-final class ProjectSummaryProjector implements Listener, Listener\\Id, Picker
+final class ProjectSummaryProjector implements Listener, Listener\Id, Picker
 {
     use Listening;
 
@@ -318,20 +315,20 @@ Add the `Resettable` interface and implement the `reset` method. This example us
 ```php
 <?php
 
-namespace App\\Application\\Projector;
+namespace App\Application\Projector;
 
-use App\\Domain\\Project\\Event\\ProjectCreated;
-use App\\Domain\\Project\\Event\\ProjectRenamed;
-use App\\Domain\\Project\\Event\\ProjectArchived;
-use Doctrine\\DBAL\\Connection;
-use Streak\\Domain\\Event;
-use Streak\\Domain\\Event\\Listener;
-use Streak\\Domain\\Event\\Listener\\Listening;
-use Streak\\Domain\\Event\\Listener\\Picker;
-use Streak\\Domain\\EventStore;
-use Streak\\Domain\\Event\\Listener\\Resettable;
+use App\Domain\Project\Event\ProjectCreated;
+use App\Domain\Project\Event\ProjectRenamed;
+use App\Domain\Project\Event\ProjectArchived;
+use Doctrine\DBAL\Connection;
+use Streak\Domain\Event;
+use Streak\Domain\Event\Listener;
+use Streak\Domain\Event\Listener\Listening;
+use Streak\Domain\Event\Listener\Picker;
+use Streak\Domain\EventStore;
+use Streak\Domain\Event\Listener\Resettable;
 
-final class ProjectSummaryProjector implements Listener, Listener\\Id, Picker, Resettable
+final class ProjectSummaryProjector implements Listener, Listener\Id, Picker, Resettable
 {
     use Listening;
 
@@ -394,23 +391,23 @@ Refactor the projector to use the `Identifying` trait, removing the explicit `id
 ```php
 <?php
 
-namespace App\\Application\\Projector;
+namespace App\Application\Projector;
 
 // Keep use statements for events & Connection from Step 1, 2, 3 & 4
-use App\\Domain\\Project\\Event\\ProjectCreated;
-use App\\Domain\\Project\\Event\\ProjectRenamed;
-use App\\Domain\\Project\\Event\\ProjectArchived;
-use Doctrine\\DBAL\\Connection;
-use Streak\\Domain\\Event;
-use Streak\\Domain\\Event\\Listener;
-use Streak\\Domain\\Event\\Listener\\Listening;
-use Streak\\Domain\\Event\\Listener\\Picker;
-use Streak\\Domain\\EventStore;
-use Streak\\Domain\\Event\\Listener\\Resettable;
-use Streak\\Domain\\Event\\Listener\\Identifying;
+use App\Domain\Project\Event\ProjectCreated;
+use App\Domain\Project\Event\ProjectRenamed;
+use App\Domain\Project\Event\ProjectArchived;
+use Doctrine\DBAL\Connection;
+use Streak\Domain\Event;
+use Streak\Domain\Event\Listener;
+use Streak\Domain\Event\Listener\Listening;
+use Streak\Domain\Event\Listener\Picker;
+use Streak\Domain\EventStore;
+use Streak\Domain\Event\Listener\Resettable;
+use Streak\Domain\Event\Listener\Identifying;
 
 // Keep Listener\Id, Picker, Resettable in implements
-final class ProjectSummaryProjector implements Listener, Listener\\Id, Picker, Resettable
+final class ProjectSummaryProjector implements Listener, Listener\Id, Picker, Resettable
 {
     use Listening;
     use Identifying;
@@ -454,12 +451,12 @@ To run this projector as a persistent Subscription, the Streak infrastructure ne
 ```php
 <?php
 
-namespace App\\Application\\Projector;
+namespace App\Application\Projector;
 
-use Doctrine\\DBAL\\Connection;
-use Streak\\Domain\\Event;
-use Streak\\Domain\\Event\\Listener;
-use Streak\\Domain\\Event\\Listener\\Factory as ListenerFactory;
+use Doctrine\DBAL\Connection;
+use Streak\Domain\Event;
+use Streak\Domain\Event\Listener;
+use Streak\Domain\Event\Listener\Factory as ListenerFactory;
 
 final class ProjectSummaryProjectorFactory implements ListenerFactory
 {
@@ -471,11 +468,11 @@ final class ProjectSummaryProjectorFactory implements ListenerFactory
     /**
      * Creates the listener instance for a given ID.
      */
-    public function create(Listener\\Id $id): Listener
+    public function create(Listener\Id $id): Listener
     {
         // Ensure we're creating for the correct ID type
         if (!$id instanceof ProjectSummaryProjectorId) {
-            throw new Event\\Exception\\InvalidListenerIdGiven($id);
+            throw new Event\Exception\InvalidListenerIdGiven($id);
         }
 
         // Instantiate the projector
@@ -490,7 +487,7 @@ final class ProjectSummaryProjectorFactory implements ListenerFactory
      * For a singleton projector, we return the single known instance.
      * This ensures the projector can be initialized ASAP if discovered via events.
      */
-    public function createFor(Event\\Envelope $event): Listener
+    public function createFor(Event\Envelope $event): Listener
     {
          // Return the singleton instance using its known ID
          return $this->create(new ProjectSummaryProjectorId());
@@ -522,7 +519,7 @@ services:
         autowire: true
 
     # Define the service for the factory
-    App\\Application\\Projector\\ProjectSummaryProjectorFactory:
+    App\Application\Projector\ProjectSummaryProjectorFactory:
         # Arguments are usually autowired (like the DBAL Connection)
         # arguments: ['@doctrine.dbal.default_connection'] # Usually not needed with autowire
 
@@ -547,15 +544,15 @@ With the listener, its ID, and its factory defined and registered, you can now m
 
 *   **Run:** To start processing events from its last known position (or the beginning if new):
     ```bash
-    php bin/console streak:subscription:run App\\Application\\Projector\\ProjectSummaryProjectorId a1a5c5a5-4122-48f6-a673-4e176a61f8f8
+    php bin/console streak:subscription:run App\Application\Projector\ProjectSummaryProjectorId a1a5c5a5-4122-48f6-a673-4e176a61f8f8
     ```
-    *   `App\\Application\\Projector\\ProjectSummaryProjectorId`: The *type* (class name) of the listener ID.
+    *   `App\Application\Projector\ProjectSummaryProjectorId`: The *type* (class name) of the listener ID.
     *   `a1a5c5a5-4122-48f6-a673-4e176a61f8f8`: The specific *instance ID* (string representation) for this singleton projector.
 
 *   **Restart (Rebuild):** To clear the projection and reprocess all historical events:
     ```bash
     # This command will call the reset() method we implemented
-    php bin/console streak:subscription:restart App\\Application\\Projector\\ProjectSummaryProjectorId a1a5c5a5-4122-48f6-a673-4e176a61f8f8
+    php bin/console streak:subscription:restart App\Application\Projector\ProjectSummaryProjectorId a1a5c5a5-4122-48f6-a673-4e176a61f8f8
     ```
 
 *   **Other Commands:** Use `pause`, `unpause`, etc., as needed. List all commands with `bin/console list streak`.

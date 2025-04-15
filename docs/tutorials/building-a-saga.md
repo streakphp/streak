@@ -1,6 +1,8 @@
-# Tutorial: Building a Saga
+# Building a Saga
 
-This tutorial shows how to build a stateless Saga that integrates your system with Salesforce. The Saga will listen for subscription and order events, then dispatch commands to sync this data to Salesforce.
+This tutorial demonstrates how to build a stateless Saga that integrates your system with Salesforce. The Saga will listen for subscription and order events, then dispatch commands to sync this data to Salesforce.
+
+**Goal:** Create a Saga that listens for domain events and dispatches commands to sync data with an external system (Salesforce).
 
 ## Step 1: Creating the Saga ID
 

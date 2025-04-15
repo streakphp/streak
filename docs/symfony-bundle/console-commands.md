@@ -20,7 +20,7 @@ These commands are relevant when using the `DbalPostgresEventStore`.
 
 ## Subscriptions (Persistent Listeners)
 
-Subscriptions are persistent, identifiable [event listeners](../core-concepts/listeners.md) that track their position in the event stream, making them ideal for reliable projections and process managers. See [Core Concepts: Subscriptions](../core-concepts/subscriptions.md) for details.
+Subscriptions are persistent, identifiable [event listeners](../core-concepts/listeners.md) that track their position in the event stream, making them ideal for reliable projections and process managers. See [Core Concepts: Subscriptions](../core-concepts/listeners.md#subscriptions) for details.
 
 These commands manage the lifecycle and execution of these subscriptions:
 
