@@ -4,54 +4,96 @@ In a CQRS (Command Query Responsibility Segregation) approach, **Queries** repre
 
 ## Queries
 
-A Query is typically a simple Data Transfer Object (DTO) that encapsulates the parameters needed to retrieve specific information. It represents the question being asked of the system.
+A Query is a marker interface that represents a request for information. Streak defines this interface in the `Streak\Domain` namespace:
 
-Example:
 ```php
 <?php
 
-namespace App\Application\Query;
+namespace Streak\Domain;
 
-final class GetProjectList
+interface Query
 {
-    // Queries can have parameters, e.g., filtering or pagination
-    // public function __construct(private ?string $filter = null) {}
+}
+```
+
+When implementing your own queries, you create DTOs that implement this interface:
+
+```php
+<?php
+
+namespace App\Domain\Query;
+
+use Streak\Domain\Query;
+
+final class GetProjectList implements Query
+{
+    public function __construct(
+        public readonly ?string $filter = null
+    ) {
+    }
 }
 ```
 
 ## Query Handlers
 
-A Query Handler is a service responsible for executing a specific type of Query and returning the requested data. Each Query class typically has exactly one corresponding Query Handler.
+A Query Handler is responsible for executing a specific type of Query and returning the requested data. Streak defines the `QueryHandler` interface:
 
-Query Handlers interact with read models, repositories, or other data sources to fetch the necessary information. They contain the logic to answer the question posed by the Query.
-
-Example:
 ```php
 <?php
 
-namespace App\Application\QueryHandler;
+namespace Streak\Domain;
 
-use App\Application\Query\GetProjectList;
-use App\Application\DTO\ProjectListItem; // Example DTO for results
-use Doctrine\DBAL\Connection; // Or other data source
+interface QueryHandler
+{
+    /**
+     * @throws Exception\QueryNotSupported
+     *
+     * @return mixed
+     */
+    public function handleQuery(Query $query);
+}
+```
 
-final class GetProjectListHandler
+When implementing a handler, you can either manually handle the query routing or use the provided trait.
+
+### Raw Query Handler Implementation
+
+```php
+<?php
+
+namespace App\Domain\QueryHandler;
+
+use App\Domain\Query\GetProjectList;
+use App\Domain\DTO\ProjectListItem;
+use Streak\Domain\Query;
+use Streak\Domain\QueryHandler;
+use Streak\Domain\Exception\QueryNotSupported;
+use Doctrine\DBAL\Connection;
+
+final class ProjectQueryHandler implements QueryHandler
 {
     public function __construct(private Connection $connection)
-    {}
-
-    /**
-     * @return ProjectListItem[]
-     */
-    public function __invoke(GetProjectList $query): array
     {
-        // Logic to fetch data based on the query
+    }
+
+    public function handleQuery(Query $query)
+    {
+        if (!$query instanceof GetProjectList) {
+            throw new QueryNotSupported($query);
+        }
+        
+        /** @var GetProjectList $query */
         $qb = $this->connection->createQueryBuilder();
-        $rows = $qb->select('id', 'name')
-            ->from('project_list_projection') // Example read model table
-            ->orderBy('name', 'ASC')
-            ->executeQuery()
-            ->fetchAllAssociative();
+        $qb->select('id', 'name')
+            ->from('project_list_projection')
+            ->orderBy('name', 'ASC');
+            
+        if ($query->filter !== null) {
+            $qb->where('name LIKE :filter')
+               ->setParameter('filter', '%' . $query->filter . '%');
+        }
+        
+        $rows = $qb->executeQuery()->fetchAllAssociative();
 
         return array_map(
             fn(array $row) => new ProjectListItem($row['id'], $row['name']),
@@ -60,30 +102,165 @@ final class GetProjectListHandler
     }
 }
 ```
-*Note: While the example uses `__invoke`, handlers might follow a convention like `handle<QueryName>(Query $query)`, especially when using helper traits or specific bus implementations.*
 
-## Query Bus
+### Using the Handling Trait
 
-The **Query Bus** is a central dispatcher responsible for routing a Query object to its corresponding Query Handler. It acts as a mediator, decoupling the code that requests data (e.g., a controller or service) from the code that fulfills the request (the Query Handler).
+The `Handling` trait simplifies query handling by automatically routing queries to the appropriate handler methods:
 
-Usage typically looks like this:
 ```php
 <?php
 
-use App\Application\Query\GetProjectList;
-use Streak\Application\QueryBus; // Assuming QueryBus interface
+namespace App\Domain\QueryHandler;
 
-class ProjectController
+use App\Domain\Query\GetProjectList;
+use App\Domain\DTO\ProjectListItem;
+use Streak\Domain\Query;
+use Streak\Domain\QueryHandler;
+use Streak\Domain\Query\Handling;
+use Doctrine\DBAL\Connection;
+
+final class ProjectQueryHandler implements QueryHandler
+{
+    use Handling;
+
+    public function __construct(private Connection $connection)
+    {
+    }
+
+    /**
+     * @return ProjectListItem[]
+     */
+    public function handleGetProjectList(GetProjectList $query): array
+    {
+        /** @var Connection $connection */
+        $connection = $this->connection;
+        $qb = $connection->createQueryBuilder();
+        $qb->select('id', 'name')
+            ->from('project_list_projection')
+            ->orderBy('name', 'ASC');
+            
+        if ($query->filter !== null) {
+            $qb->where('name LIKE :filter')
+               ->setParameter('filter', '%' . $query->filter . '%');
+        }
+        
+        $rows = $qb->executeQuery()->fetchAllAssociative();
+
+        return array_map(
+            fn(array $row) => new ProjectListItem($row['id'], $row['name']),
+            $rows
+        );
+    }
+}
+```
+
+The trait automatically:
+- Routes queries to type-specific handler methods
+- Validates query types
+- Throws appropriate exceptions for unsupported queries
+
+## Handling Multiple Queries in a Single Handler
+
+One of the biggest advantages of using the `Handling` trait is the ability to handle multiple query types in a single handler class:
+
+```php
+<?php
+
+namespace App\Domain\QueryHandler;
+
+use App\Domain\Query\GetProjectList;
+use App\Domain\Query\GetProjectDetails;
+use App\Domain\Query\GetProjectTasks;
+use App\Domain\DTO\ProjectListItem;
+use App\Domain\DTO\ProjectDetails;
+use App\Domain\DTO\TaskItem;
+use Streak\Domain\QueryHandler;
+use Streak\Domain\Query\Handling;
+use Doctrine\DBAL\Connection;
+
+final class ProjectQueryHandler implements QueryHandler
+{
+    use Handling;
+
+    public function __construct(private Connection $connection)
+    {
+    }
+
+    /**
+     * @return ProjectListItem[]
+     */
+    public function handleGetProjectList(GetProjectList $query): array { /* ... */ }
+    
+    /**
+     * @return ProjectDetails|null
+     */
+    public function handleGetProjectDetails(GetProjectDetails $query): ?ProjectDetails { /* ... */ }
+    
+    /**
+     * @return TaskItem[]
+     */
+    public function handleGetProjectTasks(GetProjectTasks $query): array { /* ... */ }
+}
+```
+
+This approach allows you to:
+- Group related query handlers in a single class
+- Maintain strong typing for each query type
+- Automatically route queries to the correct handler method
+- Avoid repetitive type checking and dispatch logic
+
+## Query Bus
+
+The **Query Bus** is a central dispatcher responsible for routing a Query object to its corresponding Query Handler. Streak defines the `QueryBus` interface:
+
+```php
+<?php
+
+namespace Streak\Application;
+
+use Streak\Domain\Exception\CommandNotSupported;
+use Streak\Domain\Query;
+
+interface QueryBus
+{
+    /**
+     * @throws CommandNotSupported
+     *
+     * @return mixed
+     */
+    public function dispatch(Query $query);
+}
+```
+
+Usage typically looks like this:
+
+```php
+<?php
+
+namespace App\Infrastructure\Controller;
+
+use App\Domain\Query\GetProjectList;
+use Streak\Application\QueryBus;
+use Symfony\Component\HttpFoundation\Response;
+
+final class ProjectController
 {
     public function __construct(private QueryBus $queryBus)
-    {}
-
-    public function listProjects(): Response
     {
-        $query = new GetProjectList();
-        $projectList = $this->queryBus->dispatch($query); // Dispatch returns the result
+    }
 
-        // ... return response with $projectList ...
+    public function listProjects(string $filter = null): Response
+    {
+        /** @var GetProjectList $query */
+        $query = new GetProjectList($filter);
+        
+        /** @var array $projectList */
+        $projectList = $this->queryBus->dispatch($query);
+
+        return $this->render('projects/list.html.twig', [
+            'projects' => $projectList,
+            'filter' => $query->filter
+        ]);
     }
 }
 ```
@@ -92,4 +269,4 @@ The Query Bus implementation (often provided by a framework bundle like the [Sym
 
 ## Relationship to Listeners
 
-[Event Listeners](./listeners.md) (specifically [Projectors](./listeners.md#example-projector-with-query-handling)) are responsible for *building* read models based on events. Query Handlers are responsible for *reading* from those models (or other data sources). While it's possible to co-locate simple query handling logic within a Projector class (as shown in the [Listeners documentation](./listeners.md#listeners-as-query-handlers-projections)), separating Query Handlers often leads to a cleaner separation of concerns, especially for more complex queries or read models. 
+[Event Listeners](./listeners.md) (specifically [Projectors](../tutorials/building-a-projection.md)) are responsible for *building* read models based on events. Query Handlers are responsible for *reading* from those read models.

@@ -1,12 +1,12 @@
-# Tutorial: Building a Process Manager
+# Building a Process Manager
 
-This tutorial demonstrates how to build a stateful **Process Manager** using Streak. Process Managers are event listeners that coordinate actions across different parts of your application by reacting to specific domain events, maintaining internal state about the progress of a business process, and potentially dispatching commands based on that state.
+This tutorial demonstrates how to build a stateful Process Manager using Streak. Process Managers are event listeners that coordinate actions across different parts of your application by reacting to specific domain events, maintaining internal state about the progress of a business process, and potentially dispatching commands based on that state.
 
 This contrasts with stateless Sagas (covered elsewhere), which react to events and dispatch commands without tracking process progress internally.
 
-We'll use a common example: coordinating and tracking the approval process for a document that requires sign-offs from multiple departments (Legal, Finance, and Management).
+**Goal:** Create a Process Manager that coordinates and tracks the approval process for a document that requires sign-offs from multiple departments.
 
-**Scenario: Document Approval Process**
+## Scenario: Document Approval Process
 
 When a document is submitted, it needs approvals from three different departments (Legal, Finance, and Management). The document is only considered fully approved when all three have signed off.
 
@@ -370,7 +370,7 @@ This ensures each document's approval process remains isolated and properly trac
 
 ## Running the Process Manager
 
-Running the `DocumentApprovalProcessManager` as a managed [`Subscription`](../core-concepts/subscriptions.md) is crucial for reliability and state persistence.
+Running the `DocumentApprovalProcessManager` as a managed [`Subscription`](../core-concepts/listeners.md#subscriptions) is crucial for reliability and state persistence.
 
 The Subscription mechanism automatically handles state loading/saving (via `Stateful`), correlation, event delivery, and completion checking (via `Completable`).
 

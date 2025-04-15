@@ -1,40 +1,93 @@
 # Core Concepts: Event Listeners
 
-Event Listeners react to [Domain Events](./domain-events.md) in your application, decoupling side effects from core command processing. Common use cases include [Process Managers](../tutorials/building-a-process-manager.md) and [Sagas](../tutorials/building-a-saga.md).
+Event Listeners react to [Domain Events](./events.md) in your application, decoupling side effects from core command processing. Common use cases include [Process Managers](../tutorials/building-a-process-manager.md) and [Sagas](../tutorials/building-a-saga.md).
 
 ## What is an Event Listener?
 
-Event Listeners process [Domain Events](./domain-events.md) through [Subscriptions](./subscriptions.md). Subscriptions ensure reliable event processing by reading from the [Event Store](./event-store.md).
+Event Listeners process [Domain Events](./events.md) through Subscriptions. Subscriptions ensure reliable event processing by reading from the [Event Store](./event-store.md).
 
-The core interface is:
+The `Listener` interface defines the core contract:
 
 ```php
 <?php
 
 namespace Streak\Domain\Event;
 
-interface Listener
+use Streak\Domain\Event;
+use Streak\Domain\Identifiable;
+
+interface Listener extends Identifiable
 {
     public function id(): Listener\Id;
-    public function on(Event\Envelope $envelope): bool;
+
+    /**
+     * @return bool whether event was processed/is supported
+     */
+    public function on(Event\Envelope $event): bool;
 }
 ```
 
 Key aspects:
-*   **`id()`:** Unique identifier for the listener instance
-*   **`on(Event\Envelope $envelope)`:** Processes an event
+* Unique identification for each listener instance
+* Event processing capabilities through the `on()` method
+* Optional features for reset, completion, state management, and querying
 
-### Optional Interfaces
+For implementation details, see our [tutorials](../tutorials/).
 
-*   **`Listener\Resettable`:** Enables reprocessing all events from the beginning
-*   **`Listener\Completable`:** Indicates completion status (see [Process Manager tutorial](../tutorials/building-a-process-manager.md))
-*   **`Listener\Stateful`:** Enables state persistence
-*   **`Streak\Domain\QueryHandler`:** Enables querying listener's data (see [Query Handling tutorial](../tutorials/query-handling.md))
+## Listener Extensions
+
+Streak provides several extension interfaces for listeners:
+
+```php
+// For listeners that can complete their work
+interface Completable
+{
+    public function completed(): bool;
+}
+
+// For listeners that can be reset to initial state
+interface Resettable
+{
+    public function reset(): void;
+}
+
+// For listeners that maintain state
+interface Stateful
+{
+    public function toState(State $state): State;
+    public function fromState(State $state);
+}
+```
 
 ## Listener Factories
 
 Factories create and manage listener instances:
 
+```php
+<?php
+
+namespace Streak\Domain\Event\Listener;
+
+use Streak\Domain\Event;
+use Streak\Domain\Event\Exception\InvalidEventGiven;
+use Streak\Domain\Event\Listener;
+use Streak\Domain\Exception\InvalidIdGiven;
+
+interface Factory
+{
+    /**
+     * @throws InvalidIdGiven
+     */
+    public function create(Listener\Id $id): Listener;
+
+    /**
+     * @throws InvalidEventGiven
+     */
+    public function createFor(Event\Envelope $event): Event\Listener;
+}
+```
+
+The factory interface provides two main operations:
 1. Create new listeners from events
 2. Load existing listeners by ID
 3. Manage dependencies
@@ -44,15 +97,6 @@ For practical examples, see our [Process Manager](../tutorials/building-a-proces
 ## Event Flow
 
 Events flow from Event Bus → Event Store → Subscription → Listener
-
-## Subscriptions
-
-Subscriptions manage event processing:
-
-*   Poll the Event Store
-*   Process events reliably
-*   Track position and state
-*   Handle retries and pausing
 
 ## Idempotency
 
@@ -64,80 +108,142 @@ Listeners must handle duplicate events safely through:
 
 For real-world examples, check our [Process Manager tutorial](../tutorials/building-a-process-manager.md).
 
-## Example
+## Testing Event Listeners
+
+For detailed examples of testing event listeners using the Given-When-Then pattern, see the [Testing Documentation](testing.md).
+
+## Subscriptions
+
+Subscriptions are the operational layer that makes listeners reliable and persistent. They wrap event listeners to provide crucial capabilities like position tracking, state management, and error handling.
+
+The `Subscription` interface defines the core contract:
 
 ```php
 <?php
 
-namespace App\Application\Listener;
+namespace Streak\Domain\Event;
 
 use Streak\Domain\Event;
-use Streak\Domain\Event\Listener;
+use Streak\Domain\Event\Subscription\Exception;
+use Streak\Domain\EventStore;
 
-final class ExampleListener implements Listener
+interface Subscription
 {
-    use Event\Listener\Identifying;
-    use Event\Listener\Listening;
+    public function listener(): Event\Listener;
 
-    public function __construct(private ExampleListener\Id $id)
-    {
-        $this->identifyBy($id);
-    }
+    public function id(): Event\Listener\Id;
 
-    public function onExampleEvent(ExampleEvent $event): void
-    {
-        // Handle the specific event
-    }
+    /**
+     * @throws Exception\SubscriptionAlreadyCompleted
+     * @throws Exception\SubscriptionNotStartedYet
+     *
+     * @return Event\Envelope[]|iterable
+     */
+    public function subscribeTo(EventStore $store, ?int $limit = null): iterable;
+
+    public function startFor(Event\Envelope $event): void;
+
+    /**
+     * @throws Exception\SubscriptionNotStartedYet
+     * @throws Exception\SubscriptionRestartNotPossible
+     */
+    public function restart(): void;
+
+    public function paused(): bool;
+
+    public function pause(): void;
+
+    public function unpause(): void;
+
+    public function starting(): bool;
+
+    public function started(): bool;
+
+    public function completed(): bool;
+
+    public function version(): int;
 }
 ```
 
-For more detailed examples and best practices, see our [tutorials](../tutorials/).
+### Lifecycle States
 
-## Running Listeners
+Subscriptions have several states they can be in:
 
-Listeners run through Subscriptions - a mechanism that ensures reliable event processing from the Event Store.
+1. **Not Started**: Initial state before processing any events
+2. **Starting**: Transitional state during initialization (check with `starting()`)
+3. **Running**: Actively processing events (check with `started()` and not `paused()`)
+4. **Paused**: Temporarily stopped but maintains position (check with `paused()`)
+5. **Completed**: Finished processing (check with `completed()`)
 
-### Key Aspects
+### State Persistence
 
-* **Position Tracking:** Tracks which events have been processed
-* **State Persistence:** Maintains listener state across restarts
-* **Reliable Processing:** Guarantees at-least-once event delivery
-* **Independent Operation:** Each listener instance runs separately
+Streak offers two approaches for persisting subscription state:
 
-### Starting Position
+#### Event Sourced Subscriptions
 
-When a listener starts for the first time:
-* By default, it starts from the event that triggered/started it
-* Implement `Event\Picker` interface to define a custom starting point
-* Position is saved after each event, enabling resume after restart
+* Subscription changes are stored as events
+* These events live in the same event store as domain events
+* Maintains complete history of subscription lifecycle
+* Enables replay of subscription state if needed
+* Natural fit when treating subscriptions as first-class domain concepts
+* Subscription events are stored in the same transaction as aggregate events
+* Guarantees consistency between subscription state and domain events
 
-### Managing Listeners
+#### Direct State Storage
 
-Use these commands to manage your listeners:
+* Current subscription state stored directly in database
+* Uses dedicated tables for tracking position and status
+* Optimized for quick access to current state
+* Simpler implementation for basic scenarios
+* More efficient when history isn't needed
+* State updates may occur in separate transactions if using different storage backends
+* Requires careful consideration of transaction boundaries when storage differs
 
-```bash
-# Run all listeners
-streak:subscriptions:run
+The choice between these approaches depends on your needs:
+* Use event sourcing when subscription history is valuable
+* Use direct storage when only current state matters
+* Consider transaction boundaries in your consistency requirements
+* Both approaches are reliable, but with different guarantees
 
-# Run all listeners of specific type
-streak:subscriptions:run "App\Listener\ExampleListener\Id"
+### Core Operations
 
-# Run specific listener instance
-streak:subscription:run "App\Listener\ExampleListener\Id" "example-1"
+#### Starting
 
-# Restart specific listener instance
-streak:subscription:restart "App\Listener\ExampleListener\Id" "example-1"
+* Subscriptions must be started with an initial event
+* This sets the starting position in the event stream
+* Cannot start an already started subscription
 
-# Pause specific listener instance
-streak:subscription:pause "App\Listener\ExampleListener\Id" "example-1"
+#### Event Processing
 
-# Unpause specific listener instance
-streak:subscription:unpause "App\Listener\ExampleListener\Id" "example-1"
-```
+* Reads events from the Event Store
+* Delivers events to the wrapped listener
+* Tracks the last processed position
+* Can limit the number of events processed
+* Handles errors and retries
 
-### Benefits
+#### Pausing and Resuming
 
-* Reliable event processing even after restarts
-* Independent scaling of different listeners
-* Ability to replay historical events
-* Built-in error handling and retries
+* Can pause active subscriptions
+* Maintains the last processed position
+* Can resume from the last position
+* Useful for maintenance or error recovery
+
+#### Restarting
+
+* Available for resettable listeners
+* Clears the listener's state
+* Starts processing from the beginning
+* Useful for rebuilding projections
+
+### Command Line Management
+
+The following commands are available for managing subscriptions:
+
+* `streak:subscriptions:run` - Run multiple subscriptions
+* `streak:subscription:run` - Run a specific subscription
+* `streak:subscription:restart` - Reset and restart a subscription
+* `streak:subscription:pause` - Pause a subscription
+* `streak:subscription:unpause` - Resume a paused subscription
+
+For detailed command usage, see the [Symfony Bundle documentation](../symfony-bundle/console-commands.md).
+
