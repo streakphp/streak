@@ -20,8 +20,8 @@ Streak is built around several key concepts central to Event Sourcing and DDD:
 *   **Events:** Represent facts about things that have happened in the past.
 *   **Event Store:** Responsible for persisting and retrieving streams of events.
 *   **Event Bus:** Allows decoupled components to react to published events.
-*   **Listeners:** Components that react to events.
-*   **Subscriptions:** Managed runtime that provides reliability and persistence.
+*   **Listeners:** Components that react to events and trigger side effects.
+*   **Subscriptions:** Persistent, reliable mechanism for delivering events to listeners, with support for tracking, restarting, and pausing event processing.
 
 ## Getting Started
 
@@ -32,10 +32,13 @@ Streak is built around several key concepts central to Event Sourcing and DDD:
     *   [Event Store](./core-concepts/event-store.md)
     *   [Event Bus](./core-concepts/event-bus.md)
     *   [Event Listeners](./core-concepts/listeners.md)
-    *   [Subscriptions](./core-concepts/listeners.md#subscriptions)
+    *   [Subscription System](./core-concepts/listeners.md#subscriptions)
     *   [Testing](./core-concepts/testing.md)
 2.  **Symfony Integration (Optional):** If you are using Symfony, learn how the `StreakBundle` simplifies integration.
     *   [StreakBundle Installation](./symfony-bundle/installation.md)
+    *   [Bundle Configuration](./symfony-bundle/configuration.md)
+    *   [Service Registration](./symfony-bundle/service-registration.md)
+    *   [Console Commands](./symfony-bundle/console-commands.md)
 3.  **Tutorials:** Follow step-by-step guides to build key components of an event-sourced application.
     *   [Building an Aggregate](./tutorials/building-an-aggregate.md) - Create the core domain model with commands and events
     *   [Building a Saga](./tutorials/building-a-saga.md) - Handle cross-aggregate coordination with external systems
@@ -49,11 +52,23 @@ Installation typically involves using Composer.
 ```bash
 composer require streak/streak
 ```
-
 For integration with Symfony, you will also need the bundle:
 
 ```bash
 composer require streak/streak-bundle
 ```
 
-Refer to the specific installation guides for more details. 
+Refer to the specific [StreakBundle Installation](./symfony-bundle/installation.md) guide for more details.
+
+## Advanced Topics
+
+After completing the basic tutorials, you might want to explore:
+
+* **Event Sourced Subscriptions** - [Subscription State Persistence](./core-concepts/listeners.md#subscription-state-persistence)
+* **Custom Event Store Implementations** - Adapting to different storage backends
+* **Projection Performance Optimization** - For high-volume event streams
+
+## Contributing
+
+Contributions to Streak are welcome! Please follow the [Documentation Style Guide](./STYLE_GUIDE.md) when adding or updating documentation. 
+
