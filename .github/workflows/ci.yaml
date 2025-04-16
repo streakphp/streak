@@ -11,10 +11,9 @@ jobs:
         uses: docker/setup-compose-action@v1
       - name: Docker pull
         run: docker compose pull php
-      - name: Start PHP container
-        run: docker compose up --detach --build --no-deps php
       - name: Run composer validate
-        run: docker compose exec -T php composer validate --strict --no-interaction --ansi
+        run: docker compose run --rm --no-deps php composer validate --strict --no-interaction --ansi
+
   run-php-cs-fixer:
     name: php-cs-fixer
     runs-on: ubuntu-latest
@@ -31,12 +30,11 @@ jobs:
           path: ./build/.composer
           key: ${{ runner.os }}-composer-v2-${{ hashFiles('composer.json') }}
           restore-keys: ${{ runner.os }}-composer-v2-
-      - name: Start PHP container
-        run: docker compose up --detach --build --no-deps php
       - name: Install dependencies
-        run: docker compose exec -T php composer --no-scripts install --no-interaction --ansi
+        run: docker compose run --rm --no-deps php composer --no-scripts install --no-interaction --ansi
       - name: Run php-cs-fixer
-        run: docker compose exec -T php bin/php-cs-fixer fix --diff --dry-run --ansi --config=.php-cs-fixer.dist.php
+        run: docker compose run --rm --no-deps php bin/php-cs-fixer fix --diff --dry-run --ansi --config=.php-cs-fixer.dist.php
+
   run-phpunit:
     name: phpunit
     runs-on: ubuntu-latest
@@ -56,9 +54,9 @@ jobs:
       - name: Start containers
         run: docker compose up --detach --build
       - name: Install dependencies
-        run: docker compose exec -T php composer install --no-scripts --no-interaction --ansi
+        run: docker compose run --rm php composer install --no-scripts --no-interaction --ansi
       - name: Run phpunit
-        run: docker compose exec -T php xphp -dxdebug.mode=coverage bin/phpunit --color=always --configuration=phpunit.xml.dist
+        run: docker compose run --rm php xphp -dxdebug.mode=coverage bin/phpunit --color=always --configuration=phpunit.xml.dist
       - name: Upload coverage report to Codecov.io
         uses: codecov/codecov-action@v5
         with:
@@ -66,6 +64,7 @@ jobs:
           fail_ci_if_error: true
           verbose: true
           token: ${{ secrets.CODECOV_TOKEN }}
+
   run-rector:
     name: rector
     runs-on: ubuntu-latest
@@ -82,12 +81,11 @@ jobs:
           path: ./build/.composer
           key: ${{ runner.os }}-composer-v2-${{ hashFiles('composer.json') }}
           restore-keys: ${{ runner.os }}-composer-v2-
-      - name: Start PHP container
-        run: docker compose up --detach --build --no-deps php
       - name: Install dependencies
-        run: docker compose exec -T php composer install --no-interaction --ansi
+        run: docker compose run --rm --no-deps php composer install --no-interaction --ansi
       - name: Run rector
-        run: docker compose exec -T php bin/rector --no-progress-bar --dry-run --ansi
+        run: docker compose run --rm --no-deps php bin/rector --no-progress-bar --dry-run --ansi
+
   run-deptrac:
     name: deptrac
     runs-on: ubuntu-latest
@@ -104,9 +102,7 @@ jobs:
           path: ./build/.composer
           key: ${{ runner.os }}-composer-v2-${{ hashFiles('composer.json') }}
           restore-keys: ${{ runner.os }}-composer-v2-
-      - name: Start PHP container
-        run: docker compose up --detach --build --no-deps php
       - name: Install dependencies
-        run: docker compose exec -T php composer install --no-scripts --no-interaction --ansi
+        run: docker compose run --rm --no-deps php composer install --no-scripts --no-interaction --ansi
       - name: Run deptrac
-        run: docker compose exec -T php bin/deptrac --no-progress --no-interaction --cache-file=./build/.deptrac/.deptrac.cache --ansi
+        run: docker compose run --rm --no-deps php bin/deptrac --no-progress --no-interaction --cache-file=./build/.deptrac/.deptrac.cache --ansi

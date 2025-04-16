@@ -2,12 +2,10 @@ services:
 
   php:
     image: streakphp/php80-cli:latest
-    init: true
     volumes:
       - .:/var/www/project
       - ./docker/php/etc/php/8.0/cli/php.ini:/etc/php/8.0/cli/php.ini
     working_dir: /var/www/project
-    entrypoint: tail -f /dev/null # keep container alive for development
     depends_on:
       - postgres
       - redis
