@@ -165,7 +165,7 @@ interface Subscription
 }
 ```
 
-### Lifecycle States
+### Subscription Lifecycle
 
 Subscriptions have several states they can be in:
 
