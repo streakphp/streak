@@ -64,21 +64,21 @@ docker-compose up --detach --build
 
 ```bash
 # Validate composer.json
-docker-compose exec -T php composer validate --strict --no-interaction --ansi
+docker compose run --rm --no-deps php composer validate --strict --no-interaction --ansi
 
 # Install dependencies
-docker-compose exec -T php composer install --no-scripts --no-interaction --ansi
+docker compose run --rm --no-deps php composer install --no-scripts --no-interaction --ansi
 
 # Run tests with coverage
-docker-compose exec -T php xphp -dxdebug.mode=coverage bin/phpunit --color=always --configuration=phpunit.xml.dist
+docker compose run --rm --no-deps php xphp -dxdebug.mode=coverage bin/phpunit --color=always --configuration=phpunit.xml.dist
 
 # Run tests without coverage
-docker-compose run -T php bin/phpunit
+docker compose run --rm --no-deps php bin/phpunit
 
 # Check code quality
-docker-compose exec -T php bin/rector --dry-run --ansi
-docker-compose exec -T php bin/deptrac --no-interaction --cache-file=./build/.deptrac/.deptrac.cache --ansi
-docker-compose exec -T php bin/php-cs-fixer fix --diff --dry-run --ansi --config=.php-cs-fixer.dist.php
+docker compose run --rm --no-deps php bin/rector --dry-run --ansi
+docker compose run --rm --no-deps php bin/deptrac --no-interaction --cache-file=./build/.deptrac/.deptrac.cache --ansi
+docker compose run --rm --no-deps php bin/php-cs-fixer fix --diff --dry-run --ansi --config=.php-cs-fixer.dist.php
 ```
 
 ## License
