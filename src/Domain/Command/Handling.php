@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Streak\Domain\Command;
 
+use Streak\Domain\AggregateRoot;
 use Streak\Domain\Command;
 use Streak\Domain\Exception\CommandNotSupported;
 
@@ -25,6 +26,12 @@ trait Handling
 {
     public function handleCommand(Command $command): void
     {
+        if ($command instanceof AggregateRootCommand && $this instanceof AggregateRoot) {
+            if (false === $this->aggregateRootId()->equals($command->aggregateRootId())) {
+                throw new CommandNotSupported($command);
+            }
+        }
+
         $reflection = new \ReflectionObject($this);
 
         foreach ($reflection->getMethods() as $method) {
